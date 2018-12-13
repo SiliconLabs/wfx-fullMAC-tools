@@ -35,8 +35,10 @@ extern wf200_context_t wifi;
 extern char wlan_ssid[];
 extern char wlan_passkey[];
 extern wfm_security_mode wlan_security;
+#ifdef SOFT_AP_MODE
 extern char softap_ssid[];
 extern char softap_passkey[];
+#endif
 /***************************************************************************//**
  * Private variables
 ******************************************************************************/

@@ -24,9 +24,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-
-
-#include "wf200_host_spi.h"
+#include "wf200_host_pin.h"
 
 extern SPI_HandleTypeDef hspi1;
 SemaphoreHandle_t spiDMASemaphore;
@@ -42,13 +40,13 @@ sl_status_t wf200_host_init_bus( void )
 
 sl_status_t wf200_host_spi_cs_assert()
 {
-  HAL_GPIO_WritePin(CS_PORT_SPI, CS_GPIO_SPI, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(WF200_CS_PORT_SPI, WF200_CS_GPIO_SPI, GPIO_PIN_RESET);
   return SL_SUCCESS;
 }
 
 sl_status_t wf200_host_spi_cs_deassert()
 {
-  HAL_GPIO_WritePin(CS_PORT_SPI, CS_GPIO_SPI, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(WF200_CS_PORT_SPI, WF200_CS_GPIO_SPI, GPIO_PIN_SET);
   return SL_SUCCESS;
 }
 

@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "wf200_host.h"
+#include "wf200_host_pin.h"
 
 #if   defined( WF200_ALPHA_KEY )
 #include "wfm_wf200_A0.h"
@@ -33,7 +34,6 @@
 #error Must define either WF200_ALPHA_KEY or WF200_PROD_KEY
 #endif
 
-sl_event_t gpio_events;
 QueueHandle_t eventQueue;
 SemaphoreHandle_t eventMutex;
 extern wf200_buffer_t* network_rx_buffer_gbl;
@@ -63,7 +63,6 @@ sl_status_t wf200_host_get_firmware_data( const uint8_t** data, uint32_t data_si
 sl_status_t wf200_host_get_firmware_size( uint32_t* firmware_size )
 {
 #ifdef DEBUG
-  printf("Firmware version : %s\r\n", FIRMWARE_VERSION);
   printf("Firmware size    : %d kB\r\n", wf200_firmware_size);    
 #endif
   *firmware_size = sizeof(wf200_firmware);
@@ -80,23 +79,35 @@ sl_status_t wf200_host_deinit( void )
 sl_status_t wf200_host_reset_chip( void )
 {
   // hold pin high to get chip out of reset
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(WF200_RESET_PORT, WF200_RESET_GPIO, GPIO_PIN_RESET);
   HAL_Delay( 10 );
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(WF200_RESET_PORT, WF200_RESET_GPIO, GPIO_PIN_SET);
   HAL_Delay( 30 );
-  
-  return SL_SUCCESS;
-}
-
-sl_status_t wf200_host_set_wake_up_pin( uint8_t state )
-{
-  //TODO
   return SL_SUCCESS;
 }
 
 sl_status_t wf200_host_hold_in_reset( void )
 {
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(WF200_RESET_PORT, WF200_RESET_GPIO, GPIO_PIN_RESET);
+  return SL_SUCCESS;
+}
+
+sl_status_t wf200_host_set_wake_up_pin( uint8_t state )
+{
+  if ( state > 0 )
+  {
+    HAL_GPIO_WritePin(WF200_WUP_PORT, WF200_WUP_GPIO, GPIO_PIN_SET);
+  }
+  else
+  {
+    HAL_GPIO_WritePin(WF200_WUP_PORT, WF200_WUP_GPIO, GPIO_PIN_RESET);
+  }
+  return SL_SUCCESS;
+}
+
+sl_status_t wf200_host_wait_for_wake_up( void )
+{
+  osDelay(2);
   return SL_SUCCESS;
 }
 

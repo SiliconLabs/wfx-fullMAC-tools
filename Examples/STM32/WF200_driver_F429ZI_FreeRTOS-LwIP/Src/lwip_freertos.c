@@ -24,6 +24,7 @@
 
 #include "cmsis_os.h"
 #include "wf200.h"
+#include "wf200_host_pin.h"
 #include "string.h" 
    
 /* LwIP includes. */
@@ -76,7 +77,9 @@ if (iIndex == 0)
 {
     // turn off the LEDs
     HAL_GPIO_WritePin(LD3_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(WF200_LED1_PORT, WF200_LED1_GPIO, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(WF200_LED2_PORT, WF200_LED2_GPIO, GPIO_PIN_RESET);
     // Check the cgi parameters, e.g., GET /leds.cgi?led=1&led=2
     for (i=0; i<iNumParams; i++)
     {
@@ -87,13 +90,15 @@ if (iIndex == 0)
            if(strcmp(pcValue[i], "1") == 0)
            {
                // switch led 1 ON if 1
-               HAL_GPIO_WritePin(LD3_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+               HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+               HAL_GPIO_WritePin(WF200_LED1_PORT, WF200_LED1_GPIO, GPIO_PIN_SET);
            }
           //see if checkbox for LED 2 has been set
           else if(strcmp(pcValue[i], "2") == 0)
           {
               // switch led 2 ON if 2
               HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+              HAL_GPIO_WritePin(WF200_LED2_PORT, WF200_LED2_GPIO, GPIO_PIN_SET);
           }
        }  //if
     } //for
@@ -113,10 +118,10 @@ static void lwip_iperf_results (void *arg, enum lwiperf_report_type report_type,
   const ip_addr_t* local_addr, u16_t local_port, const ip_addr_t* remote_addr, u16_t remote_port,
   u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec)
 {
-  //printf("\r\nIperf Server Report:\r\n" );
-  //printf("Duration %dms\r\n",ms_duration);
- // printf("Bytes transferred %d\r\n",bytes_transferred);
- // printf("%d kbit/s\r\n\r\n",bandwidth_kbitpsec);
+  printf("\r\nIperf Server Report:\r\n" );
+  printf("Duration %dms\r\n",ms_duration);
+  printf("Bytes transferred %d\r\n",bytes_transferred);
+  printf("%d kbit/s\r\n\r\n",bandwidth_kbitpsec);
 }
 
 #endif

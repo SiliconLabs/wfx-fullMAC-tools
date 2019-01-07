@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['securelinkstate_5fe',['SecureLinkState_e',['../group___secure___link.html#ga36e6fcbbb93b73a7b162a7f80e36c17f',1,'general_api.h']]],
-  ['slconfigureskeyinvld_5fe',['SlConfigureSkeyInvld_e',['../group___secure___link.html#gaf210586ed1db45c9949892c2161893c5',1,'general_api.h']]],
-  ['slmackeydest_5fe',['SlMacKeyDest_e',['../group___secure___link.html#gacfa0d8d1ee79f74f7ec439f086a978ad',1,'general_api.h']]]
+  ['securelinkstate',['SecureLinkState',['../group___secure___link.html#gae78dfd221a7d4be8417cd3e7791c89b1',1,'general_api.h']]],
+  ['slconfigureskeyinvld',['SlConfigureSkeyInvld',['../group___secure___link.html#gadfaa5f4b2214fbe6c4d445d36dad0be0',1,'general_api.h']]],
+  ['slmackeydest',['SlMacKeyDest',['../group___secure___link.html#ga126641478632dda8d787479b617b0926',1,'general_api.h']]]
 ];

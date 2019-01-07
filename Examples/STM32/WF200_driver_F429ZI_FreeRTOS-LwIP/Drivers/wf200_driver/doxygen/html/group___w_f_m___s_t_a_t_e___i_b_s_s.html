@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">WF200 FMAC driver
-   &#160;<span id="projectnumber">0.0.1</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
   </td>
  </tr>
@@ -99,6 +99,18 @@ $(document).ready(function(){initNavTree('group___w_f_m___s_t_a_t_e___i_b_s_s.ht
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr class="memitem:struct_wfm_hi_send_frame_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_send_frame_req__t">WfmHiSendFrameReq_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_send_frame_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for sending a packet to the network.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_send_frame_req__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_send_frame_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_send_frame_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_send_frame_cnf__t">WfmHiSendFrameCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_send_frame_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_send_frame_req__t" title="Request message for sending a packet to the network. ">WfmHiSendFrameReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_send_frame_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_send_frame_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_received_ind__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_received_ind__t">WfmHiReceivedInd_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_received_ind__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indication message used to signal a received packet.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_received_ind__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_received_ind__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_leave_ibss_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_cnf__t">WfmHiLeaveIbssCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_leave_ibss_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_req__t" title="Request message for disconnecting from an IBSS network. ">WfmHiLeaveIbssReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_leave_ibss_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:struct_wfm_hi_leave_ibss_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_req__t">WfmHiLeaveIbssReq_t</a></td></tr>
 <tr class="memdesc:struct_wfm_hi_leave_ibss_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for disconnecting from an IBSS network.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_req__t">More...</a><br /></td></tr>
 <tr class="separator:struct_wfm_hi_leave_ibss_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -109,6 +121,136 @@ Data Structures</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>WFM API messages applicable for an interface in IBSS mode. </p>
 <hr/><h2 class="groupheader">Data Structure Documentation</h2>
+<a name="struct_wfm_hi_send_frame_req__t" id="struct_wfm_hi_send_frame_req__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_send_frame_req__t">&#9670;&nbsp;</a></span>WfmHiSendFrameReq_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiSendFrameReq_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Request message for sending a packet to the network. </p>
+<p>The host can use this request to send a packet to the network. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01424">1424</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a73824109e5b9bb2841c572790f60d284"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_send_frame_req_body__t">WfmHiSendFrameReqBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Request message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a96bb50e5868c05b20eb8b81c87837d7b"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_send_frame_cnf__t" id="struct_wfm_hi_send_frame_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_send_frame_cnf__t">&#9670;&nbsp;</a></span>WfmHiSendFrameCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiSendFrameCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_send_frame_req__t" title="Request message for sending a packet to the network. ">WfmHiSendFrameReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01458">1458</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="aa4e36cbc1ce37be50e02c3b314054b87"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_send_frame_cnf_body__t">WfmHiSendFrameCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a7cf0242959d81e3fee158d029be77ac3"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_received_ind__t" id="struct_wfm_hi_received_ind__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_received_ind__t">&#9670;&nbsp;</a></span>WfmHiReceivedInd_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiReceivedInd_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Indication message used to signal a received packet. </p>
+<p>The device will send this indication to signal a packet has been received. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01503">1503</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a580d3f3bbe0ee4c313acac3744f7f919"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_received_ind_body__t">WfmHiReceivedIndBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Indication message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a5c14199f7a8c81a705a63c70f4c94449"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_leave_ibss_cnf__t" id="struct_wfm_hi_leave_ibss_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_leave_ibss_cnf__t">&#9670;&nbsp;</a></span>WfmHiLeaveIbssCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiLeaveIbssCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_req__t" title="Request message for disconnecting from an IBSS network. ">WfmHiLeaveIbssReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01844">1844</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a7b478381710f9177af765358952ed3a2"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_cnf_body__t">WfmHiLeaveIbssCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a55be08cdad9a3a59eb7ad9f51ef8bc0c"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
 <a name="struct_wfm_hi_leave_ibss_req__t" id="struct_wfm_hi_leave_ibss_req__t"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_leave_ibss_req__t">&#9670;&nbsp;</a></span>WfmHiLeaveIbssReq_t</h2>
 
@@ -147,7 +289,7 @@ Data Structures</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jan 3 2019 12:29:07 for WF200 FMAC driver by
+    <li class="footer">Generated on Fri Jan 4 2019 18:01:00 for WF200 FMAC driver by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
   </ul>

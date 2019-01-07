@@ -14,12 +14,11 @@ For each available command, there is an associated confirmation with the same ID
 
 ## Common API indications
 
-| Indications      | Value | Description        |
-|------------------|-------|--------------------|
-| HI_EXCEPTION_IND | 0xe0  | Exception          |
-| HI_ERROR_IND     | 0xe4  | Error              |
-| HI_STARTUP_IND   | 0xe1  | Startup indication |
-| HI_GENERIC_IND   | 0xe3  | Generic status     |
+| Indications      | Value | Associated struture    | Description        |
+| ---------------- | ----- | ---------------------- | ------------------ |
+| HI_EXCEPTION_IND | 0xe0  | ::HiExceptionIndBody_t | Exception          |
+| HI_ERROR_IND     | 0xe4  | ::HiErrorIndBody_t     | Error              |
+| HI_STARTUP_IND   | 0xe1  | ::HiStartupIndBody_t   | Startup indication |
+| HI_GENERIC_IND   | 0xe3  | ::HiGenericIndBody_t   | Generic status     |
 
 This indications have to be managed by the host depending on the application and use case.
-\todo add references to indication structures when available.

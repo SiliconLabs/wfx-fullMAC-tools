@@ -27,14 +27,13 @@ var NAVTREE =
     [ "WF200 Presentation", "index.html", "index" ],
     [ "FMAC driver", "wf200_fmac_driver.html", "wf200_fmac_driver" ],
     [ "Changelog", "changelog.html", null ],
-    [ "Todo List", "todo.html", null ],
     [ "Modules", "modules.html", "modules" ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
       [ "Data Fields", "functions.html", [
-        [ "All", "functions.html", null ],
-        [ "Variables", "functions_vars.html", null ]
+        [ "All", "functions.html", "functions_dup" ],
+        [ "Variables", "functions_vars.html", "functions_vars" ]
       ] ]
     ] ],
     [ "Files", "files.html", [
@@ -42,11 +41,9 @@ var NAVTREE =
       [ "Globals", "globals.html", [
         [ "All", "globals.html", null ],
         [ "Functions", "globals_func.html", null ],
-        [ "Variables", "globals_vars.html", null ],
         [ "Typedefs", "globals_type.html", null ],
         [ "Enumerations", "globals_enum.html", null ],
-        [ "Enumerator", "globals_eval.html", null ],
-        [ "Macros", "globals_defs.html", null ]
+        [ "Enumerator", "globals_eval.html", null ]
       ] ]
     ] ],
     [ "silabs.com", "^http://www.silabs.com", null ]
@@ -56,8 +53,10 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"group___general___configuration.html#gga3ca694e295673221cd5d2a261a98da47a7a67f9530d232eaba9487bb42bcdd10a",
-"wf200__configuration_8h_source.html"
+"group___general___configuration.html#a128469c4aedb43c8a3efe3d69bf55fa8",
+"group___w_f_m___c_o_n_s_t_a_n_t_s.html#ggacb7ba49ef5be49b6e28009db687743d4ab0c8a92dfcb69d27c558d61e3aa5fc6e",
+"group___w_f_m___m_e_s_s_a_g_e_s.html#aa8a8800e4aa5aae2005da9689b577d56",
+"group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_req__t"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

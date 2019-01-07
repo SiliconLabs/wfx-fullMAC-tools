@@ -1,6 +1,6 @@
 Changelog {#changelog}
 ============
 
-# Release 0.0.1
-(release date 24-11-2018)
+# Release 1.0.0
+(release date 08-01-2019)
 * Initial release

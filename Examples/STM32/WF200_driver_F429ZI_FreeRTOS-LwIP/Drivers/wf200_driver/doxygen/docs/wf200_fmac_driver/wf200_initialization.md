@@ -66,9 +66,9 @@ Below is a diagram listing the steps followed by ::wf200_download_run_firmware t
 After the host notifies the "OK_TO_JUMP" state, the WF200 will issue a startup indication when ready. 
 
 ## 4. Startup indication
-If the initialization proccess has been successful up to now the host should receive the startup indication from WF200. 
+If the initialization process has been successful up to now the host should receive the startup indication from WF200. 
 
-\todo describe startup indication info when the doxygen struture def is available.
+The start up indication is described in the ::HiStartupIndBody_t structure.
 
 ## 5. PDS configuration
 Once the startup indication received, the host can send to WF200 the **PDS configuration** (Platform Data Set). The PDS contains information regarding the WF200 environment. Below are some examples:

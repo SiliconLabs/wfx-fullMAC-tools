@@ -456,14 +456,12 @@ typedef struct __attribute__((__packed__)) HiGenericInd_s {
         HiGenericIndBody_t Body;               
 } HiGenericInd_t;
 
-
+#define HI_EXCEPTION_DATA_SIZE            124
 /**
  * @brief Exception indication message
  *
  * It reports unexpected errors. A reboot is needed after this message.
  * */
-
-#define HI_EXCEPTION_DATA_SIZE            124
 typedef struct __attribute__((__packed__)) HiExceptionIndBody_s {
         uint8_t    Data[HI_EXCEPTION_DATA_SIZE];     ///<Raw data array
 } HiExceptionIndBody_t;
@@ -488,14 +486,13 @@ typedef enum WsmHiError_e {
 		WSM_HI_ERROR_PDS_VERSION                   = 0x5          ///<wrong PDS version detected, no data returned
 } WsmHiError;
 
-
+#define API_DATA_SIZE_124                               124
 /**
  * @brief Error indication message.
  *
  * It reports user configuration errors.
  * A reboot is needed after this message.
  * */
-#define API_DATA_SIZE_124                               124
 typedef struct __attribute__((__packed__)) HiErrorIndBody_s {
         uint32_t   Type;                             ///<error type, see enum ::WsmHiError
         uint8_t    Data[API_DATA_SIZE_124];          ///<Generic data buffer - contents depends on the error type.

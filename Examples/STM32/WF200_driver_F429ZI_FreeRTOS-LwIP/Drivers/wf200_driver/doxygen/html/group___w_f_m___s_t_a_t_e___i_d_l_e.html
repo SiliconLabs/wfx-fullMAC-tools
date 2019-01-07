@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">WF200 FMAC driver
-   &#160;<span id="projectnumber">0.0.1</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
   </td>
  </tr>
@@ -88,8 +88,7 @@ $(document).ready(function(){initNavTree('group___w_f_m___s_t_a_t_e___i_d_l_e.ht
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Data Structures</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#nested-classes">Data Structures</a>  </div>
   <div class="headertitle">
 <div class="title">Idle state<div class="ingroups"><a class="el" href="group___f_u_l_l___m_a_c___a_p_i.html">FULL_MAC_API</a></div></div>  </div>
 </div><!--header-->
@@ -100,19 +99,729 @@ $(document).ready(function(){initNavTree('group___w_f_m___s_t_a_t_e___i_d_l_e.ht
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr class="memitem:struct_wfm_hi_set_mac_address_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_mac_address_req__t">WfmHiSetMacAddressReq_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_set_mac_address_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message to set MAC address of the interface.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_mac_address_req__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_set_mac_address_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_set_mac_address_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_mac_address_cnf__t">WfmHiSetMacAddressCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_set_mac_address_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_mac_address_req__t" title="Request message to set MAC address of the interface. ">WfmHiSetMacAddressReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_mac_address_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_set_mac_address_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_connect_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_req__t">WfmHiConnectReq_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_connect_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for connecting to a Wi-Fi network.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_req__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_connect_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_connect_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_cnf__t">WfmHiConnectCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_connect_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_req__t" title="Request message for connecting to a Wi-Fi network. ">WfmHiConnectReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_connect_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_connect_ind__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_ind__t">WfmHiConnectInd_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_connect_ind__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indication message used to signal the completion of a connection operation.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_ind__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_connect_ind__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_start_ap_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_req__t">WfmHiStartApReq_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_start_ap_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for starting a Wi-Fi network.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_req__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_start_ap_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_start_ap_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_cnf__t">WfmHiStartApCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_start_ap_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_req__t" title="Request message for starting a Wi-Fi network. ">WfmHiStartApReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_start_ap_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_start_ap_ind__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_ind__t">WfmHiStartApInd_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_start_ap_ind__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indication message used to signal the completion of a start request.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_ind__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_start_ap_ind__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_start_scan_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_scan_req__t">WfmHiStartScanReq_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_start_scan_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for starting a scan to detect near-by access points.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_scan_req__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_start_scan_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_start_scan_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_scan_cnf__t">WfmHiStartScanCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_start_scan_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_scan_req__t" title="Request message for starting a scan to detect near-by access points. ">WfmHiStartScanReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_scan_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_start_scan_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_stop_scan_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_cnf__t">WfmHiStopScanCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_stop_scan_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_req__t" title="Request message for stopping an ongoing scan. ">WfmHiStopScanReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_stop_scan_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_scan_result_ind__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_scan_result_ind__t">WfmHiScanResultInd_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_scan_result_ind__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indication message used to signal an access point has been detected.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_scan_result_ind__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_scan_result_ind__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_scan_complete_ind__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_scan_complete_ind__t">WfmHiScanCompleteInd_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_scan_complete_ind__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indication message used to signal a scan was completed.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_scan_complete_ind__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_scan_complete_ind__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_join_ibss_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_req__t">WfmHiJoinIbssReq_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_join_ibss_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for connecting to or starting an IBSS network.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_req__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_join_ibss_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_join_ibss_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_cnf__t">WfmHiJoinIbssCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_join_ibss_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_req__t" title="Request message for connecting to or starting an IBSS network. ">WfmHiJoinIbssReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_join_ibss_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_join_ibss_ind__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_ind__t">WfmHiJoinIbssInd_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_join_ibss_ind__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indication message used to signal the completion of a join request.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_ind__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_join_ibss_ind__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_set_roam_parameters_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_req__t">WfmHiSetRoamParametersReq_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_set_roam_parameters_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for setting the roaming parameters.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_req__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_set_roam_parameters_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_set_roam_parameters_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_cnf__t">WfmHiSetRoamParametersCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_set_roam_parameters_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_req__t" title="Request message for setting the roaming parameters. ">WfmHiSetRoamParametersReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_set_roam_parameters_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_set_tx_rate_parameters_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_req__t">WfmHiSetTxRateParametersReq_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_set_tx_rate_parameters_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for setting the TX rate set parameters.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_req__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_set_tx_rate_parameters_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_set_tx_rate_parameters_cnf__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_cnf__t">WfmHiSetTxRateParametersCnf_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_set_tx_rate_parameters_cnf__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_req__t" title="Request message for setting the TX rate set parameters. ">WfmHiSetTxRateParametersReq_t</a>.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_cnf__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_set_tx_rate_parameters_cnf__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:struct_wfm_hi_stop_scan_req__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_req__t">WfmHiStopScanReq_t</a></td></tr>
 <tr class="memdesc:struct_wfm_hi_stop_scan_req__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request message for stopping an ongoing scan.  <a href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_req__t">More...</a><br /></td></tr>
 <tr class="separator:struct_wfm_hi_stop_scan_req__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:gac0239b14cb4ce9df25c31335708ef46e"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___s_t_a_t_e___i_d_l_e.html#gac0239b14cb4ce9df25c31335708ef46e">__attribute__</a> ((__packed__)) HiMsgHdr_s</td></tr>
-<tr class="memdesc:gac0239b14cb4ce9df25c31335708ef46e"><td class="mdescLeft">&#160;</td><td class="mdescRight">General Message header structure.  <a href="#gac0239b14cb4ce9df25c31335708ef46e">More...</a><br /></td></tr>
-<tr class="separator:gac0239b14cb4ce9df25c31335708ef46e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>WFM API messages applicable for an interface in idle mode. </p>
 <hr/><h2 class="groupheader">Data Structure Documentation</h2>
+<a name="struct_wfm_hi_set_mac_address_req__t" id="struct_wfm_hi_set_mac_address_req__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_set_mac_address_req__t">&#9670;&nbsp;</a></span>WfmHiSetMacAddressReq_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiSetMacAddressReq_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Request message to set MAC address of the interface. </p>
+<p>The host can use this request to set the MAC address an interface. If not set, the device will use a built-in MAC address. Note that if multiple interfaces are used, the MAC address MUST be different on each interface. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l00651">651</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a568d5e1593ca38dc423114f80c78a3aa"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_mac_address_req_body__t">WfmHiSetMacAddressReqBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Request message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="afb95b9f198a1e531630e88df9a9716dd"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_set_mac_address_cnf__t" id="struct_wfm_hi_set_mac_address_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_set_mac_address_cnf__t">&#9670;&nbsp;</a></span>WfmHiSetMacAddressCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiSetMacAddressCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_mac_address_req__t" title="Request message to set MAC address of the interface. ">WfmHiSetMacAddressReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l00675">675</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a9fb89ecdc5386bd961b0fd3c0f362a91"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_mac_address_cnf_body__t">WfmHiSetMacAddressCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a8a08300b4291f05dab039c50194c8563"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_connect_req__t" id="struct_wfm_hi_connect_req__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_connect_req__t">&#9670;&nbsp;</a></span>WfmHiConnectReq_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiConnectReq_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Request message for connecting to a Wi-Fi network. </p>
+<p>The host can use this request to iniate a connection to a Wi-Fi network. </p>
+<p>Successful connection request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___s_t_a.html">Wi-Fi client state</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l00760">760</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="ab53d217c1dbda2a3381c7cb01abb30aa"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_req_body__t">WfmHiConnectReqBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Request message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="aaa34477d4e7b2e73a593749da3e95d19"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_connect_cnf__t" id="struct_wfm_hi_connect_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_connect_cnf__t">&#9670;&nbsp;</a></span>WfmHiConnectCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiConnectCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_req__t" title="Request message for connecting to a Wi-Fi network. ">WfmHiConnectReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l00784">784</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a76bfed339eaf295e33cf4e95d9f89511"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_cnf_body__t">WfmHiConnectCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a48c4d313f42c6307b43f4f04638a8f3d"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_connect_ind__t" id="struct_wfm_hi_connect_ind__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_connect_ind__t">&#9670;&nbsp;</a></span>WfmHiConnectInd_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiConnectInd_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Indication message used to signal the completion of a connection operation. </p>
+<p>The device will send this indication to signal the connection request initiated with <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_req__t" title="Request message for connecting to a Wi-Fi network. ">WfmHiConnectReq_t</a> has been completed. The indication is also sent when the device autonomously roams to another access point. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l00834">834</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="ad24bf0f250aa0e80f8d207db83befbd8"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_ind_body__t">WfmHiConnectIndBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Indication message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a26a009b49c34cef232dddd698608697c"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_start_ap_req__t" id="struct_wfm_hi_start_ap_req__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_start_ap_req__t">&#9670;&nbsp;</a></span>WfmHiStartApReq_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiStartApReq_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Request message for starting a Wi-Fi network. </p>
+<p>The host can use this request to iniate a Wi-Fi network. </p>
+<p>Successful start request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___a_p.html">Wi-Fi access point state</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01090">1090</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a98938dd10e053a7fe9dc122890fb4850"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_req_body__t">WfmHiStartApReqBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Request message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a4b910281ed39992e919d29aabf84817e"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_start_ap_cnf__t" id="struct_wfm_hi_start_ap_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_start_ap_cnf__t">&#9670;&nbsp;</a></span>WfmHiStartApCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiStartApCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_req__t" title="Request message for starting a Wi-Fi network. ">WfmHiStartApReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01114">1114</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a50e69305512c110d22b1cce1354695ee"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_cnf_body__t">WfmHiStartApCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a3322654c100f30ef9fdca214a5e5f665"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_start_ap_ind__t" id="struct_wfm_hi_start_ap_ind__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_start_ap_ind__t">&#9670;&nbsp;</a></span>WfmHiStartApInd_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiStartApInd_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Indication message used to signal the completion of a start request. </p>
+<p>The device will send this indication to signal the start request initiated with <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_req__t" title="Request message for starting a Wi-Fi network. ">WfmHiStartApReq_t</a> has been completed. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01140">1140</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="af05babad3137233399cbefe88f703af4"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_ind_body__t">WfmHiStartApIndBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Indication message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="aa3c54dedbd1d49da430c2366c61dca0a"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_start_scan_req__t" id="struct_wfm_hi_start_scan_req__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_start_scan_req__t">&#9670;&nbsp;</a></span>WfmHiStartScanReq_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiStartScanReq_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Request message for starting a scan to detect near-by access points. </p>
+<p>The host can use this request to start a scan operation to detect near-by access points. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01567">1567</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="abf2426bfe3bf189c927b7284e2c670e4"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_scan_req_body__t">WfmHiStartScanReqBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Request message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a97da68eb1f8ad6f63a505228fc9fd4d2"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_start_scan_cnf__t" id="struct_wfm_hi_start_scan_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_start_scan_cnf__t">&#9670;&nbsp;</a></span>WfmHiStartScanCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiStartScanCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_scan_req__t" title="Request message for starting a scan to detect near-by access points. ">WfmHiStartScanReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01592">1592</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="ab6e273e1d6de690c323e36f7fa14076a"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_scan_cnf_body__t">WfmHiStartScanCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a81d62c33ea734cd53494c58943eb67bf"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_stop_scan_cnf__t" id="struct_wfm_hi_stop_scan_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_stop_scan_cnf__t">&#9670;&nbsp;</a></span>WfmHiStopScanCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiStopScanCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_req__t" title="Request message for stopping an ongoing scan. ">WfmHiStopScanReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01626">1626</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="aec3375ba6cdb383369d6f62c025dbe03"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_cnf_body__t">WfmHiStopScanCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a2d09f1b9a827574a89160a69b062179c"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_scan_result_ind__t" id="struct_wfm_hi_scan_result_ind__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_scan_result_ind__t">&#9670;&nbsp;</a></span>WfmHiScanResultInd_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiScanResultInd_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Indication message used to signal an access point has been detected. </p>
+<p>The device will send this indication to signal an access point has has been detected during the scan operation. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01676">1676</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a3541b8edca355c57fa0205965b74bff1"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_scan_result_ind_body__t">WfmHiScanResultIndBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Indication message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="aaf83b48dba90329bd250a66b41fb8390"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_scan_complete_ind__t" id="struct_wfm_hi_scan_complete_ind__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_scan_complete_ind__t">&#9670;&nbsp;</a></span>WfmHiScanCompleteInd_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiScanCompleteInd_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Indication message used to signal a scan was completed. </p>
+<p>The device will send this indication to signal a scan operation has been completed. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01703">1703</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="ab3b17a9ff0050f858240e9d204f59488"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_scan_complete_ind_body__t">WfmHiScanCompleteIndBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Indication message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="ac9f15982bfbe594b8fa0061ae5126e0e"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_join_ibss_req__t" id="struct_wfm_hi_join_ibss_req__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_join_ibss_req__t">&#9670;&nbsp;</a></span>WfmHiJoinIbssReq_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiJoinIbssReq_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Request message for connecting to or starting an IBSS network. </p>
+<p>The host can use this request to connect to an IBSS network. If no existing network is found, the device will start a new network. </p>
+<p>Successful join request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___i_b_s_s.html">IBSS station state</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01752">1752</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a3a8acd81019f8593e69bf26990202e71"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_req_body__t">WfmHiJoinIbssReqBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Request message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a0cca9f772739a9195c60ed0981e92646"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_join_ibss_cnf__t" id="struct_wfm_hi_join_ibss_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_join_ibss_cnf__t">&#9670;&nbsp;</a></span>WfmHiJoinIbssCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiJoinIbssCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_req__t" title="Request message for connecting to or starting an IBSS network. ">WfmHiJoinIbssReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01776">1776</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a7cc11a46d130d9b5d41901c2e84bb609"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_cnf_body__t">WfmHiJoinIbssCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a19ed681ba4f0f1dff6e386cf664985a9"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_join_ibss_ind__t" id="struct_wfm_hi_join_ibss_ind__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_join_ibss_ind__t">&#9670;&nbsp;</a></span>WfmHiJoinIbssInd_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiJoinIbssInd_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Indication message used to signal the completion of a join request. </p>
+<p>The device will send this indication to signal the join request initiated with <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_req__t" title="Request message for connecting to or starting an IBSS network. ">WfmHiJoinIbssReq_t</a> has been completed. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l01811">1811</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a93a0916800670e7fe6e372ba5e2e1d4f"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_ind_body__t">WfmHiJoinIbssIndBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Indication message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a0ef6cbb2f16ad0ae2b362b9dbea6dd4a"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_set_roam_parameters_req__t" id="struct_wfm_hi_set_roam_parameters_req__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_set_roam_parameters_req__t">&#9670;&nbsp;</a></span>WfmHiSetRoamParametersReq_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiSetRoamParametersReq_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Request message for setting the roaming parameters. </p>
+<p>The host can use this request to configure the roaming parameters of the device. <br />
+See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Roaming</a> for further details. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l02116">2116</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="aeff6dead3fcae583c548c040dcea919f"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_req_body__t">WfmHiSetRoamParametersReqBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Request message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab3129f255fc1fe0b88d90e239ab91eb0"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_set_roam_parameters_cnf__t" id="struct_wfm_hi_set_roam_parameters_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_set_roam_parameters_cnf__t">&#9670;&nbsp;</a></span>WfmHiSetRoamParametersCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiSetRoamParametersCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_req__t" title="Request message for setting the roaming parameters. ">WfmHiSetRoamParametersReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l02141">2141</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="ac72d286b5a3732b4ea99fcea4f8b71a3"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_roam_parameters_cnf_body__t">WfmHiSetRoamParametersCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="ae1ccc4f71531ce47716faf0d628c7867"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_set_tx_rate_parameters_req__t" id="struct_wfm_hi_set_tx_rate_parameters_req__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_set_tx_rate_parameters_req__t">&#9670;&nbsp;</a></span>WfmHiSetTxRateParametersReq_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiSetTxRateParametersReq_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Request message for setting the TX rate set parameters. </p>
+<p>The host can use this request to configure the TX rate set parameters of the device. The rate set determines what data rates will be used by the device to transmit data frames. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l02171">2171</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a9c581caa2ab8660b54395d9a543c955a"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_req_body__t">WfmHiSetTxRateParametersReqBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Request message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="a5ca3c524fe9d1a1484e2a28d060235ef"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_set_tx_rate_parameters_cnf__t" id="struct_wfm_hi_set_tx_rate_parameters_cnf__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_set_tx_rate_parameters_cnf__t">&#9670;&nbsp;</a></span>WfmHiSetTxRateParametersCnf_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiSetTxRateParametersCnf_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_req__t" title="Request message for setting the TX rate set parameters. ">WfmHiSetTxRateParametersReq_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l02196">2196</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a77bf68ea45e31abea9aa1bd8d23ee6ef"></a><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_cnf_body__t">WfmHiSetTxRateParametersCnfBody_t</a></td>
+<td class="fieldname">
+Body</td>
+<td class="fielddoc">
+Confirmation message body. </td></tr>
+<tr><td class="fieldtype">
+<a id="aafbc364d13c96402c8c6ed7ded2317b9"></a><a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t">HiMsgHdr_t</a></td>
+<td class="fieldname">
+Header</td>
+<td class="fielddoc">
+Common message header. </td></tr>
+</table>
+
+</div>
+</div>
 <a name="struct_wfm_hi_stop_scan_req__t" id="struct_wfm_hi_stop_scan_req__t"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_stop_scan_req__t">&#9670;&nbsp;</a></span>WfmHiStopScanReq_t</h2>
 
@@ -129,294 +838,12 @@ Functions</h2></td></tr>
 </div>
 </div>
 </div>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="gac0239b14cb4ce9df25c31335708ef46e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gac0239b14cb4ce9df25c31335708ef46e">&#9670;&nbsp;</a></span>__attribute__()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct __attribute__ </td>
-          <td>(</td>
-          <td class="paramtype">(__packed__)&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>General Message header structure. </p>
-<p>Confirmation message for WfmHiSetScanParametersReq_t.</p>
-<p>Confirmation message body for WfmHiSetScanParametersCnf_t.</p>
-<p>Request message for setting scan parameters.</p>
-<p>Request message body for WfmHiSetScanParametersReq_t.</p>
-<p>Confirmation message for WfmHiSetBroadcastFilterReq_t.</p>
-<p>Confirmation message body for WfmHiSetBroadcastFilterCnf_t.</p>
-<p>Request message for setting broadcast filter state.</p>
-<p>Request message body for WfmHiSetBroadcastFilterReq_t.</p>
-<p>Confirmation message for WfmHiSetNsIpAddressReq_t.</p>
-<p>Confirmation message body for WfmHiSetNsIpAddressCnf_t.</p>
-<p>Request message for setting the Neighbor Discovery Protocol (NDP) offloading state.</p>
-<p>Request message body for WfmHiSetNsIpAddressReq_t.</p>
-<p>Confirmation message for WfmHiSetArpIpAddressReq_t.</p>
-<p>Confirmation message body for WfmHiSetArpIpAddressCnf_t.</p>
-<p>Request message for setting the Address Resolution Protocol (ARP) offloading state.</p>
-<p>Request message body for WfmHiSetArpIpAddressReq_t.</p>
-<p>Confirmation message for WfmHiSetTxRateParametersReq_t.</p>
-<p>Confirmation message body for WfmHiSetTxRateParametersCnf_t.</p>
-<p>Request message for setting the TX rate set parameters.</p>
-<p>Request message body for WfmHiSetTxRateParametersReq_t.</p>
-<p>Confirmation message for WfmHiSetRoamParametersReq_t.</p>
-<p>Confirmation message body for WfmHiSetRoamParametersCnf_t.</p>
-<p>Request message for setting the roaming parameters.</p>
-<p>Request message body for WfmHiSetRoamParametersReq_t.</p>
-<p>Confirmation message for WfmHiSetMaxApClientInactivityReq_t.</p>
-<p>Request message body for WfmHiSetMaxApClientInactivityReq_t.</p>
-<p>Confirmation message for WfmHiSetMaxApClientCountReq_t.</p>
-<p>Confirmation message body for WfmHiSetMaxApClientCountCnf_t.</p>
-<p>Request message for setting the maximum number of connected clients.</p>
-<p>Request message body for WfmHiSetMaxApClientCountReq_t.</p>
-<p>Confirmation message for WfmHiRemoveMulticastAddrReq_t.</p>
-<p>Confirmation message body for WfmHiRemoveMulticastAddrCnf_t.</p>
-<p>Request message for removing a multicast address from the multicast filter whitelist.</p>
-<p>Request message body for WfmHiRemoveMulticastAddrReq_t.</p>
-<p>Confirmation message for WfmHiAddMulticastAddrReq_t.</p>
-<p>Confirmation message body for WfmHiAddMulticastAddrCnf_t.</p>
-<p>Request message for adding a multicast address to the multicast filter whitelist.</p>
-<p>Request message body for WfmHiAddMulticastAddrReq_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_req__t" title="Request message for disconnecting from an IBSS network. ">WfmHiLeaveIbssReq_t</a>.</p>
-<p>Confirmation message body for WfmHiLeaveIbssCnf_t.</p>
-<p>Indication message used to signal the completion of a join request.</p>
-<p>Indication message body for WfmHiJoinIbssInd_t.</p>
-<p>Confirmation message for WfmHiJoinIbssReq_t.</p>
-<p>Confirmation message body for WfmHiJoinIbssCnf_t.</p>
-<p>Request message for connecting to or starting an IBSS network.</p>
-<p>Request message body for WfmHiJoinIbssReq_t.</p>
-<p>Indication message used to signal a scan was completed.</p>
-<p>Indication message body for WfmHiScanCompleteInd_t.</p>
-<p>Indication message used to signal an access point has been detected.</p>
-<p>Indication message body for WfmHiScanResultInd_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_req__t" title="Request message for stopping an ongoing scan. ">WfmHiStopScanReq_t</a>.</p>
-<p>Confirmation message body for WfmHiStopScanCnf_t.</p>
-<p>Confirmation message for WfmHiStartScanReq_t.</p>
-<p>Confirmation message body for WfmHiStartScanCnf_t.</p>
-<p>Request message for starting a scan to detect near-by access points.</p>
-<p>Request message body for WfmHiStartScanReq_t.</p>
-<p>Indication message used to signal a received packet.</p>
-<p>Indication message body for WfmHiReceivedInd_t.</p>
-<p>Confirmation message for WfmHiSendFrameReq_t.</p>
-<p>Confirmation message body for WfmHiSendFrameCnf_t.</p>
-<p>Request message for sending a packet to the network.</p>
-<p>Request message body for WfmHiSendFrameReq_t.</p>
-<p>Indication message used to signal a disconnected station.</p>
-<p>Indication message body for WfmHiApClientDisconnectedInd_t.</p>
-<p>Confirmation message for WfmHiDisconnectApClientReq_t.</p>
-<p>Confirmation message body for WfmHiDisconnectApClientCnf_t.</p>
-<p>Request message for disconnecting a client from the started Wi-Fi network.</p>
-<p>Request message body for WfmHiDisconnectApClientReq_t.</p>
-<p>Indication message used to signal a rejected connection attempt from a station.</p>
-<p>Indication message body for WfmHiApClientRejectedInd_t.</p>
-<p>Indication message used to signal a connected station.</p>
-<p>Indication message body for WfmHiApClientConnectedInd_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_ap_req__t" title="Request message for stopping the started Wi-Fi network. ">WfmHiStopApReq_t</a>.</p>
-<p>Confirmation message body for WfmHiStopApCnf_t.</p>
-<p>Confirmation message for WfmHiUpdateApReq_t.</p>
-<p>Confirmation message body for WfmHiUpdateApCnf_t.</p>
-<p>Request message for updating parameters of the started Wi-Fi network.</p>
-<p>Request message body for WfmHiUpdateApReq_t.</p>
-<p>Indication message used to signal the completion of a start request.</p>
-<p>Indication message body for WfmHiStartApInd_t.</p>
-<p>Confirmation message for WfmHiStartApReq_t.</p>
-<p>Confirmation message body for WfmHiStartApCnf_t.</p>
-<p>Request message for starting a Wi-Fi network.</p>
-<p>Request message body for WfmHiStartApReq_t.</p>
-<p>Confirmation message for WfmHiSetPmModeReq_t.</p>
-<p>Confirmation message body for WfmHiSetPmModeCnf_t.</p>
-<p>Request message for setting the power management mode of the device.</p>
-<p>Request message body for WfmHiSetPmModeReq_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_get_signal_strength_req__t" title="Request message for retrieving the signal strength of connection. ">WfmHiGetSignalStrengthReq_t</a>.</p>
-<p>Confirmation message body for WfmHiGetSignalStrengthCnf_t.</p>
-<p>Indication message used to signal the completion of a disconnection operation.</p>
-<p>Indication message body for WfmHiDisconnectInd_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_disconnect_req__t" title="Request message for disconnecting from a Wi-Fi network. ">WfmHiDisconnectReq_t</a>.</p>
-<p>Confirmation message body for WfmHiDisconnectCnf_t.</p>
-<p>Indication message used to signal the completion of a connection operation.</p>
-<p>Indication message body for WfmHiConnectInd_t.</p>
-<p>Confirmation message for WfmHiConnectReq_t.</p>
-<p>Confirmation message body for WfmHiConnectCnf_t.</p>
-<p>Request message for connecting to a Wi-Fi network.</p>
-<p>Request message body for WfmHiConnectReq_t.</p>
-<p>Confirmation message for WfmHiSetMacAddressReq_t.</p>
-<p>Confirmation message body for WfmHiSetMacAddressCnf_t.</p>
-<p>Request message to set MAC address of the interface.</p>
-<p>Request message body for WfmHiSetMacAddressReq_t.</p>
-<p>NS IP address element.</p>
-<p>Device TX rate set bitmask used in ::WfmHiSetTxRateParametersReqBody_t.</p>
-<p>Confirmation of the <em>Prevent Rollback</em> request.</p>
-<p>Prevent Rollback request.</p>
-<p>Confirmation of Secure Link Layer configuration ::HiSlConfigureReqBody_t.</p>
-<p>Configure Secure Link Layer.</p>
-<p>Confirmation for exchange of Secure Link Public Keys.</p>
-<p>Exchange Secure Link Public Keys.</p>
-<p>Confirmation for the Secure Link MAC key setting.</p>
-<p>Set the Secure Link MAC key.</p>
-<p>the Generic indication message.</p>
-<p>RX stats from the GENERIC indication message ::HiGenericIndBody_t.</p>
-<p>Confirmation from request to read and write a gpio.</p>
-<p>Send a request to read or write a gpio identified by its label (that is defined in the PDS)</p>
-<p>Confirmation message of CONFIGURATION command ::HiConfigurationReqBody_t.</p>
-<p>Configure the device.</p>
-<p>Startup Indication message.</p>
-<p>OTP_PHY_INFO OTP field reported in command ::HiStartupIndBody_t.</p>
-<p>REGUL_SEL_MODE OTP field reported in command ::HiStartupIndBody_t.</p>
-<p>Capabilities offered by the WLAN used in command ::HiStartupIndBody_t.</p>
-<p>Generic confirmation message with the body reduced to the Status field.</p>
-<p>General message structure for all requests, confirmations and indications.</p>
-<p>This structure is not related to a specific confirmation ID. <br />
-It is a global simplified structure that can be used to easily access the header and status fields.</p>
-<p>All confirmation bodies start with a Status word and in a lot of them it is followed by other data (not present in this structure).</p>
-<p>This is the first message sent to the host to confirm boot success. It gives detailed information on the HW and FW versions and capabilities</p>
-<p>It sends a PDS compressed file that configures the device regarding board dependent parameters. The PDS compressed file must fit in a command buffer and have less than 256 elements.</p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000009">Todo:</a></b></dt><dd>Need to create a specific doc to explain PDS </dd></dl>
-<p>After a write it also read back the value to check there is no drive conflict</p>
-<p>It reports different type of information that can be printed by the driver.</p>
-<p>This API can be used in two contexts:</p><ul>
-<li>for <em>Trused Eval</em> chips : used to set a temporary <em>SecureLink MAC key</em> in RAM.</li>
-<li>for <em>Trused Enforced</em> chips : used to permanently burn the <em>SecureLink MAC key</em> in OTP memory</li>
-</ul>
-<p>This API is used by the Host to send its <em>curve25519</em> public key to Device, and get back Device public key in the confirmation message. Once keys are exchanged and authenticated (using their respective MAC), each peer computes the Secure Link <em>session key</em> that will be used to encrypt/decrypt future Host&lt;-&gt;Device messages.</p>
-<p>This API can be used to:</p><ul>
-<li>Set/update the Secure Link <em>encryption bitmap</em></li>
-<li>Optionally (and additionally), invalidate the current <em>session key</em></li>
-</ul>
-<p>Upon request reception, Device will update its own encryption bitmap and return the updated value in the confirmation.</p>
-<p><em>Prevent Rollback</em> asks WLAN firmware to burn a new <em>Firmware Rollback</em> value in a dedicated OTP section.</p>
-<p>The new value is encoded in the firmware itself. Once burned, this value will prevent from starting all firmwares whose internal rollback value is lower than the OTP value.</p>
-<p><em>Magic Word</em> is used to prevent mistakenly sent requests to burn the OTP.</p>
-<p>The request might have failed for the following reasons:</p><ul>
-<li>Wrong <em>magic word</em> value</li>
-</ul>
-<p>Note that the IP element must always contain <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga9ef16eec54a59b298b604add266c8f6f" title="Length of IPv6 address element. ">WFM_API_IPV6_ADDR_SIZE</a> bytes. Only the bytes up to SsidLength are considered to be valid, the rest should be set to zero.</p>
-<p>The host can use this request to set the MAC address an interface. If not set, the device will use a built-in MAC address. Note that if multiple interfaces are used, the MAC address MUST be different on each interface.</p>
-<p>The host can use this request to iniate a connection to a Wi-Fi network. </p>
-<p>Successful connection request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___s_t_a.html">Wi-Fi client state</a>.</p>
-<p>The device will send this indication to signal the connection request initiated with ::WfmHiConnectReq_t has been completed. The indication is also sent when the device autonomously roams to another access point.</p>
-<p>The device will send this indication to signal the disconnection request initiated with <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_disconnect_req__t" title="Request message for disconnecting from a Wi-Fi network. ">WfmHiDisconnectReq_t</a> has been completed. The indication is also sent when the device has lost the connection to an access point and has been unable to regain it.</p>
-<p>The host can use this request to enable or disable Wi-Fi power management mechanisms.</p>
-<p>The host can use this request to iniate a Wi-Fi network. </p>
-<p>Successful start request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___a_p.html">Wi-Fi access point state</a>.</p>
-<p>The device will send this indication to signal the start request initiated with ::WfmHiStartApReq_t has been completed.</p>
-<p>The host can use this request to update parameters of the started Wi-Fi network.</p>
-<p>The device will send this indication to signal a station has connected to the started network.</p>
-<p>The device will send this indication to signal a station has attempted connection to the started network and was rejected by the device.</p>
-<p>The host can use this request to disconnect a client from the started Wi-Fi network.</p>
-<p>The device will send this indication to signal a station has left the started network.</p>
-<p>The host can use this request to send a packet to the network.</p>
-<p>The device will send this indication to signal a packet has been received.</p>
-<p>The host can use this request to start a scan operation to detect near-by access points.</p>
-<p>The device will send this indication to signal an access point has has been detected during the scan operation.</p>
-<p>The device will send this indication to signal a scan operation has been completed.</p>
-<p>The host can use this request to connect to an IBSS network. If no existing network is found, the device will start a new network. </p>
-<p>Successful join request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___i_b_s_s.html">IBSS station state</a>.</p>
-<p>The device will send this indication to signal the join request initiated with ::WfmHiJoinIbssReq_t has been completed.</p>
-<p>The host can use this request to add a multicast address to the multicast filter whitelist. When the first address is added the whitelist, the device will discard all multicast frames whose destination address does not match any of the addresses on the list. The default state is to allow all multicast addresses. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Filtering</a> for further details.</p>
-<p>The host can use this request to remove a multicast address from the multicast filter whitelist.</p>
-<p>The host can use this request to limit the number of stations that can connect the started Wi-Fi network.</p>
-<p>The host can use this request to configure the roaming parameters of the device. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Roaming</a> for further details.</p>
-<p>The host can use this request to configure the TX rate set parameters of the device. The rate set determines what data rates will be used by the device to transmit data frames.</p>
-<p>The host can use this request to offload handling of ARP requests to the device. When offloading is enabled, the device will automatically respond to ARP requests with an ARP reply. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Offloading</a> for further details.</p>
-<p>The host can use this request to offload handling of IPv6 Neighbor Solicitations to the device. When offloading is enabled, the device will automatically respond to a solicitation with a Neighbor Advertisement. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Offloading</a> for further details.</p>
-<p>The host can use this request to configure the state of the broadcast filter. When enabled, the device will only forward certain broadcast frames to the host and automatically discard the rest. The default state is to allow all broadcast traffic. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Filtering</a> for further details.</p>
-<p>The host can use this request to configure scans. </p>
-<p>&lt; The message ID without the Type. First 7 bits of <a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a0d1bd69b7425858e5cdd2628bf30325e" title="Subset of U16msginfo_t containing the message Id indexed by HiGeneralCommandsIds_t, ::HiWsmCommandsIds_t or ::HI_WFM_COMMANDS_IDS. ">MsginfoBytes_t::MsgId</a></p>
-<p>&lt; The message type 1 for indication, 0 for request or confirmation. MSB of <a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a0d1bd69b7425858e5cdd2628bf30325e" title="Subset of U16msginfo_t containing the message Id indexed by HiGeneralCommandsIds_t, ::HiWsmCommandsIds_t or ::HI_WFM_COMMANDS_IDS. ">MsginfoBytes_t::MsgId</a> .</p>
-<p>&lt; The Wireless interface ID the message is intended to or coming from.</p>
-<p>&lt; 3bits that can be used by the host has it wants in a request (typically a counter). They are the same in the associated confirmation.</p>
-<p>&lt; must be set to '00' when filling the message : it means unciphered. It is then changed by the Secure Link cipher process.</p>
-<p>&lt; Message length in bytes including this uint16_t. Maximum value is 8188 but maximum Request size is FW dependent and reported in the ::HiStartupIndBody_t::SizeInpChBuf</p>
-<p>&lt; <a class="el" href="group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#ga20288210e0289dd146376a954b6fd3e9" title="bitfield view of the Message header information element ">U16msginfo_t</a></p>
-<p>&lt;4 bytes header</p>
-<p>&lt;variable size payload of the message</p>
-<p>&lt;4 bytes header</p>
-<p>&lt;See enum <a class="el" href="group___g_e_n_e_r_a_l___a_p_i.html#gae7348539bca23aed28a5d58f15946d72" title="General confirmation possible values for returned &#39;Status&#39; field. ">HiStatus</a> and ::WsmStatus or <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a></p>
-<p>&lt;Bit 0-1 : reg OTPCTRL_FB_STATUS_fb_secure_link_mode</p><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000008">Todo:</a></b></dt><dd>add details </dd></dl>
-<p>&lt;Bit 2-7 : Reserved</p>
-<p>&lt;Bit 8-15 : Reserved</p>
-<p>&lt;Bit 16-23 : Reserved</p>
-<p>&lt;Bit 24-31 : Reserved</p>
-<p>&lt;Bit 0-3 : indicates default FW behavior regarding DFS region setting</p>
-<p>&lt;Bit 4-7 : Reserved</p>
-<p>&lt;Bit 0-2 : DFS region corresponding to backoff vs. channel group table indexed 0</p>
-<p>&lt;Bit 3-5 : DFS region corresponding to backoff vs. channel group table indexed 1</p>
-<p>&lt;Bit 6-7 : Revision of OTP info</p>
-<p>&lt;Initialization status. A value of zero indicates the boot is completed successfully (see enum <a class="el" href="group___g_e_n_e_r_a_l___a_p_i.html#gae7348539bca23aed28a5d58f15946d72" title="General confirmation possible values for returned &#39;Status&#39; field. ">HiStatus</a>)</p>
-<p>&lt;=RO misc_read_reg7 register value</p>
-<p>&lt;=OTP part_OPN</p>
-<p>&lt;=OTP UID</p>
-<p>&lt;Number of buffers available for request messages.</p>
-<p>&lt;Tx Buffer size in bytes=request message max size.</p>
-<p>&lt;number of STA that are supported in AP mode</p>
-<p>&lt;number of interfaces (WIFI link : STA or AP) that can be created by the user</p>
-<p>&lt;1st MAC address derived from OTP</p>
-<p>&lt;2d MAC address derived from OTP</p>
-<p>&lt;See enum ::HiFwType</p>
-<p>&lt;=OTP Disabled channel list info</p>
-<p>&lt;A bit mask that indicates which rates are supported by the Physical layer. See enum ::WsmTransmitRate.</p>
-<p>&lt;Null terminated text string describing the loaded FW.</p>
-<p>&lt;PdsData length in bytes</p>
-<p>&lt;variable size PDS data byte array</p>
-<p>&lt;Configuration status. A value of zero indicates the boot is completed successfully (see enum <a class="el" href="group___g_e_n_e_r_a_l___a_p_i.html#gae7348539bca23aed28a5d58f15946d72" title="General confirmation possible values for returned &#39;Status&#39; field. ">HiStatus</a>)</p>
-<p>&lt;Identify the gpio by its label (defined in the PDS)</p>
-<p>&lt;define how to set or read the gpio (see enum <a class="el" href="group___general___configuration.html#ga0d32720be1af225d2689699e05c24413" title="Configure GPIO mode. ">HiGpioMode</a>)</p>
-<p>&lt;enum <a class="el" href="group___g_e_n_e_r_a_l___a_p_i.html#gae7348539bca23aed28a5d58f15946d72" title="General confirmation possible values for returned &#39;Status&#39; field. ">HiStatus</a> : a value of zero indicates the request is completed successfully.</p>
-<p>&lt;the error detail (see enum <a class="el" href="group___general___configuration.html#ga7caa2ee0735e717111db6f1a996ff323" title="detailed error cause returned by CONTROL_GPIO confirmation message ::HiControlGpioCnfBody_t ...">HiGpioError</a>) when ::HiControlGpioCnfBody_t::Status reports an error else the gpio read value.</p>
-<p>&lt;Total number of frame received</p>
-<p>&lt;Number of frame received with bad CRC</p>
-<p>&lt;PER on the total number of frame</p>
-<p>&lt;Throughput calculated on correct frames received</p>
-<p>&lt;Number of frame received by rate</p>
-<p>&lt;PER*10000 by frame rate</p>
-<p>&lt;SNR in Db*100 by frame rate</p>
-<p>&lt;RSSI in Dbm*100 by frame rate</p>
-<p>&lt;CFO in kHz by frame rate</p>
-<p>&lt;This message transmission date in firmware timebase (microsecond)</p>
-<p>&lt;Frequency of the low power clock in Hz</p>
-<p>&lt;Indicate if the low power clock is external</p>
-<p>&lt;Identify the indication data (see enum type <a class="el" href="group___general___configuration.html#gaeff8d337c5690e01575b410772b5977a" title="specifies the type of data reported by the indication message ::HiGenericIndBody_t ...">HiGenericIndicationType</a>)</p>
-<p>&lt;Indication data.</p>
-<p>&lt;Raw data array</p>
-<p>&lt;error type, see enum <a class="el" href="group___general___configuration.html#ga5bc0cd91e71bea658e1c6f2e578be92b" title="specifies the type of error reported by the indication message ::HiErrorIndBody_t ...">WsmHiError</a></p>
-<p>&lt;Generic data buffer - contents depends on the error type.</p>
-<p>&lt;Key destination - OTP or RAM (see enum <a class="el" href="group___secure___link.html#gac986de4e582c01f8900a9da25032077e" title="destination of the Secure Link MAC key, used by request message ::HiSetSlMacKeyReqBody_t ...">SlMacKeyDest</a>)</p>
-<p>&lt;Secure Link MAC Key value</p>
-<p>&lt;Key upload status (see enum <a class="el" href="group___g_e_n_e_r_a_l___a_p_i.html#gae7348539bca23aed28a5d58f15946d72" title="General confirmation possible values for returned &#39;Status&#39; field. ">HiStatus</a>)</p>
-<p>&lt;Host Public Key</p>
-<p>&lt;Host Public Key MAC</p>
-<p>&lt;Request status (see enum <a class="el" href="group___g_e_n_e_r_a_l___a_p_i.html#gae7348539bca23aed28a5d58f15946d72" title="General confirmation possible values for returned &#39;Status&#39; field. ">HiStatus</a>)</p>
-<p>&lt;Device Public Key</p>
-<p>&lt;Device Public Key MAC</p>
-<p>&lt;Encryption bitmap</p>
-<p>&lt;Invalidate Session Key (see enum <a class="el" href="group___secure___link.html#gad27ed22651318d3659f4f47f902fb31b" title="used in request message ::HiSlConfigureReqBody_t to trigger Session Key invalidation ...">SlConfigureSkeyInvld</a>)</p>
-<p>&lt;Request status (see enum ::WsmStatus)</p>
-<p>&lt; Magic Word - should be 0x5C8912F3</p>
-<p>&lt;Confirmation status, see enum <a class="el" href="group___g_e_n_e_r_a_l___a_p_i.html#gae7348539bca23aed28a5d58f15946d72" title="General confirmation possible values for returned &#39;Status&#39; field. ">HiStatus</a> </p>
-
-<p class="definition">Definition at line <a class="el" href="general__api_8h_source.html#l00066">66</a> of file <a class="el" href="general__api_8h_source.html">general_api.h</a>.</p>
-
-</div>
-</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jan 3 2019 12:29:07 for WF200 FMAC driver by
+    <li class="footer">Generated on Fri Jan 4 2019 18:01:00 for WF200 FMAC driver by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
   </ul>

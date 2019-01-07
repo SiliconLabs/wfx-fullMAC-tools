@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">WF200 FMAC driver
-   &#160;<span id="projectnumber">0.0.1</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
   </td>
  </tr>
@@ -88,7 +88,7 @@ $(document).ready(function(){initNavTree('group___w_f_m___t_y_p_e_s.html','');})
 
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a>  </div>
+<a href="#nested-classes">Data Structures</a>  </div>
   <div class="headertitle">
 <div class="title">API types<div class="ingroups"><a class="el" href="group___f_u_l_l___m_a_c___a_p_i.html">FULL_MAC_API</a></div></div>  </div>
 </div><!--header-->
@@ -97,663 +97,231 @@ $(document).ready(function(){initNavTree('group___w_f_m___t_y_p_e_s.html','');})
 <p>WFM API types.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:gab09bd90e5b429e1b9ce9420c509467e4"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___t_y_p_e_s.html#gab09bd90e5b429e1b9ce9420c509467e4">__attribute__</a> ((__packed__)) WfmHiSsidDef_s</td></tr>
-<tr class="memdesc:gab09bd90e5b429e1b9ce9420c509467e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Set Identifier (SSID) of a network.  <a href="#gab09bd90e5b429e1b9ce9420c509467e4">More...</a><br /></td></tr>
-<tr class="separator:gab09bd90e5b429e1b9ce9420c509467e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:struct_wfm_hi_ssid_def__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___t_y_p_e_s.html#struct_wfm_hi_ssid_def__t">WfmHiSsidDef_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_ssid_def__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Set Identifier (SSID) of a network.  <a href="group___w_f_m___t_y_p_e_s.html#struct_wfm_hi_ssid_def__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_ssid_def__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_rate_set_bitmask__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___t_y_p_e_s.html#struct_wfm_hi_rate_set_bitmask__t">WfmHiRateSetBitmask_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_rate_set_bitmask__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device TX rate set bitmask used in <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_req_body__t" title="Request message body for WfmHiSetTxRateParametersReq_t. ">WfmHiSetTxRateParametersReqBody_t</a>.  <a href="group___w_f_m___t_y_p_e_s.html#struct_wfm_hi_rate_set_bitmask__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_rate_set_bitmask__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:struct_wfm_hi_ns_ip_addr__t"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___w_f_m___t_y_p_e_s.html#struct_wfm_hi_ns_ip_addr__t">WfmHiNsIpAddr_t</a></td></tr>
+<tr class="memdesc:struct_wfm_hi_ns_ip_addr__t"><td class="mdescLeft">&#160;</td><td class="mdescRight">NS IP address element.  <a href="group___w_f_m___t_y_p_e_s.html#struct_wfm_hi_ns_ip_addr__t">More...</a><br /></td></tr>
+<tr class="separator:struct_wfm_hi_ns_ip_addr__t"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>WFM API types. </p>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="gab09bd90e5b429e1b9ce9420c509467e4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gab09bd90e5b429e1b9ce9420c509467e4">&#9670;&nbsp;</a></span>__attribute__()</h2>
+<hr/><h2 class="groupheader">Data Structure Documentation</h2>
+<a name="struct_wfm_hi_ssid_def__t" id="struct_wfm_hi_ssid_def__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_ssid_def__t">&#9670;&nbsp;</a></span>WfmHiSsidDef_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct __attribute__ </td>
-          <td>(</td>
-          <td class="paramtype">(__packed__)&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td class="memname">struct WfmHiSsidDef_t</td>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Service Set Identifier (SSID) of a network. </p>
-<p>Confirmation message for WfmHiSetScanParametersReq_t.</p>
-<p>Confirmation message body for WfmHiSetScanParametersCnf_t.</p>
-<p>Request message for setting scan parameters.</p>
-<p>Request message body for WfmHiSetScanParametersReq_t.</p>
-<p>Confirmation message for WfmHiSetBroadcastFilterReq_t.</p>
-<p>Confirmation message body for WfmHiSetBroadcastFilterCnf_t.</p>
-<p>Request message for setting broadcast filter state.</p>
-<p>Request message body for WfmHiSetBroadcastFilterReq_t.</p>
-<p>Confirmation message for WfmHiSetNsIpAddressReq_t.</p>
-<p>Confirmation message body for WfmHiSetNsIpAddressCnf_t.</p>
-<p>Request message for setting the Neighbor Discovery Protocol (NDP) offloading state.</p>
-<p>Request message body for WfmHiSetNsIpAddressReq_t.</p>
-<p>Confirmation message for WfmHiSetArpIpAddressReq_t.</p>
-<p>Confirmation message body for WfmHiSetArpIpAddressCnf_t.</p>
-<p>Request message for setting the Address Resolution Protocol (ARP) offloading state.</p>
-<p>Request message body for WfmHiSetArpIpAddressReq_t.</p>
-<p>Confirmation message for WfmHiSetTxRateParametersReq_t.</p>
-<p>Confirmation message body for WfmHiSetTxRateParametersCnf_t.</p>
-<p>Request message for setting the TX rate set parameters.</p>
-<p>Request message body for WfmHiSetTxRateParametersReq_t.</p>
-<p>Confirmation message for WfmHiSetRoamParametersReq_t.</p>
-<p>Confirmation message body for WfmHiSetRoamParametersCnf_t.</p>
-<p>Request message for setting the roaming parameters.</p>
-<p>Request message body for WfmHiSetRoamParametersReq_t.</p>
-<p>Confirmation message for WfmHiSetMaxApClientInactivityReq_t.</p>
-<p>Request message body for WfmHiSetMaxApClientInactivityReq_t.</p>
-<p>Confirmation message for WfmHiSetMaxApClientCountReq_t.</p>
-<p>Confirmation message body for WfmHiSetMaxApClientCountCnf_t.</p>
-<p>Request message for setting the maximum number of connected clients.</p>
-<p>Request message body for WfmHiSetMaxApClientCountReq_t.</p>
-<p>Confirmation message for WfmHiRemoveMulticastAddrReq_t.</p>
-<p>Confirmation message body for WfmHiRemoveMulticastAddrCnf_t.</p>
-<p>Request message for removing a multicast address from the multicast filter whitelist.</p>
-<p>Request message body for WfmHiRemoveMulticastAddrReq_t.</p>
-<p>Confirmation message for WfmHiAddMulticastAddrReq_t.</p>
-<p>Confirmation message body for WfmHiAddMulticastAddrCnf_t.</p>
-<p>Request message for adding a multicast address to the multicast filter whitelist.</p>
-<p>Request message body for WfmHiAddMulticastAddrReq_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_req__t" title="Request message for disconnecting from an IBSS network. ">WfmHiLeaveIbssReq_t</a>.</p>
-<p>Confirmation message body for WfmHiLeaveIbssCnf_t.</p>
-<p>Indication message used to signal the completion of a join request.</p>
-<p>Indication message body for WfmHiJoinIbssInd_t.</p>
-<p>Confirmation message for WfmHiJoinIbssReq_t.</p>
-<p>Confirmation message body for WfmHiJoinIbssCnf_t.</p>
-<p>Request message for connecting to or starting an IBSS network.</p>
-<p>Request message body for WfmHiJoinIbssReq_t.</p>
-<p>Indication message used to signal a scan was completed.</p>
-<p>Indication message body for WfmHiScanCompleteInd_t.</p>
-<p>Indication message used to signal an access point has been detected.</p>
-<p>Indication message body for WfmHiScanResultInd_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_scan_req__t" title="Request message for stopping an ongoing scan. ">WfmHiStopScanReq_t</a>.</p>
-<p>Confirmation message body for WfmHiStopScanCnf_t.</p>
-<p>Confirmation message for WfmHiStartScanReq_t.</p>
-<p>Confirmation message body for WfmHiStartScanCnf_t.</p>
-<p>Request message for starting a scan to detect near-by access points.</p>
-<p>Request message body for WfmHiStartScanReq_t.</p>
-<p>Indication message used to signal a received packet.</p>
-<p>Indication message body for WfmHiReceivedInd_t.</p>
-<p>Confirmation message for WfmHiSendFrameReq_t.</p>
-<p>Confirmation message body for WfmHiSendFrameCnf_t.</p>
-<p>Request message for sending a packet to the network.</p>
-<p>Request message body for WfmHiSendFrameReq_t.</p>
-<p>Indication message used to signal a disconnected station.</p>
-<p>Indication message body for WfmHiApClientDisconnectedInd_t.</p>
-<p>Confirmation message for WfmHiDisconnectApClientReq_t.</p>
-<p>Confirmation message body for WfmHiDisconnectApClientCnf_t.</p>
-<p>Request message for disconnecting a client from the started Wi-Fi network.</p>
-<p>Request message body for WfmHiDisconnectApClientReq_t.</p>
-<p>Indication message used to signal a rejected connection attempt from a station.</p>
-<p>Indication message body for WfmHiApClientRejectedInd_t.</p>
-<p>Indication message used to signal a connected station.</p>
-<p>Indication message body for WfmHiApClientConnectedInd_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_ap_req__t" title="Request message for stopping the started Wi-Fi network. ">WfmHiStopApReq_t</a>.</p>
-<p>Confirmation message body for WfmHiStopApCnf_t.</p>
-<p>Confirmation message for WfmHiUpdateApReq_t.</p>
-<p>Confirmation message body for WfmHiUpdateApCnf_t.</p>
-<p>Request message for updating parameters of the started Wi-Fi network.</p>
-<p>Request message body for WfmHiUpdateApReq_t.</p>
-<p>Indication message used to signal the completion of a start request.</p>
-<p>Indication message body for WfmHiStartApInd_t.</p>
-<p>Confirmation message for WfmHiStartApReq_t.</p>
-<p>Confirmation message body for WfmHiStartApCnf_t.</p>
-<p>Request message for starting a Wi-Fi network.</p>
-<p>Request message body for WfmHiStartApReq_t.</p>
-<p>Confirmation message for WfmHiSetPmModeReq_t.</p>
-<p>Confirmation message body for WfmHiSetPmModeCnf_t.</p>
-<p>Request message for setting the power management mode of the device.</p>
-<p>Request message body for WfmHiSetPmModeReq_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_get_signal_strength_req__t" title="Request message for retrieving the signal strength of connection. ">WfmHiGetSignalStrengthReq_t</a>.</p>
-<p>Confirmation message body for WfmHiGetSignalStrengthCnf_t.</p>
-<p>Indication message used to signal the completion of a disconnection operation.</p>
-<p>Indication message body for WfmHiDisconnectInd_t.</p>
-<p>Confirmation message for <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_disconnect_req__t" title="Request message for disconnecting from a Wi-Fi network. ">WfmHiDisconnectReq_t</a>.</p>
-<p>Confirmation message body for WfmHiDisconnectCnf_t.</p>
-<p>Indication message used to signal the completion of a connection operation.</p>
-<p>Indication message body for WfmHiConnectInd_t.</p>
-<p>Confirmation message for WfmHiConnectReq_t.</p>
-<p>Confirmation message body for WfmHiConnectCnf_t.</p>
-<p>Request message for connecting to a Wi-Fi network.</p>
-<p>Request message body for WfmHiConnectReq_t.</p>
-<p>Confirmation message for WfmHiSetMacAddressReq_t.</p>
-<p>Confirmation message body for WfmHiSetMacAddressCnf_t.</p>
-<p>Request message to set MAC address of the interface.</p>
-<p>Request message body for WfmHiSetMacAddressReq_t.</p>
-<p>NS IP address element.</p>
-<p>Device TX rate set bitmask used in ::WfmHiSetTxRateParametersReqBody_t.</p>
-<p>Note that the Ssid element must always contain <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga43d1f45e9006a55311e32bd9d3eb51f0" title="Length of Service Set Identifier (SSID) element. ">WFM_API_SSID_SIZE</a> bytes. Only the bytes up to SsidLength are considered to be valid, the rest should be set to zero.</p>
-<p>Note that the IP element must always contain <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga9ef16eec54a59b298b604add266c8f6f" title="Length of IPv6 address element. ">WFM_API_IPV6_ADDR_SIZE</a> bytes. Only the bytes up to SsidLength are considered to be valid, the rest should be set to zero.</p>
-<p>The host can use this request to set the MAC address an interface. If not set, the device will use a built-in MAC address. Note that if multiple interfaces are used, the MAC address MUST be different on each interface.</p>
-<p>The host can use this request to iniate a connection to a Wi-Fi network. </p>
-<p>Successful connection request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___s_t_a.html">Wi-Fi client state</a>.</p>
-<p>The device will send this indication to signal the connection request initiated with ::WfmHiConnectReq_t has been completed. The indication is also sent when the device autonomously roams to another access point.</p>
-<p>The device will send this indication to signal the disconnection request initiated with <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_disconnect_req__t" title="Request message for disconnecting from a Wi-Fi network. ">WfmHiDisconnectReq_t</a> has been completed. The indication is also sent when the device has lost the connection to an access point and has been unable to regain it.</p>
-<p>The host can use this request to enable or disable Wi-Fi power management mechanisms.</p>
-<p>The host can use this request to iniate a Wi-Fi network. </p>
-<p>Successful start request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___a_p.html">Wi-Fi access point state</a>.</p>
-<p>The device will send this indication to signal the start request initiated with ::WfmHiStartApReq_t has been completed.</p>
-<p>The host can use this request to update parameters of the started Wi-Fi network.</p>
-<p>The device will send this indication to signal a station has connected to the started network.</p>
-<p>The device will send this indication to signal a station has attempted connection to the started network and was rejected by the device.</p>
-<p>The host can use this request to disconnect a client from the started Wi-Fi network.</p>
-<p>The device will send this indication to signal a station has left the started network.</p>
-<p>The host can use this request to send a packet to the network.</p>
-<p>The device will send this indication to signal a packet has been received.</p>
-<p>The host can use this request to start a scan operation to detect near-by access points.</p>
-<p>The device will send this indication to signal an access point has has been detected during the scan operation.</p>
-<p>The device will send this indication to signal a scan operation has been completed.</p>
-<p>The host can use this request to connect to an IBSS network. If no existing network is found, the device will start a new network. </p>
-<p>Successful join request moves the interface to <a class="el" href="group___w_f_m___s_t_a_t_e___i_b_s_s.html">IBSS station state</a>.</p>
-<p>The device will send this indication to signal the join request initiated with ::WfmHiJoinIbssReq_t has been completed.</p>
-<p>The host can use this request to add a multicast address to the multicast filter whitelist. When the first address is added the whitelist, the device will discard all multicast frames whose destination address does not match any of the addresses on the list. The default state is to allow all multicast addresses. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Filtering</a> for further details.</p>
-<p>The host can use this request to remove a multicast address from the multicast filter whitelist.</p>
-<p>The host can use this request to limit the number of stations that can connect the started Wi-Fi network.</p>
-<p>The host can use this request to configure the roaming parameters of the device. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Roaming</a> for further details.</p>
-<p>The host can use this request to configure the TX rate set parameters of the device. The rate set determines what data rates will be used by the device to transmit data frames.</p>
-<p>The host can use this request to offload handling of ARP requests to the device. When offloading is enabled, the device will automatically respond to ARP requests with an ARP reply. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Offloading</a> for further details.</p>
-<p>The host can use this request to offload handling of IPv6 Neighbor Solicitations to the device. When offloading is enabled, the device will automatically respond to a solicitation with a Neighbor Advertisement. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Offloading</a> for further details.</p>
-<p>The host can use this request to configure the state of the broadcast filter. When enabled, the device will only forward certain broadcast frames to the host and automatically discard the rest. The default state is to allow all broadcast traffic. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Filtering</a> for further details.</p>
-<p>The host can use this request to configure scans. </p>
-<p>Length of SSID data.</p>
-<p><b>0 - 32</b>: The amount of bytes.</p>
-<p>SSID data.</p>
-<p>&lt; If set, the device may use 802.11b 1Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11b 2Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11b 5.5Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11b 11Mbps data rate.</p>
-<p>&lt; Reserved, set to zero</p>
-<p>&lt; If set, the device may use 802.11g 6Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11g 9Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11g 12Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11g 18Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11g 24Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11g 36Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11g 48Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11g 54Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11n 6.5Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11n 13Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11n 19.5Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11n 26Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11n 39Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11n 52Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11n 58.5Mbps data rate.</p>
-<p>&lt; If set, the device may use 802.11n 65Mbps data rate.</p>
-<p>&lt; Reserved, set to zero</p>
-<p>NS IP address.</p>
-<p>MAC address of the interface. <br />
- Reserved, set to zero.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Service Set Identifier (SSID) of the network.</p>
-<p>Basic Service Set Identifier (BSSID) of the access point.</p>
-<p><b>broadcast address</b>: The device will connect to any matching access point. <br />
-<b>unicast address</b>: The device will only connect to the given access point. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Basic Service Set Identifier</a> for further details.</p>
-<p>Channel of the access point.</p>
-<p><b>0</b>: The device will connect to a matching access point on any channel. <br />
-<b>1 - 13</b>: The device will only connect to a matching access point on the given channel.</p>
-<p>Security mode of the network.</p>
-<p><b>WFM_SECURITY_MODE_OPEN</b>: The device will only connect to an unsecured access point. <br />
-<b>WFM_SECURITY_MODE_WEP</b>: The device will only connect to a WEP access point. <br />
-<b>WFM_SECURITY_MODE_WPA2_WPA1_PSK</b>: The device will only connect to a WPA-Personal or a WPA2-Personal access point. <br />
-<b>WFM_SECURITY_MODE_WPA2_PSK</b>: The device will only connect to a WPA2-Personal access point. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga916a5036ea649d5fb06e6cad7cf6d354" title="Security mode of a network. ">WfmSecurityMode</a> for enumeration values.</p>
-<p>Boolean option to prevent roaming between access points.</p>
-<p><b>0</b>: The device may roam to any matching access point within the same network. <br />
-<b>1</b>: The device will not roam to any other access point.</p>
-<p>Protected Management Frames (PMF) mode.</p>
-<p><b>WFM_MGMT_FRAME_PROTECTION_DISABLED</b>: The device will not use PMF even if supported by the access point. <br />
-<b>WFM_MGMT_FRAME_PROTECTION_OPTIONAL</b>: The device will use PMF if supported by the access point. <br />
-<b>WFM_MGMT_FRAME_PROTECTION_MANDATORY</b>: The device will only connect to an access point supporting PMF. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga413398b9be0c9b90b2e6d4b5a47c811c" title="Device Protected Management Frame mode. ">WfmMgmtFrameProtection</a> for enumeration values.</p>
-<p>Length of the network password.</p>
-<p><b>0 - 64</b>: The amount of bytes.</p>
-<p>Password of the network.</p>
-<p><b>64-bit WEP key</b>: 5 bytes in ASCII format or 10 bytes in HEX format. <br />
-<b>128-bit WEP key</b>: 13 bytes in ASCII format or 26 bytes in HEX format. <br />
-<b>WPA passphrase</b>: 8 - 63 bytes in ASCII format. <br />
-<b>WPA-PSK (hashed passphrase)</b>: 64 bytes in HEX format. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Passwords and passphrases</a> for further details.</p>
-<p>Length of vendor-specific Information Element (IE) data.</p>
-<p><b>0 - 255</b>: The amount of bytes.</p>
-<p>Vendor-specific IE data added to the 802.11 Association Request frames.</p>
-<p>The IE data must be in 802.11 Vendor-Specific Element format. It may contain multiple concatenated IEs, up to the maximum length. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Vendor-specific IE</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the connection request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the connection request was accepted. It will be completed by ::WfmHiConnectInd_t. <br />
-<b>any other value</b>: the connection request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Status of the connection request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the connection request was completed successfully. <br />
-<b>any other value</b>: the connection request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>MAC address of the connected access point.</p>
-<p>Channel of the connected access point.</p>
-<p><b>1 - 13</b>: Channel number.</p>
-<p>Beacon Interval of the connected access point.</p>
-<p>DTIM period of the connected access point.</p>
-<p><b>1 - 255</b>: DTIM period.</p>
-<p>Maximum PHY data rate supported by the connection.</p>
-<p>See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaebe8f599c4d9b9f88ff252eb065a3969" title="Maximum data rate used by an AP. ">WfmMaxPhyRate</a> for enumeration values.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>Status of the disconnection request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the disconnection request was accepted. It will be completed by ::WfmHiDisconnectInd_t. <br />
-<b>any other value</b>: the disconnection request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>MAC address of the access point.</p>
-<p>Reason for disconnection.</p>
-<p><b>WFM_REASON_UNSPECIFIED</b>: The device was disconnected or it disconnected on its own. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga90fd6495078f49a56ce3c9dbdd0fdde6" title="Reasons for Ineo AP to reject or disconnect a client. ">WfmReason</a> for enumeration values.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>Status of the get request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the get request was completed. <br />
-<b>any other value</b>: the get request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Received Channel Power Indicator (RCPI) of the connection.</p>
-<p>See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Received Channel Power Indicator</a> for further details.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Power management mode.</p>
-<p><b>WFM_PM_MODE_ACTIVE</b>: the device will not use Wi-Fi power management mechanisms. <br />
-<b>WFM_PM_MODE_BEACON</b>: the device will wake-up on beacons. <br />
-<b>WFM_PM_MODE_DTIM</b>: the device will wake-up on DTIMs. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga561c9255fbf860161b8ac308579ee2af" title="Device power management mode. ">WfmPmMode</a> for enumeration values.</p>
-<p>Number of beacons/DTIMs to skip while sleeping.</p>
-<p><b>0</b>: wake-up on every beacon/DTIM. <br />
-1 - 600: the number of beacon/DTIMs to skip. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Power management</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the power management request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the power management request was completed. <br />
-<b>any other value</b>: the power management request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Service Set Identifier (SSID) of the network.</p>
-<p>Boolean option to hide the network.</p>
-<p><b>0</b>: The device will advertise the SSID of the network to any near-by stations. <br />
-<b>1</b>: The device will hide the SSID of the network and will only respond to stations that specify the SSID. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Hidden network</a> for further details.</p>
-<p>Boolean option to isolate connected clients from each other.</p>
-<p><b>0</b>: The device will allow connected clients to communicate with each other. <br />
-<b>1</b>: The device will prevent multiple connected clients from communicating. <br />
-Regardless of the value, the connected stations will always be able to communicate with the device. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Client isolation</a> for further details.</p>
-<p>Security mode of the access point.</p>
-<p><b>WFM_SECURITY_MODE_OPEN</b>: The device will only allow unsecured connections. <br />
-<b>WFM_SECURITY_MODE_WEP</b>: The device will only allow WEP connections. <br />
-<b>WFM_SECURITY_MODE_WPA2_WPA1_PSK</b>: The device will only allow WPA-Personal and WPA2-Personal connections. <br />
-<b>WFM_SECURITY_MODE_WPA2_PSK</b>: The device will only allow WPA2-Personal connections. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga916a5036ea649d5fb06e6cad7cf6d354" title="Security mode of a network. ">WfmSecurityMode</a> for enumeration values.</p>
-<p>Protected Management Frames (PMF) mode.</p>
-<p><b>WFM_MGMT_FRAME_PROTECTION_DISABLED</b>: The device will not use PMF even if supported by the connecting station. <br />
-<b>WFM_MGMT_FRAME_PROTECTION_OPTIONAL</b>: The device will use PMF if supported by the connecting station. <br />
-<b>WFM_MGMT_FRAME_PROTECTION_MANDATORY</b>: The device will only allow connecting stations that support PMF. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga413398b9be0c9b90b2e6d4b5a47c811c" title="Device Protected Management Frame mode. ">WfmMgmtFrameProtection</a> for enumeration values.</p>
-<p>Channel of the access point.</p>
-<p><b>1 - 13</b>: The device will create the access point on the given channel.</p>
-<p>Length of the network password.</p>
-<p><b>0 - 64</b>: The amount of bytes.</p>
-<p>Password of the network.</p>
-<p><b>64-bit WEP key</b>: 5 bytes in ASCII format or 10 bytes in HEX format. <br />
-<b>128-bit WEP key</b>: 13 bytes in ASCII format or 26 bytes in HEX format. <br />
-<b>WPA passphrase</b>: 8 - 63 bytes in ASCII format. <br />
-<b>WPA-PSK (hashed passphrase)</b>: 64 bytes in HEX format. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Passwords and passphrases</a> for further details.</p>
-<p>Length of vendor-specific Information Element (IE) data in 802.11 Beacon frames.</p>
-<p><b>0 - 255</b>: The amount of bytes.</p>
-<p>Length of vendor-specific Information Element (IE) data in 802.11 Probe Response frames.</p>
-<p><b>0 - 255</b>: The amount of bytes.</p>
-<p>Vendor-specific IE data added to the 802.11 Beacon frames.</p>
-<p>The IE data must be in 802.11 Vendor-Specific Element format. It may contain multiple concatenated IEs, up to the maximum length. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Vendor-specific IE</a> for further details.</p>
-<p>Vendor-specific IE data added to the 802.11 Probe Response frames.</p>
-<p>The IE data must be in 802.11 Vendor-Specific Element format. It may contain multiple concatenated IEs, up to the maximum length. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Vendor-specific IE</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the start request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the start request was accepted. It will be completed by ::WfmHiStartApInd_t. <br />
-<b>any other value</b>: the start request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Status of the start request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the start request was completed successfully. <br />
-<b>any other value</b>: the start request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>Length of vendor-specific Information Element (IE) data in 802.11 Beacon frames.</p>
-<p><b>0 - 255</b>: The amount of bytes.</p>
-<p>Length of vendor-specific Information Element (IE) data in 802.11 Probe Response frames.</p>
-<p><b>0 - 255</b>: The amount of bytes.</p>
-<p>Vendor-specific IE data added to the 802.11 Beacon frames.</p>
-<p>The IE data must be in 802.11 Vendor-Specific Element format. It may contain multiple concatenated IEs, up to the maximum length. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Vendor-specific IE</a> for further details.</p>
-<p>Vendor-specific IE data added to the 802.11 Probe Response frames.</p>
-<p>The IE data must be in 802.11 Vendor-Specific Element format. It may contain multiple concatenated IEs, up to the maximum length. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Vendor-specific IE</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the update request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the update request was completed. <br />
-<b>any other value</b>: the update request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Status of the stop request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the stop request was accepted. It will be completed by <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_ap_ind__t" title="Indication message used to signal the completion of a stop operation. ">WfmHiStopApInd_t</a>. <br />
-<b>any other value</b>: the stop request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>MAC address of the station.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>MAC address of the station.</p>
-<p>Reason for rejection.</p>
-<p><b>WFM_REASON_TIMEOUT</b>: A timeout occurred during a station connection attempt. <br />
-<b>WFM_REASON_UNKNOWN_STA</b>: The device received data from a non-connected station. <br />
-<b>WFM_REASON_AP_FULL</b>: The device was not able to accommodate any more stations. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga90fd6495078f49a56ce3c9dbdd0fdde6" title="Reasons for Ineo AP to reject or disconnect a client. ">WfmReason</a> for enumeration values.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>MAC address of the station.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the disconnect request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the disconnect request was completed. <br />
-<b>any other value</b>: the disconnect request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>MAC address of the station.</p>
-<p>Reason for disconnection.</p>
-<p><b>WFM_REASON_LEAVING_BSS</b>: The station was disconnected or it disconnected on its own. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga90fd6495078f49a56ce3c9dbdd0fdde6" title="Reasons for Ineo AP to reject or disconnect a client. ">WfmReason</a> for enumeration values.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>Type of the packet.</p>
-<p><b>0</b>: Data packet with Ethernet II frame header.</p>
-<p>User Priority level.</p>
-<p><b>0 - 7</b>: 802.1D Priority field value.</p>
-<p>Packet ID number.</p>
-<p><b>0 - 65535</b>: Host-assigned unique number for the packet. <br />
-The number is returned in the corresponding confirmation message.</p>
-<p>Length of packet data.</p>
-<p><b>1 - 1604</b>: The amount of bytes.</p>
-<p>Data of the packet.</p>
-<p>See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Packet types</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the send request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the send request was completed. <br />
-<b>any other value</b>: the send request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Packet ID number from the corresponding request.</p>
-<p>Reserved.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Type of the packet.</p>
-<p><b>0</b>: Data packet with Ethernet II frame header.</p>
-<p>The amount of padding bytes before the packet data.</p>
-<p><b>0 - 3</b>: The amount of bytes.</p>
-<p>Length of packet data excluding the padding bytes.</p>
-<p><b>1 - 2310</b>: The amount of bytes.</p>
-<p>Padding bytes.</p>
-<p>Data of the packet.</p>
-<p>See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Packet types</a> for further details.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>Scan mode.</p>
-<p><b>WFM_SCAN_MODE_PASSIVE</b>: The device will perform a passive scan. <br />
-<b>WFM_SCAN_MODE_ACTIVE</b>: The device will perform an active scan. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga6eeeccb15866aaa54103a716730693ca" title="Scan mode to be used. ">WfmScanMode</a> for enumeration values. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Scanning</a> for further details.</p>
-<p>The amount of specific channels to scan.</p>
-<p><b>0</b>: The device will scan all channels <br />
-<b>1 - 13</b>: The amount of specific channels to scan.</p>
-<p>The amount of specific SSIDs to scan.</p>
-<p><b>0</b>: The device will perform a broadcast scan <br />
-<b>1 - 2</b>: The amount of specific SSIDs to scan.</p>
-<p>Length of vendor-specific Information Element (IE) data in 802.11 Probe Request frames.</p>
-<p><b>0 - 255</b>: The amount of bytes.</p>
-<p>List of specific channels to scan.</p>
-<p><b>1 - 13</b>: The channel number to scan per byte. <br />
-Must contain the same number of channels as specified in ChannelListCount. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Scanning</a> for further details.</p>
-<p>List of specific SSIDs to scan.</p>
-<p>Must contain the same number of ::WfmHiSsidDef_t elements as specified in SsidListCount. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Scanning</a> for further details.</p>
-<p>Vendor-specific IE data added to the 802.11 Probe Request frames.</p>
-<p>The IE data must be in 802.11 Vendor-Specific Element format. It may contain multiple concatenated IEs, up to the maximum length. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Vendor-specific IE</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the scan request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the scan request was accepted. It will be completed by ::WfmHiScanCompleteInd_t. <br />
-<b>any other value</b>: the scan request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Status of the stop request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the stop request was accepted. It will be completed by ::WfmHiScanResultInd_t. <br />
-<b>any other value</b>: the stop request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Service Set Identifier (SSID) of the network.</p>
-<p>MAC address of the access point.</p>
-<p>Channel of the access point.</p>
-<p><b>1 - 13</b>: Channel number.</p>
-<p>Reserved.</p>
-<p>Received Channel Power Indicator (RCPI) of the access point.</p>
-<p>See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Received Channel Power Indicator</a> for further details.</p>
-<p>Length of access point Information Element (IE) data in bytes.</p>
-<p>Access point IE data from the 802.11 Beacon or Probe Response frame.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>Status of the scan request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the scan request was completed. <br />
-<b>any other value</b>: the scan request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>Service Set Identifier (SSID) of the network.</p>
-<p>Channel of the network.</p>
-<p><b>0</b>: The device will connect to a matching network on any channel. <br />
-<b>1 - 13</b>: The device will only connect to a matching network on the given channel.</p>
-<p>Security mode of the network.</p>
-<p><b>WFM_SECURITY_MODE_OPEN</b>: The device will only use unsecured connections. <br />
-<b>WFM_SECURITY_MODE_WEP</b>: The device will only use WEP connections. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga916a5036ea649d5fb06e6cad7cf6d354" title="Security mode of a network. ">WfmSecurityMode</a> for enumeration values.</p>
-<p>Length of the network password.</p>
-<p><b>0 - 26</b>: The amount of bytes.</p>
-<p>Password of the network.</p>
-<p><b>64-bit WEP key</b>: 5 bytes in ASCII format or 10 bytes in HEX format. <br />
-<b>128-bit WEP key</b>: 13 bytes in ASCII format or 26 bytes in HEX format. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Passwords and passphrases</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the join request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the join request was accepted. It will be completed by ::WfmHiJoinIbssInd_t. <br />
-<b>any other value</b>: the join request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Status of the join request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the join request was completed successfully. <br />
-<b>any other value</b>: the join request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Basic Service Set Identifier (BSSID) of the network.</p>
-<p><br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Basic Service Set Identifier</a> for further details.</p>
-<p>Reserved.</p>
-<p>Common message header. <br />
- Indication message body.</p>
-<p>Status of the disconnect request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the disconnect request was accepted. It will be completed by <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_ind__t" title="Indication message used to signal the completion of a disconnect operation. ">WfmHiLeaveIbssInd_t</a>. <br />
-<b>any other value</b>: the disconnect request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>MAC address to add.</p>
-<p><b>broadcast address</b>: The device will empty the whitelist and allow all multicast addresses. <br />
-<b>zero address</b>: The device will empty the whitelist and deny all multicast addresses. <br />
-<b>unicast address</b>: The device will add the given address to the whitelist. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Basic Service Set Identifier</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the add request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the add request was completed successfully. <br />
-<b>any other value</b>: the add request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>MAC address to remove.</p>
-<p><b>unicast address</b>: The device will remove the given address from the whitelist. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Basic Service Set Identifier</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the remove request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the remove request was completed successfully. <br />
-<b>any other value</b>: the remove request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Maximum number of connected clients.</p>
-<p><b>0</b>: The device will set the limit value to the firmware default. <br />
-<b>1 - 8</b>: The maximum number of connected clients.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Maximum amount of client idle time.</p>
-<p><b>0</b>: The device will set the limit value to the firmware default. <br />
-<b>1 - 240</b>: The maximum number of seconds.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Received Channel Power Indicator (RCPI) limit for a roaming attempt.</p>
-<p><b>0</b>: The device will set the limit value to the firmware default. <br />
-1 - 220: RCPI limit for a roaming attempt. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Received Channel Power Indicator</a> for further details.</p>
-<p>Upper RCPI limit that must be attained before triggering roaming again.</p>
-<p><b>0</b>: The device will set the limit value to the firmware default. <br />
-1 - 220: RCPI limit to re-enable automatic roaming based on RCPI. This value is used to prevent automatic roaming from triggering again and again while the signal strength stays close to the RcpiThreshold value. RcpiHysteresis should be set to a value grater than RcpiThreshold. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Received Channel Power Indicator</a> for further details.</p>
-<p>Beacon loss limit for a roaming attempt.</p>
-<p><b>0</b>: The device will set the limit value to the firmware default. <br />
-1 - 255: Beacon loss limit for a roaming attempt.</p>
-<p>The amount of specific channels to scan.</p>
-<p><b>0</b>: The device will scan all channels. <br />
-<b>1 - 13</b>: The amount of specific channels to scan.</p>
-<p>List of specific channels to scan.</p>
-<p><b>1 - 13</b>: The channel number to scan per byte. <br />
-Must contain the same number of channels as specified in ChannelListCount. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Scanning</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Reserved, set to zero.</p>
-<p>TX rate set parameters.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>List of offloaded ARP IP addresses.</p>
-<p>The device will automatically reply to an ARP request that matches one the addresses on the list. Note that addresses not in use must be set to zero. Offloading is disabled by setting all addresses to zero. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Offloading</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>List of offloaded NS IP addresses.</p>
-<p>The device will automatically reply to a NS that matches one the addresses on the list. Note that addresses not in use must be set to zero. Offloading is disabled by setting all addresses to zero. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Offloading</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Boolean option for broadcast filtering.</p>
-<p><b>0</b>: The device will forward all received broadcast frames to the host. <br />
-<b>1</b>: The device will only forward ARP and DHCP frames to the host, other broadcast frames are discarded. <br />
-See <a class="el" href="group___w_f_m___c_o_n_c_e_p_t_s.html">Filtering</a> for further details.</p>
-<p>Common message header. <br />
- Request message body.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
-<p>Common message header. <br />
- Confirmation message body.</p>
-<p>Set to 0 for FW default, 1 - 550 TUs</p>
-<p>Set to 0 for FW default, 1 - 550 TUs</p>
-<p>Set to 0 for FW default, 1 - 2</p>
-<p>Reserved, set to zero.</p>
-<p>Status of the set request.</p>
-<p><b>WFM_STATUS_SUCCESS</b>: the set request was completed successfully. <br />
-<b>any other value</b>: the set request failed. <br />
-See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d38db30c2bd61993d2" title="Full MAC (UMAC) confirmation possible values for returned &#39;Status&#39; field. ">WfmStatus</a> for enumeration values.</p>
+<div class="textblock"><p>Service Set Identifier (SSID) of a network. </p>
+<p>Note that the Ssid element must always contain <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga43d1f45e9006a55311e32bd9d3eb51f0" title="Length of Service Set Identifier (SSID) element. ">WFM_API_SSID_SIZE</a> bytes. Only the bytes up to SsidLength are considered to be valid, the rest should be set to zero. </p>
 
 <p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l00288">288</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a9a5ab78d9cff1c353b72a1131da76f6d"></a>uint8_t</td>
+<td class="fieldname">
+Ssid[32]</td>
+<td class="fielddoc">
+SSID data. </td></tr>
+<tr><td class="fieldtype">
+<a id="a50db86d2a7a4add540f4d395d729534a"></a>uint32_t</td>
+<td class="fieldname">
+SsidLength</td>
+<td class="fielddoc">
+Length of SSID data. <p><b>0 - 32</b>: The amount of bytes. </p>
+</td></tr>
+</table>
 
-<p class="reference">References <a class="el" href="wfm__cmd__api_8h_source.html#l00141">WFM_API_SSID_SIZE</a>.</p>
+</div>
+</div>
+<a name="struct_wfm_hi_rate_set_bitmask__t" id="struct_wfm_hi_rate_set_bitmask__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_rate_set_bitmask__t">&#9670;&nbsp;</a></span>WfmHiRateSetBitmask_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiRateSetBitmask_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>Device TX rate set bitmask used in <a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_set_tx_rate_parameters_req_body__t" title="Request message body for WfmHiSetTxRateParametersReq_t. ">WfmHiSetTxRateParametersReqBody_t</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l00301">301</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a9e0847356d503ef73b3b64bb5b173ed2"></a>uint8_t</td>
+<td class="fieldname">
+B11Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11b 11Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a90b29d1645922b6de78c643a2739d583"></a>uint8_t</td>
+<td class="fieldname">
+B1Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11b 1Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a73209596b6c5794a19a90d40bb2254c7"></a>uint8_t</td>
+<td class="fieldname">
+B2Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11b 2Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a5501200461f6303c9ea5ec2a62e733b4"></a>uint8_t</td>
+<td class="fieldname">
+B5P5Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11b 5.5Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a69a3d2494c35e470b21d16fab2578fa7"></a>uint8_t</td>
+<td class="fieldname">
+G12Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11g 12Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a79f47f980971a9f92fea79162f8c5d90"></a>uint8_t</td>
+<td class="fieldname">
+G18Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11g 18Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a9e9f5fefb8155564c9e68ec5a73e32aa"></a>uint8_t</td>
+<td class="fieldname">
+G24Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11g 24Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a41136cb0287b8bfbe02333727b35a75e"></a>uint8_t</td>
+<td class="fieldname">
+G36Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11g 36Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a8ceb35f7c7bc313cd80db7dcf08d4333"></a>uint8_t</td>
+<td class="fieldname">
+G48Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11g 48Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="aa1852840cc8332fc88abd54a7aa11e94"></a>uint8_t</td>
+<td class="fieldname">
+G54Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11g 54Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a712c411f4c6cd0ffc67cedc3239e632d"></a>uint8_t</td>
+<td class="fieldname">
+G6Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11g 6Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="ab2b64715d47caf226ea7dadcef5f60a7"></a>uint8_t</td>
+<td class="fieldname">
+G9Mbps: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11g 9Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a4bf44eebb2db23c8a6349b53891901b9"></a>uint8_t</td>
+<td class="fieldname">
+Mcs0: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11n 6.5Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a2795b478cf31d1d65f1006f941bc93e0"></a>uint8_t</td>
+<td class="fieldname">
+Mcs1: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11n 13Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="ac2c6c33dfc685029a41bdd081ad6c24e"></a>uint8_t</td>
+<td class="fieldname">
+Mcs2: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11n 19.5Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a8de323b2738e8d93c08b5d771bfc287b"></a>uint8_t</td>
+<td class="fieldname">
+Mcs3: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11n 26Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a25bf74e321dd56527b830f5f3998eba4"></a>uint8_t</td>
+<td class="fieldname">
+Mcs4: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11n 39Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="ad8cf701199219c040d6da86bbe974ab5"></a>uint8_t</td>
+<td class="fieldname">
+Mcs5: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11n 52Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="ae0636c39a05ac9e8708e273f22536f9c"></a>uint8_t</td>
+<td class="fieldname">
+Mcs6: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11n 58.5Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a4df2532a4bfab913299163b0a7265ed0"></a>uint8_t</td>
+<td class="fieldname">
+Mcs7: 1</td>
+<td class="fielddoc">
+If set, the device may use 802.11n 65Mbps data rate. </td></tr>
+<tr><td class="fieldtype">
+<a id="a06581a98dccebfb5ca9a09e3a156331d"></a>uint8_t</td>
+<td class="fieldname">
+Unused: 4</td>
+<td class="fielddoc">
+Reserved, set to zero. </td></tr>
+<tr><td class="fieldtype">
+<a id="a29691434ceb5f456e507246941fc9fa3"></a>uint8_t</td>
+<td class="fieldname">
+Unused2</td>
+<td class="fielddoc">
+Reserved, set to zero. </td></tr>
+</table>
+
+</div>
+</div>
+<a name="struct_wfm_hi_ns_ip_addr__t" id="struct_wfm_hi_ns_ip_addr__t"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#struct_wfm_hi_ns_ip_addr__t">&#9670;&nbsp;</a></span>WfmHiNsIpAddr_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct WfmHiNsIpAddr_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"><p>NS IP address element. </p>
+<p>Note that the IP element must always contain <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#ga9ef16eec54a59b298b604add266c8f6f" title="Length of IPv6 address element. ">WFM_API_IPV6_ADDR_SIZE</a> bytes. Only the bytes up to SsidLength are considered to be valid, the rest should be set to zero. </p>
+
+<p class="definition">Definition at line <a class="el" href="wfm__cmd__api_8h_source.html#l00331">331</a> of file <a class="el" href="wfm__cmd__api_8h_source.html">wfm_cmd_api.h</a>.</p>
+</div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="afad628eb73d5d071aea4dfd1bcf6c773"></a>uint8_t</td>
+<td class="fieldname">
+Ipv6Addr[16]</td>
+<td class="fielddoc">
+NS IP address. </td></tr>
+</table>
 
 </div>
 </div>
@@ -762,7 +330,7 @@ See <a class="el" href="group___w_f_m___c_o_n_s_t_a_n_t_s.html#gaf39ce9c13fa7b8d
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jan 3 2019 12:29:09 for WF200 FMAC driver by
+    <li class="footer">Generated on Fri Jan 4 2019 18:01:02 for WF200 FMAC driver by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
   </ul>

@@ -1,15 +1,24 @@
 var group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n =
 [
-    [ "MsginfoBytes_s", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_msginfo_bytes__s", [
-      [ "MsgId", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a0d1bd69b7425858e5cdd2628bf30325e", null ],
-      [ "MsgInfo", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a4e0c5e1dfe8e6f34f8469c62625d3f0f", null ]
+    [ "MsginfoBytes_t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_msginfo_bytes__t", [
+      [ "MsgId", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#af5ff05747d23a6022f5f7f28a2e6dbf7", null ],
+      [ "MsgInfo", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a4cff70c82119906240be566bd4771c8c", null ]
     ] ],
-    [ "MsginfoUnion_u", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#union_msginfo_union__u", [
-      [ "b", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a208eca4348c7238a5491f2fa914e76ba", null ],
-      [ "t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#ae62aad2a34176f448950f4ae870bfc2c", null ],
-      [ "U16MsgInfo", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a22b6d120f2230435d2be5eb32080403c", null ]
+    [ "MsginfoUnion_t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#union_msginfo_union__t", [
+      [ "b", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a5aa41c56ae017a0fba33bc405879f265", null ],
+      [ "t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a93f078b60fa3e9be7211f398d13e9389", null ],
+      [ "U16MsgInfo", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#aa8924cec774f0cb50eb5b2aad599d21c", null ]
     ] ],
-    [ "MsginfoBytes_t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#ga226948ab566ef07583c3c313b9f3c254", null ],
-    [ "MsginfoUnion_t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#gaaafdb7a050ccbdae308f34fad4a27e38", null ],
-    [ "U16msginfo_t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#ga20288210e0289dd146376a954b6fd3e9", null ]
+    [ "HiMsgHdr_t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_msg_hdr__t", [
+      [ "MsgLen", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a8f0edc519faebdd45995ef74ab181790", null ],
+      [ "s", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#ae715c462a26449c47bdcedfbb0e56126", null ]
+    ] ],
+    [ "HiGenericMsg_t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_generic_msg__t", [
+      [ "Body", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a7795a1f3967f62170bd08c48430c4af7", null ],
+      [ "Header", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#aeb6fc39c71271fe692cafa0b16e23410", null ]
+    ] ],
+    [ "HiGenericCnf_t", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#struct_hi_generic_cnf__t", [
+      [ "Header", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a8c4cfe8c4bb4b7afaa3c4fd6107c0bb0", null ],
+      [ "Status", "group___m_e_s_s_a_g_e___c_o_n_s_t_r_u_c_t_i_o_n.html#a673841596bce23e0e76c48f2b813ccf8", null ]
+    ] ]
 ];

@@ -26,4 +26,4 @@ Message header is a 32bit word starting every messages sent or received by WF200
 		* Reserved (3 bits)
 		* SecLink (2 bits): Always 00 for non-encrypted messages. In secure link mode, the standard header is replaced by a specific one.
 		
-\todo Add link to the header structures in wfx_fm_api.h
+The structure used to describe the message header can be found in the firmware header file in ::HiMsgHdr_t.

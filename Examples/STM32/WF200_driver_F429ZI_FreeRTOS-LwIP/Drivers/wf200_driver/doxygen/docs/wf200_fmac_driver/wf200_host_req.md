@@ -17,10 +17,10 @@ The WF200 follows the SDIO specification ver 2.0. In case of power save features
 ## Host memory requirements
 
 ### Flash memory
-\todo add flash memory requirements
+The firmware 2.0.0 needs 300KB of memory on the host side. It is then sent to the WF200 during the initialization phase. For future proof updates, we recommend to keep at least 350KB free on the host side.
 
 ### RAM memory
-\todo add ram memory requirements
+The RAM memory used to run the driver is small (<1KB for the context structure) and only consists of maintaining WF200 context.
 
 ## Host API functions implementation
 The host has to implement a set of functions to enable the driver to access multiple resources (Firmware, GPIOs, memory, busses...). The implementation of these functions are dependent on the platform and type of operating system used.
@@ -72,7 +72,7 @@ The host must maintain the number of commands/frames not yet acknowledged by a c
 ```c
 sl_status_t wf200_host_transmit_frame( wf200_buffer_t* frame );
 ```
-\todo add startup indication ref.
+You can refer to the start up indication structure to retrieve the number of available input buffers (NumInpChBufs in ::HiStartupIndBody_t ).
 
 ## WF200 receive frame loop
 

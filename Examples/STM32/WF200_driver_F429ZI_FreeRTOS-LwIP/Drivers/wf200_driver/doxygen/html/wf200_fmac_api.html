@@ -31,7 +31,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">WF200 FMAC driver
-   &#160;<span id="projectnumber">0.0.1</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
   </td>
  </tr>
@@ -93,7 +93,7 @@ $(document).ready(function(){initNavTree('wf200_fmac_api.html','');});
 <div class="contents">
 <div class="textblock"><p>To interact with WF200, the host has access to a set of API exposing a FMAC Wi-Fi interface. To find the related driver functions, you can refer to the table below or to the FMAC_API group.</p>
 <h2>FMAC API commands</h2>
-<p>Below is a table listing the FMAC API commands supported by WF200. <a class="anchor" id="requests"></a></p><table class="markdownTable">
+<p>Below is a table listing the FMAC API commands supported by WF200. <a class="anchor" id="requests"></a> </p><table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Commands  </th><th class="markdownTableHeadNone">Value  </th><th class="markdownTableHeadNone">Associated driver function  </th><th class="markdownTableHeadNone">Description   </th></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
@@ -141,40 +141,40 @@ $(document).ready(function(){initNavTree('wf200_fmac_api.html','');});
 <h2>FMAC API indications</h2>
 <p><a class="anchor" id="indications"></a></p><table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Indications  </th><th class="markdownTableHeadNone">Value  </th><th class="markdownTableHeadNone">Description   </th></tr>
+<th class="markdownTableHeadNone">Indications  </th><th class="markdownTableHeadNone">Value  </th><th class="markdownTableHeadNone">Associated struture  </th><th class="markdownTableHeadNone">Description   </th></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">WFM_HI_CONNECT_IND  </td><td class="markdownTableBodyNone">0xc3  </td><td class="markdownTableBodyNone">Connection to a network complete   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_CONNECT_IND  </td><td class="markdownTableBodyNone">0xc3  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_connect_ind_body__t" title="Indication message body for WfmHiConnectInd_t. ">WfmHiConnectIndBody_t</a>  </td><td class="markdownTableBodyNone">Connection to a network complete   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowEven">
-<td class="markdownTableBodyNone">WFM_HI_DISCONNECT_IND  </td><td class="markdownTableBodyNone">0xc4  </td><td class="markdownTableBodyNone">Disconnection from a network complete   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_DISCONNECT_IND  </td><td class="markdownTableBodyNone">0xc4  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_disconnect_ind_body__t" title="Indication message body for WfmHiDisconnectInd_t. ">WfmHiDisconnectIndBody_t</a>  </td><td class="markdownTableBodyNone">Disconnection from a network complete   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">WFM_HI_START_AP_IND  </td><td class="markdownTableBodyNone">0xc5  </td><td class="markdownTableBodyNone">Started AP mode   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_START_AP_IND  </td><td class="markdownTableBodyNone">0xc5  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_start_ap_ind_body__t" title="Indication message body for WfmHiStartApInd_t. ">WfmHiStartApIndBody_t</a>  </td><td class="markdownTableBodyNone">Started AP mode   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowEven">
-<td class="markdownTableBodyNone">WFM_HI_STOP_AP_IND  </td><td class="markdownTableBodyNone">0xc7  </td><td class="markdownTableBodyNone">Stopped AP mode   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_STOP_AP_IND  </td><td class="markdownTableBodyNone">0xc7  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_stop_ap_ind__t" title="Indication message used to signal the completion of a stop operation. ">WfmHiStopApInd_t</a>  </td><td class="markdownTableBodyNone">Stopped AP mode   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">WFM_HI_RECEIVED_IND  </td><td class="markdownTableBodyNone">0xca  </td><td class="markdownTableBodyNone">Framereceived   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_RECEIVED_IND  </td><td class="markdownTableBodyNone">0xca  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_received_ind_body__t" title="Indication message body for WfmHiReceivedInd_t. ">WfmHiReceivedIndBody_t</a>  </td><td class="markdownTableBodyNone">Framereceived   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowEven">
-<td class="markdownTableBodyNone">WFM_HI_SCAN_RESULT_IND  </td><td class="markdownTableBodyNone">0xcb  </td><td class="markdownTableBodyNone">Scan result received   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_SCAN_RESULT_IND  </td><td class="markdownTableBodyNone">0xcb  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_scan_result_ind_body__t" title="Indication message body for WfmHiScanResultInd_t. ">WfmHiScanResultIndBody_t</a>  </td><td class="markdownTableBodyNone">Scan result received   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">WFM_HI_SCAN_COMPLETE_IND  </td><td class="markdownTableBodyNone">0xcc  </td><td class="markdownTableBodyNone">Scan complete   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_SCAN_COMPLETE_IND  </td><td class="markdownTableBodyNone">0xcc  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_scan_complete_ind_body__t" title="Indication message body for WfmHiScanCompleteInd_t. ">WfmHiScanCompleteIndBody_t</a>  </td><td class="markdownTableBodyNone">Scan complete   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowEven">
-<td class="markdownTableBodyNone">WFM_HI_AP_CLIENT_CONNECTED_IND  </td><td class="markdownTableBodyNone">0xcd  </td><td class="markdownTableBodyNone">AP Client connected   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_AP_CLIENT_CONNECTED_IND  </td><td class="markdownTableBodyNone">0xcd  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_ap_client_connected_ind_body__t" title="Indication message body for WfmHiApClientConnectedInd_t. ">WfmHiApClientConnectedIndBody_t</a>  </td><td class="markdownTableBodyNone">AP Client connected   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">WFM_HI_AP_CLIENT_REJECTED_IND  </td><td class="markdownTableBodyNone">0xce  </td><td class="markdownTableBodyNone">AP Client rejected   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_AP_CLIENT_REJECTED_IND  </td><td class="markdownTableBodyNone">0xce  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_ap_client_rejected_ind_body__t" title="Indication message body for WfmHiApClientRejectedInd_t. ">WfmHiApClientRejectedIndBody_t</a>  </td><td class="markdownTableBodyNone">AP Client rejected   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowEven">
-<td class="markdownTableBodyNone">WFM_HI_AP_CLIENT_DISCONNECTED_IND  </td><td class="markdownTableBodyNone">0xcf  </td><td class="markdownTableBodyNone">AP Client disconnected   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_AP_CLIENT_DISCONNECTED_IND  </td><td class="markdownTableBodyNone">0xcf  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_ap_client_disconnected_ind_body__t" title="Indication message body for WfmHiApClientDisconnectedInd_t. ">WfmHiApClientDisconnectedIndBody_t</a>  </td><td class="markdownTableBodyNone">AP Client disconnected   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">WFM_HI_JOIN_IBSS_IND  </td><td class="markdownTableBodyNone">0xd0  </td><td class="markdownTableBodyNone">Connection to an IBSS complete   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_JOIN_IBSS_IND  </td><td class="markdownTableBodyNone">0xd0  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_join_ibss_ind_body__t" title="Indication message body for WfmHiJoinIbssInd_t. ">WfmHiJoinIbssIndBody_t</a>  </td><td class="markdownTableBodyNone">Connection to an IBSS complete   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowEven">
-<td class="markdownTableBodyNone">WFM_HI_LEAVE_IBSS_IND  </td><td class="markdownTableBodyNone">0xd1  </td><td class="markdownTableBodyNone">Left IBSS   </td></tr>
+<td class="markdownTableBodyNone">WFM_HI_LEAVE_IBSS_IND  </td><td class="markdownTableBodyNone">0xd1  </td><td class="markdownTableBodyNone"><a class="el" href="group___w_f_m___m_e_s_s_a_g_e_s.html#struct_wfm_hi_leave_ibss_ind__t" title="Indication message used to signal the completion of a disconnect operation. ">WfmHiLeaveIbssInd_t</a>  </td><td class="markdownTableBodyNone">Left IBSS   </td></tr>
 </table>
-<p>This indications have to be managed by the host depending on the application and use case. </p><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>add references to indication structures when available. </dd></dl>
+<p>This indications have to be managed by the host depending on the application and use case. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="wf200_fmac_driver.html">FMAC driver</a></li>
-    <li class="footer">Generated on Thu Jan 3 2019 12:29:06 for WF200 FMAC driver by
+    <li class="footer">Generated on Fri Jan 4 2019 18:00:57 for WF200 FMAC driver by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
   </ul>

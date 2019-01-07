@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['higeneralconfirmationsids_5fe',['HiGeneralConfirmationsIds_e',['../group___g_e_n_e_r_a_l___a_p_i.html#ga0c17ecd04eaa4fb673f09733285f5699',1,'general_api.h']]],
-  ['higeneralindicationsids_5fe',['HiGeneralIndicationsIds_e',['../group___g_e_n_e_r_a_l___a_p_i.html#ga5b7a995a90db1e2bca9f90553a82dc57',1,'general_api.h']]],
-  ['higeneralrequestsids_5fe',['HiGeneralRequestsIds_e',['../group___g_e_n_e_r_a_l___a_p_i.html#ga34a1e2f22eb103ca8288723b3d2b7633',1,'general_api.h']]],
-  ['higenericindicationtype_5fe',['HiGenericIndicationType_e',['../group___general___configuration.html#ga620d747f665f862c080ff9146c09b431',1,'general_api.h']]],
-  ['higpioerror_5fe',['HiGpioError_e',['../group___general___configuration.html#ga7898617e20dbef07497bf047d3d2b80e',1,'general_api.h']]],
-  ['higpiomode_5fe',['HiGpioMode_e',['../group___general___configuration.html#gaed93f03233e8dff5f9909e9a97568071',1,'general_api.h']]],
-  ['histatus_5fe',['HiStatus_e',['../group___g_e_n_e_r_a_l___a_p_i.html#ga5863d1cef8bb2416fb8ffc7df68eff63',1,'general_api.h']]]
+  ['higeneralconfirmationsids',['HiGeneralConfirmationsIds',['../group___g_e_n_e_r_a_l___a_p_i.html#ga9e6d0c21df262750c7937033aaea666e',1,'general_api.h']]],
+  ['higeneralindicationsids',['HiGeneralIndicationsIds',['../group___g_e_n_e_r_a_l___a_p_i.html#ga67bbed73c9dc7730e192c982a8705a33',1,'general_api.h']]],
+  ['higeneralrequestsids',['HiGeneralRequestsIds',['../group___g_e_n_e_r_a_l___a_p_i.html#ga092c39ac097664abe7b0f1ed441f6cff',1,'general_api.h']]],
+  ['higenericindicationtype',['HiGenericIndicationType',['../group___general___configuration.html#ga7c3a5ef40515d758c28ac649cd91842e',1,'general_api.h']]],
+  ['higpioerror',['HiGpioError',['../group___general___configuration.html#ga217f3a0a8e53d76ee3202b83857d05f4',1,'general_api.h']]],
+  ['higpiomode',['HiGpioMode',['../group___general___configuration.html#ga1eb4314fb673d4d0b327f77a887fb59d',1,'general_api.h']]],
+  ['histatus',['HiStatus',['../group___g_e_n_e_r_a_l___a_p_i.html#ga23fd6d1f1e89b50db16f079e57137638',1,'general_api.h']]]
 ];

@@ -18,7 +18,7 @@
 
 //#define SOFT_AP_MODE   ///< If defined, default WiFi is soft AP mode (requires static IP)
 #ifndef SOFT_AP_MODE
-//#define USE_DHCP       ///< If defined, DHCP is enabled, otherwise static address below is used
+#define USE_DHCP       ///< If defined, DHCP is enabled, otherwise static address below is used
 #endif
  
 /*Static IP ADDRESS*/

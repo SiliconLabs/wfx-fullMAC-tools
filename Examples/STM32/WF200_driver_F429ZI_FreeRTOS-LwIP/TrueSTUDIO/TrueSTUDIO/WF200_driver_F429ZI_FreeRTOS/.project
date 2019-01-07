@@ -127,11 +127,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/SYSVIEW</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>Application/TrueSTUDIO/startup_stm32f429xx.s</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f429xx.s</locationURI>
@@ -359,7 +354,7 @@
 		<link>
 			<name>Middlewares/FreeRTOS/port.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c</locationURI>
+			<location>C:/Users/jutiron/Desktop/Github/wfx_fullMAC_tools/Examples/STM32/WF200_driver_F429ZI_FreeRTOS-LwIP/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c</location>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/queue.c</name>
@@ -395,26 +390,6 @@
 			<name>Middlewares/LwIP/netif</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/SYSVIEW/SEGGER_RTT.c</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/SEGGER_SYSView/src/SEGGER_RTT.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/SYSVIEW/SEGGER_SYSVIEW.c</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/SEGGER_SYSView/src/SEGGER_SYSVIEW.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/SYSVIEW/SEGGER_SYSVIEW_Config_FreeRTOS.c</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/SEGGER_SYSView/src/SEGGER_SYSVIEW_Config_FreeRTOS.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/SYSVIEW/SEGGER_SYSVIEW_FreeRTOS.c</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/SEGGER_SYSView/src/SEGGER_SYSVIEW_FreeRTOS.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/api_lib.c</name>
@@ -479,12 +454,12 @@
 		<link>
 			<name>Middlewares/LwIP/apps/httpd/fs.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/apps/httpd/fs.c</locationURI>
+			<location>C:/Users/jutiron/Desktop/Github/wfx_fullMAC_tools/Examples/STM32/WF200_driver_F429ZI_FreeRTOS-LwIP/Middlewares/Third_Party/LwIP/src/apps/http/fs.c</location>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/apps/httpd/httpd.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/apps/httpd/httpd.c</locationURI>
+			<location>C:/Users/jutiron/Desktop/Github/wfx_fullMAC_tools/Examples/STM32/WF200_driver_F429ZI_FreeRTOS-LwIP/Middlewares/Third_Party/LwIP/src/apps/http/httpd.c</location>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -76,7 +76,6 @@ task.h is included from an application file. */
 #define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /* FreeRTOS includes. */
-#include "SEGGER_SYSVIEW_FreeRTOS.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "timers.h"
@@ -127,7 +126,7 @@ typedef struct xEventGroupDefinition
  * wait condition is met if any of the bits set in uxBitsToWait for are also set
  * in uxCurrentEventBits.
  */
-static BaseType_t prvTestWaitCondition( const EventBits_t uxCurrentEventBits, const EventBits_t uxBitsToWaitFor, const BaseType_t xWaitForAllBits ) PRIVILEGED_FUNCTION;
+PRIVILEGED_FUNCTION static BaseType_t prvTestWaitCondition( const EventBits_t uxCurrentEventBits, const EventBits_t uxBitsToWaitFor, const BaseType_t xWaitForAllBits );
 
 /*-----------------------------------------------------------*/
 

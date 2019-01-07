@@ -1362,10 +1362,10 @@
         <group>
           <name>httpd</name>
           <file>
-            <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\src\apps\httpd\fs.c</name>
+            <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\src\apps\http\fs.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\src\apps\httpd\httpd.c</name>
+            <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\src\apps\http\httpd.c</name>
           </file>
         </group>
         <file>
@@ -1462,21 +1462,6 @@
           <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\system\OS\sys_arch.c</name>
         </file>
       </group>
-    </group>
-    <group>
-      <name>SYSVIEW</name>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\src\SEGGER_RTT.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\src\SEGGER_SYSVIEW.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\src\SEGGER_SYSVIEW_Config_FreeRTOS.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\src\SEGGER_SYSVIEW_FreeRTOS.c</name>
-      </file>
     </group>
   </group>
 </project>

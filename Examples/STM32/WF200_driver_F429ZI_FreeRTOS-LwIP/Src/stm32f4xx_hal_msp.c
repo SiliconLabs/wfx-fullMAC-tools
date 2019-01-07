@@ -56,7 +56,6 @@ extern DMA_HandleTypeDef hdma_spi1_rx;
 extern void _Error_Handler(char *, int);
 /* USER CODE BEGIN 0 */
 /* FreeRTOS includes. */
-#include "SEGGER_SYSVIEW_FreeRTOS.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"

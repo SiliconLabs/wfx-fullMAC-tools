@@ -69,7 +69,6 @@
 
 
 #include <stdlib.h>
-#include "SEGGER_SYSVIEW_FreeRTOS.h"
 #include "FreeRTOS.h"
 #include "list.h"
 

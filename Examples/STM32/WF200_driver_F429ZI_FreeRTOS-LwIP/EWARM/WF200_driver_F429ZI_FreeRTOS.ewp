@@ -187,8 +187,7 @@
           <name>CCDefines</name>
           <state>USE_HAL_DRIVER</state>
           <state>STM32F429xx</state>
-          <state>WF200_ALPHA_KEY</state>
-          <state>DISABLE_SYSTEMVIEW_APP_EVT</state>
+          <state>WF200_PROD_KEY</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -331,8 +330,7 @@
           <state>$PROJ_DIR$\..\Drivers\wf200_driver\bus</state>
           <state>$PROJ_DIR$\..\Drivers\wf200_driver\firmware</state>
           <state>$PROJ_DIR$\..\Drivers\wf200_driver\sl</state>
-          <state>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\inc</state>
-          <state>$PROJ_DIR$\..\Drivers\wf200_driver\firmware\1.2.16</state>
+          <state>C:\Users\jutiron\Desktop\WF200_driver_F429ZI_FreeRTOS-LwIP\Drivers\wf200_driver\firmware\2.0.0</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1187,10 +1185,10 @@
         <group>
           <name>httpd</name>
           <file>
-            <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\src\apps\httpd\fs.c</name>
+            <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\src\apps\http\fs.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\src\apps\httpd\httpd.c</name>
+            <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\src\apps\http\httpd.c</name>
           </file>
         </group>
         <file>
@@ -1287,21 +1285,6 @@
           <name>$PROJ_DIR$\..\Middlewares\Third_Party\LwIP\system\OS\sys_arch.c</name>
         </file>
       </group>
-    </group>
-    <group>
-      <name>SYSVIEW</name>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\src\SEGGER_RTT.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\src\SEGGER_SYSVIEW.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\src\SEGGER_SYSVIEW_Config_FreeRTOS.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\SEGGER_SYSView\src\SEGGER_SYSVIEW_FreeRTOS.c</name>
-      </file>
     </group>
   </group>
 </project>

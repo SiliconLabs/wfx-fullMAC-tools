@@ -28,8 +28,7 @@
 #include "wf200.h"
 #include "wf200_bus.h"
 #include "wf200_host_api.h"
-#include "wfx_fm_api.h"
-#include "wfx_sm_api.h"
+#include "wfm_api.h"
 #include "firmware/wf200_registers.h"
 #include "wf200_configuration.h"
 #include <stdlib.h>
@@ -147,10 +146,10 @@ sl_status_t wf200_init( wf200_context_t* context )
   memcpy(&(context->mac_addr_0.octet), startup_info->Body.MacAddr0, sizeof(wf200_mac_address_t));
   memcpy(&(context->mac_addr_1.octet), startup_info->Body.MacAddr1, sizeof(wf200_mac_address_t));
 
-  /* Sending to wf200 PDS configuration (Platform data set) contained in wf200_pds.c  */
-  for ( uint8_t a = 0; a < wf200_config_count; a++ )
+  /* Sending to wf200 PDS configuration (Platform data set) contained in wf200_pds.h  */
+  for ( uint8_t a = 0; a < ARRAY_COUNT(wf200_pds); a++ )
   {
-    result = wf200_send_configuration( wf200_config_table[a].data, wf200_config_table[a].size );
+    result = wf200_send_configuration( wf200_pds[a],strlen(wf200_pds[a]) );
   }
   ERROR_CHECK( result );
   wf200_input_buffer_number = startup_info->Body.NumInpChBufs;
@@ -186,25 +185,24 @@ error_handler:
   return result;
 }
 
-/** \addtogroup FMAC_API
+/** \addtogroup FULL_MAC_DRIVER_API
  *  @{
  */
 
 /**
- * \brief Set the MAC addressed used by wf200
+ * \brief Set the MAC address used by wf200
  *
- * \param sta_mac: MAC address used by the station interface
- * \param softap_mac: MAC address used by the softap interface
+ * \param mac: MAC address of the interface
+ * \param interface: Interface to be configured. wf200_interface_t.
+ *   \arg         WF200_STA_INTERFACE
+ *   \arg         WF200_SOFTAP_INTERFACE
  * \return SL_SUCCESS if the request has been sent correctly, SL_ERROR otherwise
  */
-sl_status_t wf200_set_mac_address( const wf200_mac_address_t* sta_mac, const wf200_mac_address_t* softap_mac )
+sl_status_t wf200_set_mac_address( const wf200_mac_address_t* mac, wf200_interface_t interface )
 {
   WfmHiSetMacAddressReqBody_t payload;
-
-  memcpy( &payload.MacAddr0, &sta_mac->octet,    sizeof( payload.MacAddr0 ) );
-  memcpy( &payload.MacAddr1, &softap_mac->octet, sizeof( payload.MacAddr1 ) );
-
-  return wf200_send_command( WFM_HI_SET_MAC_ADDRESS_REQ_ID, &payload, sizeof( payload ), WF200_STA_INTERFACE );
+  memcpy( &payload.MacAddr, &mac->octet, sizeof( payload.MacAddr ) );
+  return wf200_send_command( WFM_HI_SET_MAC_ADDRESS_REQ_ID, &payload, sizeof( payload ), interface );
 }
 
 /**
@@ -233,7 +231,7 @@ sl_status_t wf200_send_join_command( const uint8_t* ssid,
   wf200_buffer_t*        frame           = NULL;
   WfmHiConnectReqBody_t* connect_request = NULL;
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, sizeof( WfmHiConnectReq_t ), WF200_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, sizeof( WfmHiConnectReq_t ), SL_WAIT_FOREVER );
   ERROR_CHECK( result );
 
   frame->msg_info                      = 0;
@@ -297,7 +295,7 @@ sl_status_t wf200_send_disconnect_command(void)
 sl_status_t wf200_start_ap_command( uint32_t            channel,
                                    uint8_t*            ssid,
                                    uint32_t            ssid_length,
-                                   wfm_security_mode   security,
+                                   WfmSecurityMode     security,
                                    const uint8_t*      passkey,
                                    uint8_t             passkey_length )
 {
@@ -381,7 +379,7 @@ sl_status_t wf200_send_ethernet_frame( wf200_frame_t* frame, uint32_t data_lengt
   if(wf200_context->used_buffer_number <= wf200_input_buffer_number)
   {
     frame->FrameType        = WFM_FRAME_TYPE_DATA;
-    frame->Priority         = WFM_PRIORITY_VO;
+    frame->Priority         = WFM_PRIORITY_BE;
     frame->PacketId         = wf200_context->data_frame_id++;
     frame->PacketDataLength = data_length;
     frame->msg_id           = WFM_HI_SEND_FRAME_REQ_ID;
@@ -408,7 +406,7 @@ sl_status_t wf200_send_ethernet_frame( wf200_frame_t* frame, uint32_t data_lengt
  *   \arg        WFM_SCAN_MODE_PASSIVE
  *   \arg        WFM_SCAN_MODE_ACTIVE
  * \param channel_list: Channels to be scanned [1;13]
- * \param channel_list_count: Number of channels to be scanned
+ * \param channel_list_count: Number of channels to be scanned. If 0 the scan will be performed on every channel.
  * \param ssid_list: Specify SSID names to look for. WF200 will send information only the specified SSID. Null to request information for every AP found.
  * \param ssid_list_count: The number of SSID specified [0;2]
  * \param ie_data: NA
@@ -431,7 +429,7 @@ sl_status_t wf200_send_scan_command( uint16_t               scan_mode,
   WfmHiStartScanReqBody_t* scan_request         = NULL;
   WfmHiStartScanCnf_t*     reply                = NULL;
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_total_length, WF200_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_total_length, SL_WAIT_FOREVER );
   ERROR_CHECK( result );
 
   frame->msg_info                      = 0;
@@ -506,7 +504,7 @@ sl_status_t wf200_get_signal_strength( uint32_t* signal_strength )
   WfmHiGetSignalStrengthReq_t* get_signal_strength = NULL;
   WfmHiGetSignalStrengthCnf_t* reply      = NULL;
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, sizeof( *get_signal_strength ), WF200_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, sizeof( *get_signal_strength ), SL_WAIT_FOREVER );
   ERROR_CHECK( result );
 
   get_signal_strength->s.b.IntId = WF200_STA_INTERFACE;
@@ -553,7 +551,7 @@ sl_status_t wf200_disconnect_ap_client_command( const wf200_mac_address_t* clien
  * \param interval: interval of sleep in seconds
  * \return SL_SUCCESS if the request has been sent correctly, SL_ERROR otherwise
  */
-sl_status_t wf200_set_power_mode( wfm_pm_mode mode, uint16_t interval )
+sl_status_t wf200_set_power_mode( WfmPmMode mode, uint16_t interval )
 {
   WfmHiSetPmModeReqBody_t payload =
   {
@@ -582,7 +580,7 @@ sl_status_t wf200_add_multicast_address( const wf200_mac_address_t* mac_address,
     const uint32_t                 request_length  = sizeof( *request );
     uint16_t                       overhead        = 0;
 
-    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length + overhead, WF200_WAIT_FOREVER );
+    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length + overhead, SL_WAIT_FOREVER );
     ERROR_CHECK( result );
 
     request = (WfmHiAddMulticastAddrReq_t*)frame;
@@ -624,7 +622,7 @@ sl_status_t wf200_set_max_ap_client( uint32_t max_clients )
     const uint32_t                 request_length  = sizeof( *ap_request );
     uint16_t                       overhead        = 0;
 
-    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length + overhead, WF200_WAIT_FOREVER );
+    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length + overhead, SL_WAIT_FOREVER );
     ERROR_CHECK( result );
 
     ap_request = (WfmHiSetMaxApClientCountReq_t*)frame;
@@ -648,9 +646,9 @@ error_handler:
     }
     return result;
 }
-/** @}*/ //FMAC_API
+/** @}*/ //FULL_MAC_DRIVER_API
 
-/** \addtogroup COMMON_API
+/** \addtogroup GENERAL_DRIVER_API
  *  @{
  */
 
@@ -668,9 +666,9 @@ sl_status_t wf200_send_configuration( const char* pds_data, uint32_t pds_data_le
   HiConfigurationCnf_t*     reply;
   wf200_buffer_t*           frame          = NULL;
   HiConfigurationReqBody_t* config_request = NULL;
-  uint32_t                  request_length = sizeof(HiConfigurationReq_t) + pds_data_length - API_PDS_DATA_SIZE; // '-4' to exclude size of 'Body.DpdData.SddData' field, which is already included in sdd_data_length
+  uint32_t                  request_length = sizeof(HiConfigurationReq_t) + pds_data_length - API_VARIABLE_SIZE_ARRAY_DUMMY_SIZE; // '-1' to exclude size of 'Body.PdsData' field, which is already included in pds_data_length
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, WF200_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
   ERROR_CHECK( result );
 
   config_request         = (HiConfigurationReqBody_t*)&frame->data;
@@ -717,7 +715,7 @@ sl_status_t wf200_shutdown( void )
     error_handler:
     return status;
 }
-/** @}*/ //COMMON_API
+/** @}*/ //GENERAL_DRIVER_API
 
 /**
  * \brief Send a command to WF200
@@ -738,7 +736,7 @@ sl_status_t wf200_send_command( uint32_t command_id, void* data, uint32_t data_s
     wf200_buffer_t*       request = NULL;
     uint32_t              request_length = sizeof(HiMsgHdr_t) + data_size;
 
-    result = wf200_host_allocate_buffer( &request, WF200_CONTROL_BUFFER, request_length, WF200_WAIT_FOREVER );
+    result = wf200_host_allocate_buffer( &request, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
     ERROR_CHECK( result );
 
     request_header = (HiMsgHdr_t*) request;
@@ -787,42 +785,43 @@ static sl_status_t wf200_send_request( uint16_t command_id, wf200_buffer_t* requ
 /**
  * \brief Receive available frame from wf200
  *
- * \note The host is responsible for handling the frame
- *
+ * \param frame_size: frame size to be read from WF200. If 0, the driver will read the control register to retrieve the frame size.
  * \return SL_SUCCESS if the request has been sent correctly, SL_ERROR otherwise
  */
-sl_status_t wf200_receive_frame( void )
+sl_status_t wf200_receive_frame( uint32_t* frame_size )
 {
   sl_status_t result;
+  wf200_buffer_t* network_rx_buffer;
   uint16_t ctrl_reg = 0;
-
-  result = wf200_reg_read_16( WF200_CONTROL_REG_ID, &ctrl_reg );
+  uint32_t read_len;
+  
+  /* if frame_length is equal to 0, read the control register to know the frame size */
+  if(*frame_size == 0)
+  { 
+    result = wf200_reg_read_16( WF200_CONTROL_REG_ID, &ctrl_reg );
+    *frame_size = ( ctrl_reg & WF200_CONT_NEXT_LEN_MASK ) * 2; 
+    ERROR_CHECK( result );
+  }
+  
+  /* critical : '+2' is for the piggy-back ctrl register read at the end. */
+  read_len = *frame_size + 2; 
+  result = wf200_host_allocate_buffer( &network_rx_buffer, WF200_RX_FRAME_BUFFER, ROUND_UP( read_len, 64 ), 0 );
   ERROR_CHECK( result );
-  if ( ( ctrl_reg & WF200_CONT_NEXT_LEN_MASK ) != 0 )
-  {
-    wf200_buffer_t* network_rx_buffer;
-    uint32_t read_len = ( ctrl_reg & WF200_CONT_NEXT_LEN_MASK ) * 2 + 2; // critical : '+2' is for the piggy-back crlr register read at the end. without it the FW throws an exception
-    result = wf200_host_allocate_buffer( &network_rx_buffer, WF200_RX_FRAME_BUFFER, ROUND_UP( read_len, 64 ), 0 );
-    ERROR_CHECK( result );
+  
+  memset( network_rx_buffer, 0, read_len );
 
-    memset( network_rx_buffer, 0, read_len );
+  /* Read the frame from WF200 */
+  result = wf200_data_read( network_rx_buffer, read_len );
+  ERROR_CHECK( result );
 
-    result = wf200_data_read( network_rx_buffer, read_len );
-    ERROR_CHECK( result );
-
-    network_rx_buffer->msg_len = UNPACK_16BIT_LITTLE_ENDIAN(&network_rx_buffer->msg_len);
-    network_rx_buffer->msg_id  = UNPACK_16BIT_LITTLE_ENDIAN(&network_rx_buffer->msg_id)  & 0xFF;
-
-    ctrl_reg = UNPACK_16BIT_LITTLE_ENDIAN( ((uint8_t*)network_rx_buffer) + read_len - 2 );
-
-    result = wf200_host_post_event(network_rx_buffer->msg_id, network_rx_buffer, read_len - 2);
-    result = SL_WIFI_FRAME_RECEIVED;
-  }
-  else
-  {
-    result = SL_WIFI_NO_PACKET_TO_RECEIVE;
-  }
-
+  network_rx_buffer->msg_len = UNPACK_16BIT_LITTLE_ENDIAN(&network_rx_buffer->msg_len);
+  network_rx_buffer->msg_id  = UNPACK_16BIT_LITTLE_ENDIAN(&network_rx_buffer->msg_id)  & 0xFF;
+  
+  /* read the next frame size in the piggy back value and pass it to the host */
+  ctrl_reg = UNPACK_16BIT_LITTLE_ENDIAN( ((uint8_t*)network_rx_buffer) + read_len  - 2 );
+  result = wf200_host_post_event(network_rx_buffer->msg_id, network_rx_buffer, read_len  - 2);
+  *frame_size = (ctrl_reg & WF200_CONT_NEXT_LEN_MASK) * 2; 
+  
 error_handler:
   return result;
 }
@@ -1296,6 +1295,7 @@ sl_status_t wf200_get_hardware_revision_and_type( uint8_t* revision, uint8_t* ty
  */
 sl_status_t wf200_get_opn( uint8_t** opn )
 {
+    UNUSED_PARAMETER( opn );
     sl_status_t status = SL_ERROR;
 
     if ( wf200_context != NULL )

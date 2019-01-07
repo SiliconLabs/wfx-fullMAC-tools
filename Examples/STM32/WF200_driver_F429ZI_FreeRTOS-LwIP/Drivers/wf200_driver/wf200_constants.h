@@ -29,12 +29,6 @@
  *                      Macros
  ******************************************************/
 
-#define WF200_WAIT_FOREVER  0xFFFFFFF
-
-#ifndef ROUND_UP
-#define ROUND_UP(x,y)    ((x) % (y) ? (x) + (y)-((x)%(y)) : (x))
-#endif /* ifndef ROUND_UP */
-   
 #define ERROR_CHECK(__status__) \
     do {\
         if(((sl_status_t)__status__) != SL_SUCCESS){\
@@ -151,8 +145,6 @@
 #define WF200_CONFIG_REVISION_MASK      0x7
 #define WF200_CONFIG_TYPE_OFFSET        31
 #define WF200_CONFIG_TYPE_MASK          0x1
-
-#define HI_EXCEPTION_IND_ID             0xe0
 
 #define WF200_OPN_SIZE                  14
 

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['initialization_20and_20configuration',['Initialization and configuration',['../wf200_initialization.html',1,'wf200_fmac_driver']]],
-  ['introduction',['Introduction',['../wf200_introduction.html',1,'index']]]
+  ['host_20requirements',['Host requirements',['../wf200_host_req.html',1,'wf200_fmac_driver']]],
+  ['hidden_20network',['Hidden network',['../group___w_f_m___c_o_n_c_e_p_t_s.html',1,'']]]
 ];

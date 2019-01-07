@@ -18,6 +18,16 @@
 
 #define SL_WIFI_ENUM_OFFSET        1000
 #define SL_STATUS_ENUM( prefix, name, value )  prefix ## _ ## name = (prefix##_ENUM_OFFSET + value)
+#define UNUSED_VARIABLE(x) (void)(x)
+#define UNUSED_PARAMETER(x) (void)(x)
+
+#define ARRAY_COUNT(x) (sizeof (x) / sizeof *(x))
+
+#ifndef ROUND_UP
+#define ROUND_UP(x,y)    ((x) % (y) ? (x) + (y)-((x)%(y)) : (x))
+#endif /* ifndef ROUND_UP */
+
+#define SL_WAIT_FOREVER  0xFFFFFFFF
 
 #define SL_WIFI_STATUS_LIST( prefix )  \
     SL_STATUS_ENUM( prefix, INVALID_KEY,                   4 ),   /**< Invalid key */                       \

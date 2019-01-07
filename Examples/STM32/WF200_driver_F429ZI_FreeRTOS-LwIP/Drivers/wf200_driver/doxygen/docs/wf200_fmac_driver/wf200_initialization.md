@@ -2,14 +2,14 @@ Initialization and configuration {#wf200_initialization}
 ============
 
 It is recommended to reset WF200 before running the initialization phase described below.
-The initialization and configuration is managed by ::wf200_init. WF200 initialization phase is as follow:
+Initialization and configuration is performed by ::wf200_init. WF200 initialization phase is as follows:
 * Bus configuration (SPI or SDIO)
 * WF200 initialization
 * Firmware download
-* Startup indication reception
+* Receive startup indication 
 * PDS configuration
 
-## 1. BUS configuration
+## 1. Bus configuration
 The bus configuration is handled by ::wf200_init_bus. It has a specific implementation depending on the bus used.
 
 ###SPI bus
@@ -41,7 +41,7 @@ The WF200 initialization is handled by ::wf200_init_chip. During this phase, the
 
 ## 3. Firmware download 
 
-First of all, the WF200 clock is enabled in ::wf200_download_run_bootloader. An optional test to verify the SRAM access is performed.
+First, the WF200 clock is enabled in ::wf200_download_run_bootloader and an optional test to verify the SRAM access is performed.
 
 The firmware download is handled by ::wf200_download_run_firmware.
 A firmware binary needs to be loaded to the chip at power-up. The binary is signed and encrypted. This binary file is stored in a c table in wfm_wf200_XX.h (XX depending on the keyset used by WF200).
@@ -79,6 +79,6 @@ Once the startup indication received, the host can send to WF200 the **PDS confi
 * ...
 
 The PDS is sent using a dedicated function ::wf200_send_configuration.
-The PDS presents itself in the FMAC driver as several string tables found in wf200_pds.c. Those tables are the results of the compression of a more complete and lisible file. 
+The PDS presents itself in the FMAC driver as several string tables found in wf200_pds.c. Those tables are the results of the compression of a more complete and readable file. 
 You can find more information on the PDS in a dedicated page \ref wf200_pds.
 

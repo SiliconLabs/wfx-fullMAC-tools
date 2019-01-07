@@ -83,7 +83,7 @@ sl_status_t wf200_reg_write( wf200_register_address_t address, const void* buffe
 
     wf200_host_spi_cs_assert( );
     wf200_host_spi_transfer_no_cs_assert( WF200_BUS_WRITE, header_as_bytes, 2 );
-    wf200_host_spi_transfer_no_cs_assert( WF200_BUS_READ, (uint8_t*)buffer, length ); // Note: wf200_host_spi_transfer_no_cs_assert() does not modify the buffer when doing SL_WIFI_BUS_WRITE
+    wf200_host_spi_transfer_no_cs_assert( WF200_BUS_WRITE, (uint8_t*)buffer, length ); // Note: wf200_host_spi_transfer_no_cs_assert() does not modify the buffer when doing SL_WIFI_BUS_WRITE
     wf200_host_spi_cs_deassert( );
 
     return SL_SUCCESS;

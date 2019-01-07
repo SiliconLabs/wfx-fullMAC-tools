@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['event_5fpayload_5fbuffer',['event_payload_buffer',['../wf200__constants_8h.html#a848b2f90a4880c9a817b63a7a26bc9ea',1,'wf200_context_t']]]
+  ['confirmation',['confirmation',['../group___g_e_n_e_r_a_l___a_p_i.html#adc87e0797def16eae7b43af309d2702a',1,'HiGeneralCommandsIds_u']]],
+  ['confirmations',['Confirmations',['../group___f_u_l_l___m_a_c___a_p_i.html#a397ecf833d9d9119f3ec0a94727d4027',1,'WfmMessageIds_u']]]
 ];

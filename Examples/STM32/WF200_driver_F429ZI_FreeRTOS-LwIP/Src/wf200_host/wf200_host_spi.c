@@ -1,29 +1,22 @@
 /*
-* Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-* 
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * EVALUATION AND USE OF THIS SOFTWARE IS SUBJECT TO THE TERMS AND
+ * CONDITIONS OF THE CONTROLLING LICENSE AGREEMENT FOUND AT LICENSE.md
+ * IN THIS SDK. IF YOU DO NOT AGREE TO THE LICENSE TERMS AND CONDITIONS,
+ * PLEASE RETURN ALL SOURCE FILES TO SILICON LABORATORIES.
+ * (c) Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
+ */
 
 /*
  *  Bus low level operations that dependent on the underlying physical bus : spi implementation
  */
 
 /* FreeRTOS includes. */
-#include "SEGGER_SYSVIEW_FreeRTOS.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+
+#include <stdbool.h>
 #include "wf200_host_pin.h"
 
 extern SPI_HandleTypeDef hspi1;

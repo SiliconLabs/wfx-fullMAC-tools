@@ -97,8 +97,7 @@
   *
   ******************************************************************************
   */
-	
-#include "SEGGER_SYSVIEW_FreeRTOS.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "timers.h"

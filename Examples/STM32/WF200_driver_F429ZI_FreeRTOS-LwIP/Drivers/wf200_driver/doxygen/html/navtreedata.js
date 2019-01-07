@@ -42,8 +42,11 @@ var NAVTREE =
       [ "Globals", "globals.html", [
         [ "All", "globals.html", null ],
         [ "Functions", "globals_func.html", null ],
+        [ "Variables", "globals_vars.html", null ],
+        [ "Typedefs", "globals_type.html", null ],
         [ "Enumerations", "globals_enum.html", null ],
-        [ "Enumerator", "globals_eval.html", null ]
+        [ "Enumerator", "globals_eval.html", null ],
+        [ "Macros", "globals_defs.html", null ]
       ] ]
     ] ],
     [ "silabs.com", "^http://www.silabs.com", null ]
@@ -52,7 +55,9 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"annotated.html"
+"annotated.html",
+"group___general___configuration.html#gga3ca694e295673221cd5d2a261a98da47a7a67f9530d232eaba9487bb42bcdd10a",
+"wf200__configuration_8h_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

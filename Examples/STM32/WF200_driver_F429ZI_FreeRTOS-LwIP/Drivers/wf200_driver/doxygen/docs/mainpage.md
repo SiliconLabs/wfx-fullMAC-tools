@@ -14,6 +14,6 @@ The WF200 FMAC driver is a driver which enables communication with WF200 parts u
 
 # FMAC driver
 * \ref wf200_initialization
+* \ref wf200_host_req
 * \ref wf200_common_api
 * \ref wf200_fmac_api
-* \ref wf200_host_req

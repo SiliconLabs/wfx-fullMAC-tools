@@ -35,11 +35,25 @@ var menudata={children:[
 {text:"File List",url:"files.html"},
 {text:"Globals",url:"globals.html",children:[
 {text:"All",url:"globals.html",children:[
+{text:"_",url:"globals.html#index__"},
+{text:"a",url:"globals.html#index_a"},
+{text:"h",url:"globals.html#index_h"},
+{text:"m",url:"globals.html#index_m"},
 {text:"p",url:"globals.html#index_p"},
+{text:"s",url:"globals.html#index_s"},
+{text:"u",url:"globals.html#index_u"},
 {text:"w",url:"globals.html#index_w"}]},
 {text:"Functions",url:"globals_func.html",children:[
+{text:"_",url:"globals_func.html#index__"},
 {text:"p",url:"globals_func.html#index_p"},
 {text:"w",url:"globals_func.html#index_w"}]},
+{text:"Variables",url:"globals_vars.html"},
+{text:"Typedefs",url:"globals_type.html"},
 {text:"Enumerations",url:"globals_enum.html"},
-{text:"Enumerator",url:"globals_eval.html"}]}]},
+{text:"Enumerator",url:"globals_eval.html",children:[
+{text:"h",url:"globals_eval.html#index_h"},
+{text:"p",url:"globals_eval.html#index_p"},
+{text:"s",url:"globals_eval.html#index_s"},
+{text:"w",url:"globals_eval.html#index_w"}]},
+{text:"Macros",url:"globals_defs.html"}]}]},
 {text:"silabs.com",url:"http://www.silabs.com"}]}

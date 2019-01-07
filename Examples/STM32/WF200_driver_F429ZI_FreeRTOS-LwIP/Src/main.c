@@ -77,7 +77,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  SEGGER_SYSVIEW_Conf();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

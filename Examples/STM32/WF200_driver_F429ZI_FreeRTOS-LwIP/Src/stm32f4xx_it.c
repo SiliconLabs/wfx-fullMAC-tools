@@ -97,7 +97,6 @@ void TIM1_UP_TIM10_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-  SEGGER_SYSVIEW_RecordEnterISR();
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   if (__HAL_GPIO_EXTI_GET_IT(WF200_IRQ_GPIO_SPI) != RESET) {
     vTaskNotifyGiveFromISR( busCommTaskHandle, &xHigherPriorityTaskWoken );
@@ -107,7 +106,6 @@ void EXTI15_10_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(WF200_IRQ_GPIO_SPI);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-  SEGGER_SYSVIEW_RecordExitISR();
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
@@ -172,13 +170,11 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-  SEGGER_SYSVIEW_RecordEnterISR();
   uint32_t isrflags   = READ_REG(huart3.Instance->SR);
 
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
-  SEGGER_SYSVIEW_RecordExitISR();
   /* USER CODE END USART3_IRQn 1 */
 }
 

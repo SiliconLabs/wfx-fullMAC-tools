@@ -62,6 +62,7 @@ sl_status_t wf200_host_deinit( void );
 /* GPIO interface */
 sl_status_t wf200_host_reset_chip( void );
 sl_status_t wf200_host_set_wake_up_pin( uint8_t state );
+sl_status_t wf200_host_wait_for_wake_up( void );
 sl_status_t wf200_host_hold_in_reset( void );
 /* Event management */
 sl_status_t wf200_host_wait_for_confirmation( uint32_t timeout, void** event_payload_out );

@@ -39,6 +39,8 @@ extern WfmSecurityMode wlan_security;
 #ifdef SOFT_AP_MODE
 extern char softap_ssid[];
 extern char softap_passkey[];
+extern WfmSecurityMode softap_security;
+extern uint8_t softap_channel;
 #endif
 /***************************************************************************//**
  * Private variables

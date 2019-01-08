@@ -330,7 +330,7 @@
           <state>$PROJ_DIR$\..\Drivers\wf200_driver\bus</state>
           <state>$PROJ_DIR$\..\Drivers\wf200_driver\firmware</state>
           <state>$PROJ_DIR$\..\Drivers\wf200_driver\sl</state>
-          <state>C:\Users\jutiron\Desktop\WF200_driver_F429ZI_FreeRTOS-LwIP\Drivers\wf200_driver\firmware\2.0.0</state>
+          <state>$PROJ_DIR$\..\Drivers\wf200_driver\firmware\2.0.0</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>

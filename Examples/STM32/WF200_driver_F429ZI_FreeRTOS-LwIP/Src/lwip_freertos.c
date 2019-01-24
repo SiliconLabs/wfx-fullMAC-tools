@@ -33,6 +33,7 @@
 #include "app_ethernet.h"
 #include "lwip_freertos.h"
 #include "lwip/apps/httpd.h"
+#include "dhcpserver.h"
 
 static void StartThread(void const * argument);
 static void Netif_Config(void);
@@ -162,7 +163,9 @@ static void StartThread(void const * argument)
   osThreadDef(DHCP, DHCP_thread, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate (osThread(DHCP), &gnetif);
 #endif
-
+#ifdef SOFT_AP_MODE
+  dhcpserver_start();
+#endif
   for( ;; )
   {
     /* Delete the Init Thread */ 

@@ -47,7 +47,7 @@
 /******************************************************
 *                      Macros
 ******************************************************/
-
+#define ROUND_UP_EVEN(x)    ((x) + (x&1))
 /******************************************************
 *                    Constants
 ******************************************************/
@@ -231,9 +231,9 @@ sl_status_t wf200_send_join_command( const uint8_t* ssid,
   wf200_buffer_t*        frame           = NULL;
   WfmHiConnectReqBody_t* connect_request = NULL;
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, sizeof( WfmHiConnectReq_t ), SL_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(sizeof( WfmHiConnectReq_t )), SL_WAIT_FOREVER );
   ERROR_CHECK( result );
-
+  
   frame->msg_info                      = 0;
   connect_request                      = (WfmHiConnectReqBody_t*)&frame->data;
   connect_request->Channel             = 0;
@@ -429,7 +429,7 @@ sl_status_t wf200_send_scan_command( uint16_t               scan_mode,
   WfmHiStartScanReqBody_t* scan_request         = NULL;
   WfmHiStartScanCnf_t*     reply                = NULL;
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_total_length, SL_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(request_total_length), SL_WAIT_FOREVER );
   ERROR_CHECK( result );
 
   frame->msg_info                      = 0;
@@ -461,7 +461,7 @@ sl_status_t wf200_send_scan_command( uint16_t               scan_mode,
   {
     memcpy( scan_params_copy_pointer, ie_data, ie_data_length );
   }
-
+   
   result = wf200_send_request( WFM_HI_START_SCAN_REQ_ID, frame, request_total_length );
   ERROR_CHECK( result );
 
@@ -504,11 +504,11 @@ sl_status_t wf200_get_signal_strength( uint32_t* signal_strength )
   WfmHiGetSignalStrengthReq_t* get_signal_strength = NULL;
   WfmHiGetSignalStrengthCnf_t* reply      = NULL;
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, sizeof( *get_signal_strength ), SL_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(sizeof( *get_signal_strength )), SL_WAIT_FOREVER );
   ERROR_CHECK( result );
 
   get_signal_strength->s.b.IntId = WF200_STA_INTERFACE;
-
+  
   result = wf200_send_request( WFM_HI_GET_SIGNAL_STRENGTH_REQ_ID, frame, sizeof( *get_signal_strength ) );
   ERROR_CHECK( result );
 
@@ -578,9 +578,8 @@ sl_status_t wf200_add_multicast_address( const wf200_mac_address_t* mac_address,
     WfmHiAddMulticastAddrReq_t*    request         = NULL;
     WfmHiAddMulticastAddrCnf_t*    reply           = NULL;
     const uint32_t                 request_length  = sizeof( *request );
-    uint16_t                       overhead        = 0;
 
-    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length + overhead, SL_WAIT_FOREVER );
+    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
     ERROR_CHECK( result );
 
     request = (WfmHiAddMulticastAddrReq_t*)frame;
@@ -620,9 +619,8 @@ sl_status_t wf200_set_max_ap_client( uint32_t max_clients )
     WfmHiSetMaxApClientCountReq_t* ap_request      = NULL;
     WfmHiSetMaxApClientCountCnf_t* reply           = NULL;
     const uint32_t                 request_length  = sizeof( *ap_request );
-    uint16_t                       overhead        = 0;
 
-    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length + overhead, SL_WAIT_FOREVER );
+    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
     ERROR_CHECK( result );
 
     ap_request = (WfmHiSetMaxApClientCountReq_t*)frame;
@@ -668,7 +666,7 @@ sl_status_t wf200_send_configuration( const char* pds_data, uint32_t pds_data_le
   HiConfigurationReqBody_t* config_request = NULL;
   uint32_t                  request_length = sizeof(HiConfigurationReq_t) + pds_data_length - API_VARIABLE_SIZE_ARRAY_DUMMY_SIZE; // '-1' to exclude size of 'Body.PdsData' field, which is already included in pds_data_length
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(request_length ), SL_WAIT_FOREVER );
   ERROR_CHECK( result );
 
   config_request         = (HiConfigurationReqBody_t*)&frame->data;
@@ -736,7 +734,7 @@ sl_status_t wf200_send_command( uint32_t command_id, void* data, uint32_t data_s
     wf200_buffer_t*       request = NULL;
     uint32_t              request_length = sizeof(HiMsgHdr_t) + data_size;
 
-    result = wf200_host_allocate_buffer( &request, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
+    result = wf200_host_allocate_buffer( &request, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(request_length), SL_WAIT_FOREVER );
     ERROR_CHECK( result );
 
     request_header = (HiMsgHdr_t*) request;
@@ -777,8 +775,13 @@ static sl_status_t wf200_send_request( uint16_t command_id, wf200_buffer_t* requ
 
     request->msg_id   = command_id;
     request->msg_len  = request_length;
-    request->msg_len  = ( request->msg_len + 1 ) & 0xFFFE; // Note: Length must be multiple of 2 (16 bit word aligned)
-
+    if (request->msg_len % 2) // Note: Length must be multiple of 2 (16 bit word aligned)
+    {
+      ((uint8_t*)request)[request->msg_len] = 0; //Extra byte must be zero
+      request->msg_len  =  request->msg_len + 1; 
+    }
+    
+ 
     return wf200_host_transmit_frame( request );
 }
 

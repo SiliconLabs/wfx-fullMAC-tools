@@ -45,6 +45,9 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
+//#define LWIP_DEBUG 1
+//#define UDP_DEBUG LWIP_DBG_ON
+//#define DHCP_DEBUG LWIP_DBG_ON
 /**
  * NO_SYS==1: Provides VERY minimal functionality. Otherwise,
  * use lwIP facilities.
@@ -119,7 +122,7 @@ a lot of data that needs to be copied, this should be set high. */
 
 /* ---------- DHCP options ---------- */
 #define LWIP_DHCP               1
-
+#define ETHARP_SUPPORT_STATIC_ENTRIES 1
 
 /* ---------- UDP options ---------- */
 #define LWIP_UDP                1
@@ -157,7 +160,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define CHECKSUM_CHECK_TCP              1
 /* CHECKSUM_CHECK_ICMP==1: Check checksums by hardware for incoming ICMP packets.*/  
 #define CHECKSUM_GEN_ICMP               1
-
+//#define LWIP_CHECKSUM_ON_COPY           1
 
 
 /*

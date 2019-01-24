@@ -124,6 +124,11 @@
 							<inputType id="com.atollic.truestudio.gcc.input.1274347818" superClass="com.atollic.truestudio.gcc.input"/>
 						</tool>
 					</fileInfo>
+					<fileInfo id="com.atollic.truestudio.exe.debug.1518366166.441933526" name="fs.c" rcbsApplicability="disable" resourcePath="Middlewares/LwIP/apps/httpd/fs.c" toolsToInvoke="com.atollic.truestudio.exe.debug.toolchain.gcc.1836874447.1085725601">
+						<tool id="com.atollic.truestudio.exe.debug.toolchain.gcc.1836874447.1085725601" name="C Compiler" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.1836874447">
+							<inputType id="com.atollic.truestudio.gcc.input.799218770" superClass="com.atollic.truestudio.gcc.input"/>
+						</tool>
+					</fileInfo>
 					<sourceEntries>
 						<entry excluding="Middlewares/LwIP/core/ipv6" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>

@@ -34,8 +34,8 @@
 #define NETMASK_ADDR3   (uint8_t) 0   ///< Static IP: Netmask value 3 
 
 /*Gateway Address*/
-#define GW_ADDR0   (uint8_t) 192      ///< Static IP: Gateway value 0 
-#define GW_ADDR1   (uint8_t) 168      ///< Static IP: Gateway value 1 
+#define GW_ADDR0   (uint8_t) 0        ///< Static IP: Gateway value 0 
+#define GW_ADDR1   (uint8_t) 0        ///< Static IP: Gateway value 1 
 #define GW_ADDR2   (uint8_t) 0        ///< Static IP: Gateway value 2 
 #define GW_ADDR3   (uint8_t) 0        ///< Static IP: Gateway value 3 
 

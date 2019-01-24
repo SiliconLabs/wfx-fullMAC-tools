@@ -234,7 +234,7 @@ sl_status_t wf200_host_post_event( uint32_t event_id, void* event_payload, uint3
   case WFM_HI_SEND_FRAME_CNF_ID:
     {
       WfmHiSendFrameCnf_t* reply = (WfmHiSendFrameCnf_t*)network_rx_buffer_gbl;
-      if ( reply->Body.Status == WFM_STATUS_SUCCESS )
+      if ( wf200_context->used_buffer_number > 0 )
       {
         wf200_context->used_buffer_number--;
       }

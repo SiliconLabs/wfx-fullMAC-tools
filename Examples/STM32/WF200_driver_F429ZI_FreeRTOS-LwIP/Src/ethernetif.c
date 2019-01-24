@@ -25,6 +25,7 @@
 #include "wf200_host_api.h"
 #include "wf200.h"
 #include "wf200_host.h"
+#include "lwip_freertos.h"
 
 /***************************************************************************//**
  * Defines
@@ -67,12 +68,21 @@ static void low_level_init(struct netif *netif)
   netif->hwaddr_len = ETH_HWADDR_LEN;
 
   /* set netif MAC hardware address */
+#ifndef SOFT_AP_MODE
   netif->hwaddr[0] =  wifi.mac_addr_0.octet[0];
   netif->hwaddr[1] =  wifi.mac_addr_0.octet[1];
   netif->hwaddr[2] =  wifi.mac_addr_0.octet[2];
   netif->hwaddr[3] =  wifi.mac_addr_0.octet[3];
   netif->hwaddr[4] =  wifi.mac_addr_0.octet[4];
   netif->hwaddr[5] =  wifi.mac_addr_0.octet[5];
+#else
+  netif->hwaddr[0] =  wifi.mac_addr_1.octet[0];
+  netif->hwaddr[1] =  wifi.mac_addr_1.octet[1];
+  netif->hwaddr[2] =  wifi.mac_addr_1.octet[2];
+  netif->hwaddr[3] =  wifi.mac_addr_1.octet[3];
+  netif->hwaddr[4] =  wifi.mac_addr_1.octet[4];
+  netif->hwaddr[5] =  wifi.mac_addr_1.octet[5];
+#endif //SOFT_AP_MODE
 
   /* set netif maximum transfer unit */
   netif->mtu = 1500;
@@ -167,7 +177,11 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
      }
 
   /* transmit */ 
+#ifndef SOFT_AP_MODE
     wf200_send_ethernet_frame(tx_buffer, framelength + padding, WF200_STA_INTERFACE);
+#else
+    wf200_send_ethernet_frame(tx_buffer, framelength + padding, WF200_SOFTAP_INTERFACE);
+#endif //SOFT_AP_MODE
     wf200_host_free_buffer( (wf200_buffer_t*)tx_buffer, WF200_TX_FRAME_BUFFER );
     xSemaphoreGive( s_xDriverSemaphore );
     errval = ERR_OK;

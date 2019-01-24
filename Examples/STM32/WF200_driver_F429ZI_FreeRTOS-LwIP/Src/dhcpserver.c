@@ -12,7 +12,7 @@ static struct udp_pcb * dhcp_pcb = 0;
 
 #define MAX_CLIENT 4
 #define DHCP_RESPONSE_DEFAULT_SIZE 1024
-#define DHCPS_DBG 1
+#define DHCPS_DBG 0
 
 
 #define DHCP_SERVER_PORT 67

@@ -52,7 +52,7 @@ void lwip_start (void);
 #define WLAN_SECURITY   WFM_SECURITY_MODE_WPA2_WPA1_PSK   ///< wifi security mode for client mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_WPA1_PSK
 #define SOFTAP_SSID     "WF200_AP"                        ///< wifi ssid for soft ap mode
 #define SOFTAP_PASSKEY  "12345678"                        ///< wifi password for soft ap mode
-#define SOFTAP_SECURITY WFM_SECURITY_MODE_WPA2_WPA1_PSK   ///< wifi security for soft ap mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_WPA1_PSK
+#define SOFTAP_SECURITY WFM_SECURITY_MODE_WPA2_PSK        ///< wifi security for soft ap mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_WPA1_PSK
 #define SOFTAP_CHANNEL  6                                 ///< wifi channel for soft ap
 
 #endif

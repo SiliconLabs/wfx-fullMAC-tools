@@ -20,19 +20,16 @@
 
 #if   defined( WF200_ALPHA_KEY )
 #include "wfm_wf200_A0.h"
-#elif defined( WF200_BETA_KEY )
-#include "wfm_wf200_B0.h"
 #elif defined( WF200_PROD_KEY )
 #include "wfm_wf200_C0.h"
 #else
-#error Must define either WF200_ALPHA_KEY/WF200_BETA_KEY/WF200_PROD_KEY
+#error Must define either WF200_ALPHA_KEY/WF200_PROD_KEY
 #endif
 
 void lwip_set_link_up (void);
 void lwip_set_link_down (void);
 
 QueueHandle_t eventQueue;
-SemaphoreHandle_t eventMutex;
 extern wf200_buffer_t* network_rx_buffer_gbl;
 uint8_t scan_count = 0; 
 
@@ -46,8 +43,6 @@ sl_status_t wf200_host_init( void )
 {
   host_context.wf200_firmware_download_progress = 0;
   eventQueue = xQueueCreate( 1, sizeof( uint32_t ) );
-  eventMutex = xSemaphoreCreateMutex();
-  xSemaphoreGive( eventMutex );
   return SL_SUCCESS;
 }
 

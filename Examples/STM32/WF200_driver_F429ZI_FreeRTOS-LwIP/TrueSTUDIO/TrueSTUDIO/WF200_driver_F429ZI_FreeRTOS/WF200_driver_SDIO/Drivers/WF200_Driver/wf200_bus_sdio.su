@@ -1,0 +1,4 @@
+wf200_bus_sdio.c:43:13:wf200_reg_read	32	static
+wf200_bus_sdio.c:80:13:wf200_reg_write	24	static
+wf200_bus_sdio.c:101:13:wf200_init_bus	16	static
+wf200_bus_sdio.c:169:13:wf200_deinit_bus	8	static

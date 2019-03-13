@@ -1,10 +1,10 @@
 /*
 * Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
+*
 *    http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
@@ -14,7 +14,8 @@
 * limitations under the License.
 */
 
-#pragma once
+#ifndef __SL_STATUS_H
+#define __SL_STATUS_H
 
 #include "sl_wifi_status.h"
 
@@ -37,3 +38,4 @@ typedef enum
     SL_FORCE_ENUM_TO_32_BIT = 0xFFFFFFFF,
 } sl_status_t;
 
+#endif // __SL_STATUS_H

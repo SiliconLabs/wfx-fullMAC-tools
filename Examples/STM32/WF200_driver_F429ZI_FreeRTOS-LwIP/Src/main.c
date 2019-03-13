@@ -21,21 +21,16 @@
 
 /* USER CODE BEGIN Includes */
 #include "wf200_host_pin.h"
+#include "uart_input.h"
 #include "lwip_freertos.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
-MMC_HandleTypeDef hmmc;
-
-SPI_HandleTypeDef hspi1;
-
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-DMA_HandleTypeDef hdma_spi1_tx;
-DMA_HandleTypeDef hdma_spi1_rx;
 SemaphoreHandle_t uart3Semaphore;
 /* USER CODE END PV */
 
@@ -43,7 +38,6 @@ SemaphoreHandle_t uart3Semaphore;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
-static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
@@ -58,6 +52,7 @@ extern void vBusCommStart( void );
   *
   * @retval None
   */
+
 
 int main(void)
 {
@@ -82,7 +77,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
-  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -90,9 +84,10 @@ int main(void)
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
   vBusCommStart();
- 
+  
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  vUARTInputStart(); 
   lwip_start ();
  
   /* Start scheduler */
@@ -171,30 +166,6 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
-}
-
-/* SPI1 init function */
-static void MX_SPI1_Init(void)
-{
-
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
 }
 
 /* USART3 init function */
@@ -278,10 +249,6 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(WF200_LED1_PORT, &GPIO_InitStruct);
   GPIO_InitStruct.Pin = WF200_LED2_GPIO;
   HAL_GPIO_Init(WF200_LED2_PORT, &GPIO_InitStruct);
-  
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 10, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
 /* USER CODE BEGIN 4 */

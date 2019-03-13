@@ -124,4 +124,9 @@ sl_status_t wf200_init_bus( void )
     return status;
 }
 
+sl_status_t wf200_deinit_bus( void )
+{
+    return wf200_host_deinit_bus();
+}
+
 

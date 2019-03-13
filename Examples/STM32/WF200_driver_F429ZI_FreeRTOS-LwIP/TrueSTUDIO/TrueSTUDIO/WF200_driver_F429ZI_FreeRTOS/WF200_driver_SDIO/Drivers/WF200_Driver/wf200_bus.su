@@ -1,0 +1,9 @@
+wf200_bus.c:30:13:wf200_reg_read_16	16	static
+wf200_bus.c:40:13:wf200_reg_write_16	16	static
+wf200_bus.c:51:13:wf200_reg_read_32	16	static
+wf200_bus.c:60:13:wf200_reg_write_32	16	static
+wf200_bus.c:69:13:wf200_data_read	8	static
+wf200_bus.c:78:13:wf200_data_write	8	static
+wf200_bus.c:87:13:wf200_apb_write	16	static
+wf200_bus.c:105:13:wf200_apb_write_32	8	static
+wf200_bus.c:119:13:wf200_apb_read_32	24	static

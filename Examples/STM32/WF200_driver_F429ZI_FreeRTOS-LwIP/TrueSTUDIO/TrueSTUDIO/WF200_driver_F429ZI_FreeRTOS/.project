@@ -132,6 +132,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f429xx.s</locationURI>
 		</link>
 		<link>
+			<name>Application/User/UART_input.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/UART_input.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/app_ethernet.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/app_ethernet.c</locationURI>
@@ -185,6 +190,11 @@
 			<name>Application/WF200_Host/wf200_host.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/wf200_host/wf200_host.c</locationURI>
+		</link>
+		<link>
+			<name>Application/WF200_Host/wf200_host_sdio.c</name>
+			<type>1</type>
+			<location>C:/Users/jutiron/Desktop/WF200_driver_F429ZI_FreeRTOS-LwIP/Src/wf200_host/wf200_host_sdio.c</location>
 		</link>
 		<link>
 			<name>Application/WF200_Host/wf200_host_spi.c</name>
@@ -325,6 +335,11 @@
 			<name>Drivers/WF200_Driver/wf200_bus.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/wf200_driver/bus/wf200_bus.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/WF200_Driver/wf200_bus_sdio.c</name>
+			<type>1</type>
+			<location>C:/Users/jutiron/Desktop/WF200_driver_F429ZI_FreeRTOS-LwIP/Drivers/wf200_driver/bus/wf200_bus_sdio.c</location>
 		</link>
 		<link>
 			<name>Drivers/WF200_Driver/wf200_bus_spi.c</name>

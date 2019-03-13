@@ -20,7 +20,8 @@
  *
  */
 
-#pragma once
+#ifndef __WF200_CONSTANTS_H
+#define __WF200_CONSTANTS_H
 
 #include "sl_status.h"
 #include <stdint.h>
@@ -28,6 +29,20 @@
 /******************************************************
  *                      Macros
  ******************************************************/
+#define UNUSED_VARIABLE(x) (void)(x)
+#define UNUSED_PARAMETER(x) (void)(x)
+
+#ifndef ARRAY_COUNT
+#define ARRAY_COUNT(x) (sizeof (x) / sizeof *(x))
+#endif /* ifndef ARRAY_COUNT */
+
+#ifndef ROUND_UP
+#define ROUND_UP(x,y)    ((x) % (y) ? (x) + (y)-((x)%(y)) : (x))
+#endif /* ifndef ROUND_UP */
+
+#ifndef ROUND_UP_EVEN
+#define ROUND_UP_EVEN(x)    ((x) + ((x)&1))
+#endif /* ifndef ROUND_UP_EVEN */
 
 #define ERROR_CHECK(__status__) \
     do {\
@@ -35,7 +50,6 @@
             goto error_handler;\
         }\
     } while(0)
-
 
 // little endian has Least Significant Byte First
 #define PACK_32BIT_LITTLE_ENDIAN(_ptr_, _val_) do{\
@@ -112,6 +126,7 @@
  *                    Constants
  ******************************************************/
 
+#define SL_WAIT_FOREVER  0xFFFFFFFF
 #define WF200_BUS_NOTIFICATION                 (1 << 0)
 #define WF200_IRQ_NOTIFICATION                 (1 << 1)
 #define WF200_FRAME_CONFIRMATION_NOTIFICATION  (1 << 2)
@@ -140,6 +155,8 @@
 #define WFX_PTE_INFO              0x0900C0C0
 #define PTE_INFO_KEYSET_IDX       0x0D
 #define PTE_INFO_SIZE             0x10
+
+#define WF200_CONT_FRAME_TYPE_OFFSET    14
 
 #define WF200_CONFIG_REVISION_OFFSET    24
 #define WF200_CONFIG_REVISION_MASK      0x7
@@ -194,6 +211,18 @@ typedef enum
     WF200_ANTENNA_TX2_RX1,    /*!< RF output 2 is used for TX, RF 1 for RX */
     WF200_ANTENNA_DIVERSITY   /*!< wf200 uses an antenna diversity algorithm */
 } wf200_antenna_config_t;
+
+/**
+ * \enum   wf200_frame_type_t
+ * \brief  Enum listing different frame types received from WF200. The information is found in the control register using WF200_CONT_FRAME_TYPE_INFO mask.
+ */
+typedef enum
+{
+    WF200_CONFIRMATION_FRAME  = 0, /*!< Frame type indicating a confirmation frame is available */
+    WF200_INDICATION_FRAME    = 1, /*!< Frame type indicating an indication frame is available */
+    WF200_MANAGEMENT_FRAME    = 2, /*!< Reserved from Low MAC interface */
+    WF200_ETHERNET_DATA_FRAME = 3, /*!< Frame type indicating a data frame is available */
+} wf200_frame_type_t;
 
 /******************************************************
  *                    Structures
@@ -370,3 +399,5 @@ static inline uint32_t ie_get_wpa_pairwise_data_cipher_suite(uint8_t* base_point
     uint8_t* item_index = base_pointer + 14 + 4 * index;
     return UNPACK_32BIT_LITTLE_ENDIAN(item_index);
 }
+
+#endif // __WF200_CONSTANTS_H

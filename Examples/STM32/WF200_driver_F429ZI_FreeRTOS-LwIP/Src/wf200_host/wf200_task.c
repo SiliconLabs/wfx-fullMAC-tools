@@ -19,6 +19,7 @@
 #include "cmsis_os.h"
 #include "wf200.h"
 #include "wf200_host.h"
+#include "wf200_registers.h"
 #include "lwip_freertos.h"
    
 osThreadId busCommTaskHandle;
@@ -28,15 +29,15 @@ extern wf200_context_t* wf200_context;
 
 /* Default parameters */
 wf200_context_t wifi;
-char wlan_ssid[32]                 = WLAN_SSID;
-char wlan_passkey[64]              = WLAN_PASSKEY;
-WfmSecurityMode wlan_security      = WLAN_SECURITY;
-char softap_ssid[32]               = SOFTAP_SSID;
-char softap_passkey[64]            = SOFTAP_PASSKEY;
-WfmSecurityMode softap_security    = SOFTAP_SECURITY;
-uint8_t softap_channel             = SOFTAP_CHANNEL;
+char wlan_ssid[32]                 = WLAN_SSID_DEFAULT;
+char wlan_passkey[64]              = WLAN_PASSKEY_DEFAULT;
+WfmSecurityMode wlan_security      = WLAN_SECURITY_DEFAULT;
+char softap_ssid[32]               = SOFTAP_SSID_DEFAULT;
+char softap_passkey[64]            = SOFTAP_PASSKEY_DEFAULT;
+WfmSecurityMode softap_security    = SOFTAP_SECURITY_DEFAULT;
+uint8_t softap_channel             = SOFTAP_CHANNEL_DEFAULT;
 /* Default parameters */
-
+extern SemaphoreHandle_t sdioDMASemaphore;
 /*
  * The task that implements the bus communication with WF200.
  */
@@ -52,14 +53,12 @@ wf200_buffer_t *network_rx_buffer_gbl;
 static sl_status_t receive_frames ()
 {
   sl_status_t result;
-  uint32_t frame_size = 0;
-  
+  uint16_t control_register = 0;
   do
   {
-    result = wf200_receive_frame(&frame_size);
+    result = wf200_receive_frame(&control_register);
     ERROR_CHECK( result );
-  }while ( frame_size != 0 );
-  
+  }while ( (control_register & WF200_CONT_NEXT_LEN_MASK) != 0 );
 error_handler:
   return result;
 }
@@ -75,7 +74,7 @@ static void prvBusCommTask(void const * pvParameters )
     {
         /* See if we can obtain the semaphore.  If the semaphore is not
         available wait to see if it becomes free. */
-        if( xSemaphoreTake( s_xDriverSemaphore, ( osWaitForever ) ) == pdTRUE )
+        if( xSemaphoreTake( s_xDriverSemaphore, ( portMAX_DELAY ) ) == pdTRUE )
         {
           receive_frames();
           xSemaphoreGive( s_xDriverSemaphore );

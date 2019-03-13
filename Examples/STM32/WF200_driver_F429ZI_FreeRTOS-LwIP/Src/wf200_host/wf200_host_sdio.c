@@ -1,41 +1,82 @@
 /*
- * EVALUATION AND USE OF THIS SOFTWARE IS SUBJECT TO THE TERMS AND
- * CONDITIONS OF THE CONTROLLING LICENSE AGREEMENT FOUND AT LICENSE.md
- * IN THIS SDK. IF YOU DO NOT AGREE TO THE LICENSE TERMS AND CONDITIONS,
- * PLEASE RETURN ALL SOURCE FILES TO SILICON LABORATORIES.
- * (c) Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
+ * Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
+/**
+ * \file wf200_host_sdio.c
+ * \brief WF200 SDIO host file for STM32
+ * \author Silicon Labs
+ * \version 1.0.0
+ * \date 5th March 2019
+ *
+ * wf200_host_sdio.c contains the functions to enable a STM32 to communicate with the WF200 through SDIO
+ *
  */
 
-/*
- *  Bus low level operations that dependent on the underlying physical bus : sdio implementation
- */
+/* FreeRTOS includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
 
 #include "wf200_host_sdio.h"
 
-extern MMC_HandleTypeDef hmmc;
-extern DMA_HandleTypeDef hdma_sdio_rx;
-extern DMA_HandleTypeDef hdma_sdio_tx;
+/* SDIO CMD53 argument */
+#define SDIO_CMD53_WRITE                       ( 1 << 31 )
+#define SDIO_CMD53_FUNCTION( function )        ( ( ( function ) & 0x7 ) << 28 )
+#define SDIO_CMD53_BLOCK_MODE                  ( 1 << 27 )
+#define SDIO_CMD53_OPMODE_INCREASING_ADDRESS   ( 1 << 26 )
+#define SDIO_CMD53_ADDRESS( address )          ( ( ( address ) & 0x1ffff ) << 9 )
+#define SDIO_CMD53_COUNT( count )              ( ( count ) & 0x1ff )
 
-sl_status_t wf200_host_sdio_enable_high_speed_mode( void ){
-  MMC_InitTypeDef Init;
-    
+#define SDIO_CMD53_IS_BLOCK_MODE( arg )        ( ( ( arg ) & SDIO_CMD53_BLOCK_MODE ) != 0 )
+#define SDIO_CMD53_GET_COUNT( arg )            ( SDIO_CMD53_COUNT( arg ) )
+
+static void MX_SDIO_Init(void);
+static void MX_SDIO_DeInit(void);
+static uint32_t sdio_optimal_block_size( uint16_t buffer_size );
+static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx);
+extern void HAL_SDIO_MspInit(void);
+
+DMA_HandleTypeDef hdma_sdio_rx;
+DMA_HandleTypeDef hdma_sdio_tx;
+SemaphoreHandle_t sdioDMASemaphore;
+   
+sl_status_t wf200_host_sdio_enable_high_speed_mode( void )
+{
+  SDIO_InitTypeDef Init;
   Init.ClockEdge           = SDIO_CLOCK_EDGE_RISING;
-  Init.ClockBypass         = SDIO_CLOCK_BYPASS_DISABLE; //enable to reach 50MHz
+  Init.ClockBypass         = SDIO_CLOCK_BYPASS_DISABLE;
   Init.ClockPowerSave      = SDIO_CLOCK_POWER_SAVE_DISABLE;
   Init.BusWide             = SDIO_BUS_WIDE_4B;
   Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
-  Init.ClockDiv            = 2; //12.5MHz speed
+  Init.ClockDiv            = 0;
+
   SDIO_Init(SDIO, Init);
+  SDIO_PowerState_ON(SDIO);
   return SL_SUCCESS;
 }
 
-sl_status_t wf200_host_bus_init( void )
+sl_status_t wf200_host_init_bus( void )
 {
   uint32_t errorstate = SDMMC_ERROR_NONE;
-
-  __HAL_MMC_ENABLE_IT(&hmmc, SDIO_IT_SDIOIT);
-  SDIO->DCTRL |= SDIO_DCTRL_SDIOEN;
-  hmmc.Context = MMC_CONTEXT_IT;
+  
+  MX_SDIO_Init();
+  
+  sdioDMASemaphore = xSemaphoreCreateBinary();
+  xSemaphoreGive(sdioDMASemaphore);  
   
   /* CMD0: GO_IDLE_STATE */
   errorstate = SDMMC_CmdGoIdleState(SDIO);
@@ -43,7 +84,7 @@ sl_status_t wf200_host_bus_init( void )
   {
     return SL_ERROR;
   }
-  HAL_Delay(1); //Mandatory because Ineo reply to cmd0, TODO: maybe wait for command received
+  HAL_Delay(1); //Mandatory because wf200 reply to cmd0,
   /* CMD8 */
   errorstate = SDMMC_CmdOperCond(SDIO);
   if(errorstate != SDMMC_ERROR_NONE)
@@ -66,14 +107,18 @@ sl_status_t wf200_host_bus_init( void )
   return SL_SUCCESS;
 }
 
-/* Command 52 */
+sl_status_t wf200_host_deinit_bus( void )
+{
+  MX_SDIO_DeInit();
+  return SL_SUCCESS;
+}
 
 static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx)
 {
   /* 8 is the number of required instructions cycles for the below loop statement.
   The SDMMC_CMDTIMEOUT is expressed in ms */
   register uint32_t count = SDIO_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
-  
+
   do
   {
     if (count-- == 0U)
@@ -86,216 +131,271 @@ static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx)
   if (__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CTIMEOUT))
   {
     __SDIO_CLEAR_FLAG(SDIOx, SDIO_FLAG_CTIMEOUT);
-    
     return SDMMC_ERROR_CMD_RSP_TIMEOUT;
   }
   else if (__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CCRCFAIL))
   {
     __SDIO_CLEAR_FLAG(SDIOx, SDIO_FLAG_CCRCFAIL);
-    
     return SDMMC_ERROR_CMD_CRC_FAIL;
   }
-  else
+  else if(__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CMDREND))
   {
-    /* No error flag set */
-    /* Clear all the static flags */
-    __SDIO_CLEAR_FLAG(SDIOx, SDIO_STATIC_FLAGS);
+    __SDIO_CLEAR_FLAG(SDIOx, SDIO_FLAG_CMDREND);
   }
-
   return SDMMC_ERROR_NONE;
 }
 
+/* Command 52 */
 sl_status_t wf200_host_sdio_transfer_cmd52( wf200_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer ){
   uint32_t status;
   SDIO_CmdInitTypeDef command;
-  while(hmmc.State != HAL_MMC_STATE_READY);
-  if(type == WF200_BUS_WRITE){
-    /*Argument to write on the SDIO bus*/
-    command.Argument = 0x80000000 | // 0x80000000 for write, 0x00000000 for read
-      (function << 28) | // function number
-        (address << 9)
-          | *buffer; // length
-  }else{
-    /*Argument to read on the SDIO bus*/
-    command.Argument = 0x00000000 | // 0x80000000 for write, 0x00000000 for read
-      (function << 28) | // function number
-        (address << 9); // length
-  }
-  command.CmdIndex = SDMMC_CMD_SDMMC_RW_DIRECT;
-  
-  command.Response = SDIO_RESPONSE_SHORT;
-  command.WaitForInterrupt = SDIO_WAIT_NO;
-  command.CPSM     = SDIO_CPSM_ENABLE;
-  SDIO_SendCommand(SDIO, &command);
-  status = SDMMC_GetCmdResp(SDIO);
-  if(status == SDMMC_ERROR_NONE)
+  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE )
   {
-    uint8_t response_flags = (SDIO_GetResponse(SDIO, SDIO_RESP1) >> 8) & 0xFF;
-    if(response_flags == 0x10)
-    {
-      *buffer = SDIO_GetResponse(SDIO, SDIO_RESP1) & 0xFF;
+    if(type == WF200_BUS_WRITE){
+      /*Argument to write on the SDIO bus*/
+      command.Argument = 0x80000000 | // 0x80000000 for write, 0x00000000 for read
+        (function << 28) | // function number
+          (address << 9)
+            | *buffer; // length
+    }else{
+      /*Argument to read on the SDIO bus*/
+      command.Argument = 0x00000000 | // 0x80000000 for write, 0x00000000 for read
+        (function << 28) | // function number
+          (address << 9); // length
     }
-    else
+    command.CmdIndex         = SDMMC_CMD_SDMMC_RW_DIRECT; 
+    command.Response         = SDIO_RESPONSE_SHORT;
+    command.WaitForInterrupt = SDIO_WAIT_NO;
+    command.CPSM             = SDIO_CPSM_ENABLE;
+    SDIO_SendCommand(SDIO, &command);
+    status = SDMMC_GetCmdResp(SDIO);
+    
+    if(status == SDMMC_ERROR_NONE)
     {
+      uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
+      if((response_flags & 0xFF00) == 0x1000)
+      {
+        *buffer = response_flags & 0xFF;
+      }else{
+        return SL_ERROR;
+      }
+    }else{
       return SL_ERROR;
     }
+    xSemaphoreGive(sdioDMASemaphore); 
   }
   return SL_SUCCESS;
 }
 
+static void SDIO_transmit_cplt(DMA_HandleTypeDef *hdma)
+{
+  __SDIO_ENABLE_IT(SDIO, SDIO_IT_DATAEND);
+}
+
+static void SDIO_receive_cplt(DMA_HandleTypeDef *hdma)
+{
+  /* Disable the DMA transfer for transmit request by setting the DMAEN bit
+  in the MMC DCTRL register */
+  SDIO->DCTRL &= (uint32_t)~((uint32_t)SDIO_DCTRL_DMAEN);
+}
+
 /* Command 53 */
-
-static sl_status_t sdio_io_write_extended( uint8_t function, uint32_t address, uint8_t* data, uint32_t data_length )
-{
-  uint32_t status;
+sl_status_t wf200_host_sdio_read_cmd53( uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length )
+{    
   SDIO_CmdInitTypeDef command;
   SDIO_DataInitTypeDef config;
   
-  if(hmmc.State == HAL_MMC_STATE_READY)
+  SDIO->DCTRL = 0U;  
+  
+  if( buffer_length >= WF200_SDIO_BLOCK_MODE_THRESHOLD )
   {
-    hmmc.ErrorCode = HAL_MMC_ERROR_NONE;
-    hmmc.State = HAL_MMC_STATE_BUSY;
-    
-    /* Initialize data control register */
-    hmmc.Instance->DCTRL = 0U;
-    hmmc.Instance->DCTRL |= SDIO_DCTRL_SDIOEN;
-    hmmc.pTxBuffPtr = (uint32_t *)data;
-    hmmc.TxXferSize = data_length;
-    
-    /* Enable transfer interrupts */
-    __HAL_MMC_CLEAR_FLAG(&hmmc, SDIO_STATIC_FLAGS); 
-    __HAL_MMC_ENABLE_IT(&hmmc, (SDIO_IT_DCRCFAIL | SDIO_IT_DTIMEOUT | SDIO_IT_TXUNDERR | SDIO_IT_DATAEND | SDIO_FLAG_TXFIFOHE)); 
-    
-    command.CmdIndex = SDMMC_CMD_SDMMC_RW_EXTENDED;
-    command.Argument = SDIO_CMD53_WRITE | SDIO_CMD53_FUNCTION( function ) | SDIO_CMD53_OPMODE_INCREASING_ADDRESS | SDIO_CMD53_ADDRESS( address );
-    command.Response = SDIO_RESPONSE_SHORT;
-    command.WaitForInterrupt = SDIO_WAIT_NO;
-    command.CPSM     = SDIO_CPSM_ENABLE;
-    if( data_length >= SDIO_BLOCK_MODE_THRESHOLD )
-    {
-      uint32_t block_count = ( data_length / SDIO_BLOCK_SIZE ) + ( ( ( data_length % SDIO_BLOCK_SIZE ) == 0 ) ? 0 : 1 );
-      command.Argument |= SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT( block_count );
-      config.TransferMode  = SDIO_TRANSFER_MODE_BLOCK;
-      config.DataBlockSize = SDIO_DATABLOCK_SIZE_512B;
-    }
-    else
-    {
-      command.Argument |= SDIO_CMD53_COUNT( data_length );
-      config.TransferMode  = SDIO_TRANSFER_MODE_STREAM;
-      config.DataBlockSize = SDIO_DATABLOCK_SIZE_64B;
-      hmmc.Instance->DCTRL |= SDIO_DCTRL_SDIOEN;
-    }
-    SDIO_SendCommand(SDIO, &command);
-    status = SDMMC_GetCmdResp(SDIO);
-    if(status == SDMMC_ERROR_NONE)
-    {
-      uint8_t response_flags = (SDIO_GetResponse(SDIO, SDIO_RESP1) >> 8) & 0xFF;
-      if(response_flags != 0x20)
-      {
-        return SL_ERROR;
-      }
-    }
-    
-    /* Configure the MMC DPSM (Data Path State Machine) */ 
-    config.DataTimeOut   = SDMMC_DATATIMEOUT;
-    config.DataLength    = data_length;
-    config.TransferDir   = SDIO_TRANSFER_DIR_TO_CARD;
-    config.DPSM          = SDIO_DPSM_ENABLE;
-    SDIO_ConfigData(SDIO, &config);
-    
-    return SL_SUCCESS;
+    uint32_t block_count = ( buffer_length / WF200_SDIO_BLOCK_SIZE ) + ( ( ( buffer_length % WF200_SDIO_BLOCK_SIZE ) == 0 ) ? 0 : 1 );
+    command.Argument = SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT( block_count );
+    config.TransferMode  = SDIO_TRANSFER_MODE_BLOCK;
+    config.DataBlockSize = sdio_optimal_block_size(WF200_SDIO_BLOCK_SIZE);
   }
   else
   {
+    command.Argument = SDIO_CMD53_COUNT( buffer_length );
+    config.TransferMode  = SDIO_TRANSFER_MODE_STREAM;
+    config.DataBlockSize = sdio_optimal_block_size(buffer_length);
+  }
+  command.Argument |= SDIO_CMD53_FUNCTION( function ) | SDIO_CMD53_OPMODE_INCREASING_ADDRESS | SDIO_CMD53_ADDRESS( address );
+  config.TransferDir   = SDIO_TRANSFER_DIR_TO_SDIO;
+  
+  SDIO->DCTRL |= SDIO_DCTRL_SDIOEN;
+  /* Prepare Data */
+  config.DataTimeOut   = SDMMC_DATATIMEOUT;
+  config.DataLength    = buffer_length;
+  config.DPSM          = SDIO_DPSM_ENABLE;
+  SDIO_ConfigData(SDIO, &config);
+  
+  __SDIO_ENABLE_IT(SDIO, SDIO_IT_DATAEND);
+  hdma_sdio_rx.XferCpltCallback = SDIO_receive_cplt;
+  HAL_DMA_Start_IT(&hdma_sdio_rx, (uint32_t)&SDIO->FIFO, (uint32_t)buffer, (uint32_t)buffer_length/4);
+  __SDIO_DMA_ENABLE(SDIO);
+  
+  /* Prepare SDIO command */ 
+  command.CmdIndex         = SDMMC_CMD_SDMMC_RW_EXTENDED;
+  command.Response         = SDIO_RESPONSE_SHORT;
+  command.WaitForInterrupt = SDIO_WAIT_NO;
+  command.CPSM             = SDIO_CPSM_ENABLE;
+  SDIO_SendCommand(SDIO, &command);
+  SDMMC_GetCmdResp(SDIO);
+  uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
+  if(((response_flags>> 8) & 0xFF) != 0x20)
+  {
     return SL_ERROR;
   }
+  return SL_SUCCESS;
 }
 
-static sl_status_t sdio_io_read_extended( uint8_t function, uint32_t address, uint8_t* data, uint32_t data_length )
+sl_status_t wf200_host_sdio_write_cmd53( uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length )
 {
-  uint32_t status;
   SDIO_CmdInitTypeDef command;
   SDIO_DataInitTypeDef config;
   
-  if(hmmc.State == HAL_MMC_STATE_READY)
+  SDIO->DCTRL = 0U;  
+  hdma_sdio_tx.XferCpltCallback = SDIO_transmit_cplt;
+
+  if( buffer_length >= WF200_SDIO_BLOCK_MODE_THRESHOLD )
   {
-    hmmc.ErrorCode = HAL_DMA_ERROR_NONE;
-    hmmc.State = HAL_MMC_STATE_BUSY;
-    
-    /* Initialize data control register */
-    hmmc.Instance->DCTRL = 0U;
-    hmmc.Instance->DCTRL |= SDIO_DCTRL_SDIOEN;
-    hmmc.pRxBuffPtr = (uint32_t *)data;
-    hmmc.RxXferSize = data_length;
-    
-    __HAL_MMC_CLEAR_FLAG(&hmmc, SDIO_STATIC_FLAGS); 
-    __HAL_MMC_ENABLE_IT(&hmmc, (SDIO_IT_DCRCFAIL | SDIO_IT_DTIMEOUT | SDIO_IT_RXOVERR | SDIO_IT_DATAEND | SDIO_IT_RXDAVL));
-    
-    command.CmdIndex = SDMMC_CMD_SDMMC_RW_EXTENDED;
-    command.Argument = SDIO_CMD53_FUNCTION( function ) | SDIO_CMD53_OPMODE_INCREASING_ADDRESS | SDIO_CMD53_ADDRESS( address );
-    command.Response = SDIO_RESPONSE_SHORT;
-    command.WaitForInterrupt = SDIO_WAIT_NO;
-    command.CPSM     = SDIO_CPSM_ENABLE;
-    if( data_length >= SDIO_BLOCK_MODE_THRESHOLD )
-    {
-      uint32_t block_count = ( data_length / SDIO_BLOCK_SIZE ) + ( ( ( data_length % SDIO_BLOCK_SIZE ) == 0 ) ? 0 : 1 );
-      command.Argument |= SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT( block_count );
-      config.TransferMode  = SDIO_TRANSFER_MODE_BLOCK;
-      config.DataBlockSize = SDIO_DATABLOCK_SIZE_512B;
-    }
-    else
-    {
-      command.Argument |= SDIO_CMD53_COUNT( data_length );
-      config.TransferMode  = SDIO_TRANSFER_MODE_STREAM;
-      config.DataBlockSize = SDIO_DATABLOCK_SIZE_64B;
-      SDIO->DCTRL |= SDIO_DCTRL_SDIOEN;
-    }
-    config.DataTimeOut   = SDMMC_DATATIMEOUT;
-    config.DataLength    = data_length;
-    config.TransferDir   = SDIO_TRANSFER_DIR_TO_SDIO;
-    config.DPSM          = SDIO_DPSM_ENABLE;
-    SDIO_ConfigData(SDIO, &config);
-    
-    SDIO_SendCommand(SDIO, &command);
-    status = SDMMC_GetCmdResp(SDIO);
-    if(status == SDMMC_ERROR_NONE)
-    {
-      uint8_t response_flags = (SDIO_GetResponse(SDIO, SDIO_RESP1) >> 8) & 0xFF;
-      if(response_flags != 0x20)
-      {
-        return SL_ERROR;
-      }
-    }
-    
-    return SL_SUCCESS;
+    uint32_t block_count = ( buffer_length / WF200_SDIO_BLOCK_SIZE ) + ( ( ( buffer_length % WF200_SDIO_BLOCK_SIZE ) == 0 ) ? 0 : 1 );
+    command.Argument = SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT( block_count );
+    config.TransferMode  = SDIO_TRANSFER_MODE_BLOCK;
+    config.DataBlockSize = sdio_optimal_block_size(WF200_SDIO_BLOCK_SIZE);
   }
   else
   {
+    command.Argument = SDIO_CMD53_COUNT( buffer_length );
+    config.TransferMode  = SDIO_TRANSFER_MODE_STREAM;
+    config.DataBlockSize = sdio_optimal_block_size(buffer_length);
+  }
+  command.Argument |= SDIO_CMD53_WRITE | SDIO_CMD53_FUNCTION( function ) | SDIO_CMD53_OPMODE_INCREASING_ADDRESS | SDIO_CMD53_ADDRESS( address );
+  config.TransferDir   = SDIO_TRANSFER_DIR_TO_CARD;
+  
+  SDIO->DCTRL |= SDIO_DCTRL_SDIOEN;
+  
+  /* Prepare SDIO command */ 
+  command.CmdIndex         = SDMMC_CMD_SDMMC_RW_EXTENDED;
+  command.Response         = SDIO_RESPONSE_SHORT;
+  command.WaitForInterrupt = SDIO_WAIT_NO;
+  command.CPSM             = SDIO_CPSM_ENABLE;
+  SDIO_SendCommand(SDIO, &command);
+  SDMMC_GetCmdResp(SDIO);
+  uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
+  if(((response_flags>> 8) & 0xFF) != 0x20)
+  {
     return SL_ERROR;
   }
+  
+  /* Prepare Data */
+  config.DataTimeOut   = SDMMC_DATATIMEOUT;
+  config.DataLength    = buffer_length;
+  config.DPSM          = SDIO_DPSM_ENABLE;
+  SDIO_ConfigData(SDIO, &config);
+  
+  HAL_DMA_Start_IT(&hdma_sdio_tx, (uint32_t)buffer, (uint32_t)&SDIO->FIFO, (uint32_t)buffer_length/4);
+  __SDIO_DMA_ENABLE(SDIO);
+  
+  return SL_SUCCESS;
 }
 
-sl_status_t wf200_host_sdio_transfer_cmd53( wf200_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length ){    
-  sl_status_t status;
-  if(type == WF200_BUS_WRITE){
-    status = sdio_io_write_extended(function, address, (uint8_t*)buffer, buffer_length);
+sl_status_t wf200_host_sdio_transfer_cmd53( wf200_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length )
+{    
+  sl_status_t    result  = SL_ERROR;
+  
+  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE )
+  {
+    if(type == WF200_BUS_WRITE)
+    {
+      result = wf200_host_sdio_write_cmd53( function, address, buffer, buffer_length );
+    }else{
+      result = wf200_host_sdio_read_cmd53( function, address, buffer, buffer_length );
+    }
   }else{
-    status = sdio_io_read_extended(function, address, (uint8_t*)buffer, buffer_length);
+    result = SL_TIMEOUT;
   }
-  /*Wait for SDIO rdy*/
-  while(hmmc.State != HAL_MMC_STATE_READY);
-  return status;
+  /* Wait to receive the semaphore back from the DMA. In case of a read function, this means data is ready to be read*/ 
+  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE )
+  {     
+    xSemaphoreGive(sdioDMASemaphore); 
+  }
+  return result;
 }
 
 sl_status_t wf200_host_enable_platform_interrupt( void )
 {
-  //Done in main due to STM32CubeMX format (To be moved?)
+  __SDIO_ENABLE_IT(SDIO, SDIO_IT_SDIOIT);
   return SL_SUCCESS;
 }
 
-
 sl_status_t wf200_host_disable_platform_interrupt( void )
 {
-  //TODO: add deinit from CubeMX template
+  __SDIO_DISABLE_IT(SDIO, SDIO_IT_SDIOIT);
   return SL_SUCCESS;
+}
+
+static uint32_t sdio_optimal_block_size( uint16_t buffer_size )
+{
+    if ( buffer_size > (uint16_t) 2048 )
+        return SDIO_DATABLOCK_SIZE_4096B;
+    if ( buffer_size > (uint16_t) 1024 )
+        return SDIO_DATABLOCK_SIZE_2048B;
+    if ( buffer_size > (uint16_t) 512 )
+        return SDIO_DATABLOCK_SIZE_1024B;
+    if ( buffer_size > (uint16_t) 256 )
+        return SDIO_DATABLOCK_SIZE_512B;
+    if ( buffer_size > (uint16_t) 128 )
+        return SDIO_DATABLOCK_SIZE_256B;
+    if ( buffer_size > (uint16_t) 64 )
+        return SDIO_DATABLOCK_SIZE_128B;
+    if ( buffer_size > (uint16_t) 32 )
+        return SDIO_DATABLOCK_SIZE_64B;
+    if ( buffer_size > (uint16_t) 16 )
+        return SDIO_DATABLOCK_SIZE_32B;
+    if ( buffer_size > (uint16_t) 8 )
+        return SDIO_DATABLOCK_SIZE_16B;
+    if ( buffer_size > (uint16_t) 4 )
+        return SDIO_DATABLOCK_SIZE_8B;
+    if ( buffer_size > (uint16_t) 2 )
+        return SDIO_DATABLOCK_SIZE_4B;
+    return SDIO_DATABLOCK_SIZE_4B;
+}
+
+/* SDIO init function */
+static void MX_SDIO_Init(void)
+{
+  SDIO_InitTypeDef Init;
+  
+  HAL_SDIO_MspInit();
+  Init.ClockEdge           = SDIO_CLOCK_EDGE_RISING;
+  Init.ClockBypass         = SDIO_CLOCK_BYPASS_DISABLE;
+  Init.ClockPowerSave      = SDIO_CLOCK_POWER_SAVE_DISABLE;
+  Init.BusWide             = SDIO_BUS_WIDE_1B;
+  Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
+  Init.ClockDiv            = SDIO_INIT_CLK_DIV;
+  SDIO_Init(SDIO, Init);
+  __SDIO_DISABLE(SDIO);
+  SDIO_PowerState_ON(SDIO);
+  __SDIO_ENABLE(SDIO);
+}
+
+/* SDIO deinit function */
+static void MX_SDIO_DeInit(void)
+{
+  /* Peripheral clock disable */
+  __HAL_RCC_SDIO_CLK_DISABLE();
+
+  HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
+                  |GPIO_PIN_12);
+  
+  HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
+  
+  /* SDIO DMA DeInit */
+  HAL_DMA_DeInit(&hdma_sdio_rx);
+  HAL_DMA_DeInit(&hdma_sdio_tx);
+  
+  /* SDIO interrupt DeInit */
+  HAL_NVIC_DisableIRQ(SDIO_IRQn);
 }

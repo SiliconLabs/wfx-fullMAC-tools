@@ -1,0 +1,2 @@
+ethernet.c:81:1:ethernet_input	16	static
+ethernet.c:270:1:ethernet_output	24	static

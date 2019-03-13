@@ -1,10 +1,10 @@
 /*
 * Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
+*
 *    http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
@@ -14,20 +14,11 @@
 * limitations under the License.
 */
 
-#pragma once
+#ifndef __SL_WIFI_STATUS_H
+#define __SL_WIFI_STATUS_H
 
 #define SL_WIFI_ENUM_OFFSET        1000
 #define SL_STATUS_ENUM( prefix, name, value )  prefix ## _ ## name = (prefix##_ENUM_OFFSET + value)
-#define UNUSED_VARIABLE(x) (void)(x)
-#define UNUSED_PARAMETER(x) (void)(x)
-
-#define ARRAY_COUNT(x) (sizeof (x) / sizeof *(x))
-
-#ifndef ROUND_UP
-#define ROUND_UP(x,y)    ((x) % (y) ? (x) + (y)-((x)%(y)) : (x))
-#endif /* ifndef ROUND_UP */
-
-#define SL_WAIT_FOREVER  0xFFFFFFFF
 
 #define SL_WIFI_STATUS_LIST( prefix )  \
     SL_STATUS_ENUM( prefix, INVALID_KEY,                   4 ),   /**< Invalid key */                       \
@@ -84,3 +75,5 @@
     SL_STATUS_ENUM( prefix, QUEUE_MESSAGE_UNALIGNED,      55 ), \
     SL_STATUS_ENUM( prefix, MUTEX_ERROR,                  56 ), \
     SL_STATUS_ENUM( prefix, FIRMWARE_DOWNLOAD_TIMEOUT,    57 ),
+
+#endif // __SL_WIFI_STATUS_H

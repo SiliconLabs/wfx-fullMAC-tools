@@ -65,10 +65,10 @@
    
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void User_notification(struct netif *netif);
-#ifdef USE_DHCP
+void User_notification(int link_up);
+
 void DHCP_thread(void const * argument);
-#endif
+
 
 #ifdef __cplusplus
 }

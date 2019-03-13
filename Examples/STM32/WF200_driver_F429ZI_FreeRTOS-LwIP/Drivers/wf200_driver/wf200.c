@@ -47,7 +47,7 @@
 /******************************************************
 *                      Macros
 ******************************************************/
-#define ROUND_UP_EVEN(x)    ((x) + (x&1))
+
 /******************************************************
 *                    Constants
 ******************************************************/
@@ -80,6 +80,7 @@ static sl_status_t poll_for_value( uint32_t address, uint32_t polled_value, uint
 static sl_status_t wf200_init_chip( );
 static sl_status_t wf200_download_run_bootloader();
 static sl_status_t wf200_download_run_firmware( );
+static sl_status_t wf200_compare_keysets(uint8_t wf200_keyset, char* firmware_keyset);
 
 /******************************************************
 *               Function Definitions
@@ -146,13 +147,19 @@ sl_status_t wf200_init( wf200_context_t* context )
   memcpy(&(context->mac_addr_0.octet), startup_info->Body.MacAddr0, sizeof(wf200_mac_address_t));
   memcpy(&(context->mac_addr_1.octet), startup_info->Body.MacAddr1, sizeof(wf200_mac_address_t));
 
+  /* Storing input buffer limit from WF200  */
+  wf200_input_buffer_number = startup_info->Body.NumInpChBufs;
+
+  /* Set the wake up pin of the host */
+  wf200_host_set_wake_up_pin(1);
+
   /* Sending to wf200 PDS configuration (Platform data set) contained in wf200_pds.h  */
   for ( uint8_t a = 0; a < ARRAY_COUNT(wf200_pds); a++ )
   {
     result = wf200_send_configuration( wf200_pds[a],strlen(wf200_pds[a]) );
+    ERROR_CHECK( result );
   }
-  ERROR_CHECK( result );
-  wf200_input_buffer_number = startup_info->Body.NumInpChBufs;
+
 #ifdef DEBUG
   printf("--PDS configured--\r\n");
 #endif
@@ -161,6 +168,8 @@ error_handler:
   if ( result != SL_SUCCESS )
   {
     wf200_disable_irq( );
+    wf200_deinit_bus();
+    wf200_host_deinit();
   }
 
   return result;
@@ -175,10 +184,13 @@ sl_status_t wf200_deinit( void )
 {
   sl_status_t result;
 
+  result = wf200_shutdown( );
+  ERROR_CHECK( result );
+
   result = wf200_disable_irq( );
   ERROR_CHECK( result );
 
-  result = wf200_shutdown( );
+  result = wf200_deinit_bus( );
   ERROR_CHECK( result );
 
 error_handler:
@@ -230,10 +242,13 @@ sl_status_t wf200_send_join_command( const uint8_t* ssid,
   WfmHiConnectCnf_t*     reply;
   wf200_buffer_t*        frame           = NULL;
   WfmHiConnectReqBody_t* connect_request = NULL;
+  uint32_t               request_length  = ROUND_UP_EVEN(sizeof( WfmHiConnectReq_t ));
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(sizeof( WfmHiConnectReq_t )), SL_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
   ERROR_CHECK( result );
-  
+
+  memset( frame, 0, request_length );
+
   frame->msg_info                      = 0;
   connect_request                      = (WfmHiConnectReqBody_t*)&frame->data;
   connect_request->Channel             = 0;
@@ -248,7 +263,7 @@ sl_status_t wf200_send_join_command( const uint8_t* ssid,
   memset( connect_request->BSSID, 0xFF, WFM_API_BSSID_SIZE );
   memcpy( connect_request->Password, passkey, passkey_length );
 
-  result = wf200_send_request( WFM_HI_CONNECT_REQ_ID, frame, sizeof( WfmHiConnectReq_t ));
+  result = wf200_send_request( WFM_HI_CONNECT_REQ_ID, frame, request_length );
   ERROR_CHECK( result );
 
   result = wf200_host_wait_for_confirmation( WF200_JOIN_REQUEST_TIMEOUT, (void**) &reply );
@@ -389,8 +404,7 @@ sl_status_t wf200_send_ethernet_frame( wf200_frame_t* frame, uint32_t data_lengt
     frame_header->s.b.IntId = interface;
 
     // Note: Length must be multiple of 2 (16 bit word aligned)
-    frame->msg_len = data_length + sizeof(wf200_frame_t);
-    frame->msg_len = ( frame->msg_len + 1 ) & 0xFFFE;
+    frame->msg_len = ROUND_UP_EVEN(data_length + sizeof(wf200_frame_t));
     result = wf200_host_transmit_frame( (wf200_buffer_t*) frame );
     if(result == SL_SUCCESS){
         wf200_context->used_buffer_number++;
@@ -425,12 +439,14 @@ sl_status_t wf200_send_scan_command( uint16_t               scan_mode,
   wf200_buffer_t*          frame;
   uint8_t*                 scan_params_copy_pointer;
   uint32_t                 scan_params_length   = channel_list_count + ( ssid_list_count * sizeof(WfmHiSsidDef_t) ) + ie_data_length;
-  uint32_t                 request_total_length = sizeof(WfmHiStartScanReq_t) + scan_params_length;
+  uint32_t                 request_total_length = ROUND_UP_EVEN(sizeof(WfmHiStartScanReq_t) + scan_params_length);
   WfmHiStartScanReqBody_t* scan_request         = NULL;
   WfmHiStartScanCnf_t*     reply                = NULL;
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(request_total_length), SL_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_total_length, SL_WAIT_FOREVER );
   ERROR_CHECK( result );
+
+  memset( frame, 0, request_total_length );
 
   frame->msg_info                      = 0;
   scan_request = (WfmHiStartScanReqBody_t*) frame->data;
@@ -461,7 +477,7 @@ sl_status_t wf200_send_scan_command( uint16_t               scan_mode,
   {
     memcpy( scan_params_copy_pointer, ie_data, ie_data_length );
   }
-   
+
   result = wf200_send_request( WFM_HI_START_SCAN_REQ_ID, frame, request_total_length );
   ERROR_CHECK( result );
 
@@ -501,15 +517,17 @@ sl_status_t wf200_get_signal_strength( uint32_t* signal_strength )
 {
   sl_status_t        result;
   wf200_buffer_t*    frame      = NULL;
-  WfmHiGetSignalStrengthReq_t* get_signal_strength = NULL;
   WfmHiGetSignalStrengthCnf_t* reply      = NULL;
+  uint32_t request_length = ROUND_UP_EVEN(sizeof( WfmHiGetSignalStrengthReq_t ));
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(sizeof( *get_signal_strength )), SL_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
   ERROR_CHECK( result );
 
-  get_signal_strength->s.b.IntId = WF200_STA_INTERFACE;
-  
-  result = wf200_send_request( WFM_HI_GET_SIGNAL_STRENGTH_REQ_ID, frame, sizeof( *get_signal_strength ) );
+  memset( frame, 0, request_length );
+
+  ((WfmHiGetSignalStrengthReq_t*)frame)->s.b.IntId = WF200_STA_INTERFACE;
+
+  result = wf200_send_request( WFM_HI_GET_SIGNAL_STRENGTH_REQ_ID, frame, request_length );
   ERROR_CHECK( result );
 
   result = wf200_host_wait_for_confirmation( WF200_DEFAULT_REQUEST_TIMEOUT, (void**) &reply );
@@ -573,36 +591,11 @@ sl_status_t wf200_set_power_mode( WfmPmMode mode, uint16_t interval )
  */
 sl_status_t wf200_add_multicast_address( const wf200_mac_address_t* mac_address, wf200_interface_t interface )
 {
-    sl_status_t                    result;
-    wf200_buffer_t*                frame           = NULL;
-    WfmHiAddMulticastAddrReq_t*    request         = NULL;
-    WfmHiAddMulticastAddrCnf_t*    reply           = NULL;
-    const uint32_t                 request_length  = sizeof( *request );
+  WfmHiAddMulticastAddrReqBody_t payload;
 
-    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
-    ERROR_CHECK( result );
+  memcpy( payload.Mac, &mac_address->octet, sizeof( payload.Mac ) );
 
-    request = (WfmHiAddMulticastAddrReq_t*)frame;
-    memcpy( &request->Body.Mac, &mac_address->octet, WFM_API_MAC_SIZE );
-
-    result = wf200_send_command( WFM_HI_ADD_MULTICAST_ADDR_REQ_ID, frame, request_length, interface );
-    ERROR_CHECK( result );
-
-    result = wf200_host_wait_for_confirmation( WF200_DEFAULT_REQUEST_TIMEOUT, (void**) &reply );
-    ERROR_CHECK( result );
-
-    // TODO: remove check for WFM_STATUS_WRONG_STATE (only included to make secure link testing easier)
-    if ( reply->Body.Status != WFM_STATUS_SUCCESS && reply->Body.Status != WFM_STATUS_WRONG_STATE)
-    {
-        result = SL_ERROR;
-    }
-
-error_handler:
-    if ( frame != NULL )
-    {
-        wf200_host_free_buffer( frame, WF200_CONTROL_BUFFER );
-    }
-    return result;
+  return wf200_send_command( WFM_HI_ADD_MULTICAST_ADDR_REQ_ID, &payload, sizeof( payload ), interface );
 }
 
 /**
@@ -614,35 +607,12 @@ error_handler:
  */
 sl_status_t wf200_set_max_ap_client( uint32_t max_clients )
 {
-    sl_status_t                    result;
-    wf200_buffer_t*                frame           = NULL;
-    WfmHiSetMaxApClientCountReq_t* ap_request      = NULL;
-    WfmHiSetMaxApClientCountCnf_t* reply           = NULL;
-    const uint32_t                 request_length  = sizeof( *ap_request );
+  WfmHiSetMaxApClientCountReqBody_t payload =
+  {
+    .Count = max_clients,
+  };
 
-    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
-    ERROR_CHECK( result );
-
-    ap_request = (WfmHiSetMaxApClientCountReq_t*)frame;
-    ap_request->Body.Count = max_clients;
-
-    result = wf200_send_command( WFM_HI_SET_MAX_AP_CLIENT_COUNT_REQ_ID, frame, request_length, WF200_SOFTAP_INTERFACE );
-    ERROR_CHECK( result );
-
-    result = wf200_host_wait_for_confirmation( WF200_DEFAULT_REQUEST_TIMEOUT, (void**) &reply );
-    ERROR_CHECK( result );
-
-    if ( reply->Body.Status != WFM_STATUS_SUCCESS )
-    {
-        result = SL_ERROR;
-    }
-
-error_handler:
-    if ( frame != NULL )
-    {
-        wf200_host_free_buffer( frame, WF200_CONTROL_BUFFER );
-    }
-    return result;
+  return wf200_send_command( WFM_HI_SET_MAX_AP_CLIENT_COUNT_REQ_ID, &payload, sizeof( payload ), WF200_SOFTAP_INTERFACE );
 }
 /** @}*/ //FULL_MAC_DRIVER_API
 
@@ -664,10 +634,12 @@ sl_status_t wf200_send_configuration( const char* pds_data, uint32_t pds_data_le
   HiConfigurationCnf_t*     reply;
   wf200_buffer_t*           frame          = NULL;
   HiConfigurationReqBody_t* config_request = NULL;
-  uint32_t                  request_length = sizeof(HiConfigurationReq_t) + pds_data_length - API_VARIABLE_SIZE_ARRAY_DUMMY_SIZE; // '-1' to exclude size of 'Body.PdsData' field, which is already included in pds_data_length
+  uint32_t                  request_length = ROUND_UP_EVEN(sizeof(HiConfigurationReq_t) + pds_data_length - API_VARIABLE_SIZE_ARRAY_DUMMY_SIZE); // '-1' to exclude size of 'Body.PdsData' field, which is already included in pds_data_length
 
-  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(request_length ), SL_WAIT_FOREVER );
+  result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
   ERROR_CHECK( result );
+
+  memset( frame, 0, request_length );
 
   config_request         = (HiConfigurationReqBody_t*)&frame->data;
   config_request->Length = pds_data_length;
@@ -702,16 +674,24 @@ error_handler:
  */
 sl_status_t wf200_shutdown( void )
 {
-    sl_status_t      status  = SL_SUCCESS;
+    sl_status_t      result  = SL_SUCCESS;
+    wf200_buffer_t*  frame            = NULL;
 
-    status = wf200_send_command( HI_SHUT_DOWN_REQ_ID, NULL, 0, WF200_STA_INTERFACE );
-    ERROR_CHECK( status );
+    result = wf200_host_allocate_buffer( &frame, WF200_CONTROL_BUFFER, sizeof( HiShutDownReq_t ), SL_WAIT_FOREVER );
+    ERROR_CHECK( result );
+
+    result = wf200_send_request( HI_SHUT_DOWN_REQ_ID, frame, sizeof( HiShutDownReq_t ) );
+    ERROR_CHECK( result );
 
     // Clear WUP bit in control register
-    status = wf200_set_wake_up_bit( 0 );
+    result = wf200_set_wake_up_bit( 0 );
+    ERROR_CHECK( result );
+    // Clear WUP pin
+    result = wf200_host_set_wake_up_pin( 0 );
+    ERROR_CHECK( result );
 
     error_handler:
-    return status;
+    return result;
 }
 /** @}*/ //GENERAL_DRIVER_API
 
@@ -732,10 +712,12 @@ sl_status_t wf200_send_command( uint32_t command_id, void* data, uint32_t data_s
     HiMsgHdr_t*           reply;
     HiMsgHdr_t*           request_header;
     wf200_buffer_t*       request = NULL;
-    uint32_t              request_length = sizeof(HiMsgHdr_t) + data_size;
+    uint32_t              request_length = ROUND_UP_EVEN(sizeof(HiMsgHdr_t) + data_size);
 
-    result = wf200_host_allocate_buffer( &request, WF200_CONTROL_BUFFER, ROUND_UP_EVEN(request_length), SL_WAIT_FOREVER );
+    result = wf200_host_allocate_buffer( &request, WF200_CONTROL_BUFFER, request_length, SL_WAIT_FOREVER );
     ERROR_CHECK( result );
+
+    memset( request, 0, request_length );
 
     request_header = (HiMsgHdr_t*) request;
     request_header->s.t.MsgInfo      = 0;
@@ -775,56 +757,60 @@ static sl_status_t wf200_send_request( uint16_t command_id, wf200_buffer_t* requ
 
     request->msg_id   = command_id;
     request->msg_len  = request_length;
-    if (request->msg_len % 2) // Note: Length must be multiple of 2 (16 bit word aligned)
-    {
-      ((uint8_t*)request)[request->msg_len] = 0; //Extra byte must be zero
-      request->msg_len  =  request->msg_len + 1; 
-    }
-    
- 
+
     return wf200_host_transmit_frame( request );
 }
 
 /**
  * \brief Receive available frame from wf200
  *
- * \param frame_size: frame size to be read from WF200. If 0, the driver will read the control register to retrieve the frame size.
+ * \param ctrl_reg: control register value of the last call of wf200_receive_frame(). If equal to 0, the driver will read the control register.
  * \return SL_SUCCESS if the request has been sent correctly, SL_ERROR otherwise
  */
-sl_status_t wf200_receive_frame( uint32_t* frame_size )
+sl_status_t wf200_receive_frame( uint16_t* ctrl_reg  )
 {
   sl_status_t result;
   wf200_buffer_t* network_rx_buffer;
-  uint16_t ctrl_reg = 0;
-  uint32_t read_len;
-  
-  /* if frame_length is equal to 0, read the control register to know the frame size */
-  if(*frame_size == 0)
-  { 
-    result = wf200_reg_read_16( WF200_CONTROL_REG_ID, &ctrl_reg );
-    *frame_size = ( ctrl_reg & WF200_CONT_NEXT_LEN_MASK ) * 2; 
+  uint32_t read_length ,frame_size;
+  wf200_frame_type_t frame_type;
+
+  frame_size = (*ctrl_reg & WF200_CONT_NEXT_LEN_MASK) * 2;
+  /* if frame_size is equal to 0, read the control register to know the frame size */
+  if(frame_size == 0)
+  {
+    /* Read the control register */
+    result = wf200_reg_read_16( WF200_CONTROL_REG_ID, ctrl_reg );
     ERROR_CHECK( result );
+    frame_size = (*ctrl_reg & WF200_CONT_NEXT_LEN_MASK) * 2;
+    /* At this point, if frame_size is equal to zero, nothing to be read by the host */
+    if(frame_size == 0)
+    {
+     result = SL_WIFI_NO_PACKET_TO_RECEIVE;
+     ERROR_CHECK( result );
+    }
   }
-  
-  /* critical : '+2' is for the piggy-back ctrl register read at the end. */
-  read_len = *frame_size + 2; 
-  result = wf200_host_allocate_buffer( &network_rx_buffer, WF200_RX_FRAME_BUFFER, ROUND_UP( read_len, 64 ), 0 );
+
+  /* critical : '+2' is to read the piggy-back value at the end of the control register. */
+  read_length = frame_size + 2;
+
+  result = wf200_host_allocate_buffer( &network_rx_buffer, WF200_RX_FRAME_BUFFER, ROUND_UP( read_length, ROUND_UP_VALUE ), 0 );
   ERROR_CHECK( result );
-  
-  memset( network_rx_buffer, 0, read_len );
+
+  memset( network_rx_buffer, 0, read_length );
 
   /* Read the frame from WF200 */
-  result = wf200_data_read( network_rx_buffer, read_len );
+  result = wf200_data_read( network_rx_buffer, read_length );
   ERROR_CHECK( result );
 
   network_rx_buffer->msg_len = UNPACK_16BIT_LITTLE_ENDIAN(&network_rx_buffer->msg_len);
   network_rx_buffer->msg_id  = UNPACK_16BIT_LITTLE_ENDIAN(&network_rx_buffer->msg_id)  & 0xFF;
-  
-  /* read the next frame size in the piggy back value and pass it to the host */
-  ctrl_reg = UNPACK_16BIT_LITTLE_ENDIAN( ((uint8_t*)network_rx_buffer) + read_len  - 2 );
-  result = wf200_host_post_event(network_rx_buffer->msg_id, network_rx_buffer, read_len  - 2);
-  *frame_size = (ctrl_reg & WF200_CONT_NEXT_LEN_MASK) * 2; 
-  
+  /* retrieve the frame type from the control register*/
+  frame_type = ((*ctrl_reg & WF200_CONT_FRAME_TYPE_INFO) >> WF200_CONT_FRAME_TYPE_OFFSET);
+  /* read the control register value in the piggy back and pass it to the host */
+  *ctrl_reg = UNPACK_16BIT_LITTLE_ENDIAN(((uint8_t*)network_rx_buffer) + frame_size);
+  /* send the information to the host */
+  result = wf200_host_post_event(frame_type, network_rx_buffer->msg_id, network_rx_buffer, frame_size);
+
 error_handler:
   return result;
 }
@@ -1044,7 +1030,8 @@ error_handler:
 /**
  * \brief Download wf200 firmware
  *
- * \return SL_SUCCESS if the firmware is downloaded correctly, SL_ERROR otherwise
+ * \return SL_SUCCESS if the firmware is downloaded correctly, SL_WIFI_INVALID_KEY if the firmware keyset does not match,
+ * SL_WIFI_FIRMWARE_DOWNLOAD_TIMEOUT or SL_TIMEOUT if the process times out, SL_ERROR otherwise
  */
 static sl_status_t wf200_download_run_firmware( void )
 {
@@ -1078,7 +1065,7 @@ static sl_status_t wf200_download_run_firmware( void )
     status = wf200_apb_read_32( 0x0900C080, &value32 );
     ERROR_CHECK( status );
 
-    // TODO check key version here?
+    // retrieve WF200 keyset
     status = wf200_apb_read_32( WFX_PTE_INFO + 12, &value32 );
     ERROR_CHECK(status);
     encryption_keyset = (value32 >> 8);
@@ -1097,10 +1084,18 @@ static sl_status_t wf200_download_run_firmware( void )
 
     // write image length
     wf200_host_get_firmware_size( &image_length );
-    status = wf200_apb_write_32( ADDR_DWL_CTRL_AREA_IMAGE_SIZE, image_length - FW_HASH_SIZE - FW_SIGNATURE_SIZE );
+    status = wf200_apb_write_32( ADDR_DWL_CTRL_AREA_IMAGE_SIZE, image_length - FW_HASH_SIZE - FW_SIGNATURE_SIZE - FW_KEYSET_SIZE);
     ERROR_CHECK( status );
 
-    // write image signature, which is the first FW_SIGNATURE_SIZE of given image
+    // get firmware keyset, which is the first FW_KEYSET_SIZE of given image
+    status = wf200_host_get_firmware_data( &buffer, FW_KEYSET_SIZE );
+    ERROR_CHECK( status );
+
+    // check if the firmware keyset corresponds to the chip keyset
+    status = wf200_compare_keysets(encryption_keyset, (char*) buffer);
+    ERROR_CHECK( status );
+
+    // write image signature, which is the next FW_SIGNATURE_SIZE of given image
     status = wf200_host_get_firmware_data( &buffer, FW_SIGNATURE_SIZE );
     ERROR_CHECK( status );
     status = wf200_apb_write( ADDR_DWL_CTRL_AREA_SIGNATURE, buffer, FW_SIGNATURE_SIZE );
@@ -1121,7 +1116,7 @@ static sl_status_t wf200_download_run_firmware( void )
     ERROR_CHECK( status );
 
     // skip signature and hash from image length
-    image_length -= ( FW_HASH_SIZE + FW_SIGNATURE_SIZE );
+    image_length -= ( FW_HASH_SIZE + FW_SIGNATURE_SIZE + FW_KEYSET_SIZE);
 
     /* Calculate number of download blocks */
     num_blocks = (image_length - 1) / DOWNLOAD_BLOCK_SIZE + 1;
@@ -1206,7 +1201,7 @@ error_handler:
  * \param address: Address of the value to be polled
  * \param polled_value: waiting for the value to be equal to polled_value
  * \param max_retries: Number of polling to be done before returning SL_TIMEOUT
- * \return SL_SUCCESS if the value is received correctly, SL_ERROR otherwise
+ * \return SL_SUCCESS if the value is received correctly, SL_ERROR if not able to read from the WF200, SL_TIMEOUT if the value is not found in time
  */
 static sl_status_t poll_for_value( uint32_t address, uint32_t polled_value, uint32_t max_retries )
 {
@@ -1233,6 +1228,30 @@ static sl_status_t poll_for_value( uint32_t address, uint32_t polled_value, uint
 
 error_handler:
     return status;
+}
+
+/**
+ * \brief Compare the WF200 keyset and the firmware one to check compatibility
+ *
+ * \param wf200_keyset: value retrieved from the WF200
+ * \param firmware_keyset: 8 first bytes of the WF200 firmware
+ * \return SL_SUCCESS if the firmware is compatible with the WF200, SL_WIFI_INVALID_KEY otherwise
+ */
+static sl_status_t wf200_compare_keysets(uint8_t wf200_keyset, char* firmware_keyset)
+{
+  sl_status_t result;
+  char keyset_string[3];
+  keyset_string[0] = *(firmware_keyset + 6);
+  keyset_string[1] = *(firmware_keyset + 7);
+  keyset_string[2] = '\0';
+  uint8_t keyset_value = (uint8_t)strtoul(keyset_string, NULL, 16);
+  if(keyset_value == wf200_keyset)
+  {
+    result = SL_SUCCESS;
+  }else{
+    result = SL_WIFI_INVALID_KEY;
+  }
+  return result;
 }
 
 /**

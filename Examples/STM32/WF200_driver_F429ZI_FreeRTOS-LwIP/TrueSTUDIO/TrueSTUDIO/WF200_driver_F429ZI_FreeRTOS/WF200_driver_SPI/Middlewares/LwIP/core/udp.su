@@ -1,0 +1,17 @@
+udp.c:100:1:udp_new_port	0	static
+udp.c:130:1:udp_input_local_match	16	static
+udp.c:87:1:udp_init	8	static
+udp.c:194:1:udp_input	56	static
+udp.c:932:1:udp_bind	16	static
+udp.c:699:1:udp_sendto_if_src	48	static
+udp.c:624:1:udp_sendto_if	24	static
+udp.c:520:1:udp_sendto	32	static
+udp.c:467:1:udp_send	8	static
+udp.c:1042:1:udp_bind_netif	0	static
+udp.c:1071:1:udp_connect	16	static
+udp.c:1126:1:udp_disconnect	8	static
+udp.c:1158:1:udp_recv	8	static
+udp.c:1179:1:udp_remove	8	static
+udp.c:1218:1:udp_new	8	static
+udp.c:1255:1:udp_new_ip_type	8	static
+udp.c:1278:6:udp_netif_ip_addr_changed	4	static

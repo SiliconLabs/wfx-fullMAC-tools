@@ -18,15 +18,6 @@ static struct udp_pcb * dhcp_pcb = 0;
 #define DHCP_SERVER_PORT 67
 #define DHCP_CLIENT_PORT 68
 
-#define SN_MASK_IP0 NETMASK_ADDR0
-#define SN_MASK_IP1 NETMASK_ADDR1 
-#define SN_MASK_IP2 NETMASK_ADDR2 
-#define SN_MASK_IP3 NETMASK_ADDR3 
-
-#define AP_ADDR_IP0 IP_ADDR0 
-#define AP_ADDR_IP1 IP_ADDR1 
-#define AP_ADDR_IP2 IP_ADDR2
-#define AP_ADDR_IP3 IP_ADDR3 
 
 static struct eth_addr saved_mac[MAX_CLIENT];
 
@@ -105,7 +96,7 @@ static ip_addr_t dhcpserver_get_ip(struct eth_addr *mac)
 				saved_mac[i].addr[4] == mac->addr[4] && saved_mac[i].addr[5] == mac->addr[5]) {
 
 			/* index is used to increment IP address. */
-			offer_ip.addr = ((10 + i) << 24) + AP_ADDR_IP0 + (AP_ADDR_IP1<<8) + (AP_ADDR_IP2<<16);
+			offer_ip.addr = ((10 + i) << 24) + ip_addr0 + (ip_addr1<<8) + (ip_addr2<<16);
 			return offer_ip;
 		}
 	}
@@ -237,7 +228,7 @@ static void dhcpserver_fn(void *arg, struct udp_pcb *dhcp_pcb_recv, struct pbuf 
             options_offset++;
             pbuf_put_at(pbuf_out, options_offset, 4);
             options_offset++;
-            IP4_ADDR(&r, SN_MASK_IP0, SN_MASK_IP1, SN_MASK_IP2, SN_MASK_IP3);
+            IP4_ADDR(&r, netmask_addr0, netmask_addr1, netmask_addr2, netmask_addr3);
             pbuf_put_at(pbuf_out,options_offset,r.addr&0xff);
             pbuf_put_at(pbuf_out,options_offset+1,(r.addr>>8)&0xff);
             pbuf_put_at(pbuf_out,options_offset+2,(r.addr>>16)&0xff);
@@ -248,7 +239,7 @@ static void dhcpserver_fn(void *arg, struct udp_pcb *dhcp_pcb_recv, struct pbuf 
             options_offset++;
             pbuf_put_at(pbuf_out, options_offset, 4);
             options_offset++;
-            IP4_ADDR(&r, AP_ADDR_IP0, AP_ADDR_IP1, AP_ADDR_IP2, AP_ADDR_IP3);
+            IP4_ADDR(&r, ip_addr0, ip_addr1, ip_addr2, ip_addr3);
             pbuf_put_at(pbuf_out,options_offset,r.addr&0xff);
             pbuf_put_at(pbuf_out,options_offset+1,(r.addr>>8)&0xff);
             pbuf_put_at(pbuf_out,options_offset+2,(r.addr>>16)&0xff);
@@ -269,7 +260,7 @@ static void dhcpserver_fn(void *arg, struct udp_pcb *dhcp_pcb_recv, struct pbuf 
             options_offset++;
             pbuf_put_at(pbuf_out, options_offset, 4);
             options_offset++;
-            IP4_ADDR(&r, AP_ADDR_IP0, AP_ADDR_IP1, AP_ADDR_IP2, AP_ADDR_IP3);
+            IP4_ADDR(&r, ip_addr0, ip_addr1, ip_addr2, ip_addr3);
             pbuf_put_at(pbuf_out,options_offset,r.addr&0xff);
             pbuf_put_at(pbuf_out,options_offset+1,(r.addr>>8)&0xff);
             pbuf_put_at(pbuf_out,options_offset+2,(r.addr>>16)&0xff);
@@ -344,7 +335,7 @@ static void dhcpserver_fn(void *arg, struct udp_pcb *dhcp_pcb_recv, struct pbuf 
                 options_offset++;
                 pbuf_put_at(pbuf_out, options_offset, 4);
                 options_offset++;
-                IP4_ADDR(&r, SN_MASK_IP0, SN_MASK_IP1, SN_MASK_IP2, SN_MASK_IP3);
+                IP4_ADDR(&r, netmask_addr0, netmask_addr1, netmask_addr2, netmask_addr3);
                 pbuf_put_at(pbuf_out,options_offset,r.addr&0xff);
                 pbuf_put_at(pbuf_out,options_offset+1,(r.addr>>8)&0xff);
                 pbuf_put_at(pbuf_out,options_offset+2,(r.addr>>16)&0xff);
@@ -355,7 +346,7 @@ static void dhcpserver_fn(void *arg, struct udp_pcb *dhcp_pcb_recv, struct pbuf 
                 options_offset++;
                 pbuf_put_at(pbuf_out, options_offset, 4);
                 options_offset++;
-                IP4_ADDR(&r, AP_ADDR_IP0, AP_ADDR_IP1, AP_ADDR_IP2, AP_ADDR_IP3);
+                IP4_ADDR(&r, ip_addr0, ip_addr1, ip_addr2, ip_addr3);
                 pbuf_put_at(pbuf_out,options_offset,r.addr&0xff);
                 pbuf_put_at(pbuf_out,options_offset+1,(r.addr>>8)&0xff);
                 pbuf_put_at(pbuf_out,options_offset+2,(r.addr>>16)&0xff);
@@ -378,7 +369,7 @@ static void dhcpserver_fn(void *arg, struct udp_pcb *dhcp_pcb_recv, struct pbuf 
                 options_offset++;
                 pbuf_put_at(pbuf_out, options_offset, 4);
                 options_offset++;
-                IP4_ADDR(&r, AP_ADDR_IP0, AP_ADDR_IP1, AP_ADDR_IP2, AP_ADDR_IP3);
+                IP4_ADDR(&r, ip_addr0, ip_addr1, ip_addr2, ip_addr3);
                 pbuf_put_at(pbuf_out,options_offset,r.addr&0xff);
                 pbuf_put_at(pbuf_out,options_offset+1,(r.addr>>8)&0xff);
                 pbuf_put_at(pbuf_out,options_offset+2,(r.addr>>16)&0xff);

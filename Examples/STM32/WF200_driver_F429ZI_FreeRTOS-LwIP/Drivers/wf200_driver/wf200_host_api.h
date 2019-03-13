@@ -1,10 +1,10 @@
 /*
 * Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
+*
 *    http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
@@ -20,7 +20,8 @@
  *
  */
 
-#pragma once
+#ifndef __WF200_HOST_API_H
+#define __WF200_HOST_API_H
 
 #include "sl_status.h"
 #include "wf200.h"
@@ -67,7 +68,7 @@ sl_status_t wf200_host_hold_in_reset( void );
 /* Event management */
 sl_status_t wf200_host_wait_for_confirmation( uint32_t timeout, void** event_payload_out );
 sl_status_t wf200_host_wait( uint32_t wait_time );
-sl_status_t wf200_host_post_event( uint32_t event_id, void* event_payload, uint32_t event_payload_length );
+sl_status_t wf200_host_post_event( wf200_frame_type_t frame_type, uint32_t event_id, void* event_payload, uint32_t event_payload_length );
 /* Memory management */
 sl_status_t wf200_host_allocate_buffer( wf200_buffer_t** buffer, wf200_buffer_type_t type, uint32_t buffer_size, uint32_t wait_duration );
 sl_status_t wf200_host_free_buffer( wf200_buffer_t* buffer, wf200_buffer_type_t type );
@@ -75,6 +76,7 @@ sl_status_t wf200_host_free_buffer( wf200_buffer_t* buffer, wf200_buffer_type_t 
 sl_status_t wf200_host_transmit_frame( wf200_buffer_t* frame );
 /* WF200 host bus API */
 sl_status_t wf200_host_init_bus( void );
+sl_status_t wf200_host_deinit_bus( void );
 sl_status_t wf200_host_enable_platform_interrupt( void );
 sl_status_t wf200_host_disable_platform_interrupt( void );
 /* WF200 host SPI bus API */
@@ -85,3 +87,5 @@ sl_status_t wf200_host_spi_transfer_no_cs_assert( wf200_host_bus_tranfer_type_t 
 sl_status_t wf200_host_sdio_transfer_cmd52( wf200_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer );
 sl_status_t wf200_host_sdio_transfer_cmd53( wf200_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length );
 sl_status_t wf200_host_sdio_enable_high_speed_mode( void );
+
+#endif // __WF200_HOST_API_H

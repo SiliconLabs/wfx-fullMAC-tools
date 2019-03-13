@@ -1,0 +1,11 @@
+stm32f4xx_it.c:72:6:SysTick_Handler	8	static
+stm32f4xx_it.c:93:6:TIM1_UP_TIM10_IRQHandler	8	static
+stm32f4xx_it.c:107:6:EXTI15_10_IRQHandler	16	static
+stm32f4xx_it.c:126:6:SPI1_IRQHandler	8	static
+stm32f4xx_it.c:138:6:DMA2_Stream0_IRQHandler	8	static
+stm32f4xx_it.c:152:6:DMA2_Stream3_IRQHandler	8	static
+stm32f4xx_it.c:163:6:HAL_SPI_TxCpltCallback	16	static
+stm32f4xx_it.c:170:6:HAL_SPI_RxCpltCallback	16	static
+stm32f4xx_it.c:233:6:USART3_IRQHandler	8	static
+stm32f4xx_it.c:251:6:HAL_UART_TxCpltCallback	8	static
+stm32f4xx_it.c:256:6:HAL_UART_RxCpltCallback	8	static

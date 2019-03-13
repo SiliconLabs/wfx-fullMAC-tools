@@ -3,5 +3,5 @@
 
 
 void dhcpserver_start(void);
-
+void dhcpserver_stop(void);
 #endif

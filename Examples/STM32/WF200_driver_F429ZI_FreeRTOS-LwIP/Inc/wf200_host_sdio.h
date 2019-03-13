@@ -13,24 +13,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#ifndef __WF200_HOST_SDIO_H
+#define __WF200_HOST_SDIO_H
 
-#pragma once
 #include "stm32f4xx_hal.h"
 #include "wf200_host_api.h"
 
-#define SDIO_BLOCK_SIZE  0x200
-#define SDIO_BLOCK_MODE_THRESHOLD     0x200
+#define WF200_SDIO_BLOCK_SIZE               0x40
+#define WF200_SDIO_BLOCK_MODE_THRESHOLD     0x200
 
-/* SDIO CMD53 argument */
-#define SDIO_CMD53_WRITE                       ( 1 << 31 )
-#define SDIO_CMD53_FUNCTION( function )        ( ( ( function ) & 0x7 ) << 28 )
-#define SDIO_CMD53_BLOCK_MODE                  ( 1 << 27 )
-#define SDIO_CMD53_OPMODE_INCREASING_ADDRESS   ( 1 << 26 )
-#define SDIO_CMD53_ADDRESS( address )          ( ( ( address ) & 0x1ffff ) << 9 )
-#define SDIO_CMD53_COUNT( count )              ( ( count ) & 0x1ff )
-
-#define SDIO_CMD53_IS_BLOCK_MODE( arg )        ( ( ( arg ) & SDIO_CMD53_BLOCK_MODE ) != 0 )
-#define SDIO_CMD53_GET_COUNT( arg )            ( SDIO_CMD53_COUNT( arg ) )
-
-static uint32_t            rx_buffer_id;
-static uint32_t            tx_buffer_id;
+#endif // __WF200_HOST_SDIO_H

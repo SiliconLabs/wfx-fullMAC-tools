@@ -1,10 +1,10 @@
 /*
 * Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
+*
 *    http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
@@ -20,7 +20,8 @@
  *
  */
 
-#pragma once
+#ifndef __WF200_REGISTERS_H
+#define __WF200_REGISTERS_H
 
 #include <stdint.h>
 
@@ -55,6 +56,7 @@
 #define DOWNLOAD_BLOCK_SIZE     (1024)
 
 #define ADDR_DWL_CTRL_AREA              0x0900C000
+#define FW_KEYSET_SIZE                  8
 #define FW_SIGNATURE_SIZE               64
 #define FW_HASH_SIZE                    8
 #define ADDR_DWL_CTRL_AREA_IMAGE_SIZE   (ADDR_DWL_CTRL_AREA + 0)
@@ -92,12 +94,10 @@
 
 /* WBF - Control register bit set */
 /* next o/p length, bit 11 to 0 */
-#define WF200_CONT_NEXT_LEN_MASK  (0x0FFF)
-#define WF200_CONT_WUP_BIT        (BIT(12))
-#define WF200_CONT_RDY_BIT        (BIT(13))
-#define WF200_CONT_IRQ_ENABLE     (BIT(14))
-#define WF200_CONT_RDY_ENABLE     (BIT(15))
-#define WF200_CONT_IRQ_RDY_ENABLE (BIT(14)|BIT(15))
+#define WF200_CONT_NEXT_LEN_MASK   (0x0FFF)
+#define WF200_CONT_WUP_BIT         (BIT(12))
+#define WF200_CONT_RDY_BIT         (BIT(13))
+#define WF200_CONT_FRAME_TYPE_INFO (BIT(14)|BIT(15))
 
 /* SPI Config register bit set */
 /*TODO update these bits definitions : word_mode are now in 8 and 9*/
@@ -129,3 +129,5 @@
 #define WF200_CONF_IRQ_RDY_ENABLE (BIT(16)|BIT(17))
 
 #define FW_VERSION_VALUE        0x00000001
+
+#endif // __WF200_REGISTERS_H

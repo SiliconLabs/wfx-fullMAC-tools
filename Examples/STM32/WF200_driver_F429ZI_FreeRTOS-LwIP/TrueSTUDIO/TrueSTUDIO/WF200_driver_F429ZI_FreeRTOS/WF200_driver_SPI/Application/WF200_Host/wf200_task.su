@@ -1,0 +1,3 @@
+wf200_task.c:53:20:receive_frames	16	static
+wf200_task.c:66:13:prvBusCommTask	8	static
+wf200_task.c:46:6:vBusCommStart	40	static

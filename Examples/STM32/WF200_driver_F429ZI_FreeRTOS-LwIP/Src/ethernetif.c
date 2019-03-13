@@ -37,12 +37,12 @@ extern wf200_context_t wifi;
 extern char wlan_ssid[];
 extern char wlan_passkey[];
 extern WfmSecurityMode wlan_security;
-#ifdef SOFT_AP_MODE
+
 extern char softap_ssid[];
 extern char softap_passkey[];
 extern WfmSecurityMode softap_security;
 extern uint8_t softap_channel;
-#endif
+
 /***************************************************************************//**
  * Private variables
 ******************************************************************************/
@@ -68,21 +68,24 @@ static void low_level_init(struct netif *netif)
   netif->hwaddr_len = ETH_HWADDR_LEN;
 
   /* set netif MAC hardware address */
-#ifndef SOFT_AP_MODE
-  netif->hwaddr[0] =  wifi.mac_addr_0.octet[0];
-  netif->hwaddr[1] =  wifi.mac_addr_0.octet[1];
-  netif->hwaddr[2] =  wifi.mac_addr_0.octet[2];
-  netif->hwaddr[3] =  wifi.mac_addr_0.octet[3];
-  netif->hwaddr[4] =  wifi.mac_addr_0.octet[4];
-  netif->hwaddr[5] =  wifi.mac_addr_0.octet[5];
-#else
+if (soft_ap_mode)
+{
   netif->hwaddr[0] =  wifi.mac_addr_1.octet[0];
   netif->hwaddr[1] =  wifi.mac_addr_1.octet[1];
   netif->hwaddr[2] =  wifi.mac_addr_1.octet[2];
   netif->hwaddr[3] =  wifi.mac_addr_1.octet[3];
   netif->hwaddr[4] =  wifi.mac_addr_1.octet[4];
   netif->hwaddr[5] =  wifi.mac_addr_1.octet[5];
-#endif //SOFT_AP_MODE
+}
+else
+{
+  netif->hwaddr[0] =  wifi.mac_addr_0.octet[0];
+  netif->hwaddr[1] =  wifi.mac_addr_0.octet[1];
+  netif->hwaddr[2] =  wifi.mac_addr_0.octet[2];
+  netif->hwaddr[3] =  wifi.mac_addr_0.octet[3];
+  netif->hwaddr[4] =  wifi.mac_addr_0.octet[4];
+  netif->hwaddr[5] =  wifi.mac_addr_0.octet[5];
+}
 
   /* set netif maximum transfer unit */
   netif->mtu = 1500;
@@ -92,23 +95,26 @@ static void low_level_init(struct netif *netif)
   
   /* create a semaphore used for making driver accesses atomic */
   s_xDriverSemaphore = xSemaphoreCreateMutex();
-#ifdef SOFT_AP_MODE
+if (soft_ap_mode)
+{
   wf200_start_ap_command(softap_channel, (uint8_t*) softap_ssid, strlen(softap_ssid), softap_security, (uint8_t*) softap_passkey, strlen(softap_passkey));
   wf200_host_setup_waited_event( WFM_HI_START_AP_IND_ID );
   if(wf200_host_wait_for_confirmation(WF200_DEFAULT_REQUEST_TIMEOUT, (void**)&reply) == SL_TIMEOUT)
   {
     return;
   }
-#else
+}
+else
+{
   wf200_send_join_command((uint8_t*) wlan_ssid, strlen(wlan_ssid), wlan_security, (uint8_t*) wlan_passkey, strlen(wlan_passkey));
   wf200_host_setup_waited_event( WFM_HI_CONNECT_IND_ID );
   if(wf200_host_wait_for_confirmation(WF200_DEFAULT_REQUEST_TIMEOUT, (void**)&reply) == SL_TIMEOUT)
   {
     return;
   }
-#endif
+}
   /* Set netif link flag */
-  netif->flags |= NETIF_FLAG_LINK_UP;
+  //netif->flags |= NETIF_FLAG_LINK_UP; this is set after wifi connection is established
 }
 
 /***************************************************************************//**
@@ -177,11 +183,14 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
      }
 
   /* transmit */ 
-#ifndef SOFT_AP_MODE
-    wf200_send_ethernet_frame(tx_buffer, framelength + padding, WF200_STA_INTERFACE);
-#else
+if (soft_ap_mode)
+{
     wf200_send_ethernet_frame(tx_buffer, framelength + padding, WF200_SOFTAP_INTERFACE);
-#endif //SOFT_AP_MODE
+}
+else
+{
+    wf200_send_ethernet_frame(tx_buffer, framelength + padding, WF200_STA_INTERFACE);
+}
     wf200_host_free_buffer( (wf200_buffer_t*)tx_buffer, WF200_TX_FRAME_BUFFER );
     xSemaphoreGive( s_xDriverSemaphore );
     errval = ERR_OK;

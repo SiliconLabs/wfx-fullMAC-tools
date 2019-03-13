@@ -28,6 +28,9 @@
 #error Must define either WF200_ALPHA_KEY/WF200_BETA_KEY/WF200_PROD_KEY
 #endif
 
+void lwip_set_link_up (void);
+void lwip_set_link_down (void);
+
 QueueHandle_t eventQueue;
 SemaphoreHandle_t eventMutex;
 extern wf200_buffer_t* network_rx_buffer_gbl;
@@ -67,7 +70,6 @@ sl_status_t wf200_host_get_firmware_size( uint32_t* firmware_size )
 
 sl_status_t wf200_host_deinit( void )
 {
-  //TODO
   return SL_SUCCESS;
 }
 
@@ -138,7 +140,7 @@ sl_status_t wf200_host_wait( uint32_t wait_time )
   return SL_SUCCESS;
 }
 
-sl_status_t wf200_host_post_event( uint32_t event_id, void* event_payload, uint32_t event_payload_length )
+sl_status_t wf200_host_post_event(wf200_frame_type_t frame_type, uint32_t event_id, void* event_payload, uint32_t event_payload_length )
 {
   //xQueueOverwrite (rxFrameQueue, event_payload);
   network_rx_buffer_gbl = (wf200_buffer_t*)event_payload;  
@@ -197,7 +199,6 @@ sl_status_t wf200_host_post_event( uint32_t event_id, void* event_payload, uint3
     }
   case WFM_HI_AP_CLIENT_REJECTED_IND_ID:
     {
-      //TODO
       break;
     }
   case WFM_HI_AP_CLIENT_DISCONNECTED_IND_ID:
@@ -206,34 +207,15 @@ sl_status_t wf200_host_post_event( uint32_t event_id, void* event_payload, uint3
       wf200_ap_client_disconnected_callback(ap_client_disconnected_indication->Body.Reason, ap_client_disconnected_indication->Body.Mac);
       break;
     }
-  case WFM_HI_JOIN_IBSS_IND_ID:
-    {
-      //TODO
-      break;
-    }
-  case WFM_HI_LEAVE_IBSS_IND_ID:
-    {
-      //TODO
-      break;
-    }
   case HI_GENERIC_IND_ID:
     {
       HiGenericInd_t* generic_status = (HiGenericInd_t*)network_rx_buffer_gbl;
       wf200_generic_status_callback(&generic_status->Body);
       break;
     }
-  case HI_EXCEPTION_IND_ID:
-    {
-      break;
-    }
-  case HI_ERROR_IND_ID:
-    {
-      break;
-    }
     /******** CONFIRMATION ********/
   case WFM_HI_SEND_FRAME_CNF_ID:
     {
-      WfmHiSendFrameCnf_t* reply = (WfmHiSendFrameCnf_t*)network_rx_buffer_gbl;
       if ( wf200_context->used_buffer_number > 0 )
       {
         wf200_context->used_buffer_number--;
@@ -314,16 +296,18 @@ void wf200_connect_callback( uint8_t* mac, uint32_t status )
   if(status == 0)
   {  
     printf("Connected\r\n");
+    lwip_set_link_up();
   }else{
     printf("Connection attempt failed\r\n");
   }
 }
 
-/** Callback triggered when signal strength confirmation is received
+/** Callback triggered when connection is disconnected
  */
 void wf200_disconnect_callback( uint8_t* mac, uint16_t reason )
 {
   printf("Disconnected\r\n");
+  lwip_set_link_down();
 }
 
 /** Callback triggered when a softap is started
@@ -335,6 +319,7 @@ void wf200_start_ap_callback( uint32_t status )
     printf("AP started\r\n");
   }else{
     printf("AP start failed\r\n");
+    lwip_set_link_down();
   }
 }
 
@@ -343,13 +328,14 @@ void wf200_start_ap_callback( uint32_t status )
 void wf200_stop_ap_callback( void )
 {
   printf("AP stopped\r\n");
+  lwip_set_link_down();
 }
 
 /** Callback triggered when a client connects
  */
 void wf200_client_connected_callback( uint8_t* mac )
 {
-  printf("Client connected\r\n");
+  printf("Client connected\r\n");  
 }
 
 /** Callback triggered when a client disconnects

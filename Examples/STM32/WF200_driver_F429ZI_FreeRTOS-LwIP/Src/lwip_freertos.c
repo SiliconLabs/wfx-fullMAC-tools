@@ -33,7 +33,30 @@
 #include "app_ethernet.h"
 #include "lwip_freertos.h"
 #include "lwip/apps/httpd.h"
+#include "lwip/netifapi.h"
 #include "dhcpserver.h"
+#include "uart_input.h"
+
+
+int soft_ap_mode = SOFT_AP_MODE_DEFAULT;
+int use_dhcp_client = USE_DHCP_CLIENT_DEFAULT;
+uint8_t ip_addr0 = IP_ADDR0_DEFAULT;
+uint8_t ip_addr1 = IP_ADDR1_DEFAULT;
+uint8_t ip_addr2 = IP_ADDR2_DEFAULT;
+uint8_t ip_addr3 = IP_ADDR3_DEFAULT;
+
+uint8_t netmask_addr0 = NETMASK_ADDR0_DEFAULT;
+uint8_t netmask_addr1 = NETMASK_ADDR1_DEFAULT;
+uint8_t netmask_addr2 = NETMASK_ADDR2_DEFAULT;
+uint8_t netmask_addr3 = NETMASK_ADDR3_DEFAULT;
+
+uint8_t gw_addr0 = GW_ADDR0_DEFAULT;
+uint8_t gw_addr1 = GW_ADDR1_DEFAULT;
+uint8_t gw_addr2 = GW_ADDR2_DEFAULT;
+uint8_t gw_addr3 = GW_ADDR3_DEFAULT;
+
+//wait 5 seconds
+#define WAIT_TIME_FOR_INPUT ( 5000UL / portTICK_RATE_MS ) 
 
 static void StartThread(void const * argument);
 static void Netif_Config(void);
@@ -80,27 +103,27 @@ if (iIndex == 0)
     HAL_GPIO_WritePin(WF200_LED1_PORT, WF200_LED1_GPIO, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(WF200_LED2_PORT, WF200_LED2_GPIO, GPIO_PIN_RESET);
-    // Check the cgi parameters, e.g., GET /leds.cgi?led=1&led=2
+    // Check the cgi parameters, e.g., GET /leds.cgi?btn_led0=off&btn_led1=on
     for (i=0; i<iNumParams; i++)
     {
-        //if pcParmeter contains "led", then one of the LED check boxes has been set on
-        if (strcmp(pcParam[i], "led") == 0)
-        {
-           //see if checkbox for LED 1 has been set
-           if(strcmp(pcValue[i], "1") == 0)
-           {
-               // switch led 1 ON if 1
+        
+       //see if checkbox for LED has been set
+       if(strcmp(pcValue[i], "on") == 0)
+       {
+            //if pcParmeter contains "btn_led", then one of the LED check boxes has been set on
+            if (strcmp(pcParam[i], "btn_led0") == 0)
+            {
+               // switch led 1 ON
                HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
                HAL_GPIO_WritePin(WF200_LED1_PORT, WF200_LED1_GPIO, GPIO_PIN_SET);
-           }
-          //see if checkbox for LED 2 has been set
-          else if(strcmp(pcValue[i], "2") == 0)
-          {
-              // switch led 2 ON if 2
+            }
+            else if (strcmp(pcParam[i], "btn_led1") == 0)
+            {
+              // switch led 2 ON 
               HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
               HAL_GPIO_WritePin(WF200_LED2_PORT, WF200_LED2_GPIO, GPIO_PIN_SET);
-          }
-       }  //if
+            }
+       }
     } //for
 } //if
 //uniform resource identifier to send after CGI call, i.e., path and filename of the response
@@ -126,6 +149,118 @@ static void lwip_iperf_results (void *arg, enum lwiperf_report_type report_type,
 
 #endif
 
+static uint32_t  waitForString (TickType_t waitTime)
+{
+  //start receive loop
+  xSemaphoreGive (uartInputSemaphore);
+  //wait for data 
+  if (xSemaphoreTake(stringRcvSemaphore,waitTime) == pdFALSE)
+  {
+    vUARTInputStop();
+    return 0;
+  }
+  return 1;
+}
+
+
+static void getUserInput (void)
+{
+  printf ("Press enter within 5 seconds to configure the demo...\r\n\r\n");
+  if (waitForString(WAIT_TIME_FOR_INPUT) == pdTRUE )
+  {
+    printf ("Choose mode:\r\n1. Station\r\n2. AP\r\nType 1 or 2:\r\n");
+    waitForString(portMAX_DELAY);
+    if (UART_Input_String[0] == '2')
+    {
+       soft_ap_mode = 1;
+       use_dhcp_client = 0;
+       printf ("\r\n AP mode selected\r\n");
+    }
+    else
+    {
+       soft_ap_mode = 0;
+       use_dhcp_client = 1;
+       printf ("\r\n Station mode selected\r\n");
+    }
+    printf ("\r\nEnter SSID:\r\n");
+    waitForString(portMAX_DELAY);
+    if (soft_ap_mode)
+    {
+      strcpy(softap_ssid,UART_Input_String);
+    }
+    else
+    {
+      strcpy(wlan_ssid,UART_Input_String);
+    }
+    printf ("\r\n\r\nEnter passkey:\r\n");
+    waitForString(portMAX_DELAY);
+    if (soft_ap_mode)
+    {
+      strcpy(softap_passkey,UART_Input_String);
+    }
+    else
+    {
+      strcpy(wlan_passkey,UART_Input_String);
+    }
+    printf ("\r\n\r\nChoose security mode:\r\n1. OPEN\r\n2. WEP\r\n3. WPA2 WPA1 PSK\r\n4. WPA2 PSK\r\n");
+    waitForString(portMAX_DELAY);
+    if (soft_ap_mode)
+    {
+      switch (UART_Input_String[0]) {
+      case '1':
+        softap_security = WFM_SECURITY_MODE_OPEN;
+        break;
+      case '2':
+        softap_security = WFM_SECURITY_MODE_WEP;
+        break;
+      case '3':
+        softap_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
+        break;
+      default:
+        softap_security = WFM_SECURITY_MODE_WPA2_PSK;
+        break;
+      }
+    }
+    else
+    {
+      switch (UART_Input_String[0]) {
+      case '1':
+        wlan_security = WFM_SECURITY_MODE_OPEN;
+        break;
+      case '2':
+        wlan_security = WFM_SECURITY_MODE_WEP;
+        break;
+      case '3':
+        wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
+        break;
+      default:
+        wlan_security = WFM_SECURITY_MODE_WPA2_PSK;
+        break;
+      }
+    }
+  }
+  
+  printf ("\r\n\r\nStarting demo...\r\n");
+  if (soft_ap_mode)
+  {
+    printf ("AP mode\r\n");
+    printf ("SSID = %s\r\n",softap_ssid);
+    printf ("Passkey = %s\r\n",softap_passkey);
+    printf ("IP address = %d.%d.%d.%d\r\n",
+                  ip_addr0,
+                  ip_addr1,
+                  ip_addr2,
+                  ip_addr3);
+  }
+  else
+  {
+    printf ("Station mode\r\n");
+    printf ("SSID = %s\r\n",wlan_ssid);
+    printf ("Passkey = %s\r\n",wlan_passkey);
+  }
+            
+}
+
 /***************************************************************************//**
  * @brief
  *    Start LwIP task(s)
@@ -139,6 +274,7 @@ static void lwip_iperf_results (void *arg, enum lwiperf_report_type report_type,
 static void StartThread(void const * argument)
 {
 
+  getUserInput ();
   /* Create tcp_ip stack thread */
   tcpip_init(NULL, NULL);
   
@@ -154,23 +290,73 @@ static void StartThread(void const * argument)
 #ifdef LWIP_IPERF_SERVER
   lwiperf_start_tcp_server_default(lwip_iperf_results,0);
 #endif
-  
-  /* Notify user about the network interface config */
-  User_notification(&gnetif);
-  
-#ifdef USE_DHCP
+   
+if (use_dhcp_client)
+{
   /* Start DHCP Client */
   osThreadDef(DHCP, DHCP_thread, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE * 2);
   osThreadCreate (osThread(DHCP), &gnetif);
-#endif
-#ifdef SOFT_AP_MODE
-  dhcpserver_start();
-#endif
+}
+if (soft_ap_mode)
+  {
+    dhcpserver_start();
+  }
+
   for( ;; )
   {
     /* Delete the Init Thread */ 
     osThreadTerminate(NULL);
   }
+}
+/***************************************************************************//**
+ * @brief
+ *    Sets link status to up in LwIP
+ *
+ * @param[in] 
+ *    none
+ *
+ * @return
+ *    none
+ ******************************************************************************/
+void lwip_set_link_up (void)
+{
+
+  netifapi_netif_set_link_up(&gnetif);
+  netifapi_netif_set_up(&gnetif);
+  if (use_dhcp_client)
+  {
+    User_notification(1);
+  }
+  if (soft_ap_mode)
+  {
+    dhcpserver_start();
+  }
+
+}
+/***************************************************************************//**
+ * @brief
+ *    Sets link status to down in LwIP
+ *
+ * @param[in] 
+ *    none
+ *
+ * @return
+ *    none
+ ******************************************************************************/
+void lwip_set_link_down (void)
+{
+  if (soft_ap_mode)
+  {
+    dhcpserver_stop();
+  }
+  netifapi_netif_set_down(&gnetif);
+  netifapi_netif_set_link_down(&gnetif);
+  if (use_dhcp_client)
+  {
+    User_notification(0);
+  }
+ 
+  
 }
 
 /***************************************************************************//**
@@ -189,32 +375,31 @@ static void Netif_Config(void)
   ip_addr_t netmask;
   ip_addr_t gw;
 	
-#ifdef USE_DHCP
+if (use_dhcp_client)
+{
   ip_addr_set_zero_ip4(&ipaddr);
   ip_addr_set_zero_ip4(&netmask);
   ip_addr_set_zero_ip4(&gw);
-#else
-  IP_ADDR4(&ipaddr,IP_ADDR0,IP_ADDR1,IP_ADDR2,IP_ADDR3);
-  IP_ADDR4(&netmask,NETMASK_ADDR0,NETMASK_ADDR1,NETMASK_ADDR2,NETMASK_ADDR3);
-  IP_ADDR4(&gw,GW_ADDR0,GW_ADDR1,GW_ADDR2,GW_ADDR3);
-#endif /* USE_DHCP */
+}
+else
+{
+  IP_ADDR4(&ipaddr,ip_addr0,ip_addr1,ip_addr2,ip_addr3);
+  IP_ADDR4(&netmask,netmask_addr0,netmask_addr1,netmask_addr2,netmask_addr3);
+  IP_ADDR4(&gw,gw_addr0,gw_addr1,gw_addr2,gw_addr3);
+}
     
   netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
   
   /*  Registers the default network interface. */
-  netif_set_default(&gnetif);
-  
-  if (netif_is_link_up(&gnetif))
+  netif_set_default(&gnetif);  
+  if (soft_ap_mode)
   {
-    /* When the netif is fully configured this function must be called.*/
-    netif_set_up(&gnetif);
-  }
-  else
-  {
-    /* When the netif link is down this function must be called */
-    netif_set_down(&gnetif);
+    netif_set_link_up(&gnetif);  
+    netif_set_up(&gnetif);  
   }
 }
+
+
 
 /***************************************************************************//**
  * @brief

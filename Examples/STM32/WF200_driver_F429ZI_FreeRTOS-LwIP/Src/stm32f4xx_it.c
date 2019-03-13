@@ -43,15 +43,25 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+#ifdef WF200_USE_SPI
 extern SPI_HandleTypeDef hspi1;
 extern DMA_HandleTypeDef hdma_spi1_tx;
 extern DMA_HandleTypeDef hdma_spi1_rx;
 extern SemaphoreHandle_t spiDMASemaphore;
+#endif /* WF200_USE_SPI */
+
+#ifdef WF200_USE_SDIO
+extern DMA_HandleTypeDef hdma_sdio_rx;
+extern DMA_HandleTypeDef hdma_sdio_tx;
+extern SemaphoreHandle_t sdioDMASemaphore;
+#endif /* WF200_USE_SDIO */
+
 extern TIM_HandleTypeDef htim1;
 extern osThreadId busCommTaskHandle;
 extern UART_HandleTypeDef huart3;
 extern osThreadId UARTCmdTaskHandle;
 extern SemaphoreHandle_t uart3Semaphore;
+extern osThreadId UARTInputTaskHandle;
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -109,6 +119,7 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
+#ifdef WF200_USE_SPI
 /**
 * @brief This function handles SPI1 global interrupt.
 */
@@ -162,6 +173,58 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
   xSemaphoreGiveFromISR(spiDMASemaphore, &xHigherPriorityTaskWoken);  
   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
+#endif /* WF200_USE_SPI */
+
+#ifdef WF200_USE_SDIO
+/**
+* @brief This function handles SDIO global interrupt.
+*/
+void SDIO_IRQHandler(void)
+{
+  /* USER CODE BEGIN SDIO_IRQn 0 */
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  if(__SDIO_GET_FLAG(SDIO, SDIO_IT_SDIOIT)){
+    /*Receive SDIO interrupt on SDIO_DAT1 from Ineo*/
+    __SDIO_CLEAR_FLAG(SDIO, SDIO_FLAG_SDIOIT);
+    vTaskNotifyGiveFromISR( busCommTaskHandle, &xHigherPriorityTaskWoken );
+  }
+  if(__SDIO_GET_FLAG(SDIO, SDIO_IT_DATAEND)){
+    /*SDIO transfer over*/
+    __SDIO_CLEAR_FLAG(SDIO, SDIO_IT_DATAEND);
+    xSemaphoreGiveFromISR( sdioDMASemaphore, &xHigherPriorityTaskWoken );
+  }
+  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+  /* USER CODE END SDIO_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 stream3 global interrupt.
+  */
+void DMA2_Stream3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream3_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_sdio_rx);
+  /* USER CODE BEGIN DMA2_Stream3_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 stream6 global interrupt.
+  */
+void DMA2_Stream6_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream6_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream6_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_sdio_tx);
+  /* USER CODE BEGIN DMA2_Stream6_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream6_IRQn 1 */
+}
+#endif /* WF200_USE_SDIO */
 
 /* USER CODE BEGIN 1 */
 /**
@@ -175,6 +238,12 @@ void USART3_IRQHandler(void)
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
+  /*Character received*/
+  if((isrflags & USART_SR_RXNE) != RESET)
+  {
+    /*Notify UARTCmdTask that data is available*/
+    vTaskNotifyGiveFromISR( UARTInputTaskHandle, pdFALSE );
+  }
   /* USER CODE END USART3_IRQn 1 */
 }
 

@@ -20,7 +20,8 @@
  *
  */
 
-#pragma once
+#ifndef __WF200_H
+#define __WF200_H
 
 #include "wf200_bus.h"
 #include "wf200_pds.h"
@@ -35,13 +36,6 @@ extern "C"
 {
 #endif
 
-/*
- * Platform/board specific WF200 PDS data
- */
-extern const uint8_t     wf200_config_count;
-extern uint8_t           encryption_keyset;
-
-
 sl_status_t wf200_init( wf200_context_t* context );
 
 sl_status_t wf200_deinit( void );
@@ -52,7 +46,7 @@ sl_status_t wf200_disable_irq( void );
 
 sl_status_t wf200_shutdown( void );
 
-sl_status_t wf200_receive_frame( uint32_t* frame_size );
+sl_status_t wf200_receive_frame( uint16_t* ctrl_reg  );
 
 sl_status_t wf200_send_configuration( const char* pds_data, uint32_t pds_data_length );
 
@@ -115,3 +109,5 @@ sl_status_t wf200_set_antenna_config( wf200_antenna_config_t config );
 #ifdef __cplusplus
 } /*extern "C" */
 #endif
+
+#endif // __WF200_H

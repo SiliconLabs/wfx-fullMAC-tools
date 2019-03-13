@@ -51,10 +51,10 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-#ifdef USE_DHCP
+
 #define MAX_DHCP_TRIES  4
 volatile uint8_t DHCP_state = DHCP_OFF;
-#endif
+
 extern struct netif gnetif;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -63,25 +63,20 @@ extern struct netif gnetif;
   * @param  netif: the network interface
   * @retval None
   */
-void User_notification(struct netif *netif) 
+void User_notification(int link_up) 
 {
-  if (netif_is_up(netif))
+  if (link_up)
   {
-#ifdef USE_DHCP
-    /* Update DHCP state machine */
     DHCP_state = DHCP_START;
-#endif /* USE_DHCP */
   }
   else
   {  
-#ifdef USE_DHCP
     /* Update DHCP state machine */
     DHCP_state = DHCP_LINK_DOWN;
-#endif  /* USE_DHCP */
   } 
 }
 
-#ifdef USE_DHCP
+
 /**
   * @brief  DHCP Process
   * @param  argument: network interface
@@ -94,7 +89,7 @@ void DHCP_thread(void const * argument)
   ip_addr_t netmask;
   ip_addr_t gw;
   struct dhcp *dhcp;
-  
+
   for (;;)
   {
     switch (DHCP_state)
@@ -103,7 +98,8 @@ void DHCP_thread(void const * argument)
       {
         ip_addr_set_zero_ip4(&netif->ip_addr);
         ip_addr_set_zero_ip4(&netif->netmask);
-        ip_addr_set_zero_ip4(&netif->gw);       
+        ip_addr_set_zero_ip4(&netif->gw);  
+        osDelay(5);
         dhcp_start(netif);
         DHCP_state = DHCP_WAIT_ADDRESS;
       }
@@ -133,9 +129,9 @@ void DHCP_thread(void const * argument)
             dhcp_stop(netif);
             
             /* Static address used */
-            IP_ADDR4(&ipaddr, IP_ADDR0 ,IP_ADDR1 , IP_ADDR2 , IP_ADDR3 );
-            IP_ADDR4(&netmask, NETMASK_ADDR0, NETMASK_ADDR1, NETMASK_ADDR2, NETMASK_ADDR3);
-            IP_ADDR4(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+            IP_ADDR4(&ipaddr, ip_addr0 ,ip_addr1 , ip_addr2 , ip_addr3 );
+            IP_ADDR4(&netmask, netmask_addr0, netmask_addr1, netmask_addr2, netmask_addr3);
+            IP_ADDR4(&gw, gw_addr0, gw_addr1, gw_addr2, gw_addr3);
             netif_set_addr(netif, ip_2_ip4(&ipaddr), ip_2_ip4(&netmask), ip_2_ip4(&gw));
             
           }
@@ -156,6 +152,6 @@ void DHCP_thread(void const * argument)
     osDelay(250);
   }
 }
-#endif  /* USE_DHCP */
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

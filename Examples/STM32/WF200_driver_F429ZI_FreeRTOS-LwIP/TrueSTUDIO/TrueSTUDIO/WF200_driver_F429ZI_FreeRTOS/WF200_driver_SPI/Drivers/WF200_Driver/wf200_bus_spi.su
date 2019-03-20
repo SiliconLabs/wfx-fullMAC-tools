@@ -1,4 +1,0 @@
-wf200_bus_spi.c:30:13:wf200_reg_read	24	static
-wf200_bus_spi.c:61:13:wf200_reg_write	24	static
-wf200_bus_spi.c:93:13:wf200_init_bus	16	static
-wf200_bus_spi.c:127:13:wf200_deinit_bus	8	static

@@ -1,3 +1,0 @@
-UART_input.c:60:13:prvUARTInputTask	24	static
-UART_input.c:45:6:vUARTInputStop	0	static
-UART_input.c:51:6:vUARTInputStart	40	static

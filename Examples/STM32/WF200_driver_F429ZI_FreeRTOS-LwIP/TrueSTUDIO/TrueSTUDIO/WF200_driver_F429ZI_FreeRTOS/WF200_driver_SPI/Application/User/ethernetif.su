@@ -1,6 +1,0 @@
-ethernetif.c:218:22:low_level_input	24	static
-ethernetif.c:133:14:low_level_output	32	static
-ethernetif.c:64:13:low_level_init	40	static
-ethernetif.c:266:6:wf200_host_received_frame_callback	16	static
-ethernetif.c:292:7:ethernetif_init	8	static
-ethernetif.c:323:7:sys_now	8	static

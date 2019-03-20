@@ -19,7 +19,6 @@
 
 #define SOFT_AP_MODE_DEFAULT 0          ///< If set to 1, default WiFi is soft AP mode (requires static IP)
 #define USE_DHCP_CLIENT_DEFAULT     1   ///< If defined, DHCP is enabled, otherwise static address below is used
-
  
 /*Static IP ADDRESS*/
 #define IP_ADDR0_DEFAULT   (uint8_t) 192 ///< Static IP: IP address value 0 
@@ -46,7 +45,6 @@ void lwip_start (void);
 
 #define LWIP_IPERF_SERVER ///< If defined, iperf server is enabled
 #define LWIP_HTTP_SERVER  ///< If defined, http server is enabled
-
 
 #define WLAN_SSID_DEFAULT       "AP_name"                         ///< wifi ssid for client mode
 #define WLAN_PASSKEY_DEFAULT    "passkey"                         ///< wifi password for client mode
@@ -80,6 +78,5 @@ extern uint8_t gw_addr0;
 extern uint8_t gw_addr1;
 extern uint8_t gw_addr2;
 extern uint8_t gw_addr3;
-
 
 #endif

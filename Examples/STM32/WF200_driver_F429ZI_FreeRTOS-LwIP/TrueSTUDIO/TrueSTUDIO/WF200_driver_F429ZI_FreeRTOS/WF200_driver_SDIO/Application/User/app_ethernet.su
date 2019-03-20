@@ -1,2 +1,0 @@
-app_ethernet.c:66:6:User_notification	0	static
-app_ethernet.c:85:6:DHCP_thread	32	static

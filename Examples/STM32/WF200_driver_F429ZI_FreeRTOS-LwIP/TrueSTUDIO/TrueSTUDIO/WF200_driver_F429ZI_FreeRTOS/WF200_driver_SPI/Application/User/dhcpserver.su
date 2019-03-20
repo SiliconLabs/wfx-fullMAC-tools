@@ -1,9 +1,0 @@
-dhcpserver.c:46:13:dhcpserver_remove_mac	8	static
-dhcpserver.c:62:13:dhcpserver_save_mac	16	static
-dhcpserver.c:89:18:dhcpserver_get_ip	0	static
-dhcpserver.c:423:13:dhcpserver_start_prv	8	static
-dhcpserver.c:113:17:dhcpserver_find_requested_ip	24	static
-dhcpserver.c:142:13:dhcpserver_fn	56	static
-dhcpserver.c:457:13:dhcpserver_stop_prv	8	static
-dhcpserver.c:449:6:dhcpserver_start	8	static
-dhcpserver.c:469:6:dhcpserver_stop	8	static

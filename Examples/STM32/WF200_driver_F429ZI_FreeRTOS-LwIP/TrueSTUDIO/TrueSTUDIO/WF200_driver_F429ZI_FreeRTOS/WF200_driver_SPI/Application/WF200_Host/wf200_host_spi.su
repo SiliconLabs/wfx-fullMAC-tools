@@ -1,8 +1,0 @@
-wf200_host_spi.c:114:13:MX_SPI1_Init	8	static
-wf200_host_spi.c:44:13:wf200_host_init_bus	8	static
-wf200_host_spi.c:54:13:wf200_host_deinit_bus	8	static
-wf200_host_spi.c:61:13:wf200_host_spi_cs_assert	8	static
-wf200_host_spi.c:67:13:wf200_host_spi_cs_deassert	8	static
-wf200_host_spi.c:73:13:wf200_host_spi_transfer_no_cs_assert	16	static
-wf200_host_spi.c:98:13:wf200_host_enable_platform_interrupt	8	static
-wf200_host_spi.c:107:13:wf200_host_disable_platform_interrupt	8	static

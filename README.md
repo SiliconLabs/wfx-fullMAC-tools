@@ -1,9 +1,25 @@
-# WFx FMAC tools
+# WFx Wi-Fi FMAC tools
 
-This repository contains tools and examples to use the **WFx FMAC driver**.
+This repository contains tools and examples to use the **WFx Wi-Fi FMAC driver**
+(FMAC standing for Full-MAC). The WF200 is a Wi-Fi transceiver and this code is
+meant to be run with the WF200 Wi-Fi Expansion Kit. See [this page](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit)
+for details on the WF200 Wi-Fi Expansion Kit.
 
-The WF200 is a WiFi transceiver and this code is meant to be run with the WF200 expansion board kit. See [this page](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit) for details.
+## Repository content
 
-The WFx FMAC driver documentation is [here](https://docs.silabs.com/wifi/wf200/rtos/0.1/index).
+* Examples: contains implementations of the FMAC driver on different platforms
+  * STM32
+    * WF200_driver_F429ZI_BM-LwIP: Bare metal example with LwIP running on the
+    NUCLEO-F429ZI board (more information in the WF200_driver_F429ZI_BM-LwIP/README.md)
+    * WF200_driver_F429ZI_FreeRTOS-LwIP: Example using FreeRTOS and LwIP running
+    on the NUCLEO-F429ZI board (more information in the WF200_driver_F429ZI_FreeRTOS-LwIP/README.md)
+* Tools: contains generic tools
+  * pds_compress: Python script to compress Platform Data Set files
 
-[WFx FMAC driver standalone repository](https://github.com/SiliconLabs/wfx-fullMAC-driver)
+## FMAC driver source code
+
+The latest WFx Wi-Fi FMAC driver version is located [here](https://github.com/SiliconLabs/wfx-fullMAC-driver)
+
+## FMAC driver documentation
+
+The latest WFx Wi-Fi FMAC driver documentation is located [here](https://docs.silabs.com/wifi/wf200/rtos/latest/index).

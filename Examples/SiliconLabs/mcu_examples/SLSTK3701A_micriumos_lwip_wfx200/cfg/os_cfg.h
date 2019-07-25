@@ -61,7 +61,11 @@
 
 #define  OS_CFG_DBG_EN                                      DEF_ENABLED
 
+#ifdef SLEEP_ENABLED
 #define  OS_CFG_DYN_TICK_EN                                 DEF_ENABLED
+#else
+#define  OS_CFG_DYN_TICK_EN                                 DEF_DISABLED
+#endif
 
 #define  OS_CFG_TS_EN                                       DEF_ENABLED
 

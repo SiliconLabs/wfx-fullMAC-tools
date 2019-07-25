@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="theme-color" content="#bb342f">
+  <link rel="icon" href="http://demo.silabs.com/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="http://demo.silabs.com/themes/silabs-theme.min.css" />  
+  <link rel="stylesheet" href="http://demo.silabs.com/themes/jquery.mobile.icons.min.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <title>WFx200 Demo</title>
+ </head>
+ <body>
+  <div data-role="header" data-theme="a">
+   <h1>Silicon Labs</h1>
+   <a href="https://www.silabs.com/products/wireless/wi-fi" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+   <a href="https://www.silabs.com/search?q=wifi" data-icon="search" data-iconpos="notext" data-rel="dialog" data-transition="fade">Search</a>
+  </div>
+  <div data-role="collapsible-set" data-theme="c" data-content-theme="b" style="margin-left:5px;margin-right:5px;">
+   <div data-role="collapsible" data-collapsed="false" data-theme="b">
+    <h3>EFM32 + WF200 WiFi Demo</h3>
+     <div data-role="fieldcontain">
+      <table>
+       <tr><td>LEDs</td></tr>
+       <tr>
+        <td>
+         <select name="btn_led0" id="btn_led0" data-theme="c" data-track-theme="d" data-role="slider">
+          <option value="off">Off</option>
+          <option value="on">On</option>
+         </select>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         <select name="btn_led1" id="btn_led1" data-theme="c" data-track-theme="d" data-role="slider">
+          <option value="off">Off</option>
+          <option value="on">On</option>
+         </select>
+        </td>
+       </tr>
+      </table>
+     </div>
+   </div>
+  </div>     
+  <script>
+   var led0_state = 3;
+   var led1_state = 3;
+   var events_en = true;
+
+   function getLedStates() {
+     if (events_en == true) {
+       $.ajax({
+         type: 'GET',
+         url: '/led_get_state.cgi',
+         dataType: 'json',
+         success: function(leds) {                
+           if (leds.length == 2) {
+             events_en = false;
+
+             if (led0_state != leds[0].state) {
+               led0_state = leds[0].state;
+               $("#btn_led0").slider('disable');
+               if (leds[0].state == 1) {
+                 $("#btn_led0").val('on');
+               } else {
+                 $("#btn_led0").val('off');
+               }
+               $("#btn_led0").slider('refresh');
+               $("#btn_led0").slider('enable');
+             }
+             if (led1_state != leds[1].state) {
+               led1_state = leds[1].state;
+               $("#btn_led1").slider('disable');
+               if (leds[1].state == 1) {
+                 $("#btn_led1").val('on');
+               } else {
+                 $("#btn_led1").val('off');
+               }
+               $("#btn_led1").slider('refresh');
+               $("#btn_led1").slider('enable');
+             }
+             events_en = true;
+           }
+         },
+         error: function( jqXhr, textStatus, errorThrown ){
+           events_en = true;
+           console.log( errorThrown );
+         },
+         complete: function() {
+           // Schedule the next request when the current one's complete
+           setTimeout(getLedStates(), 1000);
+         }
+       });
+     } else {
+       // Schedule the next request when the current one's complete
+       setTimeout(getLedStates(), 1000);
+     }
+   }
+
+
+   function toggleLedState(led_id) {
+     if (events_en == true) {
+       events_en = false;
+       $.ajax({
+         url: "/led_toggle.cgi",
+         type: 'GET',
+         data: "led_id=" + led_id,
+         processData: false,
+         success: function(data, textStatus, xhr){
+           events_en = true;
+         },
+         error: function( jqXhr, textStatus, errorThrown ){
+           events_en = true;
+           console.log( errorThrown );
+         }
+       });        
+     }
+   }
+
+
+   $(document).ready(function(){
+     setTimeout(getLedStates(), 1000);
+      
+     $('#btn_led0').on('change', function(event) {
+       toggleLedState(0);
+     });
+
+     $('#btn_led1').on('change', function(event) {
+       toggleLedState(1);
+     });    
+   });
+  </script>
+ </body>
+</html>

@@ -60,6 +60,9 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 	OSSemCreate(&(mbox->Q_full),"lwipQsem",size,&err);
 	LWIP_ASSERT("OSSemCreate", (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) );
 	mbox->is_valid = 1;
+#if SYS_STATS
+     ++lwip_stats.sys.mbox.used;
+#endif /* SYS_STATS */
 	return ERR_OK;
 }
 
@@ -73,9 +76,6 @@ void sys_mbox_free(sys_mbox_t *mbox)
 {
 
 	RTOS_ERR err;
-#if SYS_STATS
-	    lwip_stats.sys.mbox.err++;
-#endif /* SYS_STATS */
 	OSSemDel(&(mbox->Q_full),OS_OPT_DEL_ALWAYS,&err);
 	LWIP_ASSERT("OSSemDel", (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) );
     OSQDel(&(mbox->Q),OS_OPT_DEL_ALWAYS,&err);

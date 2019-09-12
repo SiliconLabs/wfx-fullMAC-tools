@@ -31,18 +31,20 @@
        <tr><td>LEDs</td></tr>
        <tr>
         <td>
-         <select name="btn_led0" id="btn_led0" data-theme="c" data-track-theme="d" data-role="slider">
+         <select name="btn_led0" id="btn_led0" data-theme="c" data-track-theme="d" data-role="slider" style="display: block;" onchange="toggleLedState(0);">
           <option value="off">Off</option>
           <option value="on">On</option>
          </select>
+         <button name="btn_led0_alt" id="btn_led0_alt" style="display: none;" onclick="toggleLedState(0);">Toggle LED 0</button>
         </td>
        </tr>
        <tr>
         <td>
-         <select name="btn_led1" id="btn_led1" data-theme="c" data-track-theme="d" data-role="slider">
+         <select name="btn_led1" id="btn_led1" data-theme="c" data-track-theme="d" data-role="slider" style="display: block;" onchange="toggleLedState(1);">
           <option value="off">Off</option>
           <option value="on">On</option>
          </select>
+         <button name="btn_led1_alt" id="btn_led1_alt" style="display: none;" onclick="toggleLedState(1);">Toggle LED 1</button>
         </td>
        </tr>
       </table>
@@ -52,9 +54,21 @@
   <script>
    var led0_state = 3;
    var led1_state = 3;
-   var events_en = true;
+   var events_en  = true;
+   var tmr_upd_leds;
+
+
+   if (!window.jQuery) {
+     document.getElementById("btn_led0_alt").style.display = "block";
+     document.getElementById("btn_led1_alt").style.display = "block";
+     document.getElementById("btn_led0").style.display = "none";
+     document.getElementById("btn_led1").style.display = "none";
+     alert('This webpage requires an Internet Connection to work at its best.\nHowever, basic functionality has been enabled through the following plain HTML page.');
+   }
+
 
    function getLedStates() {
+
      if (events_en == true) {
        $.ajax({
          type: 'GET',
@@ -95,47 +109,60 @@
          },
          complete: function() {
            // Schedule the next request when the current one's complete
-           setTimeout(getLedStates(), 1000);
+           tmr_upd_leds = setTimeout(function(){ getLedStates() }, 500);
          }
        });
      } else {
        // Schedule the next request when the current one's complete
-       setTimeout(getLedStates(), 1000);
+       tmr_upd_leds = setTimeout(function(){ getLedStates() }, 500);
      }
+
+
+
    }
 
 
    function toggleLedState(led_id) {
      if (events_en == true) {
        events_en = false;
-       $.ajax({
-         url: "/led_toggle.cgi",
-         type: 'GET',
-         data: "led_id=" + led_id,
-         processData: false,
-         success: function(data, textStatus, xhr){
-           events_en = true;
-         },
-         error: function( jqXhr, textStatus, errorThrown ){
-           events_en = true;
-           console.log( errorThrown );
-         }
-       });        
+
+       if (window.jQuery) {
+         $.ajax({
+           url: "/led_toggle.cgi",
+           type: 'GET',
+           data: "led_id=" + led_id,
+           processData: false,
+           success: function(data, textStatus, xhr){
+             events_en = true;
+           },
+           error: function( jqXhr, textStatus, errorThrown ){
+             events_en = true;
+             console.log( errorThrown );
+           }
+         });        
+       }
+       else {
+         var xhr = new XMLHttpRequest();
+         xhr.onreadystatechange = function() {
+           if (xhr.readyState == 4 && xhr.status == 200) {
+             events_en = true;
+           }
+           else {
+             events_en = true;
+             console.log("Error toggling the LED");
+           }
+         };
+         xhr.open('GET', 'led_toggle.cgi?led_id=' + led_id + '&buster=' + new Date().getTime(), true);
+         xhr.send();
+       }
      }
    }
 
-
-   $(document).ready(function(){
-     setTimeout(getLedStates(), 1000);
-      
-     $('#btn_led0').on('change', function(event) {
-       toggleLedState(0);
+   if (window.jQuery) {
+     $(document).ready(function(){
+      tmr_upd_leds = setTimeout(function(){ getLedStates() }, 500);
      });
-
-     $('#btn_led1').on('change', function(event) {
-       toggleLedState(1);
-     });    
-   });
+   }
   </script>
  </body>
 </html>

@@ -23,9 +23,8 @@ Once you have the above resources, follow the steps described below:
 "JLink CDC UART"
 4. Open Putty or the serial terminal chosen and connect to the COM port of the GG11 STK board using 115200 bps for the speed
 5. Flash the demo hex file using the Simplicity Studio flash programmer or alternatively, compile the project using the Simplicity Studio IDE.
-    * The hex files can be found under SLSTK3701A_micriumos_lwip_wfx200/binaries. The hex file bus type should match the bus (SPI/SDIO) you selected
-through the WF200 expansion kit bus switch. 
-    * To compile the project in Simplicity Studio, import the existing project file to the workspace.
+    * The hex files can be found under SLSTK3701A_micriumos_lwip_wfx200/binaries. The hex file bus type should match the bus (SPI/SDIO) you selected through the WF200 expansion kit bus switch.
+    * To compile the project in Simplicity Studio, import the existing project file to the workspace (steps below).
 6. Once the binary file transferred, you should be prompted on the serial terminal. 
 7. Press "enter", otherwise the example will start by default in SoftAp mode with the name "WF200_AP" with the passkey
 "12345678". If you have pressed "enter", reply to the information to configure the example as wanted.
@@ -40,3 +39,11 @@ install [iPerf](https://iperf.fr/) on your machine. Once installed, call the com
 
 iperf -c [IP address displayed] -i 1
 
+## Importing the example project into Simplicity Studio
+The GG11 STK example shares code with the WGM160P STK example so make sure to clone the complete repository before importing the project.
+
+1. Clone the github repository to your computer
+2. In Simplicity Studio choose "Import..." from the File menu.
+3. At the bottom of the dialog that appears click "More Import Options..."
+4. Under General select "Existing Projects into Workspace"
+5. Click Next and browse to the location of the cloned repository. Then click Finish.

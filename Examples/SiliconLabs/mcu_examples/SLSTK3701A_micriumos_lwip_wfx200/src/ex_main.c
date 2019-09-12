@@ -38,20 +38,20 @@
 #include  <kernel/include/os_trace.h>
 #include  <common/include/common.h>
 #include  <common/include/lib_def.h>
-#include  <common/include/auth.h>
-#include  <common/include/shell.h>
 #include  <common/include/rtos_utils.h>
 #include  <common/include/toolchains.h>
 #include  "retargetserial.h"
 #include  "em_cmu.h"
 #include  "em_emu.h"
 #include  "em_chip.h"
-#include  "wfx_pin_config.h"
+#include  "wfx_host_cfg.h"
 #include  "wifi_cli.h"
 #include "io.h"
 #include "sleep.h"
 #include "wfx_task.h"
-#include <stdio.h>
+#ifdef SL_WFX_USE_SECURE_LINK
+#include  <mbedtls/threading.h>
+#endif
 /*
 *********************************************************************************************************
 *********************************************************************************************************
@@ -86,22 +86,25 @@ static  OS_TCB   Ex_MainStartTaskTCB;
 *********************************************************************************************************
 *********************************************************************************************************
 */
-#ifdef SLEEP_ENABLED
 static void idleHook(void);
 static void setupHooks(void);
-#endif
 static  void  Ex_MainStartTask (void  *p_arg);
 
 void WF200BusCommStart(void);
+#ifdef WFX_USE_SECURE_LINK
+void WF200SecurelinkStart(void);
+#endif //WFX_USE_SECURE_LINK
 void wf200_host_setup_memory_pools(void);
 
+
 #ifdef SLEEP_ENABLED
+
 static bool sleepCallback(SLEEP_EnergyMode_t emode)
 {
 #ifdef SL_WFX_USE_SPI
-	if (GPIO_PinInGet(BSP_EXP_SPI_WIRQPORT,  BSP_EXP_SPI_WIRQPIN))//wf200 messages pending
+	if (GPIO_PinInGet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN))//wf200 messages pending
 #else
-	if (GPIO_PinInGet(BSP_EXP_WIRQPORT,  BSP_EXP_WIRQPIN)) //wf200 messages pending
+	if (GPIO_PinInGet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN)) //wf200 messages pending
 #endif
 	{
 
@@ -113,6 +116,7 @@ static bool sleepCallback(SLEEP_EnergyMode_t emode)
 
 static void wakeupCallback(SLEEP_EnergyMode_t emode)
 {
+
 }
 #endif
 /*
@@ -165,8 +169,15 @@ int  main (void)
 
 
     OS_TRACE_INIT();                                            /* Initialize trace if enabled                          */
-    OSInit(&err);                                               /* Initialize the Kernel.                               */
-                                                                /*   Check error code.                                  */
+    OSInit(&err);
+    /* Initialize the Kernel.                               */
+#ifdef SL_WFX_USE_SECURE_LINK
+    // Enable mbedtls Micrium OS support
+#if defined ( MBEDTLS_THREADING_C )
+        THREADING_setup();
+#endif
+#endif
+        /*   Check error code.                                  */
     APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
     BSP_TickInit();
@@ -275,18 +286,18 @@ static void AppGPIOSetup(void)
 
 
   // Configure WF200 Reset Pin
-  GPIO_PinModeSet(BSP_EXP_RESET_PORT,  BSP_EXP_RESET_PIN,  gpioModePushPull,  0);
+  GPIO_PinModeSet(WFX_HOST_CFG_RESET_PORT,  WFX_HOST_CFG_RESET_PIN,  gpioModePushPull,  0);
   // Configure WF200 WUP Pin
-  GPIO_PinModeSet(BSP_EXP_WUP_PORT,  BSP_EXP_WUP_PIN,  gpioModePushPull,  0);
+  GPIO_PinModeSet(WFX_HOST_CFG_WUP_PORT,  WFX_HOST_CFG_WUP_PIN,  gpioModePushPull,  0);
 #ifdef  SL_WFX_USE_SPI
   // GPIO used as IRQ
-  GPIO_PinModeSet(BSP_EXP_SPI_WIRQPORT,  BSP_EXP_SPI_WIRQPIN,  gpioModeInputPull,  0);
+  GPIO_PinModeSet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN,  gpioModeInputPull,  0);
 #endif
   CMU_OscillatorEnable(cmuOsc_LFXO,true,true);
 
-#ifdef EFM32GG11B820F2048GM64
+#ifdef EFM32GG11B820F2048GM64 //WGM160PX22KGA2
   // GPIO used as IRQ
-  GPIO_PinModeSet(BSP_EXP_WIRQPORT,  BSP_EXP_WIRQPIN,  gpioModeInputPull,  0);
+  GPIO_PinModeSet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN,  gpioModeInputPull,  0);
   // SDIO Pull-ups
   GPIO_PinModeSet(gpioPortD,  0,  gpioModeDisabled,  1);
   GPIO_PinModeSet(gpioPortD,  1,  gpioModeDisabled,  1);
@@ -370,6 +381,9 @@ static  void  Ex_MainStartTask (void  *p_arg)
     printf ("WF200 Micrium OS LwIP Example\n");
     wf200_host_setup_memory_pools();
     WF200BusCommStart(); //start bus comm task
+#ifdef SL_WFX_USE_SECURE_LINK
+    WF200SecurelinkStart(); // start securelink key renegotiation task
+#endif //WFX_USE_SECURE_LINK
 #ifdef SLEEP_ENABLED
     SLEEP_SleepBlockBegin(sleepEM2);
 #endif
@@ -377,7 +391,6 @@ static  void  Ex_MainStartTask (void  *p_arg)
 #ifdef SLEEP_ENABLED
     SLEEP_SleepBlockEnd(sleepEM2);
 #endif
-
     lwip_start();
 
     while (DEF_ON) {

@@ -26,7 +26,7 @@
 #include <io/include/sd_card.h>
 
 #include "net_drv_wifi_wfx_host_sdio_fnct.h"
-#include "wfx_pin_config.h"
+#include "wfx_host_cfg.h"
 #include "sleep.h"
 #include "wfx_task.h"
 
@@ -36,6 +36,9 @@
 
 static SD_BUS_HANDLE SD_BusHandle = 0;
 static bool sdioEnabled = false;
+#ifdef SLEEP_ENABLED
+static bool useWIRQ = false;
+#endif
 /****************************************************************************************************//**
  *                                     sl_wfx_host_init_bus()
  *
@@ -48,7 +51,7 @@ sl_status_t sl_wfx_host_init_bus(void)
 
   RTOS_ERR err;
 
-  GPIO_PinOutSet(BSP_EXP_RESET_PORT, BSP_EXP_RESET_PIN);
+  GPIO_PinOutSet(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockBegin(sleepEM2);
 #endif
@@ -264,7 +267,7 @@ sl_status_t sl_wfx_host_enable_platform_interrupt(void)
 #ifdef SLEEP_ENABLED
     if (useWIRQ)
     {
-        //GPIO_ExtIntConfig(BSP_EXP_WIRQPORT, BSP_EXP_WIRQPIN, BSP_EXP_IRQ, true, false, true);
+        //GPIO_ExtIntConfig(WFX_HOST_CFG_WIRQPORT, WFX_HOST_CFG_WIRQPIN, WFX_HOST_CFG_IRQ, true, false, true);
         return SL_SUCCESS;
     }
     else
@@ -300,7 +303,7 @@ sl_status_t sl_wfx_host_disable_platform_interrupt(void)
 #ifdef SLEEP_ENABLED
   if (useWIRQ)
   {
-      GPIO_IntDisable(BSP_EXP_IRQ);
+      GPIO_IntDisable(WFX_HOST_CFG_IRQ);
       return SL_SUCCESS;
   }
   else
@@ -324,7 +327,7 @@ sl_status_t sl_wfx_host_switch_to_wirq (void)
 {
 	uint32_t value32;
 
-	GPIO_ExtIntConfig(BSP_EXP_WIRQPORT, BSP_EXP_WIRQPIN, BSP_EXP_IRQ, true, false, true);
+	GPIO_ExtIntConfig(WFX_HOST_CFG_WIRQPORT, WFX_HOST_CFG_WIRQPIN, WFX_HOST_CFG_IRQ, true, false, true);
 	sl_wfx_reg_read_32(SL_WFX_CONFIG_REG_ID, &value32);
 	value32 |= (1<<15);
     sl_wfx_reg_write_32(SL_WFX_CONFIG_REG_ID, value32);

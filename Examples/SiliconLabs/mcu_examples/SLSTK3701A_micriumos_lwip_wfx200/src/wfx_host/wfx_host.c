@@ -20,7 +20,7 @@
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
 #include "sl_wfx_bus.h"
-#include "wfx_pin_config.h"
+#include "wfx_host_cfg.h"
 
 #include "em_gpio.h"
 #include "em_usart.h"
@@ -30,7 +30,9 @@
 #ifdef EFM32GG11B820F2048GL192
 #include "BRD8022A_pds.h"
 #endif
-
+#ifdef EFM32GG11B820F2048GM64 //WGM160PX22KGA2
+#include "WGM160P_pds.h"
+#endif
 
 
 
@@ -238,7 +240,7 @@ sl_status_t sl_wfx_host_free_buffer( void* buffer, sl_wfx_buffer_type_t type )
 
 sl_status_t sl_wfx_host_hold_in_reset( void )
 {
-	GPIO_PinOutClear(BSP_EXP_RESET_PORT, BSP_EXP_RESET_PIN);
+	GPIO_PinOutClear(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
 	host_context.wf200_initialized = 0;
 	return SL_SUCCESS;
 }
@@ -258,11 +260,11 @@ sl_status_t sl_wfx_host_set_wake_up_pin( uint8_t state )
 	  sl_wfx_host_enable_spi();
 #endif
 #endif
-	  GPIO_PinOutSet(BSP_EXP_WUP_PORT, BSP_EXP_WUP_PIN);
+	  GPIO_PinOutSet(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN);
   }
   else
   {
-	  GPIO_PinOutClear(BSP_EXP_WUP_PORT, BSP_EXP_WUP_PIN);
+	  GPIO_PinOutClear(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN);
 #ifdef SLEEP_ENABLED
 #ifdef SL_WFX_USE_SDIO
 	  sl_wfx_host_disable_sdio();
@@ -280,12 +282,12 @@ sl_status_t sl_wfx_host_reset_chip( void )
 {
   RTOS_ERR err;
    // Pull it low for at least 1 ms to issue a reset sequence
-  GPIO_PinOutClear(BSP_EXP_RESET_PORT, BSP_EXP_RESET_PIN);
+  GPIO_PinOutClear(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
   // Delay for 10ms
   OSTimeDly(10,OS_OPT_TIME_DLY,&err);
 
   // Hold pin high to get chip out of reset
-  GPIO_PinOutSet(BSP_EXP_RESET_PORT, BSP_EXP_RESET_PIN);
+  GPIO_PinOutSet(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
   // Delay for 3ms
   OSTimeDly(3,OS_OPT_TIME_DLY,&err);
   host_context.wf200_initialized = 0;
@@ -577,9 +579,9 @@ sl_status_t sl_wfx_host_sleep_grant(sl_wfx_host_bus_tranfer_type_t type,
 {
 #ifdef SLEEP_ENABLED
 #ifdef SL_WFX_USE_SPI
-	if (GPIO_PinInGet(BSP_EXP_SPI_WIRQPORT,  BSP_EXP_SPI_WIRQPIN)) //wf200 messages pending
+	if (GPIO_PinInGet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN)) //wf200 messages pending
 #else
-   if (GPIO_PinInGet(BSP_EXP_WIRQPORT,  BSP_EXP_WIRQPIN)) //pending messages from wf200
+   if (GPIO_PinInGet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN)) //pending messages from wf200
 #endif
 	   return SL_WIFI_SLEEP_NOT_GRANTED;
    if (isWFXReceiveProcessing())

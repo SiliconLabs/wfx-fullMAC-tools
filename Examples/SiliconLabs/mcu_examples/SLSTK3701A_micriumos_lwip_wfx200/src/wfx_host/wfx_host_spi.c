@@ -21,7 +21,7 @@
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
 #include "sl_wfx_bus.h"
-#include "wfx_pin_config.h"
+#include "wfx_host_cfg.h"
 
 #include "em_gpio.h"
 #include "em_usart.h"
@@ -41,15 +41,15 @@
 #include <common/include/rtos_err.h>
 #include "sleep.h"
 
-#define USART USART0
-#define USART_CLK cmuClock_USART0
-#define RX_DMA_SIGNAL dmadrvPeripheralSignal_USART0_RXDATAV
-#define TX_DMA_SIGNAL dmadrvPeripheralSignal_USART0_TXBL
-#define USART_PORT gpioPortE
-#define USART_CS_PIN 13
-#define USART_TX_PIN 10
-#define USART_RX_PIN 11
-#define USART_CLK_PIN 12
+#define USART WFX_HOST_CFG_SPI_USART
+#define USART_CLK WFX_HOST_CFG_SPI_USART_CLK
+#define RX_DMA_SIGNAL WFX_HOST_CFG_SPI_RX_DMA_SIGNAL
+#define TX_DMA_SIGNAL WFX_HOST_CFG_SPI_TX_DMA_SIGNAL
+#define USART_PORT WFX_HOST_CFG_SPI_USART_PORT
+#define USART_CS_PIN WFX_HOST_CFG_SPI_USART_CS_PIN
+#define USART_TX_PIN WFX_HOST_CFG_SPI_USART_TX_PIN
+#define USART_RX_PIN WFX_HOST_CFG_SPI_USART_RX_PIN
+#define USART_CLK_PIN WFX_HOST_CFG_SPI_USART_CLK_PIN
 
 static OS_SEM spiSem;
 static unsigned int        txDMACh;
@@ -83,9 +83,9 @@ sl_status_t sl_wfx_host_init_bus( void )
                                    & ~(_USART_ROUTELOC0_TXLOC_MASK
                                        | _USART_ROUTELOC0_RXLOC_MASK
                                        | _USART_ROUTELOC0_CLKLOC_MASK))
-                                  | (0  << _USART_ROUTELOC0_TXLOC_SHIFT)
-                                  | (0  << _USART_ROUTELOC0_RXLOC_SHIFT)
-                                  | (0 << _USART_ROUTELOC0_CLKLOC_SHIFT);
+                                  | (WFX_HOST_CFG_SPI_TX_LOC_NBR  << _USART_ROUTELOC0_TXLOC_SHIFT)
+                                  | (WFX_HOST_CFG_SPI_RX_LOC_NBR  << _USART_ROUTELOC0_RXLOC_SHIFT)
+                                  | (WFX_HOST_CFG_SPI_CLK_LOC_NBR << _USART_ROUTELOC0_CLKLOC_SHIFT);
 
   USART->ROUTEPEN = USART_ROUTEPEN_TXPEN
                                  | USART_ROUTEPEN_RXPEN
@@ -262,14 +262,14 @@ sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_tranfer_type_t
 sl_status_t sl_wfx_host_enable_platform_interrupt( void )
 {
   // Used interrupt #10 because #8 and #9 are used by the push buttons on the SLSTK3701A
-  GPIO_ExtIntConfig(BSP_EXP_SPI_WIRQPORT, BSP_EXP_SPI_WIRQPIN, BSP_EXP_SPI_IRQ, true, false, true);
+  GPIO_ExtIntConfig(WFX_HOST_CFG_SPI_WIRQPORT, WFX_HOST_CFG_SPI_WIRQPIN, WFX_HOST_CFG_SPI_IRQ, true, false, true);
   return SL_SUCCESS;
 }
 
 
 sl_status_t sl_wfx_host_disable_platform_interrupt( void )
 {
-  GPIO_IntDisable(BSP_EXP_SPI_IRQ);
+  GPIO_IntDisable(WFX_HOST_CFG_SPI_IRQ);
   return SL_SUCCESS;
 }
 sl_status_t sl_wfx_host_enable_spi (void)

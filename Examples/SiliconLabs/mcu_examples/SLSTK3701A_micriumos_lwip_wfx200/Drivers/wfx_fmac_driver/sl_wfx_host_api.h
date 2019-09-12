@@ -322,6 +322,72 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_tranfer_type_t type,
  *****************************************************************************/
 sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void);
 
+#ifdef SL_WFX_USE_SECURE_LINK
+/* WFX host SecureLink API */
+
+/**************************************************************************//**
+ * @brief Function called to get the secure link mac key of the part
+ *
+ * @param sl_mac_key is the pointer to the sl_wfx_context key in which
+ * the key must be copied.
+ * @returns Returns SL_SUCCESS if successful, SL_WIFI_SECURE_LINK_MAC_KEY_ERROR otherwise
+ *****************************************************************************/
+sl_status_t sl_wfx_host_get_secure_link_mac_key(uint8_t *sl_mac_key);
+
+/**************************************************************************//**
+ * @brief Function called to compute the securelink public key
+ *
+ * @param request is a pointer to the SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_REQ body.
+ * @param sl_mac_key is a pointer to the context mac key
+ * @returns Returns SL_SUCCESS if successful, SL_ERROR otherwise
+ *****************************************************************************/
+sl_status_t sl_wfx_host_compute_pub_key(sl_wfx_securelink_exchange_pub_keys_req_body_t *request, const uint8_t *sl_mac_key);
+
+/**************************************************************************//**
+ * @brief Function called to verify the WFX hashed public key
+ *
+ * @param response_packet is a pointer to the SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND
+ * returned by the WFX.
+ * @param sl_mac_key is a pointer to the context mac key
+ * @returns Returns SL_SUCCESS if successful, SL_ERROR otherwise
+ *****************************************************************************/
+sl_status_t sl_wfx_host_verify_pub_key(sl_wfx_securelink_exchange_pub_keys_ind_t *response_packet,
+                                       const uint8_t *sl_mac_key);
+
+/**************************************************************************//**
+ * @brief Function called to decode a packet
+ *
+ * @param buffer is the pointer to the encrypted part of the packet
+ * @param length is the length of the encrypted part
+ * @param session_key is the pointer to the context session key
+ * @returns Returns SL_SUCCESS if successful, SL_ERROR otherwise
+ *****************************************************************************/
+sl_status_t sl_wfx_host_decode_secure_link_data(uint8_t *buffer,
+                                                uint32_t length,
+                                                uint8_t *session_key);
+
+/**************************************************************************//**
+ * @brief Function called to encode a packet
+ *
+ * @param buffer is the pointer to the message that will be encrypted
+ * @param data_length is the length of the payload to be encrypted
+ * @param session_key is the pointer to context session key
+ * @param nonce is the pointer to the encryption nonce
+ * @returns Returns SL_SUCCESS if successful, SL_ERROR otherwise
+ *****************************************************************************/
+sl_status_t sl_wfx_host_encode_secure_link_data(sl_wfx_generic_message_t *buffer,
+                                                uint32_t data_length,
+                                                uint8_t *session_key,
+                                                uint8_t *nonce);
+
+/**************************************************************************//**
+ * @brief Function called to schedule a session key renegotiation
+ *
+ * @returns Returns SL_SUCCESS if successful, SL_ERROR otherwise
+ *****************************************************************************/
+sl_status_t sl_wfx_host_schedule_secure_link_renegotiation(void);
+#endif //SL_WFX_USE_SECURE_LINK
+
 /** @} end HOST_API */
 
 #endif // SL_WFX_HOST_API_H

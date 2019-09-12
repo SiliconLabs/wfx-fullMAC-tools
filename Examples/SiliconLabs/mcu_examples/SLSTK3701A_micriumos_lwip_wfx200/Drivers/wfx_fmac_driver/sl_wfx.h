@@ -18,6 +18,7 @@
 #define SL_WFX_H
 
 #include "sl_wfx_host_api.h"
+#include "sl_wfx_version.h"
 #include "sl_wfx_configuration.h"
 #include "bus/sl_wfx_bus.h"
 #include "firmware/sl_wfx_registers.h"
@@ -46,6 +47,28 @@ sl_status_t sl_wfx_receive_frame(uint16_t *ctrl_reg);
 sl_status_t sl_wfx_send_configuration(const char *pds_data, uint32_t pds_data_length);
 
 sl_status_t sl_wfx_control_gpio(uint8_t gpio_label, uint8_t gpio_mode, uint32_t *value);
+
+sl_status_t sl_wfx_pta_settings(uint8_t pta_mode,
+                                uint8_t request_signal_active_level,
+                                uint8_t priority_signal_active_level,
+                                uint8_t freq_signal_active_level,
+                                uint8_t grant_signal_active_level,
+                                uint8_t coex_type,
+                                uint8_t default_grant_state,
+                                uint8_t simultaneous_rx_access,
+                                uint8_t priority_sampling_time,
+                                uint8_t tx_rx_sampling_time,
+                                uint8_t freq_sampling_time,
+                                uint8_t grant_valid_time,
+                                uint8_t fem_control_time,
+                                uint8_t first_slot_time,
+                                uint16_t periodic_tx_rx_sampling_time,
+                                uint16_t coex_quota,
+                                uint16_t wlan_quota);
+
+sl_status_t sl_wfx_pta_priority(uint32_t priority);
+
+sl_status_t sl_wfx_pta_state(uint32_t pta_state);
 
 sl_status_t sl_wfx_prevent_rollback(uint32_t magic_word);
 

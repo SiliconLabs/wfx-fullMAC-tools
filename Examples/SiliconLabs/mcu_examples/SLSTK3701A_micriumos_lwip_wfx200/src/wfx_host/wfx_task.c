@@ -16,7 +16,7 @@
 #include "sl_wfx.h"
 #include "sl_wfx_registers.h"
 #include "lwip_micriumos.h"
-#include "wfx_pin_config.h"
+#include "wfx_host_cfg.h"
 
 #include "em_gpio.h"
 #include "em_usart.h"
@@ -38,7 +38,7 @@
 // Bus Task Configurations
 #define WF200_BUS_TASK_PRIO              15u
 #define WF200_BUS_TASK_STK_SIZE         512u
-#define WF200_EVENT_TIMEOUT_MS          (20)
+#define WF200_EVENT_TIMEOUT_MS          (0)
 
 //Task Data Structures
 static CPU_STK WF200BusTaskStk[WF200_BUS_TASK_STK_SIZE];
@@ -99,9 +99,9 @@ static void WF200BusTask (void *p_arg)
   {
 #ifdef SLEEP_ENABLED
 #ifdef SL_WFX_USE_SPI
-	if (GPIO_PinInGet(BSP_EXP_SPI_WIRQPORT,  BSP_EXP_SPI_WIRQPIN)) //wf200 messages pending
+	if (GPIO_PinInGet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN)) //wf200 messages pending
 #else
-    if (GPIO_PinInGet(BSP_EXP_WIRQPORT,  BSP_EXP_WIRQPIN))
+    if (GPIO_PinInGet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN))
 #endif
     {
     	OSFlagPost(&wf200_evts, WF200_EVENT_FLAG_RX,OS_OPT_POST_FLAG_SET,&err);
@@ -160,10 +160,22 @@ static void WF200BusTask (void *p_arg)
 	}
 	if (flags & WF200_EVENT_FLAG_TX)
 	{
-		OSMutexPend (&wf200_mutex,0,OS_OPT_PEND_BLOCKING,0,&err);
-		sl_wfx_send_ethernet_frame(tx_frame.frame, tx_frame.data_length, tx_frame.interface,tx_frame.priority);
-		OSMutexPost(&wf200_mutex,OS_OPT_POST_NONE,&err);
-		OSSemPost(&txComplete,OS_OPT_POST_ALL,&err);
+		int i=0;
+		result = SL_ERROR_OUT_OF_BUFFERS;
+		while ((result == SL_ERROR_OUT_OF_BUFFERS) && (i++ < 10))
+		{
+		    	OSMutexPend (&wf200_mutex,0,OS_OPT_PEND_BLOCKING,0,&err);
+		        result = sl_wfx_send_ethernet_frame(tx_frame.frame, tx_frame.data_length, tx_frame.interface,tx_frame.priority);
+		        OSMutexPost(&wf200_mutex,OS_OPT_POST_NONE,&err);
+		}
+		if (result != SL_ERROR_OUT_OF_BUFFERS)
+		{
+		  OSSemPost(&txComplete,OS_OPT_POST_ALL,&err);
+		}
+		else
+		{
+			printf ("Unable to send ethernet frame\r\n");
+		}
 	}
 
 

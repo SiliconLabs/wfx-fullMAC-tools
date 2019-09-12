@@ -34,6 +34,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/third_party/lwip</locationURI>
 		</link>
 		<link>
+			<name>mbedtls</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/third_party/mbedtls</locationURI>
+		</link>
+		<link>
 			<name>micrium_os</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/sdk/platform/micrium_os</locationURI>

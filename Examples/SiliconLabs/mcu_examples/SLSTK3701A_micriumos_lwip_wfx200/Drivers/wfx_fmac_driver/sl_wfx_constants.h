@@ -23,6 +23,7 @@
 /******************************************************
 *                      Macros
 ******************************************************/
+
 #define SL_WFX_UNUSED_VARIABLE(x) (void)(x)
 #define SL_WFX_UNUSED_PARAMETER(x) (void)(x)
 
@@ -185,6 +186,10 @@ static inline uint32_t uint32_identity(uint32_t x)
 
 #define SL_WFX_MSG_INFO_INTERFACE_OFFSET 1
 #define SL_WFX_MSG_INFO_INTERFACE_MASK   0x06
+#ifdef SL_WFX_USE_SECURE_LINK
+#define SL_WFX_MSG_INFO_SECURE_LINK_OFFSET 6
+#define SL_WFX_MSG_INFO_SECURE_LINK_MASK   0xC0
+#endif
 
 #define SL_WFX_CONT_FRAME_TYPE_OFFSET    14
 
@@ -196,6 +201,29 @@ static inline uint32_t uint32_identity(uint32_t x)
 #define SL_WFX_OPN_SIZE                  14
 
 #define SL_WFX_CTRL_REGISTER_SIZE        (2)
+
+#ifdef SL_WFX_USE_SECURE_LINK
+/* Secure link constants*/
+#define SECURE_LINK_MAC_KEY_LENGTH      32
+
+#define SL_WFX_SECURE_LINK_SESSION_KEY_LENGTH          (16)
+
+#define SL_WFX_SECURE_LINK_ENCRYPTION_BITMAP_SIZE      (32)
+#define SL_WFX_SECURE_LINK_ENCRYPTION_NOT_REQUIRED     (0)
+#define SL_WFX_SECURE_LINK_ENCRYPTION_REQUIRED         (1)
+
+#define SL_WFX_SECURE_LINK_HEADER_SIZE                 (4)
+#define SL_WFX_SECURE_LINK_CCM_TAG_SIZE                (16)
+#define SL_WFX_SECURE_LINK_NONCE_SIZE_BYTES            (12)
+#define SL_WFX_SECURE_LINK_NONCE_COUNTER_MAX           (0x3FFFFFFFUL)  // Top two bits are used to indicate which counter
+#define SL_WFX_SECURE_LINK_OVERHEAD                    (SL_WFX_SECURE_LINK_HEADER_SIZE + SL_WFX_SECURE_LINK_CCM_TAG_SIZE)
+
+#define SL_WFX_SECURE_LINK_SESSION_KEY_BIT_COUNT       (SL_WFX_SECURE_LINK_SESSION_KEY_LENGTH * 8)
+
+// Maximum nonce value is 2 ^ 30, watermark is chosen as 2 ^ 29
+#define SL_WFX_SECURE_LINK_NONCE_MAX_VALUE             1 << 30
+#define SL_WFX_SECURE_LINK_NONCE_WATERMARK             1 << 29
+#endif //SL_WFX_USE_SECURE_LINK
 
 /**************************************************************************//**
  * @addtogroup ENUM
@@ -285,6 +313,29 @@ typedef enum {
   SL_WFX_BUS_WRITE_AND_READ = SL_WFX_BUS_WRITE | SL_WFX_BUS_READ,
 } sl_wfx_host_bus_tranfer_type_t;
 
+#ifdef SL_WFX_USE_SECURE_LINK
+/**************************************************************************//**
+ * @enum sl_wfx_secure_link_mode_t
+ * @brief Enum listing the different secure link mode of a part
+ *****************************************************************************/
+typedef enum {
+  SL_WFX_LINK_MODE_RESERVED      = 0,
+  SL_WFX_LINK_MODE_UNTRUSTED     = 1,
+  SL_WFX_LINK_MODE_TRUSTED_EVAL  = 2,
+  SL_WFX_LINK_MODE_ACTIVE        = 3,
+} sl_wfx_secure_link_mode_t;
+
+/**************************************************************************//**
+ * @enum sl_wfx_securelink_renegotiation_state_t
+ * @brief Enumerates the states of the securelink key renegotiation
+ *****************************************************************************/
+typedef enum {
+  SL_WFX_SECURELINK_DEFAULT               = 0,
+  SL_WFX_SECURELINK_RENEGOTIATION_NEEDED  = 1,
+  SL_WFX_SECURELINK_RENEGOTIATION_PENDING = 2,
+} sl_wfx_securelink_renegotiation_state_t;
+#endif //SL_WFX_USE_SECURE_LINK
+
 /** @} end ENUM */
 
 /******************************************************
@@ -326,6 +377,13 @@ typedef struct {
   sl_wfx_mac_address_t mac_addr_0;         ///< Mac address used by WFx interface 0, station
   sl_wfx_mac_address_t mac_addr_1;         ///< Mac address used by WFx interface 1, softap
   sl_wfx_state_t state;                    ///< State of the WFx Wi-Fi chip
+#ifdef SL_WFX_USE_SECURE_LINK
+  uint8_t  secure_link_mac_key[SECURE_LINK_MAC_KEY_LENGTH];
+  sl_wfx_nonce_t secure_link_nonce;
+  uint8_t  encryption_bitmap[SL_WFX_SECURE_LINK_ENCRYPTION_BITMAP_SIZE];
+  uint8_t  secure_link_session_key[SL_WFX_SECURE_LINK_SESSION_KEY_LENGTH];
+  uint8_t  secure_link_renegotiation_state;
+#endif //SL_WFX_USE_SECURE_LINK
 } sl_wfx_context_t;
 
 #endif // SL_WFX_CONSTANTS_H

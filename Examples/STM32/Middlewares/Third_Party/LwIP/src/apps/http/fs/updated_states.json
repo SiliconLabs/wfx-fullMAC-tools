@@ -1,0 +1,1 @@
+[{"name":"LED0", "state":"<!--#led0_state-->"}, {"name":"LED1", "state":"<!--#led1_state-->"}, {"name":"Connection","state":"<!--#status-->"}, {"name":"IP_address", "state":"<!--#ip_address-->"}]

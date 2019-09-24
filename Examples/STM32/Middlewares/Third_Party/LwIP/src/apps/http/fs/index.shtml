@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="theme-color" content="#bb342f">
+  <link rel="icon" href="http://demo.silabs.com/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="http://demo.silabs.com/themes/silabs-theme.min.css" />
+  <link rel="stylesheet" href="http://demo.silabs.com/themes/jquery.mobile.icons.min.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <title>WF200 Wi-Fi Transceiver Demo</title>
+  <style>
+    .modal {
+      display: none;
+      /* Hidden by default */
+      position: fixed;
+      /* Stay in place */
+      z-index: 1;
+      /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      /* Full width */
+      height: 100%;
+      /* Full height */
+      overflow: auto;
+      /* Enable scroll if needed */
+      background-color: rgb(0, 0, 0);
+      /* Fallback color */
+      background-color: rgba(0, 0, 0, 0.4);
+      /* Black w/ opacity */
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto 15% auto;
+      /* 5% from the top, 15% from the bottom and centered */
+      border: 1px solid #888;
+      width: 80%;
+      /* Could be more or less, depending on screen size */
+    }
+  </style>
+</head>
+
+<body>
+  <div data-role="header" data-theme="a">
+    <h1>Silicon Labs</h1>
+    <a href="https://www.silabs.com/products/wireless/wi-fi" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+    <a href="https://www.silabs.com/search?q=wifi" data-icon="search" data-iconpos="notext" data-rel="dialog" data-transition="fade">Search</a>
+  </div>
+  <div data-role="collapsible-set" data-theme="c" data-content-theme="b" style="margin-left:5px;margin-right:5px;">
+    <div data-role="collapsible" data-collapsed="false" data-theme="b">
+      <h3>LED Control Panel</h3>
+      <div data-role="fieldcontain">
+        <table>
+          <tr>
+            <td><b>LED 0 &ensp;</b></td>
+            <td>
+              <select name="btn_led0" id="btn_led0" data-theme="c" data-track-theme="d" data-role="slider" style="display: block;" onchange="toggleLedState(0);">
+                <option value="off">Off</option>
+                <option value="on">On</option>
+              </select>
+              <button name="btn_led0_alt" id="btn_led0_alt" style="display: none;" onclick="toggleLedState(0);">LED 0 Off</button>
+            </td>
+          </tr>
+          <tr>
+            <td><b>LED 1 &ensp;</b></td>
+            <td>
+              <select name="btn_led1" id="btn_led1" data-theme="c" data-track-theme="d" data-role="slider" style="display: block;" onchange="toggleLedState(1);">
+                <option value="off">Off</option>
+                <option value="on">On</option>
+              </select>
+              <button name="btn_led1_alt" id="btn_led1_alt" style="display: none;" onclick="toggleLedState(1);">LED 1 Off</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div data-role="collapsible-set" data-theme="c" data-content-theme="b" style="margin-left:5px;margin-right:5px;">
+    <div data-role="collapsible" data-collapsed="false" data-theme="b">
+      <h3>Wi-Fi Access Point/Station Simultaneous Mode Commissioning</h3>
+      <div class="container">
+        <button name="btn_scan" id="btn_scan" onclick="startScan();" style="width: auto;display: inline-block;">Refresh Wi-Fi Scan Results</button>
+        <button name="btn_disconnect" id="btn_disconnect" onclick="disconnectNetwork();" style="width: auto;display: inline-block;" disabled>Disconnect</button>
+        <b id="connection_status" class="alert alert-warning" style="display: inline-block;">Not Connected</b>
+        <div class="list-group" id="ssid_list">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="connection_modal" class="modal">
+    <div class="modal-content">
+      <iframe name="dummy" style="display:none;"></iframe>
+      <form action="/connect_network.cgi" method="get" id="connect_form" target="dummy">
+        <div style="padding: 30px;">
+          <label id="ssid_label"><b>SSID</b>
+            <input id="ssid_input" type="text" readonly="readonly" name="ssid" required>
+          </label>
+          <label id="pwd_label"><b>Password</b>
+            <input id="pwd_input" type="password" placeholder="Enter Password" name="pwd">
+          </label>
+          <label id="secu_label"><b>Security</b>
+            <input id="secu_input" type="text" readonly="readonly" name="secu" required>
+          </label>
+
+          <button type="submit" id="btn_connect" onclick="onFormSubmit();">Connect</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    var led0_state = 3;
+    var led1_state = 3;
+    var events_en = true;
+    var connection_status = false;
+    var connection_modal = document.getElementById('connection_modal');
+
+    if (!window.jQuery) {
+      document.getElementById("btn_led0_alt").style.display = "block";
+      document.getElementById("btn_led1_alt").style.display = "block";
+      document.getElementById("btn_led0").style.display = "none";
+      document.getElementById("btn_led1").style.display = "none";
+      alert('This webpage requires an Internet Connection to work at its best.\nHowever, basic functionality has been enabled through the following plain HTML page.');
+    }
+
+    function getUpdatedStates() {
+      if (events_en == true) {
+        events_en = false;
+
+        if (window.jQuery) {
+          $.ajax({
+            type: 'GET',
+            url: '/get_updated_states.cgi?&buster=' + new Date().getTime(),
+            dataType: 'json',
+            success: function(info) {
+              if (led0_state != info[0].state) {
+                led0_state = info[0].state;
+                $("#btn_led0").slider('disable');
+                if (info[0].state == 1) {
+                  $("#btn_led0").val('on');
+                } else {
+                  $("#btn_led0").val('off');
+                }
+                $("#btn_led0").slider('refresh');
+                $("#btn_led0").slider('enable');
+              }
+              if (led1_state != info[1].state) {
+                led1_state = info[1].state;
+                $("#btn_led1").slider('disable');
+                if (info[1].state == 1) {
+                  $("#btn_led1").val('on');
+                } else {
+                  $("#btn_led1").val('off');
+                }
+                $("#btn_led1").slider('refresh');
+                $("#btn_led1").slider('enable');
+              }
+              if (info[2].state.localeCompare("Not Connected")) {
+                if (!connection_status) {
+                  document.getElementById("btn_disconnect").disabled = false;
+                  document.getElementById("btn_connect").disabled = true;
+                  document.getElementById("connection_status").className = "alert alert-success";
+                  document.getElementById("connection_status").innerText = info[2].state + ", IP address : " + info[3].state;
+                  alert(info[2].state);
+                  connection_status = true;
+                }
+              } else {
+                if (connection_status) {
+                  document.getElementById("btn_disconnect").disabled = true;
+                  document.getElementById("btn_connect").disabled = false;
+                  document.getElementById("connection_status").className = "alert alert-warning";
+                  document.getElementById("connection_status").innerText = "Not Connected";
+                  alert("Disconnected");
+                  connection_status = false;
+                }
+              }
+              if (connection_status) {
+                document.getElementById("connection_status").innerText = info[2].state + ", IP address : " + info[3].state;
+              }
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', 'get_updated_states.cgi?&buster=' + new Date().getTime(), true);
+
+          xhr.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+              var info = JSON.parse(this.response);
+              if (info[0].state == 1) {
+                document.getElementById("btn_led0_alt").innerText = "LED 0 On";
+              } else {
+                document.getElementById("btn_led0_alt").innerText = "LED 0 Off";
+              }
+              if (info[1].state == 1) {
+                document.getElementById("btn_led1_alt").innerText = "LED 1 On";
+              } else {
+                document.getElementById("btn_led1_alt").innerText = "LED 1 Off";
+              }
+              if (info[2].state.localeCompare("Not Connected")) {
+                if (!connection_status) {
+                  document.getElementById("btn_disconnect").disabled = false;
+                  document.getElementById("btn_connect").disabled = true;
+                  document.getElementById("connection_status").className = "alert alert-success";
+                  document.getElementById("connection_status").innerText = info[2].state + ", IP address : " + info[3].state;
+                  alert(info[2].state);
+                  connection_status = true;
+                }
+              } else {
+                if (connection_status) {
+                  document.getElementById("btn_disconnect").disabled = true;
+                  document.getElementById("btn_connect").disabled = false;
+                  document.getElementById("connection_status").className = "alert alert-warning";
+                  document.getElementById("connection_status").innerText = "Not Connected";
+                  alert("Disconnected");
+                  connection_status = false;
+                }
+              }
+              if (connection_status) {
+                document.getElementById("connection_status").innerText = info[2].state + ", IP address : " + info[3].state;
+              }
+            }
+          };
+          xhr.send();
+          events_en = true;
+        }
+      }
+    }
+
+    function toggleLedState(led_id) {
+      if (events_en == true) {
+        events_en = false;
+
+        if (window.jQuery) {
+          $.ajax({
+            url: '/led_toggle.cgi?&buster=' + new Date().getTime(),
+            type: 'GET',
+            data: "led_id=" + led_id,
+            processData: false,
+            success: function(data, textStatus, xhr) {
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', 'led_toggle.cgi?led_id=' + led_id + '&buster=' + new Date().getTime(), true);
+          xhr.send();
+          events_en = true;
+        }
+      } else {
+        setTimeout(function() {
+          toggleLedState(led_id);
+        }, 400);
+      }
+    }
+
+    function startScan() {
+      if (events_en == true) {
+        events_en = false;
+
+        if (window.jQuery) {
+          $.ajax({
+            type: 'GET',
+            url: '/start_scan.cgi?&buster=' + new Date().getTime(),
+            dataType: 'json',
+            success: function(scan_results) {
+              $("#ssid_list").html("");
+              $.each(scan_results, function(i, list) {
+                $("#ssid_list").append("<a onclick='openConnectionTab(\"" + list.ssid + "\", \"" + list.secu + "\");' class='list-group-item clearfix'>" + list.ssid + "<span class='badge'>" + list.rssi + " dBm</span><span class='badge'>" +
+                  list.secu + "</span></a>");
+              });
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', 'start_scan.cgi?&buster=' + new Date().getTime(), true);
+
+          xhr.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+              var data = JSON.parse(this.response);
+              var html = "<ol type='1'>";
+              data.forEach(function(item, i) {
+                html += "<li><button onclick='openConnectionTab(\"" + item.ssid + "\", \"" + item.secu + "\");'>" + item.ssid + "<span class='badge'> , " + item.rssi + " dBm ,</span><span class='badge'> " + item.secu + "</span></button></li>";
+              });
+              html += "</ol>";
+              document.getElementById("ssid_list").innerHTML = html;
+            }
+          };
+          xhr.send();
+          events_en = true;
+        }
+      } else {
+        setTimeout(startScan, 400);
+      }
+    }
+
+    function disconnectNetwork() {
+      if (events_en == true) {
+        events_en = false;
+
+        if (window.jQuery) {
+          $.ajax({
+            url: '/disconnect_network.cgi?&buster=' + new Date().getTime(),
+            type: 'GET',
+            processData: false,
+            success: function(data, textStatus, xhr) {
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', 'disconnect_network.cgi?&buster=' + new Date().getTime(), true);
+          xhr.send();
+          events_en = true;
+        }
+      } else {
+        setTimeout(disconnectNetwork, 400);
+      }
+    }
+
+    function openConnectionTab(ssid, secu) {
+      connection_modal.style.display = "block";
+      document.getElementById("ssid_input").value = ssid;
+      document.getElementById("secu_input").value = secu;
+      document.getElementById("pwd_input").value = "";
+      if (secu == "OPEN") {
+        document.getElementById("pwd_label").style.display = 'none';
+        document.getElementById("pwd_input").required = false;
+      } else {
+        document.getElementById("pwd_label").style.display = 'block';
+        document.getElementById("pwd_input").required = true;
+      }
+    }
+
+    function onFormSubmit() {
+      connection_modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+      if (event.target == connection_modal) {
+        connection_modal.style.display = "none";
+      }
+    }
+
+    if (
+      document.readyState === "complete" ||
+      (document.readyState !== "loading" && !document.documentElement.doScroll)
+    ) {
+      setInterval(getUpdatedStates, 1000);
+    } else {
+      document.addEventListener("DOMContentLoaded", function() {
+        setInterval(getUpdatedStates, 1000);
+      });
+    }
+  </script>
+</body>
+
+</html>

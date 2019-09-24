@@ -38,12 +38,11 @@ static void prvUARTInputTask(void const * pvParameters );
 
 static const char * const pcNewLine = ( char * ) "\r\n";
 
-
 /*-----------------------------------------------------------*/
 osThreadId UARTInputTaskHandle;
 extern SemaphoreHandle_t uart3Semaphore;
 char string_output[INPUT_SIZE];
-char UART_Input_String[ INPUT_SIZE ];
+char UART_Input_String[INPUT_SIZE];
 SemaphoreHandle_t stringRcvSemaphore;
 SemaphoreHandle_t uartInputSemaphore;
 
@@ -53,7 +52,6 @@ void vUARTInputStop (void)
 {
   stopWaiting = 1;
 }
-
 
 void vUARTInputStart( void )
 {

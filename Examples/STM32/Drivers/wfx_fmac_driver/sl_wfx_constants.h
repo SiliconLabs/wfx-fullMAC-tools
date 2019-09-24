@@ -23,6 +23,7 @@
 /******************************************************
 *                      Macros
 ******************************************************/
+
 #define SL_WFX_UNUSED_VARIABLE(x) (void)(x)
 #define SL_WFX_UNUSED_PARAMETER(x) (void)(x)
 
@@ -158,9 +159,6 @@ static inline uint32_t uint32_identity(uint32_t x)
 ******************************************************/
 
 #define SL_WAIT_FOREVER  0xFFFFFFFF
-#define SL_WFX_BUS_NOTIFICATION                 (1 << 0)
-#define SL_WFX_IRQ_NOTIFICATION                 (1 << 1)
-#define SL_WFX_FRAME_CONFIRMATION_NOTIFICATION  (1 << 2)
 
 #define IE_RSNE_ID                48
 #define IE_RSNE_CIPHER_SUITE_TKIP 0x02AC0F00
@@ -169,13 +167,10 @@ static inline uint32_t uint32_identity(uint32_t x)
 #define IE_VENDOR_SPECIFIC_ID 221
 #define IE_WPA_OUI            0x0050F2
 
-/* Below are copied from wf200 firmware pds.h */
 #define PDS_HF_CLK_KEY            'e'
 #define PDS_POWER_CONFIG_KEY      'h'
 #define PDS_ANTENNA_SEL_KEY       'j'
 
-/* ------------------------------------ */
-/* JSON key indices */
 #define PDS_KEY_A       'a'
 #define PDS_KEY_B       'b'
 #define PDS_KEY_C       'c'
@@ -186,6 +181,15 @@ static inline uint32_t uint32_identity(uint32_t x)
 #define WFX_PTE_INFO              0x0900C0C0
 #define PTE_INFO_KEYSET_IDX       0x0D
 #define PTE_INFO_SIZE             0x10
+
+#define SL_WFX_MSG_ID_GENERAL_API_MASK   0x20
+
+#define SL_WFX_MSG_INFO_INTERFACE_OFFSET 1
+#define SL_WFX_MSG_INFO_INTERFACE_MASK   0x06
+#ifdef SL_WFX_USE_SECURE_LINK
+#define SL_WFX_MSG_INFO_SECURE_LINK_OFFSET 6
+#define SL_WFX_MSG_INFO_SECURE_LINK_MASK   0xC0
+#endif
 
 #define SL_WFX_CONT_FRAME_TYPE_OFFSET    14
 
@@ -198,6 +202,7 @@ static inline uint32_t uint32_identity(uint32_t x)
 
 #define SL_WFX_CTRL_REGISTER_SIZE        (2)
 
+#ifdef SL_WFX_USE_SECURE_LINK
 /* Secure link constants*/
 #define SECURE_LINK_MAC_KEY_LENGTH      32
 
@@ -216,12 +221,19 @@ static inline uint32_t uint32_identity(uint32_t x)
 #define SL_WFX_SECURE_LINK_SESSION_KEY_BIT_COUNT       (SL_WFX_SECURE_LINK_SESSION_KEY_LENGTH * 8)
 
 // Maximum nonce value is 2 ^ 30, watermark is chosen as 2 ^ 29
-#define SL_WFX_SECURE_LINK_NONCE_WATERMARK             536870912
+#define SL_WFX_SECURE_LINK_NONCE_MAX_VALUE             1 << 30
+#define SL_WFX_SECURE_LINK_NONCE_WATERMARK             1 << 29
+#endif //SL_WFX_USE_SECURE_LINK
 
-/******************************************************
-*                   Enumerations
-******************************************************/
+/**************************************************************************//**
+ * @addtogroup ENUM
+ * @{
+ *****************************************************************************/
 
+/**************************************************************************//**
+ * @enum sl_wfx_register_address_t
+ * @brief Enum listing the registers of the Wfx solution
+ *****************************************************************************/
 typedef enum {
   SL_WFX_CONFIG_REG_ID         = 0x0000,
   SL_WFX_CONTROL_REG_ID        = 0x0001,
@@ -233,6 +245,79 @@ typedef enum {
   SL_WFX_FRAME_OUT_REG_ID      = 0x0007,
 } sl_wfx_register_address_t;
 
+/**************************************************************************//**
+ * @enum sl_wfx_state_t
+ * @brief Enum listing the different state of the WFx chip
+ *****************************************************************************/
+typedef enum {
+  SL_WFX_STARTED                 = (1 << 0),
+  SL_WFX_STA_INTERFACE_CONNECTED = (1 << 1),
+  SL_WFX_AP_INTERFACE_UP         = (1 << 2),
+  SL_WFX_SLEEPING                = (1 << 3),
+  SL_WFX_POWER_SAVE_ACTIVE       = (1 << 4),
+} sl_wfx_state_t;
+
+/**************************************************************************//**
+ * @enum sl_wfx_interface_t
+ * @brief Enum listing available interfaces in WFx Wi-Fi solution
+ * @details For convenience, interface 0 is associated with the station
+ * interface and interface 1 is associated with the softap interface.
+ *****************************************************************************/
+typedef enum {
+  SL_WFX_STA_INTERFACE    = 0x00,   ///< Interface 0, linked to the station
+  SL_WFX_SOFTAP_INTERFACE = 0x01,   ///< Interface 1, linked to the softap
+} sl_wfx_interface_t;
+
+/**************************************************************************//**
+ * @enum sl_wfx_antenna_config_t
+ * @brief Enum listing the different antenna configurations
+ *****************************************************************************/
+typedef enum {
+  SL_WFX_ANTENNA_1_ONLY = 0,   ///< RF output 1 is used
+  SL_WFX_ANTENNA_2_ONLY,       ///< RF output 2 is used
+  SL_WFX_ANTENNA_TX1_RX2,      ///< RF output 1 is used for TX, RF 2 for RX
+  SL_WFX_ANTENNA_TX2_RX1,      ///< RF output 2 is used for TX, RF 1 for RX
+  SL_WFX_ANTENNA_DIVERSITY     ///< wf200 uses an antenna diversity algorithm
+} sl_wfx_antenna_config_t;
+
+/**************************************************************************//**
+ * @enum sl_wfx_received_message_type_t
+ * @brief Enum listing different message types received from WFx. The
+ * information is found in the control register using
+ * SL_WFX_CONT_FRAME_TYPE_INFO mask.
+ *****************************************************************************/
+typedef enum {
+  SL_WFX_CONFIRMATION_MESSAGE  = 0,   ///< Frame type indicating a confirmation message is available
+  SL_WFX_INDICATION_MESSAGE    = 1,   ///< Frame type indicating an indication message is available
+  SL_WFX_MANAGEMENT_MESSAGE    = 2,   ///< Reserved from Low MAC interface
+  SL_WFX_ETHERNET_DATA_MESSAGE = 3,   ///< Frame type indicating message encapsulating a data frame is available
+} sl_wfx_received_message_type_t;
+
+/**************************************************************************//**
+ * @enum sl_wfx_buffer_type_t
+ * @brief Enumerates the different types of buffer
+ *****************************************************************************/
+typedef enum {
+  SL_WFX_TX_FRAME_BUFFER,
+  SL_WFX_RX_FRAME_BUFFER,
+  SL_WFX_CONTROL_BUFFER,
+} sl_wfx_buffer_type_t;
+
+/**************************************************************************//**
+ * @enum sl_wfx_host_bus_tranfer_type_t
+ * @brief Enumerates the different types of bus transfers
+ *****************************************************************************/
+typedef enum {
+  SL_WFX_BUS_WRITE = (1 << 0),
+  SL_WFX_BUS_READ  = (1 << 1),
+  SL_WFX_BUS_WRITE_AND_READ = SL_WFX_BUS_WRITE | SL_WFX_BUS_READ,
+} sl_wfx_host_bus_tranfer_type_t;
+
+#ifdef SL_WFX_USE_SECURE_LINK
+/**************************************************************************//**
+ * @enum sl_wfx_secure_link_mode_t
+ * @brief Enum listing the different secure link mode of a part
+ *****************************************************************************/
 typedef enum {
   SL_WFX_LINK_MODE_RESERVED      = 0,
   SL_WFX_LINK_MODE_UNTRUSTED     = 1,
@@ -240,72 +325,65 @@ typedef enum {
   SL_WFX_LINK_MODE_ACTIVE        = 3,
 } sl_wfx_secure_link_mode_t;
 
+/**************************************************************************//**
+ * @enum sl_wfx_securelink_renegotiation_state_t
+ * @brief Enumerates the states of the securelink key renegotiation
+ *****************************************************************************/
 typedef enum {
-  SL_WFX_STARTED                 = (1 << 0),
-  SL_WFX_STA_INTERFACE_CONNECTED = (1 << 1),
-  SL_WFX_AP_INTERFACE_UP         = (1 << 2),
-} sl_wfx_interface_status_t;
+  SL_WFX_SECURELINK_DEFAULT               = 0,
+  SL_WFX_SECURELINK_RENEGOTIATION_NEEDED  = 1,
+  SL_WFX_SECURELINK_RENEGOTIATION_PENDING = 2,
+} sl_wfx_securelink_renegotiation_state_t;
+#endif //SL_WFX_USE_SECURE_LINK
 
-/**
- * \enum    sl_wfx_interface_t
- * \brief   Enum for available interface in wf200.
- * \details For convenience, interface 0 is associated with the station interface and interface 1 is associated with the softap interface.
- */
-typedef enum {
-  SL_WFX_STA_INTERFACE    = 0x00,   /*!< Interface 0, linked to the station */
-  SL_WFX_SOFTAP_INTERFACE = 0x02,   /*!< Interface 1, linked to the softap */
-} sl_wfx_interface_t;
-
-/**
- * \enum   sl_wfx_antenna_config_t
- * \brief  Enum describing antenna configuration to be sent in the PDS configuration (Platform data set)
- */
-typedef enum {
-  SL_WFX_ANTENNA_1_ONLY = 0,   /*!< RF output 1 is used */
-  SL_WFX_ANTENNA_2_ONLY,       /*!< RF output 2 is used */
-  SL_WFX_ANTENNA_TX1_RX2,      /*!< RF output 1 is used for TX, RF 2 for RX */
-  SL_WFX_ANTENNA_TX2_RX1,      /*!< RF output 2 is used for TX, RF 1 for RX */
-  SL_WFX_ANTENNA_DIVERSITY     /*!< wf200 uses an antenna diversity algorithm */
-} sl_wfx_antenna_config_t;
-
-/**
- * \enum   sl_wfx_received_message_type_t
- * \brief  Enum listing different message types received from WF200. The information is found in the control register using SL_WFX_CONT_FRAME_TYPE_INFO mask.
- */
-typedef enum {
-  SL_WFX_CONFIRMATION_MESSAGE  = 0,   /*!< Frame type indicating a confirmation message is available */
-  SL_WFX_INDICATION_MESSAGE    = 1,   /*!< Frame type indicating an indication message is available */
-  SL_WFX_MANAGEMENT_MESSAGE    = 2,   /*!< Reserved from Low MAC interface */
-  SL_WFX_ETHERNET_DATA_MESSAGE = 3,   /*!< Frame type indicating message encapsulating a data frame is available */
-} sl_wfx_received_message_type_t;
+/** @} end ENUM */
 
 /******************************************************
 *                    Structures
 ******************************************************/
 
+/**************************************************************************//**
+ * @struct sl_wfx_mac_address_t
+ * @brief Structure to handle MAC address format
+ *****************************************************************************/
 typedef struct {
-  uint8_t octet[6];
+  uint8_t octet[6]; ///< Table to store a MAC address
 } sl_wfx_mac_address_t;
 
+/**************************************************************************//**
+ * @struct sl_wfx_nonce_t
+ * @brief Structure to maintain secure link counters
+ *****************************************************************************/
 typedef struct {
-  uint32_t hp_packet_count;
-  uint32_t rx_packet_count;
-  uint32_t tx_packet_count;
+  uint32_t hp_packet_count; ///< High priority packet counter
+  uint32_t rx_packet_count; ///< Received packet counter
+  uint32_t tx_packet_count; ///< Sent packet counter
 } sl_wfx_nonce_t;
 
-/**
- * \struct sl_wfx_context_t
- * \brief  Structure used to maintain wf200 context on the host side
- */
+/**************************************************************************//**
+ * @struct sl_wfx_context_t
+ * @brief Structure used to maintain the Wi-Fi solution context on the host
+ * side
+ *****************************************************************************/
 typedef struct {
-  uint8_t  event_payload_buffer[512];     /*!< Event payload associated with the last posted event*/
-  uint16_t data_frame_id;                 /*!< Frame id incremented by ::sl_wfx_send_ethernet_frame*/
-  uint32_t waited_event_id;               /*!< Host waited event*/
-  uint32_t posted_event_id;               /*!< Last event posted by wf200*/
-  uint16_t used_buffer_number;
-  sl_wfx_mac_address_t mac_addr_0;         /*!< Mac address used by wf200 interface 0, station*/
-  sl_wfx_mac_address_t mac_addr_1;         /*!< Mac address used by wf200 interface 1, softap*/
-  uint8_t  ineo_opn[SL_WFX_OPN_SIZE];      /*!< Required for PTE (Only ?)*/
+  uint8_t  event_payload_buffer[512];      ///< Event payload associated with the last posted event
+  uint8_t  firmware_build;                 ///< Firmware build version
+  uint8_t  firmware_minor;                 ///< Firmware minor version
+  uint8_t  firmware_major;                 ///< Firmware major version
+  uint16_t data_frame_id;                  ///< Frame id incremented by ::sl_wfx_send_ethernet_frame
+  uint16_t used_buffers;                   ///< Number of buffers currenlty in use by the WFx chip
+  uint16_t bus_accesses;                   ///< Number of current bus accesses from the driver
+  uint8_t  wfx_opn[SL_WFX_OPN_SIZE];       ///< OPN of the part
+  sl_wfx_mac_address_t mac_addr_0;         ///< Mac address used by WFx interface 0, station
+  sl_wfx_mac_address_t mac_addr_1;         ///< Mac address used by WFx interface 1, softap
+  sl_wfx_state_t state;                    ///< State of the WFx Wi-Fi chip
+#ifdef SL_WFX_USE_SECURE_LINK
+  uint8_t  secure_link_mac_key[SECURE_LINK_MAC_KEY_LENGTH];
+  sl_wfx_nonce_t secure_link_nonce;
+  uint8_t  encryption_bitmap[SL_WFX_SECURE_LINK_ENCRYPTION_BITMAP_SIZE];
+  uint8_t  secure_link_session_key[SL_WFX_SECURE_LINK_SESSION_KEY_LENGTH];
+  uint8_t  secure_link_renegotiation_state;
+#endif //SL_WFX_USE_SECURE_LINK
 } sl_wfx_context_t;
 
 #endif // SL_WFX_CONSTANTS_H

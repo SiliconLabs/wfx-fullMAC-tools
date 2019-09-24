@@ -2340,6 +2340,9 @@
         <name>$PROJ_DIR$\..\Inc\demo_config.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\dhcp_server.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\ethernetif.c</name>
       </file>
       <file>

@@ -2340,10 +2340,10 @@
     <group>
       <name>User</name>
       <file>
-        <name>$PROJ_DIR$\..\Src\app_ethernet.c</name>
+        <name>$PROJ_DIR$\..\Src\dhcp_client.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Src\dhcpserver.c</name>
+        <name>$PROJ_DIR$\..\Src\dhcp_server.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\ethernetif.c</name>

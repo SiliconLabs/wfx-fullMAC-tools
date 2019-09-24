@@ -1,4 +1,3 @@
-
 /**
   ******************************************************************************
   * @file           : main.c
@@ -99,8 +98,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
-  MX_LWIP_Init();
+
   /* USER CODE BEGIN 2 */
+  /* Clear the console and buffer */
+  printf("\033\143");
+  printf("\033[3J");
+  sl_lwip_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,7 +115,7 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
     sl_wfx_process();
-    MX_LWIP_Process();
+    sl_lwip_process();
   }
   /* USER CODE END 3 */
 
@@ -212,7 +215,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(SL_WFX_WUP_PORT, SL_WFX_WUP_GPIO, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(SL_WFX_CS_PORT_SPI, SL_WFX_CS_GPIO_SPI, GPIO_PIN_SET);
   HAL_GPIO_WritePin(GPIOB, LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
-  
+
   /* Configure WF200 Reset */
   GPIO_InitStruct.Pin = SL_WFX_RESET_GPIO;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -246,10 +249,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  GPIO_InitStruct.Pin = SL_WFX_LED0_GPIO;
+  HAL_GPIO_Init(SL_WFX_LED0_PORT, &GPIO_InitStruct);
   GPIO_InitStruct.Pin = SL_WFX_LED1_GPIO;
   HAL_GPIO_Init(SL_WFX_LED1_PORT, &GPIO_InitStruct);
-  GPIO_InitStruct.Pin = SL_WFX_LED2_GPIO;
-  HAL_GPIO_Init(SL_WFX_LED2_PORT, &GPIO_InitStruct);
   
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;

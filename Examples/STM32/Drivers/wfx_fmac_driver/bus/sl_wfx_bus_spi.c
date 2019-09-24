@@ -73,7 +73,7 @@ sl_status_t sl_wfx_reg_write(sl_wfx_register_address_t address, const void *buff
   sl_wfx_pack_16bit_big_endian(header_as_bytes, header);
 
   sl_wfx_host_spi_cs_assert();
-  /* Note: sl_wfx_host_spi_transfer_no_cs_assert() does not modify the buffer when doing SL_WIFI_BUS_WRITE */
+  /* Note: sl_wfx_host_spi_transfer_no_cs_assert() does not modify the buffer when doing SL_WFX_BUS_WRITE */
   sl_wfx_host_spi_transfer_no_cs_assert(SL_WFX_BUS_WRITE, header_as_bytes, 2, (uint8_t *)buffer, length);
   sl_wfx_host_spi_cs_deassert();
 

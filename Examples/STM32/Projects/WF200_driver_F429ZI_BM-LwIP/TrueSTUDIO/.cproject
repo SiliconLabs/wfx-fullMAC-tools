@@ -46,7 +46,7 @@
 									<listOptionValue builtIn="false" value="../../../../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../../../../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver"/>
-									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver/firmware/2.2.1"/>
+									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver/firmware/3.0.0"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.1670122205" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -54,8 +54,8 @@
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="STM32F429xx"/>
 									<listOptionValue builtIn="false" value="_DEBUG"/>
-									<listOptionValue builtIn="false" value="SL_WFX_PROD_KEY"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI"/>
+									<listOptionValue builtIn="false" value="SL_WFX_USE_RF1_OUTPUT"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.endianess.1854274048" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess" value="com.atollic.truestudio.common_options.target.endianess.little" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.191909026" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" value="STM32F429ZI" valueType="enumerated"/>
@@ -163,7 +163,7 @@
 							<option id="com.atollic.truestudio.toolchain_options.mcu.1455432107" name="Microcontroller" superClass="com.atollic.truestudio.toolchain_options.mcu" value="STM32F429ZI" valueType="string"/>
 							<option id="com.atollic.truestudio.toolchain_options.vendor.419122667" name="Vendor name" superClass="com.atollic.truestudio.toolchain_options.vendor" value="STMicroelectronics" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.atollic.truestudio.exe.debug.toolchain.platform.2120083885" isAbstract="false" name="Debug platform" superClass="com.atollic.truestudio.exe.debug.toolchain.platform"/>
-							<builder buildPath="${workspace_loc:/WF200_driver_F429ZI_BM-LwIP}/Debug" id="com.atollic.truestudio.mbs.builder1.643127373" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1">
+							<builder buildPath="${workspace_loc:/WF200_driver_F429ZI_BM-LwIP}/Debug" customBuilderProperties="toolChainpathString=C:\\Program Files (x86)\\Atollic\\TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|toolChainpathType=1|" id="com.atollic.truestudio.mbs.builder1.643127373" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
 								</outputEntries>
@@ -190,7 +190,7 @@
 									<listOptionValue builtIn="false" value="../../../../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../../../../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver"/>
-									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver/firmware/2.2.1"/>
+									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver/firmware/3.0.0"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.1158498083" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -198,10 +198,10 @@
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="STM32F429xx"/>
 									<listOptionValue builtIn="false" value="_DEBUG"/>
-									<listOptionValue builtIn="false" value="SL_WFX_PROD_KEY"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_MODE_THRESHOLD=512"/>
+									<listOptionValue builtIn="false" value="SL_WFX_USE_RF1_OUTPUT"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.endianess.1496752917" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess" value="com.atollic.truestudio.common_options.target.endianess.little" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.1924543056" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" value="STM32F429ZI" valueType="enumerated"/>
@@ -385,4 +385,5 @@
 			</profile>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

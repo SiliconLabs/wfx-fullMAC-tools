@@ -1,22 +1,29 @@
-/*
-* Copyright 2018, Silicon Laboratories Inc.  All rights reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-* 
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/**************************************************************************//**
+ * Copyright 2018, Silicon Laboratories Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *****************************************************************************/
 
-#pragma once
+#ifndef SL_WFX_HOST_H
+#define SL_WFX_HOST_H
+
 #include <stdint.h>
 #include "sl_wfx.h"
+  
+#define SL_WFX_EVENT_MAX_SIZE  512
+#define SL_WFX_EVENT_LIST_SIZE 1
+#define SL_WFX_MAX_STATIONS    8
+#define SL_WFX_MAX_SCAN_RESULTS 50
 
 /* WFX host callbacks */
 void sl_wfx_connect_callback( uint8_t* mac, uint32_t status );
@@ -29,5 +36,6 @@ void sl_wfx_scan_complete_callback( uint32_t status );
 void sl_wfx_generic_status_callback( sl_wfx_generic_ind_t* frame );
 void sl_wfx_client_connected_callback( uint8_t* mac );
 void sl_wfx_ap_client_disconnected_callback( uint32_t status, uint8_t* mac );
+void sl_wfx_ap_client_rejected_callback(  uint32_t status, uint8_t* mac );
 
-sl_status_t sl_wfx_host_setup_waited_event( uint32_t event_id );
+#endif /* SL_WFX_HOST_H */

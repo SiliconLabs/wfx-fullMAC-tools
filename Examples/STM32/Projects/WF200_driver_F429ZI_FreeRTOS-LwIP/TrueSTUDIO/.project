@@ -147,14 +147,14 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Src/UART_input.c</locationURI>
 		</link>
 		<link>
-			<name>Application/User/app_ethernet.c</name>
+			<name>Application/User/dhcp_client.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Src/app_ethernet.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/dhcp_client.c</locationURI>
 		</link>
 		<link>
-			<name>Application/User/dhcpserver.c</name>
+			<name>Application/User/dhcp_server.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Src/dhcpserver.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/dhcp_server.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/ethernetif.c</name>

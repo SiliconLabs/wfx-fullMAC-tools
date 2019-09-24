@@ -13,47 +13,68 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-#ifndef LWIP_FREERTOS_H
-#define LWIP_FREERTOS_H
+
+#ifndef DEMO_CONFIG_H
+#define DEMO_CONFIG_H
 
 #include "wfm_cmd_api.h"
 
-#define SOFT_AP_MODE_DEFAULT    1 ///< If set to 1, default WiFi is soft AP mode (requires static IP)
-#define USE_DHCP_CLIENT_DEFAULT 0 ///< If defined, DHCP is enabled, otherwise static address below is used
- 
-/*Static IP ADDRESS*/
-#define IP_ADDR0_DEFAULT   (uint8_t) 192 ///< Static IP: IP address value 0 
-#define IP_ADDR1_DEFAULT   (uint8_t) 168 ///< Static IP: IP address value 1
-#define IP_ADDR2_DEFAULT   (uint8_t) 0   ///< Static IP: IP address value 2
-#define IP_ADDR3_DEFAULT   (uint8_t) 1   ///< Static IP: IP address value 3
-   
-/*NETMASK*/
-#define NETMASK_ADDR0_DEFAULT   (uint8_t) 255 ///< Static IP: Netmask value 0 
-#define NETMASK_ADDR1_DEFAULT   (uint8_t) 255 ///< Static IP: Netmask value 1 
-#define NETMASK_ADDR2_DEFAULT   (uint8_t) 255 ///< Static IP: Netmask value 2 
-#define NETMASK_ADDR3_DEFAULT   (uint8_t) 0   ///< Static IP: Netmask value 3 
+#define USE_DHCP_CLIENT_DEFAULT 1 ///< If defined, DHCP is enabled, otherwise static address below is used
 
+#define LWIP_IPERF_SERVER ///< If defined, iPerf server is enabled
+#define LWIP_HTTP_SERVER  ///< If defined, HTTP server is enabled
+
+#define WLAN_SSID_DEFAULT       "AP_name"                         ///< Wi-Fi SSID for client mode
+#define WLAN_PASSKEY_DEFAULT    "passkey"                         ///< Wi-Fi password for client mode
+#define WLAN_SECURITY_DEFAULT   WFM_SECURITY_MODE_WPA2_PSK        ///< Wi-Fi security mode for client mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_PSK
+#define SOFTAP_SSID_DEFAULT     "WF200_AP"                        ///< Wi-Fi ssid for softAP mode
+#define SOFTAP_PASSKEY_DEFAULT  "12345678"                        ///< Wi-Fi password for softAP mode
+#define SOFTAP_SECURITY_DEFAULT WFM_SECURITY_MODE_WPA2_PSK        ///< Wi-Fi security for softAP mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_PSK
+#define SOFTAP_CHANNEL_DEFAULT  6                                 ///< Wi-Fi channel for softAP
+
+/************************** Station Static Default ****************************/
+#define STA_IP_ADDR0_DEFAULT   (uint8_t) 192      ///< Static IP: IP address value 0 
+#define STA_IP_ADDR1_DEFAULT   (uint8_t) 168      ///< Static IP: IP address value 1
+#define STA_IP_ADDR2_DEFAULT   (uint8_t) 0        ///< Static IP: IP address value 2
+#define STA_IP_ADDR3_DEFAULT   (uint8_t) 1        ///< Static IP: IP address value 3
+/*NETMASK*/
+#define STA_NETMASK_ADDR0_DEFAULT   (uint8_t) 255 ///< Static IP: Netmask value 0 
+#define STA_NETMASK_ADDR1_DEFAULT   (uint8_t) 255 ///< Static IP: Netmask value 1 
+#define STA_NETMASK_ADDR2_DEFAULT   (uint8_t) 255 ///< Static IP: Netmask value 2 
+#define STA_NETMASK_ADDR3_DEFAULT   (uint8_t) 0   ///< Static IP: Netmask value 3 
 /*Gateway Address*/
-#define GW_ADDR0_DEFAULT   (uint8_t) 192      ///< Static IP: Gateway value 0 
-#define GW_ADDR1_DEFAULT   (uint8_t) 168      ///< Static IP: Gateway value 1 
-#define GW_ADDR2_DEFAULT   (uint8_t) 0        ///< Static IP: Gateway value 2 
-#define GW_ADDR3_DEFAULT   (uint8_t) 0        ///< Static IP: Gateway value 3 
+#define STA_GW_ADDR0_DEFAULT   (uint8_t) 0        ///< Static IP: Gateway value 0 
+#define STA_GW_ADDR1_DEFAULT   (uint8_t) 0        ///< Static IP: Gateway value 1 
+#define STA_GW_ADDR2_DEFAULT   (uint8_t) 0        ///< Static IP: Gateway value 2 
+#define STA_GW_ADDR3_DEFAULT   (uint8_t) 0        ///< Static IP: Gateway value 3 
+
+/*********************** Access Point Static Default **************************/
+#define AP_IP_ADDR0_DEFAULT   (uint8_t) 10        ///< Static IP: IP address value 0 
+#define AP_IP_ADDR1_DEFAULT   (uint8_t) 10        ///< Static IP: IP address value 1
+#define AP_IP_ADDR2_DEFAULT   (uint8_t) 0         ///< Static IP: IP address value 2
+#define AP_IP_ADDR3_DEFAULT   (uint8_t) 1         ///< Static IP: IP address value 3
+/*NETMASK*/
+#define AP_NETMASK_ADDR0_DEFAULT   (uint8_t) 255  ///< Static IP: Netmask value 0 
+#define AP_NETMASK_ADDR1_DEFAULT   (uint8_t) 255  ///< Static IP: Netmask value 1 
+#define AP_NETMASK_ADDR2_DEFAULT   (uint8_t) 255  ///< Static IP: Netmask value 2 
+#define AP_NETMASK_ADDR3_DEFAULT   (uint8_t) 0    ///< Static IP: Netmask value 3 
+/*Gateway Address*/
+#define AP_GW_ADDR0_DEFAULT   (uint8_t) 0         ///< Static IP: Gateway value 0 
+#define AP_GW_ADDR1_DEFAULT   (uint8_t) 0         ///< Static IP: Gateway value 1 
+#define AP_GW_ADDR2_DEFAULT   (uint8_t) 0         ///< Static IP: Gateway value 2 
+#define AP_GW_ADDR3_DEFAULT   (uint8_t) 0         ///< Static IP: Gateway value 3 
 
 /***************************************************************************//**
  * Functions to initialize LwIP
  ******************************************************************************/
 void lwip_start (void);
+void lwip_set_sta_link_up(void);
+void lwip_set_sta_link_down(void);
+void lwip_set_ap_link_up(void);
+void lwip_set_ap_link_down(void);
 
-#define LWIP_IPERF_SERVER ///< If defined, iperf server is enabled
-#define LWIP_HTTP_SERVER  ///< If defined, http server is enabled
-
-#define WLAN_SSID_DEFAULT       "AP_name"                         ///< wifi ssid for client mode
-#define WLAN_PASSKEY_DEFAULT    "passkey"                         ///< wifi password for client mode
-#define WLAN_SECURITY_DEFAULT   WFM_SECURITY_MODE_WPA2_PSK        ///< wifi security mode for client mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_WPA1_PSK
-#define SOFTAP_SSID_DEFAULT     "WF200_AP"                        ///< wifi ssid for soft ap mode
-#define SOFTAP_PASSKEY_DEFAULT  "12345678"                        ///< wifi password for soft ap mode
-#define SOFTAP_SECURITY_DEFAULT WFM_SECURITY_MODE_WPA2_PSK        ///< wifi security for soft ap mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_WPA1_PSK
-#define SOFTAP_CHANNEL_DEFAULT  6                                 ///< wifi channel for soft ap
+extern struct netif sta_netif;
+extern struct netif ap_netif;
 
 extern char wlan_ssid[32];
 extern char wlan_passkey[64];
@@ -62,22 +83,32 @@ extern char softap_ssid[32];
 extern char softap_passkey[64];
 extern sl_wfx_security_mode_t softap_security;
 extern uint8_t softap_channel;
-
 extern int use_dhcp_client;
-extern int soft_ap_mode;
-extern uint8_t ip_addr0;
-extern uint8_t ip_addr1;
-extern uint8_t ip_addr2;
-extern uint8_t ip_addr3;
 
-extern uint8_t netmask_addr0;
-extern uint8_t netmask_addr1;
-extern uint8_t netmask_addr2;
-extern uint8_t netmask_addr3;
+extern uint8_t sta_ip_addr0;
+extern uint8_t sta_ip_addr1;
+extern uint8_t sta_ip_addr2;
+extern uint8_t sta_ip_addr3;
+extern uint8_t sta_netmask_addr0;
+extern uint8_t sta_netmask_addr1;
+extern uint8_t sta_netmask_addr2;
+extern uint8_t sta_netmask_addr3;
+extern uint8_t sta_gw_addr0;
+extern uint8_t sta_gw_addr1;
+extern uint8_t sta_gw_addr2;
+extern uint8_t sta_gw_addr3;
 
-extern uint8_t gw_addr0;
-extern uint8_t gw_addr1;
-extern uint8_t gw_addr2;
-extern uint8_t gw_addr3;
+extern uint8_t ap_ip_addr0;
+extern uint8_t ap_ip_addr1;
+extern uint8_t ap_ip_addr2;
+extern uint8_t ap_ip_addr3;
+extern uint8_t ap_netmask_addr0;
+extern uint8_t ap_netmask_addr1;
+extern uint8_t ap_netmask_addr2;
+extern uint8_t ap_netmask_addr3;
+extern uint8_t ap_gw_addr0;
+extern uint8_t ap_gw_addr1;
+extern uint8_t ap_gw_addr2;
+extern uint8_t ap_gw_addr3;
 
-#endif
+#endif //DEMO_CONFIG_H

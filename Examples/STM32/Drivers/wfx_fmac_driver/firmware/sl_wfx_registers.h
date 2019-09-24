@@ -19,33 +19,28 @@
 
 #include <stdint.h>
 
-#define SYS_BASE_ADDR_SILICON       (0)
-#define PAC_BASE_ADDRESS_SILICON    (SYS_BASE_ADDR_SILICON + 0x09000000)
-#define PAC_SHARED_MEMORY_SILICON   (PAC_BASE_ADDRESS_SILICON)
+#define SYS_BASE_ADDR_SILICON           (0)
+#define PAC_BASE_ADDRESS_SILICON        (SYS_BASE_ADDR_SILICON + 0x09000000)
+#define PAC_SHARED_MEMORY_SILICON       (PAC_BASE_ADDRESS_SILICON)
 
-#define SL_WFX_APB(addr)        (PAC_SHARED_MEMORY_SILICON + (addr))
+#define SL_WFX_APB(addr)                (PAC_SHARED_MEMORY_SILICON + (addr))
 
 /* Download control area */
-/* boot loader start address in SRAM */
-#define DOWNLOAD_BOOT_LOADER_OFFSET (0x00000000)
-/* 32K, 0x4000 to 0xDFFF */
-//#define DOWNLOAD_FIFO_OFFSET        (0x00004000)
-/* 32K */
-#define DOWNLOAD_FIFO_SIZE      (0x00008000)
-/* 128 bytes, 0xFF80 to 0xFFFF */
+#define DOWNLOAD_BOOT_LOADER_OFFSET     (0x00000000)
+#define DOWNLOAD_FIFO_SIZE              (0x00008000)
 
-#define DOWNLOAD_CTRL_DATA_DWORDS   (32 - 6)
+#define DOWNLOAD_CTRL_DATA_DWORDS       (32 - 6)
 
-#define DOWNLOAD_CTRL_OFFSET        (0x0900C000)
-#define DOWNLOAD_IMAGE_SIZE_REG     (DOWNLOAD_CTRL_OFFSET + 0)
-#define DOWNLOAD_PUT_REG            (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, put))
-#define DOWNLOAD_TRACE_PC_REG       (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, trace_pc))
-#define DOWNLOAD_GET_REG            (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, get))
-#define DOWNLOAD_STATUS_REG         (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, status))
-#define DOWNLOAD_DEBUG_DATA_REG     (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, debug_data))
-#define DOWNLOAD_DEBUG_DATA_LEN     (108)
+#define DOWNLOAD_CTRL_OFFSET            (0x0900C000)
+#define DOWNLOAD_IMAGE_SIZE_REG         (DOWNLOAD_CTRL_OFFSET + 0)
+#define DOWNLOAD_PUT_REG                (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, put))
+#define DOWNLOAD_TRACE_PC_REG           (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, trace_pc))
+#define DOWNLOAD_GET_REG                (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, get))
+#define DOWNLOAD_STATUS_REG             (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, status))
+#define DOWNLOAD_DEBUG_DATA_REG         (DOWNLOAD_CTRL_OFFSET + offsetof(struct download_cntl_t, debug_data))
+#define DOWNLOAD_DEBUG_DATA_LEN         (108)
 
-#define DOWNLOAD_BLOCK_SIZE     (1024)
+#define DOWNLOAD_BLOCK_SIZE             (1024)
 
 #define ADDR_DWL_CTRL_AREA              0x0900C000
 #define FW_KEYSET_SIZE                  8
@@ -116,10 +111,10 @@
 #define SL_WFX_CONFIG_CLEAR_INT_BIT    (BIT(15))
 
 /* For WF200 the IRQ Enable and Ready Bits are in CONFIG register */
-#define SL_WFX_CONF_IRQ_ENABLE         (BIT(16))
-#define SL_WFX_CONF_RDY_ENABLE         (BIT(17))
-#define SL_WFX_CONF_IRQ_RDY_ENABLE     (BIT(16) | BIT(17))
+#define SL_WFX_CONFIG_DATA_IRQ_ENABLE  (BIT(16))
+#define SL_WFX_CONFIG_WUP_IRQ_ENABLE   (BIT(17))
+#define SL_WFX_CONFIG_DATA_WUP_ENABLE  (BIT(16) | BIT(17))
 
-#define FW_VERSION_VALUE        0x00000001
+#define FW_VERSION_VALUE               0x00000001
 
 #endif // SL_WFX_REGISTERS_H

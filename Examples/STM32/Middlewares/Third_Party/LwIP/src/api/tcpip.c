@@ -306,7 +306,7 @@ tcpip_input(struct pbuf *p, struct netif *inp)
  * @see tcpip_try_callback
  */
 err_t
-tcpip_callback(tcpip_callback_fn function, void *ctx)
+ tcpip_callback(tcpip_callback_fn function, void *ctx)
 {
   struct tcpip_msg *msg;
 

@@ -55,11 +55,11 @@ sl_status_t sl_wfx_reg_read(sl_wfx_register_address_t address, void *buffer, uin
 
   result = sl_wfx_host_sdio_transfer_cmd53(SL_WFX_BUS_READ, 1, reg_address, buffer, current_transfer_size);
   if ( address == SL_WFX_IN_OUT_QUEUE_REG_ID ) {
-    /*In block mode, the piggy_back value is at the end of the block. Append it at the end of the frame instead.*/
+    /* In block mode, the piggy_back value is at the end of the block. Append it at the end of the frame instead. */
     if (length > SL_WFX_SDIO_BLOCK_MODE_THRESHOLD) {
       memcpy( (uint8_t *)((uint8_t *)buffer + length - 2), (uint8_t *)((uint8_t *)buffer + current_transfer_size - 2), 2);
     }
-    /* If the piggy-back value is null, acknowledge the received frame with a dummy read*/
+    /* If the piggy-back value is null, acknowledge the received frame with a dummy configuration register read */
     control_register = sl_wfx_unpack_16bit_little_endian(((uint8_t *)buffer) + length - 2);
     if ((control_register & SL_WFX_CONT_NEXT_LEN_MASK) == 0) {
       sl_wfx_reg_read_32(SL_WFX_CONFIG_REG_ID, NULL);

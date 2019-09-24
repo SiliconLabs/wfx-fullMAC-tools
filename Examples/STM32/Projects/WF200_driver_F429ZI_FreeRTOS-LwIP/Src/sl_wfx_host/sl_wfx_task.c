@@ -14,18 +14,12 @@
  * limitations under the License.
  *****************************************************************************/
 
-/**************************************************************************//**
- * WFx receiving task implementation: STM32F4 + FreeRTOS
- *****************************************************************************/
-
 #include "cmsis_os.h"
 #include "sl_wfx.h"
 #include "lwip_freertos.h"
    
 osThreadId busCommTaskHandle;
-extern osSemaphoreId s_xDriverSemaphore;
-extern QueueHandle_t rxFrameQueue;
-extern sl_wfx_context_t* sl_wfx_context;
+osSemaphoreId s_xDriverSemaphore;
 
 /* Default parameters */
 sl_wfx_context_t wifi;
@@ -39,53 +33,52 @@ uint8_t softap_channel                    = SOFTAP_CHANNEL_DEFAULT;
 /* Default parameters */
 
 /*
- * The task that implements the bus communication with WFx.
+ * The task that implements the bus communication with WF200.
  */
 static void prvBusCommTask(void const * pvParameters);
 
 void vBusCommStart(void)
 {
-  osThreadDef(busCommTask, prvBusCommTask, osPriorityRealtime, 0, 128);
+  osThreadDef(busCommTask, prvBusCommTask, osPriorityRealtime, 0, 512);
   busCommTaskHandle = osThreadCreate(osThread(busCommTask), NULL);
 }
 
-static sl_status_t receive_frames ()
+static sl_status_t receive_frames(void)
 {
   sl_status_t result;
   uint16_t control_register = 0;
+  
   do
   {
     result = sl_wfx_receive_frame(&control_register);
     SL_WFX_ERROR_CHECK( result );
-  }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0);
+  }while ((control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0);
+  
 error_handler:
   return result;
 }
 
 static void prvBusCommTask(void const * pvParameters)
 {
+  /* create a semaphore used for making driver accesses atomic */
+  s_xDriverSemaphore = xSemaphoreCreateMutex();
+    
   for(;;)
   {
-    /*Wait for an interrupt from WFx*/
-    ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
-    /*Receive the frame(s) pending in WFx*/
-    if(s_xDriverSemaphore != NULL)
+    /*Wait for an interrupt from WF200*/
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    /*Receive the frame(s) pending in WF200*/
+
+    /* See if we can obtain the semaphore.  If the semaphore is not
+    available wait to see if it becomes free. */
+    if(xSemaphoreTake(s_xDriverSemaphore, 500) == pdTRUE)
     {
-        /* See if we can obtain the semaphore.  If the semaphore is not
-        available wait to see if it becomes free. */
-        if(xSemaphoreTake(s_xDriverSemaphore, ( portMAX_DELAY )) == pdTRUE)
-        {
-          receive_frames();
-          xSemaphoreGive(s_xDriverSemaphore);
-        }
-        else
-        {
-          //unable to receive
-        }
+      receive_frames();
+      xSemaphoreGive(s_xDriverSemaphore);
     }
     else
     {
-       receive_frames();
+      printf("Wi-Fi RX sem timeout\r\n");
     }
   }
 }

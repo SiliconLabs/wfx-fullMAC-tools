@@ -18,7 +18,6 @@
 #define SL_WFX_BUS_H
 
 #include "sl_wfx_constants.h"
-#include <stdint.h>
 
 /* High level WF200 bus API */
 sl_status_t sl_wfx_init_bus(void);

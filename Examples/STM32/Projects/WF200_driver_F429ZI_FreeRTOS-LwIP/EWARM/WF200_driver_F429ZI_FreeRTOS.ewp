@@ -189,6 +189,7 @@
           <state>STM32F429xx</state>
           <state>SL_WFX_PROD_KEY</state>
           <state>SL_WFX_USE_SPI</state>
+          <state>SL_WFX_USE_RF1_OUTPUT</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -328,7 +329,7 @@
           <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Include</state>
           <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\firmware\2.2.1</state>
+          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\firmware\3.0.0</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -353,7 +354,7 @@
         <option>
           <name>CCOptStrategy</name>
           <version>0</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>CCOptLevelSlave</name>
@@ -428,7 +429,7 @@
         <option>
           <name>CCOptStrategySlave</name>
           <version>0</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>CCGuardCalls</name>
@@ -1164,10 +1165,10 @@
           <name>CCDefines</name>
           <state>USE_HAL_DRIVER</state>
           <state>STM32F429xx</state>
-          <state>SL_WFX_PROD_KEY</state>
           <state>SL_WFX_USE_SDIO</state>
           <state>SL_WFX_SDIO_BLOCK_SIZE=64</state>
           <state>SL_WFX_SDIO_BLOCK_MODE_THRESHOLD=512</state>
+          <state>SL_WFX_USE_RF1_OUTPUT</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -1307,7 +1308,7 @@
           <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Include</state>
           <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\firmware\2.2.1</state>
+          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\firmware\3.0.0</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1990,10 +1991,10 @@
     <group>
       <name>User</name>
       <file>
-        <name>$PROJ_DIR$\..\Src\app_ethernet.c</name>
+        <name>$PROJ_DIR$\..\Src\dhcp_client.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Src\dhcpserver.c</name>
+        <name>$PROJ_DIR$\..\Src\dhcp_server.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\ethernetif.c</name>

@@ -111,6 +111,12 @@ void EXTI15_10_IRQHandler(void)
   if (__HAL_GPIO_EXTI_GET_IT(SL_WFX_IRQ_GPIO_SPI) != RESET) {
     vTaskNotifyGiveFromISR( busCommTaskHandle, &xHigherPriorityTaskWoken );
   }
+  if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET) {
+    HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    HAL_GPIO_TogglePin(SL_WFX_LED0_PORT, SL_WFX_LED0_GPIO);
+    HAL_GPIO_TogglePin(SL_WFX_LED1_PORT, SL_WFX_LED1_GPIO);
+  }
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
   HAL_GPIO_EXTI_IRQHandler(SL_WFX_IRQ_GPIO_SPI);

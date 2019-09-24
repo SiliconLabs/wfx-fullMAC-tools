@@ -1,27 +1,26 @@
-/***************************************************************************//**
- * @file ethernetif.h
- * @brief WF200 LwIP driver interface implementation header file
- * @version 1.0.0
- *******************************************************************************
- * # License
- * <b>Copyright 2018 Silicon Laboratories, Inc, http://www.silabs.com</b>
- *******************************************************************************
+/**************************************************************************//**
+ * Copyright 2018, Silicon Laboratories Inc.
  *
- * This file is licensed under the Silabs License Agreement. See the file
- * "Silabs_License_Agreement.txt" for details. Before using this software for
- * any purpose, you must agree to the terms of that agreement.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- ******************************************************************************/
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *****************************************************************************/
 
 #ifndef __ETHERNETIF_H__
 #define __ETHERNETIF_H__
-
 
 #include "lwip/err.h"
 #include "lwip/netif.h"
 #include "cmsis_os.h"
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
-err_t ethernetif_init(struct netif *netif);
+err_t sta_ethernetif_init(struct netif *netif);
+err_t ap_ethernetif_init(struct netif *netif);
 #endif

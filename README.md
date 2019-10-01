@@ -9,8 +9,10 @@ for details on the WF200 Wi-Fi Expansion Kit.
 
 * Examples: contains implementations of the FMAC driver on different platforms
   * Silicon Labs MCU
-    * SLSTK3701A_micriumos_lwip_wfx200: Example using MicriumOS and LwIP running
+    * SLSTK3701A_micriumos_lwip_wfx200: Example using Micrium OS and LwIP running
     on the EFM32 Giant Gecko GG11 Starter Kit (more information in the SLSTK3701A_micriumos_lwip_wfx200/README.md)
+	* WGM160P_micriumos_lwip_wfx200: Example using Micrium OS and LwIP running
+	on the WGM160P Wi-Fi Module Radio Board (more information in the WGM160P_micriumos_lwip_wfx200/README.md)
   * STM32
     * WF200_driver_F429ZI_BM-LwIP: Bare metal example with LwIP running on the
     NUCLEO-F429ZI board (more information in the WF200_driver_F429ZI_BM-LwIP/README.md)

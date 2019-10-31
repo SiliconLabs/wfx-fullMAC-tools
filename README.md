@@ -10,21 +10,24 @@ for details on the WF200 Wi-Fi Expansion Kit.
 * Examples: contains implementations of the FMAC driver on different platforms
   * Silicon Labs MCU
     * SLSTK3701A_micriumos_lwip_wfx200: Example using Micrium OS and LwIP running
-    on the EFM32 Giant Gecko GG11 Starter Kit (more information in the SLSTK3701A_micriumos_lwip_wfx200/README.md)
+    on the EFM32 Giant Gecko GG11 Starter Kit (more information about the example [here](./Examples/SiliconLabs/mcu_examples/SLSTK3701A_micriumos_lwip_wfx200/README.md))
 	* WGM160P_micriumos_lwip_wfx200: Example using Micrium OS and LwIP running
-	on the WGM160P Wi-Fi Module Radio Board (more information in the WGM160P_micriumos_lwip_wfx200/README.md)
+	on the WGM160P Wi-Fi Module Radio Board (more information about the example [here](./Examples/SiliconLabs/mcu_examples/WGM160P_micriumos_lwip_wfx200/README.md))
   * STM32
     * WF200_driver_F429ZI_BM-LwIP: Bare metal example with LwIP running on the
-    NUCLEO-F429ZI board (more information in the WF200_driver_F429ZI_BM-LwIP/README.md)
+    NUCLEO-F429ZI board (more information about the example [here](./Examples/STM32/Projects/WF200_driver_F429ZI_BM-LwIP/README.md))
     * WF200_driver_F429ZI_FreeRTOS-LwIP: Example using FreeRTOS and LwIP running
-    on the NUCLEO-F429ZI board (more information in the WF200_driver_F429ZI_FreeRTOS-LwIP/README.md)
+    on the NUCLEO-F429ZI board (more information about the example [here](./Examples/STM32/Projects/WF200_driver_F429ZI_FreeRTOS-LwIP/README.md))
 * Tools: contains generic tools
   * pds_compress: Python script to compress Platform Data Set files
+  * RF test agent: Bare Metal application running on SLSTK3701A and NUCLEO-F429ZI platforms and
+  allowing the execution of basic RF tests (more information about the tool [here](./Tools/RF_test_agent/README.md))
+
 
 ## FMAC driver source code
 
-The latest WFx Wi-Fi FMAC driver version is located [here](https://github.com/SiliconLabs/wfx-fullMAC-driver)
+The latest WFx Wi-Fi FMAC driver version in the [wfx-fullMAC-driver repository](https://github.com/SiliconLabs/wfx-fullMAC-driver)
 
 ## FMAC driver documentation
 
-The latest WFx Wi-Fi FMAC driver documentation is located [here](https://docs.silabs.com/wifi/wf200/rtos/latest/index).
+The latest WFx Wi-Fi FMAC driver documentation in the [Silabs WF200 documentation](https://docs.silabs.com/wifi/wf200/rtos/latest/index).

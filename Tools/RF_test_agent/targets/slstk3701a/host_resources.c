@@ -46,24 +46,28 @@ int host_init (void)
   EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_STK_DEFAULT;
   int res;
 
-  /* Chip errata */
+  // Chip errata
   CHIP_Init();
 
   EMU_DCDCInit(&dcdcInit);
 
+  // Configure the MCU to its highest speed
+  CMU_HFRCOFreqSet(cmuHFRCOFreq_72M0Hz);
+  CMU_ClockPrescSet(cmuClock_HFPER, 0);
+
   RETARGET_SerialInit();
   RETARGET_SerialCrLf(1);
 
-  /* Initialize LED driver */
+  // Initialize LED driver
   BSP_LedsInit();
 
-  /* Configure the application GPIOs */
+  // Configure the application GPIOs
   host_gpio_setup();
 
-  /* Setup SysTick Timer for 1 msec interrupts  */
+  // Setup SysTick Timer for 1 msec interrupts
   res = SysTick_Config(CMU_ClockFreqGet(cmuClock_CORE) / 1000);
 
-  /* Allocate a DMA channel for the UART */
+  // Allocate a DMA channel for the UART
   res |= host_dma_init(&rx_dma_channel);
 
   return res;

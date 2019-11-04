@@ -19,6 +19,7 @@
  *****************************************************************************/
 
 #include "em_gpio.h"
+#include "em_usart.h"
 #include "spidrv.h"
 #include "sl_wfx.h"
 
@@ -46,6 +47,9 @@ sl_status_t sl_wfx_host_init_bus (void)
   if (result == ECODE_OK) {
   	status = SL_SUCCESS;
   }
+
+  // Enable a higher speed on the link
+  USART0->CTRL |= (1<<_USART_CTRL_SMSDELAY_SHIFT);
 
   return status;
 }

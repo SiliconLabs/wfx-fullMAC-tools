@@ -18,21 +18,35 @@
 
 #include <kernel/include/os.h>
 #include "sl_wfx_constants.h"
-extern OS_FLAG_GRP wf200_evts;
-#define WF200_EVENT_FLAG_RX      1
-#define WF200_EVENT_FLAG_TX      2
-#define WF200_EVENT_WAKE         4
-#define WF200_QUEUE_SIZE       10
+extern OS_FLAG_GRP wfxtask_evts;
+#define WFX_EVENT_FLAG_RX      1
+#define WFX_EVENT_FLAG_TX      2
+#define WFX_EVENT_WAKE         4
+#define WFX_QUEUE_SIZE        10
 typedef struct {
-	sl_wfx_send_frame_req_t *frame;
-	uint32_t data_length;
-	sl_wfx_interface_t interface;
-	uint8_t priority;
-} wf200_frame_q_item;
+  sl_wfx_send_frame_req_t *frame;
+  uint32_t data_length;
+  sl_wfx_interface_t interface;
+  uint8_t priority;
+} wfx_frame_q_item;
 
-extern wf200_frame_q_item tx_frame; //todo: make this a queue
-extern OS_SEM txComplete;
-bool isWFXReceiveProcessing (void);
-extern OS_MUTEX   wf200_mutex;
+extern wfx_frame_q_item wfxtask_tx_frame;
+extern OS_SEM wfxtask_tx_complete;
+extern sl_wfx_context_t wifi;
+#ifdef __cplusplus
+extern "C" {
+#endif
+/**************************************************************************//**
+ * Start wfx bus communication task.
+ *****************************************************************************/
+void wfxtask_start(void);
+
+/**************************************************************************//**
+ * Returns status of wfx receive frames.
+ *****************************************************************************/
+bool wfxtask_is_receive_processing (void);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

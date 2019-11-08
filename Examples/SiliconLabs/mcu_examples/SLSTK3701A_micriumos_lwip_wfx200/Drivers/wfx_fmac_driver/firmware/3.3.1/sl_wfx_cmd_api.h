@@ -14,10 +14,10 @@
  * limitations under the License.
  *****************************************************************************/
 
-#ifndef _WFM_CMD_API_H_
-#define _WFM_CMD_API_H_
+#ifndef _SL_WFX_CMD_API_H_
+#define _SL_WFX_CMD_API_H_
 
-#include "wfm_general_api.h"
+#include "sl_wfx_general_api.h"
 
 /**
  * @addtogroup FULL_MAC_API
@@ -25,13 +25,13 @@
  *
  * This module describes the functionality and the API messages of the Upper MAC (UMAC)
  * component of the device. UMAC provides the Wireless LAN Full MAC (WFM) API. WFM API
- * is used in conjunction with the general API messages described in @ref GENERAL_API.
+ * is used with the general API messages described in @ref GENERAL_API.
  *
  * The device is capable of operating in different roles such as a Wi-Fi client and
- * as a Wi-Fi access point. In order to make it possible to use multiple roles at
- * the same time, the device has been split into logical units called interfaces.
+ * as a Wi-Fi Access Point. To use multiple roles at
+ * the same time, the device is split into logical units called interfaces.
  *
- * There are two interfaces available for WFM API. They are referenced with interface
+ * Two interfaces are available for WFM API. They are referenced with interface
  * IDs 0 and 1. For general information on how to format the API messages, see
  * @ref MESSAGE_CONSTRUCTION.
  *
@@ -194,7 +194,7 @@ typedef enum sl_wfx_indications_ids_e {
 /**
  * @brief WFM API message IDs.
  */
-typedef union wfm_message_ids_u {
+typedef union __attribute__((__packed__)) wfm_message_ids_u {
   /** Request messages sent from the host to the device. */
   sl_wfx_requests_ids_t requests;
   /** Confirmation messages sent from the device to the host. */
@@ -212,27 +212,27 @@ typedef union wfm_message_ids_u {
  * @{
  */
 
-/** Length of MAC address element. */
+/** Length of the MAC address element. */
 #define SL_WFX_FMAC_MAC_ADDR_SIZE                SL_WFX_MAC_ADDR_SIZE
-/** Length of BSSID element. */
+/** Length of the BSSID element. */
 #define SL_WFX_FMAC_BSSID_SIZE                   SL_WFX_BSSID_SIZE
-/** Length of password element. */
+/** Length of the password element. */
 #define SL_WFX_PASSWORD_SIZE                     64
-/** Maximum length of channel list element. */
+/** Maximum length of the channel list element. */
 #define SL_WFX_CHANNEL_NUMBER_SIZE               14
-/** Maximum length of SSID list element. */
+/** Maximum length of the SSID list element. */
 #define SL_WFX_SSID_DEF_SIZE                     2
-/** Length of Service Set Identifier (SSID) element. */
+/** Length of the Service Set Identifier (SSID) element. */
 #define SL_WFX_FMAC_SSID_SIZE                    SL_WFX_SSID_SIZE
-/** Length of ARP IP address list element. */
+/** Length of the ARP IP address list element. */
 #define SL_WFX_ARP_IP_ADDR_SIZE                  2
-/** Length of NS IP address list element. */
+/** Length of the NS IP address list element. */
 #define SL_WFX_NS_IP_ADDR_SIZE                   2
-/** Length of IPv6 address element. */
+/** Length of the IPv6 address element. */
 #define SL_WFX_IPV6_ADDR_SIZE                    16
 
 /**
- * @brief Client Isolation toggling
+ * @brief Client Isolation toggling.
  */
 typedef enum sl_wfx_client_isolation_e {
   WFM_CLIENT_ISOLATION_DISABLED                  = 0x0,    ///< Client isolation disabled
@@ -240,7 +240,7 @@ typedef enum sl_wfx_client_isolation_e {
 } sl_wfx_client_isolation_t;
 
 /**
- * @brief Type of the frame to be sent
+ * @brief Type of frame to be sent.
  *
  * Value unused, all frames are considered to be Data by default.@n
  * Support for the other types will be added later.
@@ -252,7 +252,7 @@ typedef enum sl_wfx_frame_type_e {
 } sl_wfx_frame_type_t;
 
 /**
- * @brief Hidden SSID toggling
+ * @brief Hidden SSID toggling.
  */
 typedef enum sl_wfx_hidden_ssid_e {
   WFM_HIDDEN_SSID_FALSE                          = 0x0,    ///< SSID not hidden
@@ -278,28 +278,34 @@ typedef enum sl_wfx_pm_mode_e {
 } sl_wfx_pm_mode_t;
 
 /**
- * @brief Data priority level
+ * @brief Data priority level per 802.1D.
  */
 typedef enum sl_wfx_priority_e {
-  WFM_PRIORITY_BE                                = 0x0,    ///< Best Effort
-  WFM_PRIORITY_BK                                = 0x1,    ///< Background
-  WFM_PRIORITY_VI                                = 0x2,    ///< Video
-  WFM_PRIORITY_VO                                = 0x3     ///< Voice
+  WFM_PRIORITY_BE0                               = 0x0,    ///< Best Effort
+  WFM_PRIORITY_BK1                               = 0x1,    ///< Background
+  WFM_PRIORITY_BK2                               = 0x2,    ///< Background
+  WFM_PRIORITY_BE3                               = 0x3,    ///< Best Effort
+  WFM_PRIORITY_VI4                               = 0x4,    ///< Video
+  WFM_PRIORITY_VI5                               = 0x5,    ///< Video
+  WFM_PRIORITY_VO6                               = 0x6,    ///< Voice
+  WFM_PRIORITY_VO7                               = 0x7     ///< Voice
 } sl_wfx_priority_t;
 
+
 /**
- * @brief Reasons for Ineo AP to reject or disconnect a client
+ * @brief Reasons for AP to reject or disconnect a client.
  */
 typedef enum sl_wfx_reason_e {
   WFM_REASON_UNSPECIFIED                         = 0x0,    ///< Unspecified reason (unused)
   WFM_REASON_TIMEOUT                             = 0x1,    ///< Client timed out
   WFM_REASON_LEAVING_BSS                         = 0x2,    ///< Client left
   WFM_REASON_UNKNOWN_STA                         = 0x3,    ///< Client not authenticated
-  WFM_REASON_AP_FULL                             = 0x4     ///< Too many clients already connected
+  WFM_REASON_AP_FULL                             = 0x4,    ///< Too many clients already connected
+  WFM_REASON_AUTHENTICATION_FAILURE              = 0x5     ///< WPA authentication failed
 } sl_wfx_reason_t;
 
 /**
- * @brief Scan mode to be used
+ * @brief Scan mode to be used.
  */
 typedef enum sl_wfx_scan_mode_e {
   WFM_SCAN_MODE_PASSIVE                          = 0x0,    ///< Passive scan: listen for beacons only
@@ -317,7 +323,7 @@ typedef enum sl_wfx_security_mode_e {
 } sl_wfx_security_mode_t;
 
 /**
- * @brief Full MAC (UMAC) confirmation possible values for returned 'status' field
+ * @brief Full MAC (UMAC) confirmation possible values for a returned 'status' field.
  *
  * All Full MAC (UMAC) confirmation messages have a field 'status' just after the message header.@n
  * A value of zero indicates the request has completed successfully.
@@ -329,6 +335,11 @@ typedef enum sl_wfx_fmac_status_e {
   WFM_STATUS_GENERAL_FAILURE                     = 0x3,    ///< The request failed due to an error.
   WFM_STATUS_CHANNEL_NOT_ALLOWED                 = 0x4,    ///< The request failed due to regulatory limitations.
   WFM_STATUS_WARNING                             = 0x5,    ///< The request is successful but some parameters have been ignored.
+  WFM_STATUS_NO_MATCHING_AP                      = 0x6,    ///< The request failed because no suitable AP was found for the connection
+  WFM_STATUS_CONNECTION_ABORTED                  = 0x7,    ///< The request failed because the user issued a WFM_HI_DISCONNECT_REQ before completing the connection
+  WFM_STATUS_CONNECTION_TIMEOUT                  = 0x8,    ///< The request failed because a timeout occurred during connection
+  WFM_STATUS_CONNECTION_REJECTED_BY_AP           = 0x9,    ///< The request failed because the AP rejected the connection
+  WFM_STATUS_CONNECTION_AUTH_FAILURE             = 0xA,    ///< The request failed because the WPA handshake did not complete successfully
   WFM_STATUS_RETRY_EXCEEDED                      = 0x13,   ///< The request failed because the retry limit was exceeded.
   WFM_STATUS_TX_LIFETIME_EXCEEDED                = 0x14    ///< The request failed because the MSDU life time was exceeded.
 } sl_wfx_fmac_status_t;
@@ -364,7 +375,9 @@ typedef struct __attribute__((__packed__)) sl_wfx_security_mode_bitmask_s {
   uint8_t  wep : 1;                                        ///< Network supports WEP
   uint8_t  wpa : 1;                                        ///< Network supports WPA. If both WPA bits are set the network supports mixed mode.
   uint8_t  wpa2 : 1;                                       ///< Network supports WPA2. If both WPA bits are set the network supports mixed mode.
-  uint8_t  unused : 3;                                     ///< Reserved, set to zero
+  uint8_t  wpa3 : 1;                                       ///< Network supports WPA3. If multiple WPA bits are set the network supports mixed mode.
+  uint8_t  pmf : 1;                                        ///< Networks requires use of Protected Management Frames
+  uint8_t  unused : 1;                                     ///< Reserved, set to zero
   uint8_t  psk : 1;                                        ///< Network supports Personal authentication
   uint8_t  eap : 1;                                        ///< Network supports Enterprise authentication
 } sl_wfx_security_mode_bitmask_t;
@@ -429,7 +442,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
 /**
  * @page WFM_CONCEPT_BSSID Basic Service Set Identifier
  * @par
- * Basic Service Set Identifier (BSSID) is an unique identifier of a Wi-Fi access point.
+ * Basic Service Set Identifier (BSSID) is an unique identifier of a Wi-Fi Access Point.
  * BSSID is a 6-byte field set in the same format as an IEEE 802 MAC address.
  * <BR>See @ref WFM_CONCEPT_MAC for further details.
  */
@@ -459,9 +472,9 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
  */
 
 /**
- * @page WFM_CONCEPT_VENDOR_IE Vendor-specific IE
+ * @page WFM_CONCEPT_VENDOR_IE Vendor-Specific IE
  * @par
- * 802.11 Vendor-Specific element starts with a 1-byte Element ID (0xDD), followed by 1-byte Element Length
+ * 802.11 Vendor-specific element starts with a 1-byte Element ID (0xDD), followed by 1-byte Element Length
  * specifying the amount of bytes after the length field. The next field is Organization Identifier (OUI)
  * field which is typically at least 3 bytes, followed by the vendor-specific content.
  * @par
@@ -473,7 +486,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
  */
 
 /**
- * @page WFM_CONCEPT_PASSWORD Passwords and passphrases
+ * @page WFM_CONCEPT_PASSWORD Passwords and pass phrases
  * @par
  * Note that the Password element must always contain SL_WFX_PASSWORD_SIZE bytes.
  * Only the bytes up to PasswordLength are considered to be valid, the rest are ignored.
@@ -509,43 +522,43 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
 /**
  * @page WFM_CONCEPT_PM Power management
  * @par
- * In Wi-Fi power management, a device has two power modes: active and power save. In active mode
- * the device is able to transmit and receive packets. When in power save, the device has signaled
+ * In Wi-Fi power management, a device has two power modes: active and power save. In active mode,
+ * the device can transmit and receive packets. When in power save, the device has signaled
  * other devices it's available only periodically and communicating with it requires specific
  * power management procedures.
  * @par
  * Wi-Fi power management is different from device power management. Even when the device
  * has enabled Wi-Fi power save, it doesn't necessarily mean the device is actually in a
- * low-power state. Wi-Fi power save must be enabled in order to use device power management
+ * low-power state. Wi-Fi power save must be enabled to use device power management
  * but not vice versa.
  * @par
  * Wi-Fi power save is only available in Wi-Fi client role. The functionality can be controlled
  * using sl_wfx_set_pm_mode_req_t message. The device has three different power management modes.
  * @par WFM_PM_MODE_ACTIVE
- * In this mode the device does not use Wi-Fi power management. Since no special power management
+ * In this mode, the device does not use Wi-Fi power management. Since no special power management
  * procedures are required, this mode gives the best throughput and latency. Device power management
- * cannot be used in this mode. This is the default mode after connection has been established.
+ * cannot be used in this mode. This is the default mode after the connection has been established.
  * @par WFM_PM_MODE_BEACON
- * In this mode the device signals to the Wi-Fi access point it's in power save and thus only
- * available on periodic intervals. This causes the access point to buffer packets destined
+ * In this mode, the device signals to the Wi-Fi Access Point it's in power save and therefore only
+ * available on periodic intervals. This causes the Access Point to buffer packets destined
  * to the device until the device retrieves them and therefore causes extra delays on received
  * packets. However, the mode allows the device to use device power management.
  * @par WFM_PM_MODE_DTIM
  * This mode is similar to WFM_PM_MODE_BEACON but it uses a different periodic interval called
- * DTIM period. Length of the DTIM period depends on the access point used but it is at least
+ * DTIM period. The length of the DTIM period depends on the access point used but it is at least
  * as long as the period in WFM_PM_MODE_BEACON.
  */
 
 /**
  * @page WFM_CONCEPT_HIDDEN Hidden network
  * @par
- * Usually a Wi-Fi access point will advertise its details in Beacon frames as well as in
+ * Usually, a Wi-Fi Access Point will advertise its details in Beacon frames as well as in
  * Probe Response frames which are sent as a response to Probe Request frames. One of the
  * details advertised is the SSID of the network.
  * @par
  * When the network is hidden, the device will replace the actual SSID in Beacon frames with
  * a broadcast SSID and will stop responding to Probe Requests that do not specify the correct
- * SSID. In practise, other stations will still see there is a network near-by due to the
+ * SSID. In practice, other stations will still see there is a network near-by due to the
  * Beacon frames but they will not be able to determine the SSID.
  * @par
  * This feature shouldn't be seen as a security feature since it's fairly simple to determine
@@ -556,11 +569,11 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
  * @page WFM_CONCEPT_ISOLATION Client isolation
  * @par
  * When a Wi-Fi network has multiple stations connected, they communicate with each other
- * by first sending the data frame to the access point. Access Point then determines the
+ * by first sending the data frame to the Access Point. Access Point then determines the
  * destination is one of its clients and resends the frame to the destination station.
  *
- * When client isolation is enabled, the access point will discard all data frames intended
- * to other stations. Therefore the stations will only be able to communicate with the
+ * When the client isolation is enabled, the Access Point discards all data frames intended
+ * for other stations. Therefore, the stations will only be able to communicate with the
  * access point.
  */
 
@@ -586,12 +599,12 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
  * @page WFM_CONCEPT_SCAN Scanning
  * @par Scan mode
  * The device supports two modes of scanning: active and passive. In passive mode, the device
- * will switch to each channel to be scanned in turn and listen for access points operating
+ * switches to each channel to be scanned in turn and listens for Access Points operating
  * on the channel. After a time limit, it switches to the next channel.
  * @par
  * The active mode is similar to the passive mode but in addition to listening, the device
- * will solicitate advertisements from the access points on the channel. Whether an access
- * point responds to a solicitation depends on the SSID(s) used in the scan. If the scan
+ * will solicit advertisements from the access points on the channel. Whether an Access
+ * Point responds to a solicitation depends on the SSID(s) used in the scan. If the scan
  * is performed with a wildcard SSID, all access points on the channel will respond. If
  * performed with a specific SSID, only the access points having that SSID will respond.
  * @par
@@ -610,19 +623,19 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
  * the SSIDs on the list will be queried. The lists consists of multiple sl_wfx_ssid_def_t elements
  * concatenated together.
  * @par Scan Parameters
- * In the command sl_wfx_set_scan_parameters_req_t it is possible to specify some scan parameters that will
+ * In the command sl_wfx_set_scan_parameters_req_t, it is possible to specify some scan parameters that will
  * apply to every subsequent scan. It must be noted that parameters that do not comply
- * with the current environment will be overridden internally (e.g. a very long scan
- * that would jeopardize the current connection will be made shorter). In such case a WFM_STATUS_WARNING
+ * with the current environment will be overridden internally (e.g., a very long scan
+ * that would jeopardize the current connection will be made shorter). In this case, a WFM_STATUS_WARNING
  * will be issued in sl_wfx_start_scan_cnf_t. It is the advised that the host adjusts the scan parameters.
  */
 
 /**
  * @page WFM_CONCEPT_OFFLOADING Offloading
  * @par
- * In order to facilitate low-power use-cases, there is a possibility to offload
+ * To facilitate low-power use-cases, there is a possibility to offload
  * replying to Address Resolution Protocol (ARP) requests and IPv6 Neighbor Solicitation (NS)
- * packets to the device. By default the offloading functionality is disabled.
+ * packets to the device. By default, the offloading functionality is disabled.
  * @par ARP offloading
  * When the functionality is enabled, the device will respond to ARP requests that
  * specify one of the configured IPv4 addresses. The request is not forwarded to
@@ -636,20 +649,20 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
 /**
  * @page WFM_CONCEPT_FILTERING Filtering
  * @par
- * By default, the device will forward all packets it receives from the network to the host.
+ * By default, the device forwards all packets it receives from the network to the host.
  * In a busy network, processing the broadcast and the multicast traffic may be a significant
- * source of power consumption on the host. In order to facilitate low-power use-cases, the
+ * source of power consumption on the host. To facilitate low-power use-cases, the
  * device offers multiple options for discarding some of the received packets on the device.
  * @par Multicast filtering
  * Filtering of multicast traffic is based on a whitelist of destination multicast addresses.
  * Any received packet whose destination address does not match the whitelist is automatically
- * discarded. In case the host is not interested in multicast traffic, it's also possible to
+ * discarded. If the host is not interested in multicast traffic, it's also possible to
  * discard all multicast traffic. By default all multicast packets are accepted. The functionality
  * can be controlled using sl_wfx_add_multicast_addr_req_t and sl_wfx_remove_multicast_addr_req_t
  * messages.
  * @par Broadcast filtering
- * Broadcast filtering is a boolean option. When enabled, the device will discard all received
- * packets sent to the broadcast address except ARP and DHCP messages. By default all broadcast
+ * Broadcast filtering is a boolean option. When enabled, the device discards all received
+ * packets sent to the broadcast address except ARP and DHCP messages. By default, all broadcast
  * packets are accepted. The functionality can be controlled using sl_wfx_set_broadcast_filter_req_t message.
  */
 
@@ -672,11 +685,11 @@ typedef struct __attribute__((__packed__)) sl_wfx_ns_ip_addr_s {
  * @par
  * A Wi-Fi device may use a number of different data rates for transmission. When operating as a client,
  * a device adapts the rates it uses to match those the access point authorizes. However it is possible
- * to specify rates that Ineo will not use even if they are allowed by the network.
+ * to specify rates that the device will not use even if they are allowed by the network.
  * @par
  * The precise allowed rates may be adjusted using sl_wfx_set_tx_rate_parameters_req_t message.
  * Parameter changes will be applied at the next connection. If no overlap between these parameters
- * and the access point's supported rates list is found then it will default to using only 1Mbits/sec rate.
+ * and the access point's supported rates list is found, it will default to using only 1Mbits/sec rate.
  */
 
 /**
@@ -730,7 +743,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_mac_address_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_mac_address_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -758,23 +771,23 @@ typedef struct __attribute__((__packed__)) sl_wfx_connect_req_body_s {
    */
   sl_wfx_ssid_def_t ssid_def;
   /**
-   * @brief Basic Service Set Identifier (BSSID) of the access point.
+   * @brief Basic Service Set Identifier (BSSID) of the Access Point.
    * @details <B>broadcast address</B>: The device will connect to any matching access point.
-   *          <BR><B>unicast address</B>: The device will only connect to the given access point.
+   *          <BR><B>unicast address</B>: The device will only connect to the given Access Point.
    *          <BR>See @ref WFM_CONCEPT_BSSID for further details.
    */
   uint8_t  bssid[SL_WFX_BSSID_SIZE];
   /**
-   * @brief Channel of the access point.
-   * @details <B>0</B>: The device will connect to a matching access point on any channel.
-   *          <BR><B>1 - 13</B>: The device will only connect to a matching access point on the given channel.
+   * @brief Channel of the Access Point.
+   * @details <B>0</B>: The device will connect to a matching Access Point on any channel.
+   *          <BR><B>1 - 13</B>: The device will only connect to a matching Access Point on the given channel.
    */
   uint16_t channel;
   /**
    * @brief Security mode of the network.
-   * @details <B>WFM_SECURITY_MODE_OPEN</B>: The device will only connect to an unsecured access point.
-   *          <BR><B>WFM_SECURITY_MODE_WEP</B>: The device will only connect to a WEP access point.
-   *          <BR><B>WFM_SECURITY_MODE_WPA2_WPA1_PSK</B>: The device will only connect to a WPA-Personal or a WPA2-Personal access point.
+   * @details <B>WFM_SECURITY_MODE_OPEN</B>: The device will only connect to an unsecured Access Point.
+   *          <BR><B>WFM_SECURITY_MODE_WEP</B>: The device will only connect to a WEP Access Point.
+   *          <BR><B>WFM_SECURITY_MODE_WPA2_WPA1_PSK</B>: The device will only connect to a WPA-Personal or a WPA2-Personal Access Point.
    *          <BR><B>WFM_SECURITY_MODE_WPA2_PSK</B>: The device will only connect to a WPA2-Personal access point.
    *          <BR>See wfm_security_mode for enumeration values.
    */
@@ -802,7 +815,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_connect_req_body_s {
    * @brief Password of the network.
    * @details <B>64-bit WEP key</B>: 5 bytes in ASCII format or 10 bytes in HEX format.
    *          <BR><B>128-bit WEP key</B>: 13 bytes in ASCII format or 26 bytes in HEX format.
-   *          <BR><B>WPA passphrase</B>: 8 - 63 bytes in ASCII format.
+   *          <BR><B>WPA pass phrase</B>: 8 - 63 bytes in ASCII format.
    *          <BR><B>WPA PMK</B>: 64 bytes in HEX format.
    *          <BR>See @ref WFM_CONCEPT_PASSWORD for further details.
    */
@@ -818,12 +831,12 @@ typedef struct __attribute__((__packed__)) sl_wfx_connect_req_body_s {
    *          It may contain multiple concatenated IEs, up to the maximum length.
    *          <BR>See @ref WFM_CONCEPT_VENDOR_IE for further details.
    */
-  uint8_t  ie_data[0];
+  uint8_t  ie_data[];
 } sl_wfx_connect_req_body_t;
 
 /**
  * @brief Request message for connecting to a Wi-Fi network.
- * @details The host can use this request to iniate a connection to a Wi-Fi network.
+ * @details The host can use this request to initiate a connection to a Wi-Fi network.
  *          An ongoing connection attempt can be canceled by sending sl_wfx_disconnect_req_t
  *          message. Completion of the connection request will be signaled by sl_wfx_connect_ind_t
  *          message. It may take up to 10 seconds to receive the message.
@@ -848,7 +861,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_connect_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_connect_cnf_body_s {
   /**
-   * @brief status of the connection request.
+   * @brief Status of the connection request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the connection request was accepted. It will be completed by sl_wfx_connect_ind_t.
    *          <BR><B>any other value</B>: the connection request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -872,7 +885,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_connect_cnf_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_connect_ind_body_s {
   /**
-   * @brief status of the connection request.
+   * @brief Status of the connection request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the connection request was completed successfully.
    *          <BR><B>any other value</B>: the connection request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -920,7 +933,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_connect_ind_s {
 /**
  * @struct sl_wfx_disconnect_req_t
  * @brief Request message for disconnecting from a Wi-Fi network.
- * @details The host can use this request to iniate a disconnection from a Wi-Fi network.
+ * @details The host can use this request to initiate a disconnection from a Wi-Fi network.
  *          | Interface mode | Request allowed |
  *          |:---------------|:----------------|
  *          | idle           | No              |
@@ -936,7 +949,7 @@ typedef sl_wfx_header_t sl_wfx_disconnect_req_t;
  */
 typedef struct __attribute__((__packed__)) sl_wfx_disconnect_cnf_body_s {
   /**
-   * @brief status of the disconnection request.
+   * @brief Status of the disconnection request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the disconnection request was accepted. It will be completed by sl_wfx_disconnect_ind_t.
    *          <BR><B>any other value</B>: the disconnection request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1004,7 +1017,7 @@ typedef sl_wfx_header_t sl_wfx_get_signal_strength_req_t;
  */
 typedef struct __attribute__((__packed__)) sl_wfx_get_signal_strength_cnf_body_s {
   /**
-   * @brief status of the get request.
+   * @brief Status of the get request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the get request was completed.
    *          <BR><B>any other value</B>: the get request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1079,7 +1092,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_pm_mode_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_pm_mode_cnf_body_s {
   /**
-   * @brief status of the power management request.
+   * @brief Status of the power management request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the power management request was completed.
    *          <BR><B>any other value</B>: the power management request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1123,7 +1136,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_start_ap_req_body_s {
    */
   uint8_t  client_isolation;
   /**
-   * @brief Security mode of the access point.
+   * @brief Security mode of the Access Point.
    * @details <B>WFM_SECURITY_MODE_OPEN</B>: The device will only allow unsecured connections.
    *          <BR><B>WFM_SECURITY_MODE_WEP</B>: The device will only allow WEP connections.
    *          <BR><B>WFM_SECURITY_MODE_WPA2_WPA1_PSK</B>: The device will only allow WPA-Personal and WPA2-Personal connections.
@@ -1140,7 +1153,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_start_ap_req_body_s {
    */
   uint8_t  mgmt_frame_protection;
   /**
-   * @brief Channel of the access point.
+   * @brief Channel of the Access Point.
    * @details <B>1 - 13</B>: The device will create the access point on the given channel.
    */
   uint16_t channel;
@@ -1153,7 +1166,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_start_ap_req_body_s {
    * @brief Password of the network.
    * @details <B>64-bit WEP key</B>: 5 bytes in ASCII format or 10 bytes in HEX format.
    *          <BR><B>128-bit WEP key</B>: 13 bytes in ASCII format or 26 bytes in HEX format.
-   *          <BR><B>WPA passphrase</B>: 8 - 63 bytes in ASCII format.
+   *          <BR><B>WPA pass phrase</B>: 8 - 63 bytes in ASCII format.
    *          <BR><B>WPA PMK</B>: 64 bytes in HEX format.
    *          <BR>See @ref WFM_CONCEPT_PASSWORD for further details.
    */
@@ -1177,12 +1190,12 @@ typedef struct __attribute__((__packed__)) sl_wfx_start_ap_req_body_s {
    *          to the Probe Response frames.
    *          <BR>See @ref WFM_CONCEPT_VENDOR_IE for further details.
   */
-  uint8_t  ie_data[0];
+  uint8_t  ie_data[];
 } sl_wfx_start_ap_req_body_t;
 
 /**
  * @brief Request message for starting a Wi-Fi network.
- * @details The host can use this request to iniate a Wi-Fi network.
+ * @details The host can use this request to initiate a Wi-Fi network.
  *          | Interface mode | Request allowed |
  *          |:---------------|:----------------|
  *          | idle           | Yes             |
@@ -1204,7 +1217,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_start_ap_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_start_ap_cnf_body_s {
   /**
-   * @brief status of the start request.
+   * @brief Status of the start request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the start request was accepted. It will be completed by sl_wfx_start_ap_ind_t.
    *          <BR><B>any other value</B>: the start request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1228,7 +1241,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_start_ap_cnf_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_start_ap_ind_body_s {
   /**
-   * @brief status of the start request.
+   * @brief Status of the start request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the start request was completed successfully.
    *          <BR><B>any other value</B>: the start request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1272,7 +1285,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_update_ap_req_body_s {
    *          to the Probe Response frames.
    *          <BR>See @ref WFM_CONCEPT_VENDOR_IE for further details.
   */
-  uint8_t  ie_data[0];
+  uint8_t  ie_data[];
 } sl_wfx_update_ap_req_body_t;
 
 /**
@@ -1299,7 +1312,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_update_ap_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_update_ap_cnf_body_s {
   /**
-   * @brief status of the update request.
+   * @brief Status of the update request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the update request was completed.
    *          <BR><B>any other value</B>: the update request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1337,7 +1350,7 @@ typedef sl_wfx_header_t sl_wfx_stop_ap_req_t;
  */
 typedef struct __attribute__((__packed__)) sl_wfx_stop_ap_cnf_body_s {
   /**
-   * @brief status of the stop request.
+   * @brief Status of the stop request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the stop request was accepted. It will be completed by sl_wfx_stop_ap_ind_t.
    *          <BR><B>any other value</B>: the stop request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1400,8 +1413,10 @@ typedef struct __attribute__((__packed__)) sl_wfx_ap_client_rejected_ind_body_s 
   /**
    * @brief Reason for rejection.
    * @details <B>WFM_REASON_TIMEOUT</B>: A timeout occurred during a station connection attempt.
+   *          <BR><B>WFM_REASON_LEAVING_BSS</B>: The device sent a deauth before completing the connection.
    *          <BR><B>WFM_REASON_UNKNOWN_STA</B>: The device received data from a non-connected station.
    *          <BR><B>WFM_REASON_AP_FULL</B>: The device was not able to accommodate any more stations.
+   *          <BR><B>WFM_REASON_AUTHENTICATION_FAILURE</B>: The device did not complete the WPA authentication successfully.
    *          <BR>See wfm_reason for enumeration values.
    */
   uint16_t reason;
@@ -1454,7 +1469,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_disconnect_ap_client_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_disconnect_ap_client_cnf_body_s {
   /**
-   * @brief status of the disconnect request.
+   * @brief Status of the disconnect request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the disconnect request was completed.
    *          <BR><B>any other value</B>: the disconnect request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1507,7 +1522,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_ap_client_disconnected_ind_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_send_frame_req_body_s {
   /**
-   * @brief Type of the packet.
+   * @brief Packet type.
    * @details <B>0</B>: Data packet with Ethernet II frame header.
    */
   uint8_t  frame_type;
@@ -1531,7 +1546,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_send_frame_req_body_s {
    * @brief Data of the packet.
    * @details See @ref WFM_CONCEPT_PACKET for further details.
    */
-  uint8_t  packet_data[0];
+  uint8_t  packet_data[];
 } sl_wfx_send_frame_req_body_t;
 
 /**
@@ -1560,7 +1575,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_send_frame_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_send_frame_cnf_body_s {
   /**
-   * @brief status of the send request.
+   * @brief Status of the send request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the send request was completed.
    *          <BR><B>any other value</B>: the send request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1594,7 +1609,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_send_frame_cnf_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_received_ind_body_s {
   /**
-   * @brief Type of the packet.
+   * @brief Packet type.
    * @details <B>0</B>: Data packet with Ethernet II frame header.
    */
   uint8_t  frame_type;
@@ -1612,7 +1627,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_received_ind_body_s {
    * @brief Packet data, including the padding bytes before the packet data.
    * @details See @ref WFM_CONCEPT_PACKET for further details.
   */
-  uint8_t  frame[0];
+  uint8_t  frame[];
 } sl_wfx_received_ind_body_t;
 
 /**
@@ -1669,13 +1684,20 @@ typedef struct __attribute__((__packed__)) sl_wfx_start_scan_req_body_s {
    *          <BR>See @ref WFM_CONCEPT_SCAN for further details.
    * @par 2. List of specific SSIDs to scan.
    * @details Must contain the same number of WfmHiSsidDef_t elements as specified in SsidListCount.
-   *          <BR>See @ref WFM_CONCEPT_SCAN for further details.
+   *          <BR>This parameter is applicable only for an active scan. See @ref WFM_CONCEPT_SCAN for further details.
    * @par 3. Vendor-specific IE data added to the 802.11 Probe Request frames.
    * @details The IE data must be in 802.11 Vendor-Specific Element format.
    *          It may contain multiple concatenated IEs, up to the maximum length.
-   *          <BR>See @ref WFM_CONCEPT_VENDOR_IE for further details.
+   *          <BR>This parameter is applicable only for an active scan. See @ref WFM_CONCEPT_VENDOR_IE for further details.
+   * @par 4. Basic Service Set Identifier (BSSID) to scan.
+   * @details <B>broadcast address</B>: The device will send Probe Request frames to all devices.
+   *          <BR><B>unicast address</B>: The device will send Probe Request frames to a specific device.
+   *          <BR>This parameter is applicable only for an active scan. If not specified, broadcast address is assumed.
+   *          <BR>Note that an SSID list must be specified when using the unicast address, otherwise the received
+   *          scan results may contain unexpected additional networks.
+   *          <BR>See @ref WFM_CONCEPT_BSSID for further details.
   */
-  uint8_t  data[0];
+  uint8_t  data[];
 } sl_wfx_start_scan_req_body_t;
 
 /**
@@ -1703,7 +1725,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_start_scan_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_start_scan_cnf_body_s {
   /**
-   * @brief status of the scan request.
+   * @brief Status of the scan request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the scan request was accepted. It will be completed by sl_wfx_scan_complete_ind_t.
    *          <BR><B>any other value</B>: the scan request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1743,8 +1765,8 @@ typedef sl_wfx_header_t sl_wfx_stop_scan_req_t;
  */
 typedef struct __attribute__((__packed__)) sl_wfx_stop_scan_cnf_body_s {
   /**
-   * @brief status of the stop request.
-   * @details <B>WFM_STATUS_SUCCESS</B>: the stop request was accepted. It will be completed by sl_wfx_scan_result_ind_t.
+   * @brief Status of the stop request.
+   * @details <B>WFM_STATUS_SUCCESS</B>: the stop request was accepted. It will be completed by WFM_HI_SCAN_COMPLETE_IND.
    *          <BR><B>any other value</B>: the stop request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
    */
@@ -1804,7 +1826,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_scan_result_ind_body_s {
   /**
    * @brief Access point IE data from the 802.11 Beacon or Probe Response frame.
    */
-  uint8_t  ie_data[0];
+  uint8_t  ie_data[];
 } sl_wfx_scan_result_ind_body_t;
 
 /**
@@ -1826,7 +1848,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_scan_result_ind_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_scan_complete_ind_body_s {
   /**
-   * @brief status of the scan request.
+   * @brief Status of the scan request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the scan request was completed.
    *          <BR><B>any other value</B>: the scan request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1908,7 +1930,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_join_ibss_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_join_ibss_cnf_body_s {
   /**
-   * @brief status of the join request.
+   * @brief Status of the join request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the join request was accepted. It will be completed by sl_wfx_join_ibss_ind_t.
    *          <BR><B>any other value</B>: the join request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1932,7 +1954,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_join_ibss_cnf_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_join_ibss_ind_body_s {
   /**
-   * @brief status of the join request.
+   * @brief Status of the join request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the join request was completed successfully.
    *          <BR><B>any other value</B>: the join request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -1981,7 +2003,7 @@ typedef sl_wfx_header_t sl_wfx_leave_ibss_req_t;
  */
 typedef struct __attribute__((__packed__)) sl_wfx_leave_ibss_cnf_body_s {
   /**
-   * @brief status of the disconnect request.
+   * @brief Status of the disconnect request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the disconnect request was accepted. It will be completed by sl_wfx_leave_ibss_ind_t.
    *          <BR><B>any other value</B>: the disconnect request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2055,7 +2077,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_add_multicast_addr_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_add_multicast_addr_cnf_body_s {
   /**
-   * @brief status of the add request.
+   * @brief Status of the add request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the add request was completed successfully.
    *          <BR><B>any other value</B>: the add request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2113,7 +2135,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_remove_multicast_addr_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_remove_multicast_addr_cnf_body_s {
   /**
-   * @brief status of the remove request.
+   * @brief Status of the remove request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the remove request was completed successfully.
    *          <BR><B>any other value</B>: the remove request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2175,7 +2197,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_max_ap_client_count_req_s 
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_max_ap_client_count_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2236,7 +2258,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_max_ap_client_inactivity_r
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_max_ap_client_inactivity_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2303,7 +2325,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_roam_parameters_req_body_s
    *          <BR>Must contain the same number of channels as specified in channel_list_count.
    *          <BR>See @ref WFM_CONCEPT_SCAN for further details.
    */
-  uint8_t  channel_number[0];
+  uint8_t  channel_number[];
 } sl_wfx_set_roam_parameters_req_body_t;
 
 /**
@@ -2333,7 +2355,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_roam_parameters_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_roam_parameters_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2400,7 +2422,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_tx_rate_parameters_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_tx_rate_parameters_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2463,7 +2485,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_arp_ip_address_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_arp_ip_address_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2524,7 +2546,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_ns_ip_address_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_ns_ip_address_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2589,7 +2611,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_broadcast_filter_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_broadcast_filter_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2661,7 +2683,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_scan_parameters_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_scan_parameters_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See sl_wfx_fmac_status_t for enumeration values.
@@ -2724,7 +2746,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_unicast_filter_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_unicast_filter_cnf_body_s {
   /**
-   * @brief status of the set request.
+   * @brief Status of the set request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the set request was completed successfully.
    *          <BR><B>any other value</B>: the set request failed.
    *          <BR>See ::sl_wfx_fmac_status_t for enumeration values.
@@ -2785,7 +2807,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_add_whitelist_addr_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_add_whitelist_addr_cnf_body_s {
   /**
-   * @brief status of the add request.
+   * @brief Status of the add request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the add request was completed successfully.
    *          <BR><B>any other value</B>: the add request failed.
    *          <BR>See ::sl_wfx_fmac_status_t for enumeration values.
@@ -2846,7 +2868,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_add_blacklist_addr_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_add_blacklist_addr_cnf_body_s {
   /**
-   * @brief status of the add request.
+   * @brief Status of the add request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the add request was completed successfully.
    *          <BR><B>any other value</B>: the add request failed.
    *          <BR>See ::sl_wfx_fmac_status_t for enumeration values.
@@ -2866,7 +2888,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_add_blacklist_addr_cnf_s {
 } sl_wfx_add_blacklist_addr_cnf_t;
 
 /**
- * @brief Request message body for SL_WFX_SET_MAX_TX_POWER_ADDR_REQ.
+ * @brief Request message body for sl_wfx_set_max_tx_power_req_t.
  * @details
  *          | Field      | Default value    | Reset to default value |
  *          |:-----------|:-----------------|:-----------------------|
@@ -2882,10 +2904,10 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_max_tx_power_req_body_s {
 } sl_wfx_set_max_tx_power_req_body_t;
 
 /**
- * @brief Request message for setting a maximum transmit power to Ineo.
- * @details The host can use this request to set a maximum transmit power to Ineo.
- *                      Ineo can still use a lower transmit power depending on regulatory rules
- *                      or internal limitations.
+ * @brief Request message for setting the maximum transmit power of the device.
+ * @details The host can use this request to set a maximum transmit power.
+ *          The device can still use a lower transmit power depending on regulatory rules
+ *          or internal limitations.
  *          | Interface mode | Request allowed |
  *          |:---------------|:----------------|
  *          | idle           | Yes             |
@@ -2910,7 +2932,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_set_max_tx_power_req_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_set_max_tx_power_cnf_body_s {
   /**
-   * @brief status of the add request.
+   * @brief Status of the add request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the add request was completed successfully.
    *          <BR><B>any other value</B>: the add request failed.
    *          <BR>See ::sl_wfx_fmac_status_t for enumeration values.
@@ -2954,7 +2976,7 @@ typedef sl_wfx_header_t sl_wfx_get_max_tx_power_req_t;
  */
 typedef struct __attribute__((__packed__)) sl_wfx_get_max_tx_power_cnf_body_s {
   /**
-   * @brief status of the add request.
+   * @brief Status of the add request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the add request was completed successfully.
    *          <BR><B>any other value</B>: the add request failed.
    *          <BR>See ::sl_wfx_fmac_status_t for enumeration values.
@@ -3009,7 +3031,7 @@ typedef sl_wfx_header_t sl_wfx_get_pmk_req_t;
  */
 typedef struct __attribute__((__packed__)) sl_wfx_get_pmk_cnf_body_s {
   /**
-   * @brief status of the add request.
+   * @brief Status of the add request.
    * @details <B>WFM_STATUS_SUCCESS</B>: the get request was completed successfully.
    *          <BR><B>any other value</B>: the get request failed.
    *          <BR>See ::sl_wfx_fmac_status_t for enumeration values.
@@ -3108,4 +3130,4 @@ typedef struct __attribute__((__packed__)) sl_wfx_get_ap_client_signal_strength_
  * @}
  */
 
-#endif /* _WFM_CMD_API_H_ */
+#endif /* _SL_WFX_CMD_API_H_ */

@@ -14,14 +14,14 @@
  * limitations under the License.
  *****************************************************************************/
 
-#ifndef _WFM_GENERAL_API_H_
-#define _WFM_GENERAL_API_H_
+#ifndef _SL_WFX_GENERAL_API_H_
+#define _SL_WFX_GENERAL_API_H_
 
 #include <stdint.h>
 
 //< API Internal Version encoding
-#define SL_WFX_API_VERSION_MINOR                 0x02
-#define SL_WFX_API_VERSION_MAJOR                 0x01
+#define SL_WFX_API_VERSION_MINOR                 0x03
+#define SL_WFX_API_VERSION_MAJOR                 0x02
 
 #define SL_WFX_SSID_SIZE                         32
 #define SL_WFX_MAC_ADDR_SIZE                     6
@@ -121,7 +121,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_header_s {
  */
 typedef struct __attribute__((__packed__)) sl_wfx_generic_message_s {
   sl_wfx_header_t header;                                  ///<4 bytes header
-  uint8_t  body[0];                                        ///<variable size payload of the message
+  uint8_t  body[];                                        ///<variable size payload of the message
 } sl_wfx_generic_message_t;
 
 /**
@@ -211,17 +211,17 @@ typedef enum sl_wfx_general_indications_ids_e {
  *
  * All general API message IDs.
  */
-typedef union sl_wfx_general_commands_ids_u {
-  sl_wfx_generic_requests_ids_t request;                   ///< Request from the host to the wlan device
-  sl_wfx_general_confirmations_ids_t confirmation;         ///< Confirmation of a request from the wlan device to the host
-  sl_wfx_general_indications_ids_t indication;             ///< Indication from the wlan device to the host
+typedef union __attribute__((__packed__)) sl_wfx_general_commands_ids_u {
+  sl_wfx_generic_requests_ids_t request;                   ///< Request from the host to the WLAN device
+  sl_wfx_general_confirmations_ids_t confirmation;         ///< Confirmation of a request from the WLAN device to the host
+  sl_wfx_general_indications_ids_t indication;             ///< Indication from the WLAN device to the host
 } sl_wfx_general_commands_ids_t;
 
 /**************************************************/
 
 /**
  * @brief General confirmation possible values for returned 'status' field
- *
+ *WLAN
  * All general confirmation messages have a field 'status' just after the message header.@n
  * A value of zero indicates the request is completed successfully.
  *
@@ -230,18 +230,18 @@ typedef enum sl_wfx_status_e {
   SL_WFX_STATUS_SUCCESS                          = 0x0,    ///<The firmware has successfully completed the request.
   SL_WFX_STATUS_FAILURE                          = 0x1,    ///<This is a generic failure code : other error codes do not apply.
   SL_WFX_INVALID_PARAMETER                       = 0x2,    ///<The request contains one or more invalid parameters.
-  SL_WFX_STATUS_GPIO_WARNING                     = 0x3,    ///<Warning : the GPIO cmd is successful but the read value is not as expected (likely a drive conflict on the line)
-  SL_WFX_ERROR_UNSUPPORTED_MSG_ID                = 0x4,    ///<Unkown request ID or wrong interface ID used
+  SL_WFX_STATUS_GPIO_WARNING                     = 0x3,    ///<Warning : the GPIO CMD is successful but the read value is not as expected (likely a drive conflict on the line)
+  SL_WFX_ERROR_UNSUPPORTED_MSG_ID                = 0x4,    ///<Unknown request ID or wrong interface ID used
   /* Specific SecureLink statuses */
-  SL_MAC_KEY_STATUS_SUCCESS                      = 0x5A,   ///<Key has been correctly written
-  SL_MAC_KEY_STATUS_FAILED_KEY_ALREADY_BURNED    = 0x6B,   ///<Key already exists in OTP
-  SL_MAC_KEY_STATUS_FAILED_RAM_MODE_NOT_ALLOWED  = 0x7C,   ///<RAM mode is not allowed
-  SL_MAC_KEY_STATUS_FAILED_UNKNOWN_MODE          = 0x8D,   ///<Unknown mode (should be RAM or OTP)
-  SL_PUB_KEY_EXCHANGE_STATUS_SUCCESS             = 0x9E,   ///<Host Public Key authenticated
-  SL_PUB_KEY_EXCHANGE_STATUS_FAILED              = 0xAF,   ///<Host Public Key authentication failed
+  SL_WFX_MAC_KEY_STATUS_SUCCESS                  = 0x5A,   ///<Key has been correctly written
+  SL_WFX_MAC_KEY_STATUS_FAILED_KEY_ALREADY_BURNED = 0x6B,  ///<Key already exists in OTP
+  SL_WFX_MAC_KEY_STATUS_FAILED_RAM_MODE_NOT_ALLOWED = 0x7C, ///<RAM mode is not allowed
+  SL_WFX_MAC_KEY_STATUS_FAILED_UNKNOWN_MODE      = 0x8D,   ///<Unknown mode (should be RAM or OTP)
+  SL_WFX_PUB_KEY_EXCHANGE_STATUS_SUCCESS         = 0x9E,   ///<Host Public Key authenticated
+  SL_WFX_PUB_KEY_EXCHANGE_STATUS_FAILED          = 0xAF,   ///<Host Public Key authentication failed
   /* Specific Prevent Rollback statuses */
-  PREVENT_ROLLBACK_CNF_SUCCESS                   = 0x1234, ///<OTP rollback value has been successfully updated
-  PREVENT_ROLLBACK_CNF_WRONG_MAGIC_WORD          = 0x1256  ///<Wrong magic word detected
+  SL_WFX_PREVENT_ROLLBACK_CNF_SUCCESS            = 0x1234, ///<OTP rollback value has been successfully updated
+  SL_WFX_PREVENT_ROLLBACK_CNF_WRONG_MAGIC_WORD   = 0x1256  ///<Wrong magic word detected
 } sl_wfx_status_t;
 
 /**************************************************/
@@ -304,7 +304,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_startup_ind_body_s {
   uint8_t  opn[SL_WFX_OPN_SIZE];                           ///<=OTP part_OPN
   uint8_t  uid[SL_WFX_UID_SIZE];                           ///<=OTP UID
   uint16_t num_inp_ch_bufs;                                ///<Number of buffers available for request messages.
-  uint16_t size_inp_ch_buf;                                ///<Tx Buffer size in bytes=request message max size.
+  uint16_t size_inp_ch_buf;                                ///<TX Buffer size in bytes=request message max size.
   uint8_t  num_links_aP;                                   ///<number of STA that are supported in AP mode
   uint8_t  num_interfaces;                                 ///<number of interfaces (WIFI link : STA or AP) that can be created by the user
   uint8_t  mac_addr[2][SL_WFX_MAC_ADDR_SIZE];              ///<MAC addresses derived from OTP
@@ -346,7 +346,7 @@ typedef sl_wfx_header_t sl_wfx_wakeup_ind_t;
  * @todo Need to create a specific doc to explain PDS*/
 typedef struct __attribute__((__packed__)) sl_wfx_configuration_req_body_s {
   uint16_t length;                                         ///<pds_data length in bytes
-  uint8_t  pds_data[0];                                    ///<variable size PDS data byte array
+  uint8_t  pds_data[];                                    ///<variable size PDS data byte array
 } sl_wfx_configuration_req_body_t;
 
 typedef struct __attribute__((__packed__)) sl_wfx_configuration_req_s {
@@ -379,12 +379,12 @@ typedef enum sl_wfx_gpio_mode_e {
 } sl_wfx_gpio_mode_t;
 
 /**
- * @brief Send a request to read or write a gpio identified by its label (that is defined in the PDS)
+ * @brief Send a request to read or write a GPIO identified by its label (that is defined in the PDS)
  *
  * After a write it also read back the value to check there is no drive conflict */
 typedef struct __attribute__((__packed__)) sl_wfx_control_gpio_req_body_s {
-  uint8_t  gpio_label;                                     ///<Identify the gpio by its label (defined in the PDS)
-  uint8_t  gpio_mode;                                      ///<define how to set or read the gpio (see enum sl_wfx_gpio_mode_t)
+  uint8_t  gpio_label;                                     ///<Identify the GPIO by its label (defined in the PDS)
+  uint8_t  gpio_mode;                                      ///<define how to set or read the GPIO (see enum sl_wfx_gpio_mode_t)
 } sl_wfx_control_gpio_req_body_t;
 
 typedef struct __attribute__((__packed__)) sl_wfx_control_gpio_req_s {
@@ -397,12 +397,12 @@ typedef struct __attribute__((__packed__)) sl_wfx_control_gpio_req_s {
  * */
 typedef enum sl_wfx_gpio_error_e {
   SL_WFX_GPIO_ERROR_0                            = 0x0,    ///< Undefined GPIO_ID
-  SL_WFX_GPIO_ERROR_1                            = 0x1,    ///< GPIO_ID not configured in gpio mode (gpio_enabled =0)
+  SL_WFX_GPIO_ERROR_1                            = 0x1,    ///< GPIO_ID not configured in GPIO mode (gpio_enabled =0)
   SL_WFX_GPIO_ERROR_2                            = 0x2     ///< Toggle not possible while in tristate
 } sl_wfx_gpio_error_t;
 
 /**
- * @brief Confirmation from request to read and write a gpio */
+ * @brief Confirmation from request to read and write a GPIO */
 typedef struct __attribute__((__packed__)) sl_wfx_control_gpio_cnf_body_s {
   uint32_t status;                                         ///<enum sl_wfx_status_t : a value of zero indicates the request is completed successfully.
   uint32_t value;                                          ///<the error detail (see enum sl_wfx_gpio_error_t) when ::sl_wfx_control_gpio_cnf_body_t::status reports an error else the gpio read value.
@@ -448,7 +448,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_rx_stats_s {
   uint8_t  is_ext_pwr_clk;                                 ///<Indicate if the low power clock is external
 } sl_wfx_rx_stats_t;
 
-typedef union sl_wfx_indication_data_u {
+typedef union __attribute__((__packed__)) sl_wfx_indication_data_u {
   sl_wfx_rx_stats_t rx_stats;
   uint8_t  raw_data[376];
 } sl_wfx_indication_data_t;
@@ -490,10 +490,15 @@ typedef struct __attribute__((__packed__)) sl_wfx_exception_ind_s {
 typedef enum sl_wfx_error_e {
   WSM_SL_WFX_ERROR_FIRMWARE_ROLLBACK             = 0x0,    ///<Firmware rollback error, no data returned
   WSM_SL_WFX_ERROR_FIRMWARE_DEBUG_ENABLED        = 0x1,    ///<Firmware debug feature enabled, no data returned
-  WSM_SL_WFX_ERROR_OUTDATED_SESSION_KEY          = 0x2,    ///<SecureLink Session key is outdated, 4bytes returned (nonce counter)
-  WSM_SL_WFX_ERROR_INVALID_SESSION_KEY           = 0x3,    ///<SecureLink Session key is invalid, 0 or 4bytes returned
+  WSM_SL_WFX_ERROR_OUTDATED_SESSION_KEY          = 0x2,    ///<SecureLink Session key is outdated, 4 bytes returned (nonce counter)
+  WSM_SL_WFX_ERROR_INVALID_SESSION_KEY           = 0x3,    ///<SecureLink Session key is invalid, 0 or 4 bytes returned
   WSM_SL_WFX_ERROR_OOR_VOLTAGE                   = 0x4,    ///<Out-of-range power supply voltage detected, no data returned
-  WSM_SL_WFX_ERROR_PDS_VERSION                   = 0x5     ///<wrong PDS version detected, no data returned
+  WSM_SL_WFX_ERROR_PDS_VERSION                   = 0x5,    ///<Wrong PDS version detected, no data returned
+  WSM_SL_ERROR_OOR_TEMPERATURE                   = 0x6,    ///<Out-of-range temperature, no data returned
+  WSM_SL_ERROR_REQ_DURING_KEY_EXCHANGE           = 0x7,    ///<Requets from Host are forbidden until the end of key exchange (Host should wait for the associated indication)
+  WSM_SL_ERROR_MULTI_TX_CNF_SECURELINK           = 0x8,    ///<'Multi TX conf' feature is not supported in SecureLink mode
+  WSM_SL_ERROR_SECURELINK_OVERFLOW               = 0x9,    ///<HT SecureLink traffic is producing an internal overflow
+  WSM_SL_ERROR_SECURELINK_DECRYPTION             = 0xa     ///<An error occured during message decryption (can be a counter mismatch or wrong CCM tag)
 } sl_wfx_error_t;
 
 /**
@@ -504,7 +509,7 @@ typedef enum sl_wfx_error_e {
  * */
 typedef struct __attribute__((__packed__)) sl_wfx_error_ind_body_s {
   uint32_t type;                                           ///<error type, see enum sl_wfx_error_t
-  uint8_t  data[0];                                        ///<Generic data buffer - contents depends on the error type.
+  uint8_t  data[];                                        ///<Generic data buffer - contents depends on the error type.
 } sl_wfx_error_ind_body_t;
 
 typedef struct __attribute__((__packed__)) sl_wfx_error_ind_s {
@@ -696,18 +701,18 @@ typedef struct __attribute__((__packed__)) sl_wfx_securelink_configure_cnf_s {
  * @addtogroup Prevent_Firmware_Rollback
  * @brief APIs for preventing Rollback of unsafe firmware images.
  *
- * By enabling this feature Device is able to prevent unsafe/outdated firmwares to boot.
+ * By enabling this feature Device can prevent unsafe/outdated firmware from booting.
  *
  * Each firmware owns its internal *rollback revision number* which is compared to
  *   an equivalent revision number burned in Device OTP memory. Depending on the comparison result,
- *   two cases can occur:
+ *   two use cases can occur:
  * - Firmware revision number is higher or equal to the OTP number -> the firmware is allowed
  *   to proceed
  * - Firmware revision number is lower than the OTP value -> the firmware is not allowed to proceed.
  *   An *Error indication* will be returned to the driver indicating the cause of the error (WSM_SL_WFX_ERROR_FIRMWARE_ROLLBACK).
  *
  * @note The firmware *rollback revision number* is different that the *firmware version*.
- * The former is incremented only when some important fixes (i.e. Security patches) are provided
+ * The former is incremented only when some important fixes (i.e., Security patches) are provided
  * by a given version of the firmware,that MUST be applied to Device and should not be reverted.
  *  Usually, subsequent firmware versions are supposed to embed the same rollback revision number.
  *
@@ -724,7 +729,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_securelink_configure_cnf_s {
  *
  * *Prevent Rollback* asks WLAN firmware to burn a new *Firmware Rollback* value in a dedicated OTP section.
  *
- * The new value is encoded in the firmware itself. Once burned, this value will prevent from starting
+ * The new value is encoded in the firmware itself. After it is burned, this value will prevent from starting
  *  all firmwares whose internal rollback value is lower than the OTP value.
  *
  * *Magic Word* is used to prevent mistakenly sent requests from burning the OTP.
@@ -798,15 +803,15 @@ typedef enum sl_wfx_signal_level_e {
  * @brief Coexistence types supported by PTA.
  */
 typedef enum sl_wfx_coex_type_e {
-  SL_WFX_COEX_TYPE_GENERIC                       = 0,      ///< IEEE 802.15.4 standards ZigBee, Thread, ...
-  SL_WFX_COEX_TYPE_BLE                           = 1       ///< Bluetooth Low-Energy
+  SL_WFX_COEX_TYPE_GENERIC                       = 0,      ///< IEEE 802.15.4 standards ZigBee SDK, Thread SDK, and so on.
+  SL_WFX_COEX_TYPE_BLE                           = 1       ///< Bluetooth Low-Energy Stack
 } sl_wfx_coex_type_t;
 
 /**
  * @brief Grant states.
  */
 typedef enum sl_wfx_grant_state_e {
-  SL_WFX_NO_GRANT                                = 0,      ///< Wlan has the RF, Coex is not allowed to transmit
+  SL_WFX_NO_GRANT                                = 0,      ///< WLAN has the RF, Coex is not allowed to transmit
   SL_WFX_GRANT                                   = 1       ///< Coex is granted
 } sl_wfx_grant_state_t;
 
@@ -816,9 +821,9 @@ typedef enum sl_wfx_grant_state_e {
  *
  * Depending on specified PTA mode, every setting is not necessarily used and can then be set to '0'.<br/>
  * The following table indicates the PTA mode for which the setting is significant.<br/>
- * Combined mode is activated during concurrent RX (Wlan and Coex) requests and if SimultaneousRxAccesses is set to '1'.
+ * Combined mode is activated during concurrent RX (WLAN and Coex) requests and if SimultaneousRxAccesses is set to '1'.
  *
- * | Settings                 | 1-wire Wlan Master | 1-wire Coex Master | 2-wire | 3-wire | 3-wire (combined) | 4-wire | 4-wire (combined) |
+ * | Settings                 | 1-wire WLAN Master | 1-wire Coex Master | 2-wire | 3-wire | 3-wire (combined) | 4-wire | 4-wire (combined) |
  * |--------------------------|:------------------:|:------------------:|:------:|:------:|:-----------------:|:------:|:-----------------:|
  * | PrioritySamplingTime     |                    |                    |        |    x   |          x        |    x   |          x        |
  * | TxRxSamplingTime         |                    |                    |        |        |          x        |        |          x        |
@@ -831,9 +836,9 @@ typedef enum sl_wfx_grant_state_e {
  * | WlanQuota                |         x          |                    |    x   |        |                   |        |                   |
  *
  * <br/>
- * @image html 3w_timings_sequence.svg "Sequence diagram with 3-wire PTA mode"
+ * @image html 3w-timings-sequence.svg "Sequence diagram with 3-wire PTA mode"
  * <br/>
- * @image html 4w_timings_sequence.svg "Sequence diagram with 4-wire PTA mode"
+ * @image html 4w-timings-sequence.svg "Sequence diagram with 4-wire PTA mode"
  *
  * @note Request will fail if PTA is started.
  *
@@ -846,11 +851,11 @@ typedef struct __attribute__((__packed__)) sl_wfx_pta_settings_req_body_s {
   uint8_t  pta_mode;                                       ///< The PTA mode, see enum ::sl_wfx_pta_mode_t
   uint8_t  request_signal_active_level;                    ///< Active level on REQUEST signal (PTA_RF_ACT pin), provided by Coex to request the RF, see enum ::sl_wfx_signal_level_t
   uint8_t  priority_signal_active_level;                   ///< Active level on PRIORITY signal (PTA_STATUS pin), provided by Coex to set the priority of the request, see enum ::sl_wfx_signal_level_t
-  uint8_t  freq_signal_active_level;                       ///< Active level on FREQ signal (PTA_FREQ pin), provided by Coex in 4-wire mode when Coex and Wlan share the same band, see enum ::sl_wfx_signal_level_t
+  uint8_t  freq_signal_active_level;                       ///< Active level on FREQ signal (PTA_FREQ pin), provided by Coex in 4-wire mode when Coex and WLAN share the same band, see enum ::sl_wfx_signal_level_t
   uint8_t  grant_signal_active_level;                      ///< Active level on GRANT signal (PTA_TX_CONF pin), generated by PTA to grant the RF to Coex, see enum ::sl_wfx_signal_level_t
   uint8_t  coex_type;                                      ///< The Coex type, see enum ::sl_wfx_coex_type_t
   uint8_t  default_grant_state;                            ///< The state of the GRANT signal before arbitration at grant_valid_time, see enum ::sl_wfx_grant_state_t
-  uint8_t  simultaneous_rx_access;                         ///< Boolean to allow both Coex and Wlan to receive concurrently, also named combined mode
+  uint8_t  simultaneous_rx_access;                         ///< Boolean to allow both Coex and WLAN to receive concurrently, also named combined mode
   uint8_t  priority_sampling_time;                         ///< The time (in microseconds) from the Coex request to the sampling of the priority on PRIORITY signal (1 to 31)
   uint8_t  tx_rx_sampling_time;                            ///< The time (in microseconds) from the Coex request to the sampling of the directionality on PRIORITY signal (priority_sampling_time to 63)
   uint8_t  freq_sampling_time;                             ///< The time (in microseconds) from the Coex request to the sampling of freq-match information on FREQ signal (1 to 127)
@@ -858,8 +863,8 @@ typedef struct __attribute__((__packed__)) sl_wfx_pta_settings_req_body_s {
   uint8_t  fem_control_time;                               ///< The time (in microseconds) from Coex request to the control of FEM (grant_valid_time to 255)
   uint8_t  first_slot_time;                                ///< The time (in microseconds) from the Coex request to the beginning of reception or transmission (grant_valid_time to 255)
   uint16_t periodic_tx_rx_sampling_time;                   ///< The period (in microseconds) from first_slot_time of following samplings of the directionality on PRIORITY signal (1 to 1023)
-  uint16_t coex_quota;                                     ///< The duration (in microseconds) for which RF is granted to Coex before it is moved to Wlan
-  uint16_t wlan_quota;                                     ///< The duration (in microseconds) for which RF is granted to Wlan before it is moved to Coex
+  uint16_t coex_quota;                                     ///< The duration (in microseconds) for which RF is granted to Coex before it is moved to WLAN
+  uint16_t wlan_quota;                                     ///< The duration (in microseconds) for which RF is granted to WLAN before it is moved to Coex
 } sl_wfx_pta_settings_req_body_t;
 
 typedef struct __attribute__((__packed__)) sl_wfx_pta_settings_req_s {
@@ -868,7 +873,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_pta_settings_req_s {
 } sl_wfx_pta_settings_req_t;
 
 /**
- * @brief Confirmation sent by Wlan firmware after a ::SL_WFX_PTA_SETTINGS_REQ_ID request.
+ * @brief Confirmation sent by WLAN firmware after a ::SL_WFX_PTA_SETTINGS_REQ_ID request.
  */
 typedef struct __attribute__((__packed__)) sl_wfx_pta_settings_cnf_body_s {
   uint32_t status;                                         ///< Confirmation status, see enum ::sl_wfx_status_t
@@ -880,7 +885,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_pta_settings_cnf_s {
 } sl_wfx_pta_settings_cnf_t;
 
 /**
- * @brief Priority levels used by PTA for concurrent (Coex and Wlan) request arbitration.
+ * @brief Priority levels used by PTA for concurrent (Coex and WLAN) request arbitration.
  */
 typedef enum sl_wfx_pta_priority_e {
   SL_WFX_PTA_PRIORITY_COEX_MAXIMIZED             = 0x00000562,  ///< Maximizes priority to COEX, WLAN connection is not ensured
@@ -891,7 +896,7 @@ typedef enum sl_wfx_pta_priority_e {
 } sl_wfx_pta_priority_t;
 
 /**
- * @brief Request sent by the host to define the level of priority used to arbitrate concurrent Coex and Wlan requests.
+ * @brief Request sent by the host to define the level of priority used to arbitrate concurrent Coex and WLAN requests.
  *
  * Priority can be one value from enum ::sl_wfx_pta_priority_t but can also be an integer value whom definition is the following bitfield:
  *
@@ -902,11 +907,11 @@ typedef enum sl_wfx_pta_priority_e {
  *   uint32_t reserved_1:1;       // Reserved for future use
  *   uint32_t coex_prio_high:3;   // Priority given to Coex for high-priority requests
  *   uint32_t reserved_2:1;       // Reserved for future use
- *   uint32_t grant_coex:1;       // Allows Coex to override Wlan
- *   uint32_t grant_wlan:1;       // Allows Wlan to override Coex whenever Wlan is not idle
- *   uint32_t protect_coex:1;     // Wlan grant is delayed until Coex has finished its present granted transaction
- *   uint32_t protect_wlan_tx:1;  // Prevents Coex from being granted when Wlan is transmitting (the protection is also extended to the response)
- *   uint32_t protect_wlan_rx:1;  // Prevents Coex from being granted when Wlan is receiving or waiting for a response to an already transmitted frame
+ *   uint32_t grant_coex:1;       // Allows Coex to override WLAN
+ *   uint32_t grant_wlan:1;       // Allows WLAN to override Coex whenever WLAN is not idle
+ *   uint32_t protect_coex:1;     // WLAN grant is delayed until Coex has finished its present granted transaction
+ *   uint32_t protect_wlan_tx:1;  // Prevents Coex from being granted when WLAN is transmitting (the protection is also extended to the response)
+ *   uint32_t protect_wlan_rx:1;  // Prevents Coex from being granted when WLAN is receiving or waiting for a response to an already transmitted frame
  *   uint32_t reserved_3:19;      // Reserved for future use
  * }
  * @endcode
@@ -923,7 +928,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_pta_priority_req_s {
 } sl_wfx_pta_priority_req_t;
 
 /**
- * @brief Confirmation sent by Wlan firmware after a ::SL_WFX_PTA_PRIORITY_REQ_ID request.
+ * @brief Confirmation sent by WLAN firmware after a ::SL_WFX_PTA_PRIORITY_REQ_ID request.
  */
 typedef struct __attribute__((__packed__)) sl_wfx_pta_priority_cnf_body_s {
   uint32_t status;                                         ///< Confirmation status, see enum ::sl_wfx_status_t
@@ -956,7 +961,7 @@ typedef struct __attribute__((__packed__)) sl_wfx_pta_state_req_s {
 } sl_wfx_pta_state_req_t;
 
 /**
- * @brief Confirmation sent by Wlan firmware after a ::SL_WFX_PTA_STATE_REQ_ID request.
+ * @brief Confirmation sent by WLAN firmware after a ::SL_WFX_PTA_STATE_REQ_ID request.
  */
 typedef struct __attribute__((__packed__)) sl_wfx_pta_state_cnf_body_s {
   uint32_t status;                                         ///< Confirmation status, see enum ::sl_wfx_status_t
@@ -977,4 +982,4 @@ typedef struct __attribute__((__packed__)) sl_wfx_pta_state_cnf_s {
  */
 /*end of GENERAL_API */
 
-#endif /* _WFM_GENERAL_API_H_ */
+#endif /* _SL_WFX_GENERAL_API_H_ */

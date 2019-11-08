@@ -1,36 +1,21 @@
-/**************************************************************************//**
- * Copyright 2019, Silicon Laboratories Inc.
+/***************************************************************************//**
+ * @file
+ * @brief Example main
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement.
+ * The software is governed by the sections of the MSLA applicable to Micrium
+ * Software.
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *****************************************************************************/
+ ******************************************************************************/
 
-/*
-*********************************************************************************************************
-*
-*                                             EXAMPLE MAIN
-*
-* File : ex_main.c
-*********************************************************************************************************
-*/
-
-/*
-*********************************************************************************************************
-*********************************************************************************************************
-*                                            INCLUDE FILES
-*********************************************************************************************************
-*********************************************************************************************************
-*/
-#include "lwip_micriumos.h"
+#include "demo_config.h"
 #include  <bsp_os.h>
 #include  "bsp.h"
 #include  <cpu/include/cpu.h>
@@ -46,72 +31,47 @@
 #include  "em_chip.h"
 #include  "wfx_host_cfg.h"
 #include  "wifi_cli.h"
+#include  "wfx_host_events.h"
 #include "io.h"
-#include "sleep.h"
 #include "wfx_task.h"
+#include "wfx_host.h"
+#include <stdio.h>
+#include <common/include/auth.h>
+#include <common/include/shell.h>
 #ifdef SL_WFX_USE_SECURE_LINK
 #include  <mbedtls/threading.h>
 #endif
-/*
-*********************************************************************************************************
-*********************************************************************************************************
-*                                             LOCAL DEFINES
-*********************************************************************************************************
-*********************************************************************************************************
-*/
-
+#include "sleep.h"
 #define  EX_MAIN_START_TASK_PRIO              30u
 #define  EX_MAIN_START_TASK_STK_SIZE         512u
 
+#ifdef SL_WFX_USE_SECURE_LINK
+extern void wfx_securelink_task_start(void);
+#endif
 
-/*
-*********************************************************************************************************
-*********************************************************************************************************
-*                                        LOCAL GLOBAL VARIABLES
-*********************************************************************************************************
-*********************************************************************************************************
-*/
-
-                                                                /* Start Task Stack.                                    */
-static  CPU_STK  Ex_MainStartTaskStk[EX_MAIN_START_TASK_STK_SIZE];
-                                                                /* Start Task TCB.                                      */
-static  OS_TCB   Ex_MainStartTaskTCB;
-
-
-
-/*
-*********************************************************************************************************
-*********************************************************************************************************
-*                                       LOCAL FUNCTION PROTOTYPES
-*********************************************************************************************************
-*********************************************************************************************************
-*/
-static void idleHook(void);
-static void setupHooks(void);
-static  void  Ex_MainStartTask (void  *p_arg);
-
-void WF200BusCommStart(void);
-#ifdef WFX_USE_SECURE_LINK
-void WF200SecurelinkStart(void);
-#endif //WFX_USE_SECURE_LINK
-void wf200_host_setup_memory_pools(void);
-
+/// Start task stack.
+static  CPU_STK  main_start_task_stk[EX_MAIN_START_TASK_STK_SIZE];
+/// Start task TCB.
+static  OS_TCB   main_start_task_tcb;
+static  void     main_start_task (void  *p_arg);
 
 #ifdef SLEEP_ENABLED
+
+static  void     idleHook(void);
+static  void     setupHooks(void);
 
 static bool sleepCallback(SLEEP_EnergyMode_t emode)
 {
 #ifdef SL_WFX_USE_SPI
-	if (GPIO_PinInGet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN))//wf200 messages pending
+  if (GPIO_PinInGet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN))//wf200 messages pending
 #else
-	if (GPIO_PinInGet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN)) //wf200 messages pending
+  if (GPIO_PinInGet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN)) //wf200 messages pending
 #endif
-	{
+  {
+    return false;
+  }
 
-	  return false;
-	}
-
-	return true;
+  return true;
 }
 
 static void wakeupCallback(SLEEP_EnergyMode_t emode)
@@ -119,182 +79,144 @@ static void wakeupCallback(SLEEP_EnergyMode_t emode)
 
 }
 #endif
-/*
-*********************************************************************************************************
-*********************************************************************************************************
-*                                          GLOBAL FUNCTIONS
-*********************************************************************************************************
-*********************************************************************************************************
-*/
 
-/*
-*********************************************************************************************************
-*                                                main()
-*
-* Description : This is the standard entry point for C applications. It is assumed that your code will
-*               call main() once you have performed all necessary initialization.
-*
-* Argument(s) : None.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
-
-int  main (void)
+/**************************************************************************//**
+ * Main function
+ *****************************************************************************/
+int  main(void)
 {
-    RTOS_ERR  err;
-    // Set the HFRCO Frequency
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_72M0Hz);
-    BSP_SystemInit();                                           /* Initialize System.                                   */
-    CPU_Init();                                                 /* Initialize CPU.                                      */
+  RTOS_ERR  err;
+  // Set the HFRCO frequency.
+  CMU_HFRCOFreqSet(cmuHFRCOFreq_72M0Hz);
+  BSP_SystemInit(); // Initialize System.
+  CPU_Init();       // Initialize CPU.
 #ifdef SL_WFX_USE_SPI
-    CMU_ClockPrescSet(cmuClock_HFPER,0);
+  CMU_ClockPrescSet(cmuClock_HFPER, 0);
 #endif
-    RETARGET_SerialInit();
-    RETARGET_SerialCrLf(1);
+  RETARGET_SerialInit();
+  RETARGET_SerialCrLf(1);
 #ifdef SLEEP_ENABLED
-    const SLEEP_Init_t sleepInit =
-    {
-    		.sleepCallback = sleepCallback,
-    		.wakeupCallback = wakeupCallback,
-    		.restoreCallback = 0
-    };
-    SLEEP_InitEx(&sleepInit);
+  const SLEEP_Init_t sleepInit =
+  {
+    .sleepCallback = sleepCallback,
+    .wakeupCallback = wakeupCallback,
+    .restoreCallback = 0
+  };
+  SLEEP_InitEx(&sleepInit);
 #endif
-    // Clear the console and buffer
-    printf("\033\143");
-    printf ("\033[3J");
+  // Clear the console and buffer
+  printf("\033\143");
+  printf("\033[3J");
 
-
-    OS_TRACE_INIT();                                            /* Initialize trace if enabled                          */
-    OSInit(&err);
-    /* Initialize the Kernel.                               */
+  OS_TRACE_INIT(); // Initialize trace if enabled
+  OSInit(&err);    // Initialize the Kernel.
 #ifdef SL_WFX_USE_SECURE_LINK
-    // Enable mbedtls Micrium OS support
+  // Enable mbedtls Micrium OS support
 #if defined ( MBEDTLS_THREADING_C )
-        THREADING_setup();
+  THREADING_setup();
 #endif
 #endif
-        /*   Check error code.                                  */
-    APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-
-    BSP_TickInit();
-    /* Initialize Kernel tick source.                       */
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+  // Initialize Kernel tick source.
+  BSP_TickInit();
 #ifdef SLEEP_ENABLED
-    setupHooks();
+  setupHooks();
 #endif
-    OSTaskCreate(&Ex_MainStartTaskTCB,                          /* Create the Start Task.                               */
-                 "Ex Main Start Task",
-                  Ex_MainStartTask,
-                  DEF_NULL,
-                  EX_MAIN_START_TASK_PRIO,
-                 &Ex_MainStartTaskStk[0],
-                 (EX_MAIN_START_TASK_STK_SIZE / 10u),
-                  EX_MAIN_START_TASK_STK_SIZE,
-                  0u,
-                  0u,
-                  DEF_NULL,
-                 (OS_OPT_TASK_STK_CLR),
-                 &err);
-                                                                /*   Check error code.                                  */
-    APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+  OSTaskCreate(&main_start_task_tcb, // Create the Start Task.
+               "Ex Main Start Task",
+               main_start_task,
+               DEF_NULL,
+               EX_MAIN_START_TASK_PRIO,
+               &main_start_task_stk[0],
+               (EX_MAIN_START_TASK_STK_SIZE / 10u),
+               EX_MAIN_START_TASK_STK_SIZE,
+               0u,
+               0u,
+               DEF_NULL,
+               (OS_OPT_TASK_STK_CLR),
+               &err);
 
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
-    OSStart(&err);                                              /* Start the kernel.                                    */
-                                                                /*   Check error code.                                  */
-    APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+  OSStart(&err); // Start the kernel.
 
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
-    return (1);
+  return (1);
 }
 
 
-/*
-*********************************************************************************************************
-*********************************************************************************************************
-*                                           LOCAL FUNCTIONS
-*********************************************************************************************************
-*********************************************************************************************************
-*/
-/***************************************************************************//**
- * @brief Unified GPIO Interrupt handler (pushbuttons)
- *        PB0 Next test
- *        PB1 Previous
- ******************************************************************************/
+/**************************************************************************//**
+ * Unified GPIO interrupt handler.
+ *****************************************************************************/
 static void GPIO_Unified_IRQ(void)
 {
   RTOS_ERR err;
+
   // Get and clear all pending GPIO interrupts
-  uint32_t interruptMask = GPIO_IntGet();
-  GPIO_IntClear(interruptMask);
+  uint32_t interrupt_mask = GPIO_IntGet();
+  GPIO_IntClear(interrupt_mask);
 
   // Act on interrupts
-  if (interruptMask & 0x400) {
-#ifdef  SL_WFX_USE_SPI
-	  OSFlagPost(&wf200_evts, WF200_EVENT_FLAG_RX,OS_OPT_POST_FLAG_SET,&err);
+  if (interrupt_mask & 0x400) {
+#ifdef SL_WFX_USE_SPI
+    OSFlagPost(&wfxtask_evts, WFX_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
 #endif
 #ifdef SL_WFX_USE_SDIO
 #ifdef SLEEP_ENABLED
-	  OSFlagPost(&wf200_evts, WF200_EVENT_FLAG_RX,OS_OPT_POST_FLAG_SET,&err);
+    OSFlagPost(&wfxtask_evts, WFX_EVENT_FLAG_RX,OS_OPT_POST_FLAG_SET,&err);
 #endif
 #endif
   }
-  if (interruptMask & (1<<BSP_GPIO_PB0_PIN)) {
+  if (interrupt_mask & (1 << BSP_GPIO_PB0_PIN)) {
     BSP_LedToggle(0);
   }
 
-  if (interruptMask & (1<<BSP_GPIO_PB1_PIN)) {
+  if (interrupt_mask & (1 << BSP_GPIO_PB1_PIN)) {
     BSP_LedToggle(1);
   }
 }
-/***************************************************************************//**
- * @brief GPIO Interrupt handler (PB0)
- ******************************************************************************/
+
+/**************************************************************************//**
+ * GPIO even interrupt handler.
+ *****************************************************************************/
 void GPIO_EVEN_IRQHandler(void)
 {
   GPIO_Unified_IRQ();
 }
 
-/***************************************************************************//**
- * @brief GPIO Interrupt handler (PB1)
- ******************************************************************************/
+/**************************************************************************//**
+ * GPIO odd interrupt handler.
+ *****************************************************************************/
 void GPIO_ODD_IRQHandler(void)
 {
   GPIO_Unified_IRQ();
 }
-/****************************************************************************************************//**
- *                                          AppGPIOSetup()
- *
- * @brief  Configure the GPIO pins to read the push buttons.
- *
- * @param  pin  GPIO Pin Number.
- *******************************************************************************************************/
-static void AppGPIOSetup(void)
+
+/**************************************************************************//**
+ * Configure the GPIO pins.
+ *****************************************************************************/
+static void gpio_setup(void)
 {
   // Enable GPIO clock.
   CMU_ClockEnable(cmuClock_GPIO, true);
-#ifdef EFM32GG11B820F2048GL192
-  // Configure PB0 and PB1 as inputs.
+
+  // Configure PB0 and PB1 as inputs (present on the Wireless Radio board in WGM160P case).
   GPIO_PinModeSet(BSP_GPIO_PB0_PORT, BSP_GPIO_PB0_PIN, gpioModeInput, 0);
   GPIO_PinModeSet(BSP_GPIO_PB1_PORT, BSP_GPIO_PB1_PIN, gpioModeInput, 0);
   // Enable interrupts.
   GPIO_IntConfig(BSP_GPIO_PB0_PORT, BSP_GPIO_PB0_PIN, false, true, true);
   GPIO_IntConfig(BSP_GPIO_PB1_PORT, BSP_GPIO_PB1_PIN, false, true, true);
-#endif
 
-
-  // Configure WF200 Reset Pin
-  GPIO_PinModeSet(WFX_HOST_CFG_RESET_PORT,  WFX_HOST_CFG_RESET_PIN,  gpioModePushPull,  0);
-  // Configure WF200 WUP Pin
-  GPIO_PinModeSet(WFX_HOST_CFG_WUP_PORT,  WFX_HOST_CFG_WUP_PIN,  gpioModePushPull,  0);
+  // Configure WF200 reset pin.
+  GPIO_PinModeSet(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN, gpioModePushPull, 0);
+  // Configure WF200 WUP pin.
+  GPIO_PinModeSet(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN, gpioModePushPull, 0);
 #ifdef  SL_WFX_USE_SPI
-  // GPIO used as IRQ
-  GPIO_PinModeSet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN,  gpioModeInputPull,  0);
+  // GPIO used as IRQ.
+  GPIO_PinModeSet(WFX_HOST_CFG_SPI_WIRQPORT, WFX_HOST_CFG_SPI_WIRQPIN, gpioModeInputPull, 0);
 #endif
-  CMU_OscillatorEnable(cmuOsc_LFXO,true,true);
-
+  CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
 #ifdef EFM32GG11B820F2048GM64 //WGM160PX22KGA2
   // GPIO used as IRQ
   GPIO_PinModeSet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN,  gpioModeInputPull,  0);
@@ -310,110 +232,79 @@ static void AppGPIOSetup(void)
   CMU->ROUTELOC0 |= CMU_ROUTELOC0_CLKOUT0LOC_LOC5;
   GPIO_PinModeSet(LP_CLK_PORT,  LP_CLK_PIN,  gpioModePushPull,  0);
 #endif
-  // Reset and enable associated CPU interrupt vector
+  // Reset and enable associated CPU interrupt vector.
   NVIC_ClearPendingIRQ(GPIO_ODD_IRQn);
   NVIC_EnableIRQ(GPIO_ODD_IRQn);
   NVIC_ClearPendingIRQ(GPIO_EVEN_IRQn);
   NVIC_EnableIRQ(GPIO_EVEN_IRQn);
 }
-/*
-*********************************************************************************************************
-*                                          Ex_MainStartTask()
-*
-* Description : This is the task that will be called by the Startup when all services are initializes
-*               successfully.
-*
-* Argument(s) : p_arg   Argument passed from task creation. Unused, in this case.
-*
-* Return(s)   : None.
-*
-* Notes       : None.
-*********************************************************************************************************
-*/
 
-static  void  Ex_MainStartTask (void  *p_arg)
+/**************************************************************************//**
+ * main_start_task()
+ *
+ * @param p_arg Argument passed from task creation. Unused.
+ *
+ *  This is the task that will be called by the startup when all services
+ *  are initialized successfully.
+ *
+ *****************************************************************************/
+static  void  main_start_task(void  *p_arg)
 {
-    RTOS_ERR  err;
-    PP_UNUSED_PARAM(p_arg);                                     /* Prevent compiler warning.                            */
+  RTOS_ERR  err;
+  PP_UNUSED_PARAM(p_arg); // Prevent compiler warning.
+
 
 
 #ifdef SL_WFX_USE_SDIO
 #ifdef RTOS_MODULE_IO_AVAIL
-    IO_Init(&err);
-    APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+  // Initialize the IO module.
+  IO_Init(&err);
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 #endif
 #endif
 
-    // Enable GPIO clock.
-    CMU_ClockEnable(cmuClock_GPIO, true);
+  // Enable GPIO clock.
+  CMU_ClockEnable(cmuClock_GPIO, true);
 
-    AppGPIOSetup();
-#if (OS_CFG_STAT_TASK_EN == DEF_ENABLED)
-    OSStatTaskCPUUsageInit(&err);                               /* Initialize CPU Usage.                                */
-                                                                /*   Check error code.                                  */
-    APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), ;);
-#endif
+  gpio_setup();
 
 #ifdef CPU_CFG_INT_DIS_MEAS_EN
-    CPU_IntDisMeasMaxCurReset();                                /* Initialize interrupts disabled measurement.          */
+  // Initialize interrupts disabled measurement.
+  CPU_IntDisMeasMaxCurReset();
 #endif
 
-    Common_Init(&err);                                          /* Call common module initialization.           */
-    APP_RTOS_ASSERT_CRITICAL(err.Code == RTOS_ERR_NONE, ;);
+  // Call common module initialization.
+  Common_Init(&err);
+  APP_RTOS_ASSERT_CRITICAL(err.Code == RTOS_ERR_NONE,; );
 
 #ifdef  RTOS_MODULE_COMMON_SHELL_AVAIL
-    Shell_Init(&err);
-    APP_RTOS_ASSERT_CRITICAL(err.Code == RTOS_ERR_NONE,; );
+  Shell_Init(&err);
+  APP_RTOS_ASSERT_CRITICAL(err.Code == RTOS_ERR_NONE,; );
 #endif
 
-#ifdef  RTOS_MODULE_COMMON_CLK_AVAIL
-    Clk_Init(&err);
-    APP_RTOS_ASSERT_CRITICAL(err.Code == RTOS_ERR_NONE,; );
-#endif
+  Auth_Init(&err);
+  APP_RTOS_ASSERT_CRITICAL(err.Code == RTOS_ERR_NONE,; );
 
-    Auth_Init(&err);
-    APP_RTOS_ASSERT_CRITICAL(err.Code == RTOS_ERR_NONE,; );
+  // Initialize the BSP.
+  BSP_OS_Init();
+  BSP_LedsInit();
 
-    BSP_OS_Init();                                              /* Initialize the BSP. It is expected that the BSP ...  */
-                                                                /* ... will register all the hardware controller to ... */
-                                                     /* ... the platform manager at this moment.             */
+  printf("WF200 Micrium OS LwIP Example\n");
 
-    printf ("WF200 Micrium OS LwIP Example\n");
-    wf200_host_setup_memory_pools();
-    WF200BusCommStart(); //start bus comm task
+  //start wfx bus communication task.
+  wfxtask_start();
 #ifdef SL_WFX_USE_SECURE_LINK
-    WF200SecurelinkStart(); // start securelink key renegotiation task
+  wfx_securelink_task_start(); // start securelink key renegotiation task
 #endif //WFX_USE_SECURE_LINK
-#ifdef SLEEP_ENABLED
-    SLEEP_SleepBlockBegin(sleepEM2);
-#endif
-    WIFI_CLI_CfgDialog();                                       // Prompt the user for a chance to override the configuration
-#ifdef SLEEP_ENABLED
-    SLEEP_SleepBlockEnd(sleepEM2);
-#endif
-    lwip_start();
 
-    while (DEF_ON) {
-#if 0
+  wfx_events_task_start();
+  lwip_start();
 
-                                                                /* Delay Start Task execution for                       */
-        OSTimeDly( 1000,                                        /*   1000 OS Ticks                                      */
-                   OS_OPT_TIME_DLY,                             /*   from now.                                          */
-                  &err);
+  // Delete the init thread.
+  OSTaskDel(0, &err);
 
-
-        BSP_LedToggle(0);
-
-                                                                /*   Check error code.                                  */
-        APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), ;);
-#else
-        /* Delete the Init Thread */
-        OSTaskDel (0, &err);
-#endif
-    }
 }
 #ifdef SLEEP_ENABLED
-
 /***************************************************************************//**
  * @brief
  *   This is the idle hook.
@@ -424,7 +315,7 @@ static  void  Ex_MainStartTask (void  *p_arg)
  ******************************************************************************/
 static void idleHook(void)
 {
-    SLEEP_Sleep();
+  SLEEP_Sleep();
 }
 
 /***************************************************************************//**
@@ -435,12 +326,13 @@ static void idleHook(void)
  ******************************************************************************/
 static void setupHooks(void)
 {
-    CPU_SR_ALLOC();
+  CPU_SR_ALLOC();
 
-    CPU_CRITICAL_ENTER();
-    /* Don't allow EM3, since we use LF clocks. */
-    SLEEP_SleepBlockBegin(sleepEM3);
-    OS_AppIdleTaskHookPtr = idleHook;
-    CPU_CRITICAL_EXIT();
+  CPU_CRITICAL_ENTER();
+  /* Don't allow EM3, since we use LF clocks. */
+  SLEEP_SleepBlockBegin(sleepEM3);
+  OS_AppIdleTaskHookPtr = idleHook;
+  CPU_CRITICAL_EXIT();
 }
 #endif
+

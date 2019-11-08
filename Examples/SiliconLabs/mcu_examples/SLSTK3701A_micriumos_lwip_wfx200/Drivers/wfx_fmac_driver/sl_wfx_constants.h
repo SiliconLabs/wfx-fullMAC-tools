@@ -17,7 +17,7 @@
 #ifndef SL_WFX_CONSTANTS_H
 #define SL_WFX_CONSTANTS_H
 
-#include "sl/sl_status.h"
+#include "sl_status.h"
 #include <stdint.h>
 
 /******************************************************
@@ -41,11 +41,11 @@
 
 #define SL_WAIT_FOREVER  0xFFFFFFFF
 
-#define SL_WFX_ERROR_CHECK(__status__)             \
-  do {                                             \
-    if (((sl_status_t)__status__) != SL_SUCCESS) { \
-      goto error_handler;                          \
-    }                                              \
+#define SL_WFX_ERROR_CHECK(__status__)               \
+  do {                                               \
+    if (((sl_status_t)__status__) != SL_STATUS_OK) { \
+      goto error_handler;                            \
+    }                                                \
   } while (0)
 
 // little endian has Least Significant Byte First
@@ -160,6 +160,22 @@ static inline uint32_t uint32_identity(uint32_t x)
 
 #define SL_WAIT_FOREVER  0xFFFFFFFF
 
+#ifndef SL_WFX_DEBUG_MASK
+#define SL_WFX_DEBUG_MASK 0x0000
+#endif
+
+#define SL_WFX_DEBUG_ERROR   0x0001
+#define SL_WFX_DEBUG_INIT    0x0002
+#define SL_WFX_DEBUG_SLEEP   0x0004
+#define SL_WFX_DEBUG_SLK     0x0008
+#define SL_WFX_DEBUG_RX      0x0010
+#define SL_WFX_DEBUG_RX_RAW  0x0020
+#define SL_WFX_DEBUG_RX_REG  0x0040
+#define SL_WFX_DEBUG_TX      0x0080
+#define SL_WFX_DEBUG_TX_RAW  0x0100
+#define SL_WFX_DEBUG_TX_REG  0x0200
+#define SL_WFX_DEBUG_FW_LOAD 0x0400
+
 #define IE_RSNE_ID                48
 #define IE_RSNE_CIPHER_SUITE_TKIP 0x02AC0F00
 #define IE_RSNE_CIPHER_SUITE_CCMP 0x04AC0F00
@@ -232,7 +248,7 @@ static inline uint32_t uint32_identity(uint32_t x)
 
 /**************************************************************************//**
  * @enum sl_wfx_register_address_t
- * @brief Enum listing the registers of the Wfx solution
+ * @brief Enum listing the registers of the WFx solution
  *****************************************************************************/
 typedef enum {
   SL_WFX_CONFIG_REG_ID         = 0x0000,
@@ -277,7 +293,7 @@ typedef enum {
   SL_WFX_ANTENNA_2_ONLY,       ///< RF output 2 is used
   SL_WFX_ANTENNA_TX1_RX2,      ///< RF output 1 is used for TX, RF 2 for RX
   SL_WFX_ANTENNA_TX2_RX1,      ///< RF output 2 is used for TX, RF 1 for RX
-  SL_WFX_ANTENNA_DIVERSITY     ///< wf200 uses an antenna diversity algorithm
+  SL_WFX_ANTENNA_DIVERSITY     ///< WF200 uses an antenna diversity algorithm
 } sl_wfx_antenna_config_t;
 
 /**************************************************************************//**
@@ -304,14 +320,14 @@ typedef enum {
 } sl_wfx_buffer_type_t;
 
 /**************************************************************************//**
- * @enum sl_wfx_host_bus_tranfer_type_t
+ * @enum sl_wfx_host_bus_transfer_type_t
  * @brief Enumerates the different types of bus transfers
  *****************************************************************************/
 typedef enum {
   SL_WFX_BUS_WRITE = (1 << 0),
   SL_WFX_BUS_READ  = (1 << 1),
   SL_WFX_BUS_WRITE_AND_READ = SL_WFX_BUS_WRITE | SL_WFX_BUS_READ,
-} sl_wfx_host_bus_tranfer_type_t;
+} sl_wfx_host_bus_transfer_type_t;
 
 #ifdef SL_WFX_USE_SECURE_LINK
 /**************************************************************************//**
@@ -327,7 +343,7 @@ typedef enum {
 
 /**************************************************************************//**
  * @enum sl_wfx_securelink_renegotiation_state_t
- * @brief Enumerates the states of the securelink key renegotiation
+ * @brief Enumerates the states of the secure link key renegotiation
  *****************************************************************************/
 typedef enum {
   SL_WFX_SECURELINK_DEFAULT               = 0,
@@ -370,9 +386,8 @@ typedef struct {
   uint8_t  firmware_build;                 ///< Firmware build version
   uint8_t  firmware_minor;                 ///< Firmware minor version
   uint8_t  firmware_major;                 ///< Firmware major version
-  uint16_t data_frame_id;                  ///< Frame id incremented by ::sl_wfx_send_ethernet_frame
-  uint16_t used_buffers;                   ///< Number of buffers currenlty in use by the WFx chip
-  uint16_t bus_accesses;                   ///< Number of current bus accesses from the driver
+  uint16_t data_frame_id;                  ///< Frame ID incremented by ::sl_wfx_send_ethernet_frame
+  uint16_t used_buffers;                   ///< Number of buffers currently in use by the WFx chip
   uint8_t  wfx_opn[SL_WFX_OPN_SIZE];       ///< OPN of the part
   sl_wfx_mac_address_t mac_addr_0;         ///< Mac address used by WFx interface 0, station
   sl_wfx_mac_address_t mac_addr_1;         ///< Mac address used by WFx interface 1, softap

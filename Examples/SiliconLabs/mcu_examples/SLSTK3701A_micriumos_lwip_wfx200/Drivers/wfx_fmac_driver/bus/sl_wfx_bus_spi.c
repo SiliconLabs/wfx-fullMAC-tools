@@ -47,7 +47,7 @@ sl_status_t sl_wfx_reg_read(sl_wfx_register_address_t address, void *buffer, uin
     tmp[3] = byte_swap;
   }
 
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_reg_write(sl_wfx_register_address_t address, const void *buffer, uint32_t length)
@@ -77,7 +77,7 @@ sl_status_t sl_wfx_reg_write(sl_wfx_register_address_t address, const void *buff
   sl_wfx_host_spi_transfer_no_cs_assert(SL_WFX_BUS_WRITE, header_as_bytes, 2, (uint8_t *)buffer, length);
   sl_wfx_host_spi_cs_deassert();
 
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_init_bus(void)
@@ -94,7 +94,7 @@ sl_status_t sl_wfx_init_bus(void)
   SL_WFX_ERROR_CHECK(status);
 
   if (value32 == 0 || value32 == 0xFFFFFFFF) {
-    status = SL_ERROR;
+    status = SL_STATUS_FAIL;
     SL_WFX_ERROR_CHECK(status);
   }
 

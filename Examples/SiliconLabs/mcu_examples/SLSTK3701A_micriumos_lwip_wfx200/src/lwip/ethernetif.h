@@ -17,12 +17,28 @@
 #ifndef __ETHERNETIF_H__
 #define __ETHERNETIF_H__
 
-
 #include "lwip/err.h"
 #include "lwip/netif.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+/***************************************************************************//**
+ * Sets up the station network interface.
+ *
+ * @param netif the lwip network interface structure
+ * @returns ERR_OK if successful
+ ******************************************************************************/
+err_t sta_ethernetif_init(struct netif *netif);
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
-err_t ethernetif_init(struct netif *netif);
+/***************************************************************************//**
+ * Sets up the AP network interface.
+ *
+ * @param netif the lwip network interface structure
+ * @returns ERR_OK if successful
+ ******************************************************************************/
+err_t ap_ethernetif_init(struct netif *netif);
+#ifdef __cplusplus
+}
+#endif
 #endif

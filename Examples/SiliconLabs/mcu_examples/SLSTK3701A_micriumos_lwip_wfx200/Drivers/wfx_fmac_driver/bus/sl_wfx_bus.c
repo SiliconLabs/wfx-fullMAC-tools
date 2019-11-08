@@ -18,7 +18,7 @@
 
 #define CONFIG_PREFETCH_BIT (1 << 13)
 
-static sl_status_t sl_wfx_bus_access(sl_wfx_host_bus_tranfer_type_t type,
+static sl_status_t sl_wfx_bus_access(sl_wfx_host_bus_transfer_type_t type,
                                      sl_wfx_register_address_t address,
                                      void *buffer,
                                      uint32_t length);
@@ -30,12 +30,26 @@ sl_status_t sl_wfx_reg_read_16(sl_wfx_register_address_t address, uint16_t *valu
 
   *value_out = sl_wfx_unpack_16bit_little_endian(tmp);
 
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_RX_REG)
+  sl_wfx_host_log("RX_REG> addr:%02X, %02X%02X\r\n",
+                  address,
+                  (*value_out >> 8) & 0xFF,
+                  *value_out & 0xFF);
+#endif
+
   return result;
 }
 
 sl_status_t sl_wfx_reg_write_16(sl_wfx_register_address_t address, uint16_t value_in)
 {
   uint8_t tmp[4];
+
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_TX_REG)
+  sl_wfx_host_log("TX_REG> addr:%02X, %02X%02X\r\n",
+                  address,
+                  (value_in >> 8) & 0xFF,
+                  value_in & 0xFF);
+#endif
 
   sl_wfx_pack_16bit_little_endian(tmp, value_in);
   tmp[2] = 0;
@@ -50,11 +64,29 @@ sl_status_t sl_wfx_reg_read_32(sl_wfx_register_address_t address, uint32_t *valu
 
   *value_out = sl_wfx_htole32(*value_out);
 
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_RX_REG)
+  sl_wfx_host_log("RX_REG> addr:%02X, %02X%02X%02X%02X\r\n",
+                  address,
+                  (*value_out >> 24) & 0xFF,
+                  (*value_out >> 16) & 0xFF,
+                  (*value_out >> 8) & 0xFF,
+                  *value_out & 0xFF);
+#endif
+
   return result;
 }
 
 sl_status_t sl_wfx_reg_write_32(sl_wfx_register_address_t address, uint32_t value_in)
 {
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_TX_REG)
+  sl_wfx_host_log("TX_REG> addr:%02X, %02X%02X%02X%02X\r\n",
+                  address,
+                  (value_in >> 24) & 0xFF,
+                  (value_in >> 16) & 0xFF,
+                  (value_in >> 8) & 0xFF,
+                  value_in & 0xFF);
+#endif
+
   value_in = sl_wfx_htole32(value_in);
 
   return sl_wfx_bus_access(SL_WFX_BUS_WRITE, address, &value_in, sizeof(value_in));
@@ -66,12 +98,40 @@ sl_status_t sl_wfx_data_read(void *buffer, uint32_t length)
 
   result = sl_wfx_bus_access(SL_WFX_BUS_READ, SL_WFX_IN_OUT_QUEUE_REG_ID, buffer, length);
 
+#if (SL_WFX_DEBUG_MASK & (SL_WFX_DEBUG_RX | SL_WFX_DEBUG_RX_RAW))
+  sl_wfx_host_log("RX> %02X%02X %02X %02X ",
+                  ((uint8_t *)buffer)[0],
+                  ((uint8_t *)buffer)[1],
+                  ((uint8_t *)buffer)[2],
+                  ((uint8_t *)buffer)[3]);
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_RX_RAW)
+  for (uint16_t i = 4; i < length; i++) {
+    sl_wfx_host_log("%02X", ((uint8_t *)buffer)[i]);
+  }
+#endif
+  sl_wfx_host_log("\r\n");
+#endif
+
   return result;
 }
 
 sl_status_t sl_wfx_data_write(const void *buffer, uint32_t length)
 {
   sl_status_t result;
+
+#if (SL_WFX_DEBUG_MASK & (SL_WFX_DEBUG_TX | SL_WFX_DEBUG_TX_RAW))
+  sl_wfx_host_log("TX> %02X%02X %02X %02X ",
+                  ((uint8_t *)buffer)[0],
+                  ((uint8_t *)buffer)[1],
+                  ((uint8_t *)buffer)[2],
+                  ((uint8_t *)buffer)[3]);
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_TX_RAW)
+  for (uint16_t i = 4; i < length; i++) {
+    sl_wfx_host_log("%02X", ((uint8_t *)buffer)[i]);
+  }
+#endif
+  sl_wfx_host_log("\r\n");
+#endif
 
   result = sl_wfx_bus_access(SL_WFX_BUS_WRITE, SL_WFX_IN_OUT_QUEUE_REG_ID, (void*) buffer, length);
 
@@ -82,12 +142,12 @@ sl_status_t sl_wfx_apb_write(uint32_t address, const void *buffer, uint32_t leng
 {
   sl_status_t result;
   if (length / 2 >= 0x1000) {
-    return SL_BAD_ARG;
+    return SL_STATUS_INVALID_PARAMETER;
   }
 
   result = sl_wfx_reg_write_32(SL_WFX_SRAM_BASE_ADDR_REG_ID, address);
 
-  if (result == SL_SUCCESS) {
+  if (result == SL_STATUS_OK) {
     result = sl_wfx_bus_access(SL_WFX_BUS_WRITE, SL_WFX_SRAM_DPORT_REG_ID, (void*) buffer, length);
   }
 
@@ -100,7 +160,7 @@ sl_status_t sl_wfx_apb_write_32(uint32_t address, uint32_t value_in)
 
   result = sl_wfx_reg_write_32(SL_WFX_SRAM_BASE_ADDR_REG_ID, address);
 
-  if (result == SL_SUCCESS) {
+  if (result == SL_STATUS_OK) {
     result = sl_wfx_reg_write_32(SL_WFX_SRAM_DPORT_REG_ID, value_in);
   }
 
@@ -135,14 +195,12 @@ sl_status_t sl_wfx_apb_read_32(uint32_t address, uint32_t *value_out)
   return result;
 }
 
-static sl_status_t sl_wfx_bus_access(sl_wfx_host_bus_tranfer_type_t type,
+static sl_status_t sl_wfx_bus_access(sl_wfx_host_bus_transfer_type_t type,
                                      sl_wfx_register_address_t address,
                                      void *buffer,
                                      uint32_t length)
 {
   sl_status_t result;
-
-  sl_wfx_context->bus_accesses++;
 
   /* If the WFx is sleeping, wake it up */
   if (sl_wfx_context->state & SL_WFX_SLEEPING) {
@@ -154,6 +212,10 @@ static sl_status_t sl_wfx_bus_access(sl_wfx_host_bus_tranfer_type_t type,
       SL_WFX_ERROR_CHECK(result);
     }
     sl_wfx_context->state &= ~SL_WFX_SLEEPING;
+
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLEEP)
+    sl_wfx_host_log("WFx awake\r\n");
+#endif
   }
 
   /* Send the communication on the bus */
@@ -162,7 +224,7 @@ static sl_status_t sl_wfx_bus_access(sl_wfx_host_bus_tranfer_type_t type,
   } else if (type == SL_WFX_BUS_WRITE) {
     result = sl_wfx_reg_write(address, buffer, length);
   } else {
-    result = SL_BAD_ARG;
+    result = SL_STATUS_INVALID_PARAMETER;
   }
   SL_WFX_ERROR_CHECK(result);
 
@@ -171,18 +233,21 @@ static sl_status_t sl_wfx_bus_access(sl_wfx_host_bus_tranfer_type_t type,
   if ((sl_wfx_context->state & SL_WFX_POWER_SAVE_ACTIVE)
       && (type == SL_WFX_BUS_READ)
       && (address != SL_WFX_CONTROL_REG_ID)
-      && (sl_wfx_context->bus_accesses == 1)
-      && (sl_wfx_context->used_buffers <= 1)) {
+      && (sl_wfx_context->used_buffers <= 1)
+      && ((*((uint16_t *)((uint8_t *)buffer + length - SL_WFX_CTRL_REGISTER_SIZE)) & SL_WFX_CONT_NEXT_LEN_MASK) == 0)) {
     /* Ask the host opinion on whether the WFx should be put back to sleep or
        not*/
-    if (sl_wfx_host_sleep_grant(type, address, length) == SL_WIFI_SLEEP_GRANTED) {
+    if (sl_wfx_host_sleep_grant(type, address, length) == SL_STATUS_WIFI_SLEEP_GRANTED) {
       sl_wfx_context->state |= SL_WFX_SLEEPING;
       result = sl_wfx_host_set_wake_up_pin(0);
       SL_WFX_ERROR_CHECK(result);
+
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLEEP)
+      sl_wfx_host_log("WFx sleeping\r\n");
+#endif
     }
   }
 
   error_handler:
-  sl_wfx_context->bus_accesses--;
   return result;
 }

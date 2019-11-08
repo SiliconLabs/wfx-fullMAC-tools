@@ -48,26 +48,24 @@
 #define SYS_SEM_NULL    NULL
 
 typedef struct {
-    /** The mail queue itself. */
-	OS_Q        Q;
-    /** The semaphore used to count the number of available slots. */
-    OS_SEM      Q_full;
-    /** The validity flag. */
-    int         is_valid;
+  /** The mail queue itself. */
+  OS_Q        Q;
+  /** The semaphore used to count the number of available slots. */
+  OS_SEM      Q_full;
+  /** The validity flag. */
+  int         is_valid;
 } sys_mbox_t;
 
 typedef struct {
-	OS_SEM    sem;
-    int       is_valid;
+  OS_SEM    sem;
+  int       is_valid;
 } sys_sem_t;
 
 typedef uint8_t     sys_thread_t;
 
 typedef struct {
-	OS_MUTEX mutex;
-	int      is_valid;
+  OS_MUTEX mutex;
+  int      is_valid;
 } sys_mutex_t;
 
-
 #endif /* __SYS_RTXC_H__ */
-

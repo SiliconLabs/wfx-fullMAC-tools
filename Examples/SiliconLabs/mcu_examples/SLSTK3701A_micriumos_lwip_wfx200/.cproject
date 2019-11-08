@@ -36,9 +36,10 @@
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
 									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
-									<listOptionValue builtIn="false" value="DEBUG_DISABLED=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
+									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2026396169" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.1091880051" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
@@ -53,12 +54,12 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/systemview/MicriumOSKernel}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.0.0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/sl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/apps}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lwip/src/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip/system}&quot;"/>
@@ -80,6 +81,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/CMSIS/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/emlib/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/hardware/kit/SLSTK3701A_EFM32GG11/config}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.261519505" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -95,6 +97,7 @@
 								<option id="gnu.both.asm.option.include.paths.2116336987" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.as.def.symbols.716988690" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.as.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 								</option>
 								<inputType id="org.eclipse.cdt.core.asmSource.1219558242" superClass="org.eclipse.cdt.core.asmSource"/>
 							</tool>
@@ -128,7 +131,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/wfx_host/wfx_securelink_task.c|src/wfx_host/wf200_host_crypto.c|mbedtls|mbedtls/doxygen|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|Drivers/wfx_fmac_driver/doxygen|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_90.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_A0.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_B0.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_C0.sec|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|sdk|shared/lwip/fsdata|src/wfx_host/wfx_host_sdio_gos.c|src/wfx_host/wfx_host_sdio.c|wgm160p|src/wfx_host/net_drv_wifi_wfx_host_sdio_fnct.h|src/wfx_host/net_drv_wifi_wfx_host_sdio_fnct.c|src/wfx_host/wfx_host_sdio_uOS.c|io|Drivers/io|BSP/bsp_sd_hc.c|src/lwip/fsdata/fs|third_party/lwip/src/apps/http/fs|third_party/lwip/src/apps/http/makefsdata|third_party/LwIP/doc|third_party/lwip/src/apps/http/fsdata.c|src/wf200_host/wf200_host_spi.c|third_party/freertos|third_party/lwip/test|Drivers/wf200_driver/bus/wf200_bus_sdio.c|src/lwip/fsdata/httpfsdata.c|emdrv/spidrv/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/wfx_host/wfx_securelink_task.c|src/wfx_host/wfx_host_crypto.c|mbedtls|mbedtls/doxygen|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|sdk|shared/lwip/fsdata|src/wfx_host/wfx_host_sdio.c|BSP/bsp_sd_hc.c|emdrv/spidrv/|sdio/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -166,13 +169,14 @@
 							<builder buildPath="${workspace_loc:/SLSTK3701A_micriumos_lwip_wfx200}/GNU ARM v7.2.1 - Debug" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base.231844303" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Si32 GNU ARM Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.475109406" name="GNU ARM C Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols.345539383" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
 									<listOptionValue builtIn="false" value="SLEEP_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
-									<listOptionValue builtIn="false" value="DEBUG_DISABLED=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
+									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
+									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.960391177" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.13917865" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
@@ -187,12 +191,12 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/systemview/MicriumOSKernel}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.0.0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/sl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/apps}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lwip/src/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip/system}&quot;"/>
@@ -214,6 +218,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/CMSIS/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/emlib/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/hardware/kit/SLSTK3701A_EFM32GG11/config}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.1014462801" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -229,6 +234,7 @@
 								<option id="gnu.both.asm.option.include.paths.383282666" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.as.def.symbols.258791012" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.as.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 								</option>
 								<inputType id="org.eclipse.cdt.core.asmSource.643412893" superClass="org.eclipse.cdt.core.asmSource"/>
 							</tool>
@@ -262,7 +268,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/wfx_host/wfx_securelink_task.c|src/wfx_host/wf200_host_crypto.c|mbedtls|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|Drivers/wfx_fmac_driver/doxygen|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_90.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_A0.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_B0.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_C0.sec|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|sdk|shared/lwip/fsdata|src/wfx_host/wfx_host_sdio_gos.c|src/wfx_host/wfx_host_sdio.c|wgm160p|src/wfx_host/net_drv_wifi_wfx_host_sdio_fnct.h|src/wfx_host/net_drv_wifi_wfx_host_sdio_fnct.c|src/wfx_host/wfx_host_sdio_uOS.c|io|Drivers/io|BSP/bsp_sd_hc.c|src/lwip/fsdata/fs|third_party/lwip/src/apps/http/fs|third_party/lwip/src/apps/http/makefsdata|third_party/LwIP/doc|third_party/lwip/src/apps/http/fsdata.c|src/wf200_host/wf200_host_spi.c|third_party/freertos|third_party/lwip/test|Drivers/wf200_driver/bus/wf200_bus_sdio.c|src/lwip/fsdata/httpfsdata.c|emdrv/spidrv/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/wfx_host/wfx_securelink_task.c|src/wfx_host/wfx_host_crypto.c|mbedtls|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|sdk|shared/lwip/fsdata|src/wfx_host/wfx_host_sdio.c|BSP/bsp_sd_hc.c|emdrv/spidrv/|sdio/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -304,9 +310,10 @@
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
 									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
-									<listOptionValue builtIn="false" value="DEBUG_DISABLED=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
+									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.287923225" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.1727323452" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
@@ -321,12 +328,12 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/systemview/MicriumOSKernel}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.0.0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/sl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/apps}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lwip/src/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip/system}&quot;"/>
@@ -348,6 +355,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/CMSIS/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/emlib/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/hardware/kit/SLSTK3701A_EFM32GG11/config}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.395645542" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -363,6 +371,7 @@
 								<option id="gnu.both.asm.option.include.paths.1279236149" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.as.def.symbols.569620442" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.as.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 								</option>
 								<inputType id="org.eclipse.cdt.core.asmSource.167109739" superClass="org.eclipse.cdt.core.asmSource"/>
 							</tool>
@@ -396,7 +405,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/wfx_host/wfx_securelink_task.c|src/wfx_host/wf200_host_crypto.c|mbedtls|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|Drivers/wfx_fmac_driver/doxygen|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_90.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_A0.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_B0.sec|Drivers/wfx_fmac_driver/firmware/2.2.1/wfm_wf200_C0.sec|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|sdk|shared/lwip/fsdata|src/wfx_host/wfx_host_sdio_gos.c|src/wfx_host/wfx_host_sdio.c|wgm160p|src/wfx_host/net_drv_wifi_wfx_host_sdio_fnct.h|src/wfx_host/net_drv_wifi_wfx_host_sdio_fnct.c|src/wfx_host/wfx_host_sdio_uOS.c|io|Drivers/io|BSP/bsp_sd_hc.c|src/lwip/fsdata/fs|third_party/lwip/src/apps/http/fs|third_party/lwip/src/apps/http/makefsdata|third_party/LwIP/doc|third_party/lwip/src/apps/http/fsdata.c|src/wf200_host/wf200_host_spi.c|third_party/freertos|third_party/lwip/test|Drivers/wf200_driver/bus/wf200_bus_sdio.c|src/lwip/fsdata/httpfsdata.c|emdrv/spidrv/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/wfx_host/wfx_securelink_task.c|src/wfx_host/wfx_host_crypto.c|mbedtls|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|sdk|shared/lwip/fsdata|BSP/bsp_sd_hc.c|emdrv/spidrv/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -428,6 +437,9 @@
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904@0;com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904@0.;com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.475109406;com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.1014462801">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904@1;com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904@1.;com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.232242302;com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.395645542">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904;com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904.;com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.955675337;com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.261519505">

@@ -15,9 +15,14 @@
 #ifndef WIFI_CLI_H
 #define WIFI_CLI_H
 
-
-void WIFI_CLI_Init(void);
-
-void WIFI_CLI_CfgDialog(void);
-
+#ifdef __cplusplus
+extern "C" {
+#endif
+/**************************************************************************//**
+ * WiFi configuration dialog via UART.
+ *****************************************************************************/
+void wifi_cli_cfg_dialog(void);
+#ifdef __cplusplus
+}
+#endif
 #endif // WIFI_CLI_H

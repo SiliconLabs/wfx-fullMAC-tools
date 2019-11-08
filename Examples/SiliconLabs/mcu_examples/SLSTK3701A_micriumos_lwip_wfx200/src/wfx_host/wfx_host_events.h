@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2018, Silicon Laboratories Inc.
+ * Copyright 2019, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
+#ifndef WFX_EVENTS_TASK_H
+#define WFX_EVENTS_TASK_H
 
-#ifndef _CMD_MAP_UMAC_H_
-#define _CMD_MAP_UMAC_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+/***************************************************************************//**
+ * Creates WFX events processing task.
+ ******************************************************************************/
+void wfx_events_task_start(void);
 
-#include "wfm_general_api.h"
-#include "wfm_cmd_api.h"
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* _CMD_MAP_UMAC_H_ */
+#endif

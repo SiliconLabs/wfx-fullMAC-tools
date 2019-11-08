@@ -67,7 +67,7 @@
 #define  OS_CFG_DYN_TICK_EN                                 DEF_DISABLED
 #endif
 
-#define  OS_CFG_TS_EN                                       DEF_ENABLED
+#define  OS_CFG_TS_EN                                       DEF_DISABLED
 
 #define  OS_CFG_PRIO_MAX                                    64u
 

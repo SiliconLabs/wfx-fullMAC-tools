@@ -14,26 +14,10 @@
  * limitations under the License.
  *****************************************************************************/
 
-#ifndef __SL_STATUS_H
-#define __SL_STATUS_H
+#ifndef _CMD_MAP_UMAC_H_
+#define _CMD_MAP_UMAC_H_
 
-#include "sl/sl_wifi_status.h"
+#include "sl_wfx_general_api.h"
+#include "sl_wfx_cmd_api.h"
 
-typedef enum {
-  SL_SUCCESS                   = 0,
-  SL_PENDING                   = 1,
-  SL_TIMEOUT                   = 2,
-  SL_PARTIAL_RESULTS           = 3,
-  SL_ERROR                     = 4,
-  SL_BAD_ARG                   = 5,
-  SL_BAD_OPTION                = 6,
-  SL_UNSUPPORTED               = 7,
-  SL_ERROR_OUT_OF_BUFFERS      = 8,
-  SL_ERROR_OUT_OF_HEAP         = 9,
-  SL_COMMAND_ARGUMENT_ERROR    = 10,
-  SL_WIFI_STATUS_LIST(SL_WIFI)
-
-  SL_FORCE_ENUM_TO_32_BIT      = 0xFFFFFFFF,
-} sl_status_t;
-
-#endif // __SL_STATUS_H
+#endif /* _CMD_MAP_UMAC_H_ */

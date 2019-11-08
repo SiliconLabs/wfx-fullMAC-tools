@@ -282,6 +282,12 @@
 /* Include the default mbed TLS config file */
 #include "mbedtls/config.h"
 
+/* Add Micrium OS support */
+#define MBEDTLS_THREADING_ALT
+#define MBEDTLS_THREADING_C
+#define MBEDTLS_MICRIUM
+#undef MBEDTLS_NET_C
+
 #undef MBEDTLS_TIMING_C
 #undef MBEDTLS_FS_IO
 #define MBEDTLS_NO_PLATFORM_ENTROPY

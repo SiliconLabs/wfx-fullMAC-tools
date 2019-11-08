@@ -1,5 +1,10 @@
-/**************************************************************************//**
- * Copyright 2019, Silicon Laboratories Inc.
+/***************************************************************************//**
+ * @file
+ * @brief WFX host configuration and pinout
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +18,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-
-
-
-
 
 #ifdef EFM32GG11B820F2048GL192
 #define WFX_HOST_CFG_RESET_PORT      gpioPortC
@@ -51,8 +52,6 @@
 #endif
 #endif
 
-
-
 #ifdef EFM32GG11B820F2048GM64
 #define WFX_HOST_CFG_RESET_PORT      gpioPortF
 #define WFX_HOST_CFG_RESET_PIN       12
@@ -69,5 +68,3 @@
 #define FRAME_RX_EVENT          DEF_BIT_00
 
 #define MAX_RX_QUEUE_SIZE       4
-
-

@@ -1,6 +1,5 @@
-#include "sl_wfx.h"
-#include "sl_wfx_registers.h"
-#include "lwip_micriumos.h"
+#include "secure_link/sl_wfx_secure_link.h"
+#include "demo_config.h"
 #include "wfx_host_cfg.h"
 
 #include "em_gpio.h"
@@ -18,32 +17,31 @@
 #include <common/include/rtos_err.h>
 #include <common/include/rtos_err.h>
 
-#ifdef SL_WFX_USE_SECURE_LINK
 // Securelink Task Configurations
-#define WF200_SECURELINK_TASK_PRIO       24u
-#define WF200_SECURELINK_TASK_STK_SIZE   512u
+#define WFX_SECURELINK_TASK_PRIO        24u
+#define WFX_SECURELINK_TASK_STK_SIZE   512u
 
 //Task Data Structures
-static CPU_STK WF200SecurelinkTaskStk[WF200_SECURELINK_TASK_STK_SIZE];
-OS_TCB WF200SecurelinkTaskTCB;
+static CPU_STK wfx_securelink_task_stack[WFX_SECURELINK_TASK_STK_SIZE];
+OS_TCB wfx_securelink_task_tcb;
 
-OS_MUTEX   wf200_securelink_rx_mutex;
+OS_MUTEX   wfx_securelink_rx_mutex;
 
 /*
- * The task that implements the securelink renegotiation with WF200.
+ * The task that implements the securelink renegotiation with WFX.
  */
-static void WF200SecurelinkTask (void *p_arg)
+static void wfx_securelink_task (void *p_arg)
 {
   RTOS_ERR err;
   sl_status_t result;
-  OSMutexCreate(&wf200_securelink_rx_mutex,"wf200 secure link RX mutex", &err);
+  OSMutexCreate(&wfx_securelink_rx_mutex,"wfx secure link RX mutex", &err);
   for( ;; )
   {
-	OSTaskSemPend (0,OS_OPT_PEND_BLOCKING,0,&err);
+  OSTaskSemPend (0,OS_OPT_PEND_BLOCKING,0,&err);
     result = sl_wfx_secure_link_renegotiate_session_key();
-    if (result != SL_SUCCESS)
+    if (result != SL_STATUS_OK)
     {
-      printf ("session key negotiation error %d\n",result);
+      printf ("session key negotiation error %lu\n",result);
     }
   }
 }
@@ -51,29 +49,23 @@ static void WF200SecurelinkTask (void *p_arg)
 /***************************************************************************//**
  * @brief Creates WF200 securelink key renegotiation task.
  ******************************************************************************/
-void WF200SecurelinkStart()
+void wfx_securelink_task_start (void)
 {
-    RTOS_ERR err;
+  RTOS_ERR err;
 
-    OSTaskCreate(&WF200SecurelinkTaskTCB,
-                 "WF200 SecureLink Task",
-                  WF200SecurelinkTask,
-                  DEF_NULL,
-				  WF200_SECURELINK_TASK_PRIO,
-                 &WF200SecurelinkTaskStk[0],
-                 (WF200_SECURELINK_TASK_STK_SIZE / 10u),
-                  WF200_SECURELINK_TASK_STK_SIZE,
-                  0u,
-                  0u,
-                  DEF_NULL,
-                 (OS_OPT_TASK_STK_CLR),
-                 &err);
-                                                                /*   Check error code.                                  */
-    APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+  OSTaskCreate(&wfx_securelink_task_tcb,
+               "WFX SecureLink Task",
+               wfx_securelink_task,
+               DEF_NULL,
+               WFX_SECURELINK_TASK_PRIO,
+               &wfx_securelink_task_stack[0],
+               (WFX_SECURELINK_TASK_STK_SIZE / 10u),
+               WFX_SECURELINK_TASK_STK_SIZE,
+               0u,
+               0u,
+               DEF_NULL,
+               (OS_OPT_TASK_STK_CLR),
+               &err);
+  /*   Check error code.                                  */
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }
-
-#endif //WFX_USE_SECURE_LINK
-
-
-
-

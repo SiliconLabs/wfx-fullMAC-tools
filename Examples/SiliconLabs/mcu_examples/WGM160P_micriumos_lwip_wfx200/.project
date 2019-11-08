@@ -99,14 +99,14 @@
 			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A_micriumos_lwip_wfx200/sdio/io</locationURI>
 		</link>
 		<link>
-			<name>sdio/net_drv_wifi_wfx_host_sdio_fnct.c</name>
+			<name>sdio/wfx_host_sdio_fnct.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A_micriumos_lwip_wfx200/sdio/net_drv_wifi_wfx_host_sdio_fnct.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A_micriumos_lwip_wfx200/sdio/wfx_host_sdio_fnct.c</locationURI>
 		</link>
 		<link>
-			<name>sdio/net_drv_wifi_wfx_host_sdio_fnct.h</name>
+			<name>sdio/wfx_host_sdio_fnct.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A_micriumos_lwip_wfx200/sdio/net_drv_wifi_wfx_host_sdio_fnct.h</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A_micriumos_lwip_wfx200/sdio/wfx_host_sdio_fnct.h</locationURI>
 		</link>
 		<link>
 			<name>sdio/wfx_host_sdio_io.c</name>

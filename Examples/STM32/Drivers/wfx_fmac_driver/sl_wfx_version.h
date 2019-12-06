@@ -20,13 +20,13 @@
 /** X.x.x: Major version of the driver */
 #define FMAC_DRIVER_VERSION_MAJOR      2
 /** x.X.x: Minor version of the driver */
-#define FMAC_DRIVER_VERSION_MINOR      2
+#define FMAC_DRIVER_VERSION_MINOR      3
 /** x.x.X: Revision of the driver */
-#define FMAC_DRIVER_VERSION_REVISION   0
+#define FMAC_DRIVER_VERSION_REVISION   2
 /** For release candidates, this is set to 1..254
  * For official releases, this is set to 255 (FMAC_DRIVER_RC_RELEASE)
  * For development versions, this is set to 0 (FMAC_DRIVER_RC_DEVELOPMENT) */
-#define FMAC_DRIVER_VERSION_RC         FMAC_DRIVER_RC_RELEASE
+#define FMAC_DRIVER_VERSION_RC         255
 
 /** FMAC_DRIVER_VERSION_RC is set to FMAC_DRIVER_RC_RELEASE for official releases */
 #define FMAC_DRIVER_RC_RELEASE         255

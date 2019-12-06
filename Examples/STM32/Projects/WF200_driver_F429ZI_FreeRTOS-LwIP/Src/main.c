@@ -36,29 +36,23 @@
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
 
+#include "wifi_cli.h"
+#include "demo_config.h"
+#include "sl_wfx_host_events.h"
 #include "sl_wfx_host_pin.h"
-#include "uart_input.h"
-#include "lwip_freertos.h"
-
-/* Private variables ---------------------------------------------------------*/
 
 UART_HandleTypeDef huart3;
 
-/* Private variables ---------------------------------------------------------*/
 SemaphoreHandle_t uart3Semaphore;
 
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
-
-/* Private function prototypes -----------------------------------------------*/
-extern void vBusCommStart( void );
+extern void wifi_bus_comm_start( void );
 
 /**
   * @brief  The application entry point.
@@ -80,8 +74,9 @@ int main(void)
   printf("\033\143");
   printf("\033[3J");
   
-  vBusCommStart();
-  vUARTInputStart(); 
+  wifi_bus_comm_start();
+  wifi_events_start();
+  wifi_cli_start(); 
   lwip_start();
  
   /* Start scheduler */

@@ -20,9 +20,9 @@
 
 #include "sl_wfx.h"
 #include "sl_wfx_host.h"
+#include "demo_config.h"
 
 /* LwIP includes. */
-#include "lwip_freertos.h"
 #include "lwip/timeouts.h"
 #include "netif/etharp.h"
 #include "ethernetif.h"
@@ -119,51 +119,43 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
   /* Compute packet frame length */
   frame_length = SL_WFX_ROUND_UP(p->tot_len, 2);
   
-  if(xSemaphoreTake(s_xDriverSemaphore, 500) == pdTRUE)
+  sl_wfx_allocate_command_buffer((sl_wfx_generic_message_t**)(&tx_buffer),
+                                 SL_WFX_SEND_FRAME_REQ_ID,
+                                 SL_WFX_TX_FRAME_BUFFER,
+                                 frame_length + sizeof(sl_wfx_send_frame_req_t));
+  buffer = tx_buffer->body.packet_data;
+  
+  for(q = p; q != NULL; q = q->next)
   {
-    sl_wfx_allocate_command_buffer((sl_wfx_generic_message_t**)(&tx_buffer),
-                                   SL_WFX_SEND_FRAME_REQ_ID,
-                                   SL_WFX_TX_FRAME_BUFFER,
-                                   frame_length + sizeof(sl_wfx_send_frame_req_t));
-    buffer = tx_buffer->body.packet_data;
-    
-    for(q = p; q != NULL; q = q->next)
-    {
-      /* Copy the bytes */
-      memcpy(buffer, q->payload, q->len);
-      buffer += q->len;
-    }
-    
-    /* Transmit to the station or softap interface */ 
-    if (netif->name[0] == SOFTAP_NETIF0)
-    {
-      result = sl_wfx_send_ethernet_frame(tx_buffer,
-                                          frame_length,
-                                          SL_WFX_SOFTAP_INTERFACE,
-                                          WFM_PRIORITY_BE);
-    }
-    else
-    {
-      result = sl_wfx_send_ethernet_frame(tx_buffer,
-                                          frame_length,
-                                          SL_WFX_STA_INTERFACE,
-                                          WFM_PRIORITY_BE);
-    }
-    sl_wfx_free_command_buffer((sl_wfx_generic_message_t*) tx_buffer,
-                               SL_WFX_SEND_FRAME_REQ_ID,
-                               SL_WFX_TX_FRAME_BUFFER);
-    xSemaphoreGive(s_xDriverSemaphore);
-    if(result == SL_SUCCESS)
-    {
-      errval = ERR_OK;
-    }else{
-      errval = ERR_MEM;
-    }
+    /* Copy the bytes */
+    memcpy(buffer, q->payload, q->len);
+    buffer += q->len;
+  }
+  
+  /* Transmit to the station or softap interface */ 
+  if (netif->name[0] == SOFTAP_NETIF0)
+  {
+    result = sl_wfx_send_ethernet_frame(tx_buffer,
+                                        frame_length,
+                                        SL_WFX_SOFTAP_INTERFACE,
+                                        0);
   }
   else
   {
-    printf("Wi-Fi TX sem timeout\r\n");
-    errval = ERR_TIMEOUT;
+    result = sl_wfx_send_ethernet_frame(tx_buffer,
+                                        frame_length,
+                                        SL_WFX_STA_INTERFACE,
+                                        0);
+  }
+  sl_wfx_free_command_buffer((sl_wfx_generic_message_t*) tx_buffer,
+                             SL_WFX_SEND_FRAME_REQ_ID,
+                             SL_WFX_TX_FRAME_BUFFER);
+
+  if(result == SL_STATUS_OK)
+  {
+    errval = ERR_OK;
+  }else{
+    errval = ERR_MEM;
   }
   
   return errval;

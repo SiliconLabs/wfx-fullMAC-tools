@@ -58,9 +58,9 @@ static uint16_t  sl_wfx_input_buffer_number;
 static sl_status_t sl_wfx_poll_for_value(uint32_t address,
                                          uint32_t polled_value,
                                          uint32_t max_retries);
-static sl_status_t sl_wfx_init_chip();
-static sl_status_t sl_wfx_download_run_bootloader();
-static sl_status_t sl_wfx_download_run_firmware();
+static sl_status_t sl_wfx_init_chip(void);
+static sl_status_t sl_wfx_download_run_bootloader(void);
+static sl_status_t sl_wfx_download_run_firmware(void);
 static sl_status_t sl_wfx_compare_keysets(uint8_t sl_wfx_keyset,
                                           char *firmware_keyset);
 
@@ -77,8 +77,8 @@ static sl_status_t sl_wfx_compare_keysets(uint8_t sl_wfx_keyset,
  * @brief Init the Wi-Fi chip
  *
  * @param context maintain the Wi-Fi chip information
- * @returns Returns SL_SUCCESS if the initialization is successful,
- * SL_ERROR otherwise
+ * @returns Returns SL_STATUS_OK if the initialization is successful,
+ * SL_STATUS_FAIL otherwise
  *
  * @note Actions performed by sl_wfx_init(): Reset -> load firmware -> send PDS
  *****************************************************************************/
@@ -100,20 +100,20 @@ sl_status_t sl_wfx_init(sl_wfx_context_t *context)
 
   result = sl_wfx_init_bus(  );
   SL_WFX_ERROR_CHECK(result);
-#ifdef SL_WFX_DEBUG
-  printf("--Bus initialized--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_INIT)
+  sl_wfx_host_log("--Bus initialized--\r\n");
 #endif
 
   result = sl_wfx_init_chip( );
   SL_WFX_ERROR_CHECK(result);
-#ifdef SL_WFX_DEBUG
-  printf("--Chip initialized--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_INIT)
+  sl_wfx_host_log("--Chip initialized--\r\n");
 #endif
 
   result = sl_wfx_download_run_bootloader();
   SL_WFX_ERROR_CHECK(result);
-#ifdef SL_WFX_DEBUG
-  printf("--Bootloader downloaded--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_INIT)
+  sl_wfx_host_log("--Bootloader running--\r\n");
 #endif
 
   result = sl_wfx_host_setup_waited_event(SL_WFX_STARTUP_IND_ID);
@@ -122,8 +122,8 @@ sl_status_t sl_wfx_init(sl_wfx_context_t *context)
   /* Downloading Wi-Fi chip firmware */
   result = sl_wfx_download_run_firmware( );
   SL_WFX_ERROR_CHECK(result);
-#ifdef SL_WFX_DEBUG
-  printf("--Firmware downloaded--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_INIT)
+  sl_wfx_host_log("--Firmware downloaded--\r\n");
 #endif
 
   result = sl_wfx_enable_irq(  );
@@ -131,8 +131,8 @@ sl_status_t sl_wfx_init(sl_wfx_context_t *context)
 
   result = sl_wfx_set_access_mode_message(  );
   SL_WFX_ERROR_CHECK(result);
-#ifdef SL_WFX_DEBUG
-  printf("--Message mode set--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_INIT)
+  sl_wfx_host_log("--Message mode set--\r\n");
 #endif
 
   /* Waiting for the startup indication from Wi-Fi chip, SL_WFX_STARTUP_IND_ID */
@@ -157,11 +157,13 @@ sl_status_t sl_wfx_init(sl_wfx_context_t *context)
   /* Storing input buffer limit from Wi-Fi chip */
   sl_wfx_input_buffer_number = sl_wfx_htole16(startup_info->body.num_inp_ch_bufs);
 
+  /* Store the OPN */
+  memcpy(context->wfx_opn, startup_info->body.opn, SL_WFX_OPN_SIZE);
+
   /* Set the wake up pin of the host */
   sl_wfx_host_set_wake_up_pin(1);
 
 #ifdef SL_WFX_USE_SECURE_LINK
-
   // Key exchange must happen before configuration can be sent
   // when the Wi-Fi chip is in *Trusted* mode
 
@@ -170,7 +172,7 @@ sl_status_t sl_wfx_init(sl_wfx_context_t *context)
 
   result = sl_wfx_host_get_secure_link_mac_key(sl_wfx_context->secure_link_mac_key);
 
-  if (result == SL_SUCCESS) {
+  if (result == SL_STATUS_OK) {
     switch (link_mode) {
       case SL_WFX_LINK_MODE_RESERVED:
         break;
@@ -188,27 +190,29 @@ sl_status_t sl_wfx_init(sl_wfx_context_t *context)
 
         result = sl_wfx_secure_link_renegotiate_session_key();
         SL_WFX_ERROR_CHECK(result);
-#ifdef SL_WFX_DEBUG
-        printf("--Set SL Bitmap--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLK)
+        sl_wfx_host_log("--Set SL Bitmap--\r\n");
 #endif
         // Set the initial encryption bitmap regarding the *Secure Link* mode:
         // - For *Trusted Eval* state: all encrypted messages except SL_CONFIGURE.
         // - For *Trusted Enforced* state: all encrypted messages including SL_CONFIGURE.
-        // This Host default bitmap mimics the INEO default bitmap
+        // This Host default bitmap mimics the device default bitmap
         uint8_t new_bitmap[SL_WFX_SECURE_LINK_ENCRYPTION_BITMAP_SIZE];
         sl_wfx_init_secure_link_encryption_bitmap(new_bitmap);
         sl_wfx_secure_link_bitmap_set_all_encrypted(new_bitmap);
         if (link_mode == SL_WFX_LINK_MODE_TRUSTED_EVAL) {
           sl_wfx_secure_link_bitmap_remove_request_id(new_bitmap, SL_WFX_SECURELINK_CONFIGURE_REQ_ID);
-          printf("--Trusted Eval mode--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLK)
+          sl_wfx_host_log("--Trusted Eval mode--\r\n");
+#endif
         }
         // Set the default bitmap in the context
         memcpy(sl_wfx_context->encryption_bitmap, new_bitmap, SL_WFX_SECURE_LINK_ENCRYPTION_BITMAP_SIZE);
-        // Send this bitmap to INEO
+        // Send this bitmap to the device
         result = sl_wfx_secure_link_configure(new_bitmap, 0);
         SL_WFX_ERROR_CHECK(result);
-#ifdef SL_WFX_DEBUG
-        printf("--Secure Link set--\r\n");
+#if (SL_WFX_DEBUG_MASK & (SL_WFX_DEBUG_INIT | SL_WFX_DEBUG_SLK))
+        sl_wfx_host_log("--Secure Link set--\r\n");
 #endif
         break;
       default:
@@ -227,14 +231,14 @@ sl_status_t sl_wfx_init(sl_wfx_context_t *context)
     SL_WFX_ERROR_CHECK(result);
   }
 
-#ifdef SL_WFX_DEBUG
-  printf("--PDS configured--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_INIT)
+  sl_wfx_host_log("--PDS configured--\r\n");
 #endif
 
   sl_wfx_context->state = SL_WFX_STARTED;
 
   error_handler:
-  if (result != SL_SUCCESS) {
+  if (result != SL_STATUS_OK) {
     sl_wfx_disable_irq( );
     sl_wfx_deinit_bus();
     sl_wfx_host_deinit();
@@ -246,8 +250,8 @@ sl_status_t sl_wfx_init(sl_wfx_context_t *context)
 /**************************************************************************//**
  * @brief Deinit the Wi-Fi chip
  *
- * @returns Returns SL_SUCCESS if the deinitialization is successful,
- * SL_ERROR otherwise
+ * @returns Returns SL_STATUS_OK if the deinitialization is successful,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_deinit(void)
 {
@@ -278,8 +282,8 @@ sl_status_t sl_wfx_deinit(void)
  * @param interface is the interface to be configured. see sl_wfx_interface_t.
  *   @arg         SL_WFX_STA_INTERFACE
  *   @arg         SL_WFX_SOFTAP_INTERFACE
- * @returns Returns SL_SUCCESS if the request has been sent correctly,
- * SL_ERROR otherwise
+ * @returns Returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_mac_address(const sl_wfx_mac_address_t *mac, sl_wfx_interface_t interface)
 {
@@ -307,8 +311,8 @@ sl_status_t sl_wfx_set_mac_address(const sl_wfx_mac_address_t *mac, sl_wfx_inter
  * @param passkey_length is the length of the passkey
  * @param ie_data are the Vendor-specific IEs to be added to the probe request
  * @param ie_data_length is the length of the IEs
- * @returns Returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns Returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_send_join_command(const uint8_t  *ssid,
                                      uint32_t        ssid_length,
@@ -322,7 +326,7 @@ sl_status_t sl_wfx_send_join_command(const uint8_t  *ssid,
                                      const uint8_t  *ie_data,
                                      uint16_t        ie_data_length)
 {
-  sl_status_t               result           = SL_SUCCESS;
+  sl_status_t               result           = SL_STATUS_OK;
   sl_wfx_generic_message_t  *frame           = NULL;
   sl_wfx_connect_cnf_t      *reply           = NULL;
   sl_wfx_connect_req_body_t *connect_request = NULL;
@@ -359,7 +363,7 @@ sl_status_t sl_wfx_send_join_command(const uint8_t  *ssid,
   result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_CONNECT_REQ_ID);
 
   error_handler:
-  if (result == SL_TIMEOUT) {
+  if (result == SL_STATUS_TIMEOUT) {
     if (sl_wfx_context->used_buffers > 0) {
       sl_wfx_context->used_buffers--;
     }
@@ -373,8 +377,8 @@ sl_status_t sl_wfx_send_join_command(const uint8_t  *ssid,
 /**************************************************************************//**
  * @brief Connected as a station, send a disconnection request to the AP
  *
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_send_disconnect_command(void)
 {
@@ -403,8 +407,8 @@ sl_status_t sl_wfx_send_disconnect_command(void)
  * @param probe_response_ie_data is the Vendor-specific IE data to be added to
  * probe responses
  * @param probe_response_ie_data_length is the length of the probe response IEs
- * @returns Returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns Returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_start_ap_command(uint16_t        channel,
                                     uint8_t        *ssid,
@@ -420,7 +424,7 @@ sl_status_t sl_wfx_start_ap_command(uint16_t        channel,
                                     const uint8_t  *probe_response_ie_data,
                                     uint16_t        probe_response_ie_data_length)
 {
-  sl_status_t                 result           = SL_SUCCESS;
+  sl_status_t                 result           = SL_STATUS_OK;
   sl_wfx_generic_message_t   *frame            = NULL;
   sl_wfx_start_ap_cnf_t      *reply            = NULL;
   sl_wfx_start_ap_req_body_t *start_ap_request = NULL;
@@ -457,7 +461,7 @@ sl_status_t sl_wfx_start_ap_command(uint16_t        channel,
   result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_START_AP_REQ_ID);
 
   error_handler:
-  if (result == SL_TIMEOUT) {
+  if (result == SL_STATUS_TIMEOUT) {
     if (sl_wfx_context->used_buffers > 0) {
       sl_wfx_context->used_buffers--;
     }
@@ -476,15 +480,15 @@ sl_status_t sl_wfx_start_ap_command(uint16_t        channel,
  * @param beacon_ie_data is the Vendor-specific IE data to be added to beacons
  * @param probe_response_ie_data is the Vendor-specific IE data to be added to
  * probe responses
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_update_ap_command(uint16_t beacon_ie_data_length,
                                      uint16_t probe_response_ie_data_length,
                                      uint32_t *beacon_ie_data,
                                      uint32_t *probe_response_ie_data)
 {
-  sl_status_t                  result            = SL_SUCCESS;
+  sl_status_t                  result            = SL_STATUS_OK;
   sl_wfx_generic_message_t    *frame             = NULL;
   sl_wfx_update_ap_cnf_t      *reply             = NULL;
   sl_wfx_update_ap_req_body_t *update_ap_request = NULL;
@@ -510,7 +514,7 @@ sl_status_t sl_wfx_update_ap_command(uint16_t beacon_ie_data_length,
   result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_UPDATE_AP_REQ_ID);
 
   error_handler:
-  if (result == SL_TIMEOUT) {
+  if (result == SL_STATUS_TIMEOUT) {
     if (sl_wfx_context->used_buffers > 0) {
       sl_wfx_context->used_buffers--;
     }
@@ -524,8 +528,8 @@ sl_status_t sl_wfx_update_ap_command(uint16_t beacon_ie_data_length,
 /**************************************************************************//**
  * @brief Send a command to stop the softap mode
  *
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_stop_ap_command(void)
 {
@@ -541,8 +545,8 @@ sl_status_t sl_wfx_stop_ap_command(void)
  *   @arg         SL_WFX_STA_INTERFACE
  *   @arg         SL_WFX_SOFTAP_INTERFACE
  * @param priority is the priority level used to send the Ethernet frame.
- * @returns SL_SUCCESS if the request has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_send_ethernet_frame(sl_wfx_send_frame_req_t *frame,
                                        uint32_t data_length,
@@ -583,8 +587,10 @@ sl_status_t sl_wfx_send_ethernet_frame(sl_wfx_send_frame_req_t *frame,
  * @param ssid_list_count is the number of SSID specified (from 0 up to 2)
  * @param ie_data is the Vendor-specific IE data to be added to probe requests
  * @param ie_data_length is the length of the probe request IEs
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @param bssid is optional and triggers a unicast scan if the scan mode used is
+ * WFM_SCAN_MODE_ACTIVE.
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_send_scan_command(uint16_t               scan_mode,
                                      const uint8_t         *channel_list,
@@ -592,14 +598,15 @@ sl_status_t sl_wfx_send_scan_command(uint16_t               scan_mode,
                                      const sl_wfx_ssid_def_t  *ssid_list,
                                      uint16_t               ssid_list_count,
                                      const uint8_t         *ie_data,
-                                     uint16_t               ie_data_length)
+                                     uint16_t               ie_data_length,
+                                     const uint8_t         *bssid)
 {
-  sl_status_t                   result                   = SL_SUCCESS;
+  sl_status_t                   result                   = SL_STATUS_OK;
   sl_wfx_generic_message_t     *frame                    = NULL;
   uint8_t                      *scan_params_copy_pointer = NULL;
   sl_wfx_start_scan_req_body_t *scan_request             = NULL;
   sl_wfx_start_scan_cnf_t      *reply                    = NULL;
-  uint32_t scan_params_length   = channel_list_count + (ssid_list_count * sizeof(sl_wfx_ssid_def_t) ) + ie_data_length;
+  uint32_t scan_params_length   = channel_list_count + (ssid_list_count * sizeof(sl_wfx_ssid_def_t) ) + ie_data_length + SL_WFX_BSSID_SIZE;
   uint32_t request_total_length = SL_WFX_ROUND_UP_EVEN(sizeof(sl_wfx_start_scan_req_t) + scan_params_length);
 
   result = sl_wfx_allocate_command_buffer(&frame, SL_WFX_START_SCAN_REQ_ID, SL_WFX_CONTROL_BUFFER, request_total_length);
@@ -609,7 +616,6 @@ sl_status_t sl_wfx_send_scan_command(uint16_t               scan_mode,
 
   scan_request = (sl_wfx_start_scan_req_body_t *)frame->body;
 
-  //TODO: swap SSID length
   scan_request->scan_mode          = sl_wfx_htole16(scan_mode);
   scan_request->channel_list_count = sl_wfx_htole16(channel_list_count);
   scan_request->ssid_list_count    = sl_wfx_htole16(ssid_list_count);
@@ -632,6 +638,14 @@ sl_status_t sl_wfx_send_scan_command(uint16_t               scan_mode,
   // Write IE
   if (ie_data_length > 0) {
     memcpy(scan_params_copy_pointer, ie_data, ie_data_length);
+    scan_params_copy_pointer += ie_data_length;
+  }
+
+  // Write BSSID
+  if (bssid != NULL) {
+    memcpy(scan_params_copy_pointer, bssid, SL_WFX_BSSID_SIZE);
+  } else {
+    memset(scan_params_copy_pointer, 0xFF, SL_WFX_BSSID_SIZE);
   }
 
   result = sl_wfx_send_request(SL_WFX_START_SCAN_REQ_ID, frame, request_total_length);
@@ -643,7 +657,7 @@ sl_status_t sl_wfx_send_scan_command(uint16_t               scan_mode,
   result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_START_SCAN_REQ_ID);
 
   error_handler:
-  if (result == SL_TIMEOUT) {
+  if (result == SL_STATUS_TIMEOUT) {
     if (sl_wfx_context->used_buffers > 0) {
       sl_wfx_context->used_buffers--;
     }
@@ -657,8 +671,8 @@ sl_status_t sl_wfx_send_scan_command(uint16_t               scan_mode,
 /**************************************************************************//**
  * @brief Stop an ongoing scan process
  *
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_send_stop_scan_command(void)
 {
@@ -676,8 +690,8 @@ sl_status_t sl_wfx_send_stop_scan_command(void)
  *   @arg         WFM_SECURITY_MODE_WEP
  * @param passkey is the passkey used by the network
  * @param passkey_length is the length of the passkey
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_join_ibss_command(const uint8_t  *ssid,
                                      uint32_t        ssid_length,
@@ -701,8 +715,8 @@ sl_status_t sl_wfx_join_ibss_command(const uint8_t  *ssid,
 /**************************************************************************//**
  * @brief Send a command to stop the IBSS mode
  *
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_leave_ibss_command(void)
 {
@@ -715,8 +729,8 @@ sl_status_t sl_wfx_leave_ibss_command(void)
  * @param signal_strength returns the RCPI value averaged on the last packets
  * received. RCPI ranges from 0 - 220 with 220 corresponds to 0 dBm and each
  * increment represents an increase of 0.5 dBm.
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_get_signal_strength(uint32_t *signal_strength)
 {
@@ -729,7 +743,7 @@ sl_status_t sl_wfx_get_signal_strength(uint32_t *signal_strength)
                                SL_WFX_STA_INTERFACE,
                                (sl_wfx_generic_confirmation_t **)&reply);
 
-  if (result == SL_SUCCESS) {
+  if (result == SL_STATUS_OK) {
     result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_GET_SIGNAL_STRENGTH_REQ_ID);
     *signal_strength = sl_wfx_htole32(reply->body.rcpi);
   }
@@ -741,8 +755,8 @@ sl_status_t sl_wfx_get_signal_strength(uint32_t *signal_strength)
  * @brief In AP mode, disconnect the specified client
  *
  * @param client is the mac address of the client to disconnect
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_disconnect_ap_client_command(const sl_wfx_mac_address_t *client)
 {
@@ -762,8 +776,8 @@ sl_status_t sl_wfx_disconnect_ap_client_command(const sl_wfx_mac_address_t *clie
  *   @arg         WFM_PM_MODE_BEACON
  *   @arg         WFM_PM_MODE_DTIM
  * @param interval is the number of beacons/DTIMs to skip while sleeping
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *
  * @note the power mode has to be set once the connection with the AP is
  * established
@@ -785,7 +799,7 @@ sl_status_t sl_wfx_set_power_mode(sl_wfx_pm_mode_t mode, uint16_t interval)
  * @param interface is the interface where to apply the change
  *   @arg         SL_WFX_STA_INTERFACE
  *   @arg         SL_WFX_SOFTAP_INTERFACE
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_add_multicast_address(const sl_wfx_mac_address_t *mac_address, sl_wfx_interface_t interface)
 {
@@ -803,7 +817,7 @@ sl_status_t sl_wfx_add_multicast_address(const sl_wfx_mac_address_t *mac_address
  * @param interface is the interface where to apply the change
  *   @arg         SL_WFX_STA_INTERFACE
  *   @arg         SL_WFX_SOFTAP_INTERFACE
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_remove_multicast_address(const sl_wfx_mac_address_t *mac_address, sl_wfx_interface_t interface)
 {
@@ -819,7 +833,7 @@ sl_status_t sl_wfx_remove_multicast_address(const sl_wfx_mac_address_t *mac_addr
  *
  * @param arp_ip_addr is the pointer to ARP IP address list to offload
  * @param num_arp_ip_addr is the number of addresses in the list (0 - 2)
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_arp_ip_address(uint32_t *arp_ip_addr, uint8_t num_arp_ip_addr)
 {
@@ -840,7 +854,7 @@ sl_status_t sl_wfx_set_arp_ip_address(uint32_t *arp_ip_addr, uint8_t num_arp_ip_
  *
  * @param ns_ip_addr is the pointer to NS IP address list to offload
  * @param num_ns_ip_addr is the number of addresses in the list (0 - 2)
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_ns_ip_address(uint8_t *ns_ip_addr, uint8_t num_ns_ip_addr)
 {
@@ -860,7 +874,7 @@ sl_status_t sl_wfx_set_ns_ip_address(uint8_t *ns_ip_addr, uint8_t num_ns_ip_addr
  * @brief Set the broadcast filter state
  *
  * @param filter is equal to 1 to enable broadcast filtering.
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_broadcast_filter(uint32_t filter)
 {
@@ -875,7 +889,7 @@ sl_status_t sl_wfx_set_broadcast_filter(uint32_t filter)
  * @brief Set the unicast filter state
  *
  * @param filter is equal to 1 to enable unicast filtering.
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_unicast_filter(uint32_t filter)
 {
@@ -891,7 +905,7 @@ sl_status_t sl_wfx_set_unicast_filter(uint32_t filter)
  *
  * @param mac_address is the MAC address to add.
  * Broadcast address allows all MAC addresses.
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_add_whitelist_address(const sl_wfx_mac_address_t *mac_address)
 {
@@ -907,7 +921,7 @@ sl_status_t sl_wfx_add_whitelist_address(const sl_wfx_mac_address_t *mac_address
  *
  * @param mac_address is the MAC address to add.
  * Broadcast address denies all MAC addresses.
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_add_blacklist_address(const sl_wfx_mac_address_t *mac_address)
 {
@@ -923,7 +937,7 @@ sl_status_t sl_wfx_add_blacklist_address(const sl_wfx_mac_address_t *mac_address
  *
  * @param max_clients is the maximum number of clients supported in softap.
  * Broadcast address denies all MAC addresses.
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *
  * @note sl_wfx_set_max_ap_client() has to be called after
  * sl_wfx_start_ap_command(). If the softap is stopped or the Wi-Fi chip resets,
@@ -942,7 +956,7 @@ sl_status_t sl_wfx_set_max_ap_client(uint32_t max_clients)
  * @brief Configure the maximum client idle time
  *
  * @param inactivity_timeout is the maximum client idle time in seconds.
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *
  * @note sl_wfx_set_max_ap_client() has to be called after
  * sl_wfx_start_ap_command(). If the softap is stopped or the Wi-Fi chip resets,
@@ -966,7 +980,7 @@ sl_status_t sl_wfx_set_max_ap_client_inactivity(uint32_t inactivity_timeout)
  * Set to 0 for FW default, 1 - 550 TUs (1 TU = 1.024 ms).
  * @param num_probe_requests is the number of probe requests to send.
  * Set to 0 for FW default, 1 - 2
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *
  * @note Parameters set with sl_wfx_set_scan_parameters() will apply for every
  * future scan
@@ -994,7 +1008,7 @@ sl_status_t sl_wfx_set_scan_parameters(uint16_t active_channel_time,
  * @param beacon_lost_count is the beacon loss limit for a roaming attempt
  * @param channel_list is the list of specific channels to scan
  * @param channel_list_count is the amount of specific channels to scan
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *
  * @note Parameters set by sl_wfx_set_roam_parameters() take effect at the next
  * connection. Calling it while connected has no immediate effect.
@@ -1005,7 +1019,7 @@ sl_status_t sl_wfx_set_roam_parameters(uint8_t rcpi_threshold,
                                        const uint8_t *channel_list,
                                        uint8_t channel_list_count)
 {
-  sl_status_t               result          = SL_SUCCESS;
+  sl_status_t               result          = SL_STATUS_OK;
   sl_wfx_generic_message_t *frame           = NULL;
   uint32_t                  request_length  = SL_WFX_ROUND_UP_EVEN(sizeof(sl_wfx_set_roam_parameters_req_t) + channel_list_count);
   sl_wfx_set_roam_parameters_req_body_t *request = NULL;
@@ -1033,7 +1047,7 @@ sl_status_t sl_wfx_set_roam_parameters(uint8_t rcpi_threshold,
   result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_SET_ROAM_PARAMETERS_REQ_ID);
 
   error_handler:
-  if (result == SL_TIMEOUT) {
+  if (result == SL_STATUS_TIMEOUT) {
     if (sl_wfx_context->used_buffers > 0) {
       sl_wfx_context->used_buffers--;
     }
@@ -1048,7 +1062,7 @@ sl_status_t sl_wfx_set_roam_parameters(uint8_t rcpi_threshold,
  * @brief Set the rate mode allowed by the station once connected
  *
  * @param rate_set_bitmask is the list of rates that will be used in STA mode.
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *
  * @note Parameters set by sl_wfx_set_roam_parameters() take effect at the next
  * connection. Calling it while connected has no immediate effect.
@@ -1070,7 +1084,7 @@ sl_status_t sl_wfx_set_tx_rate_parameters(sl_wfx_rate_set_bitmask_t rate_set_bit
  * @param interface is the interface used to send the request.
  *   @arg         SL_WFX_STA_INTERFACE
  *   @arg         SL_WFX_SOFTAP_INTERFACE
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_max_tx_power(int32_t max_tx_power, sl_wfx_interface_t interface)
 {
@@ -1091,7 +1105,7 @@ sl_status_t sl_wfx_set_max_tx_power(int32_t max_tx_power, sl_wfx_interface_t int
  * @param interface is the interface used to send the request.
  *   @arg         SL_WFX_STA_INTERFACE
  *   @arg         SL_WFX_SOFTAP_INTERFACE
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_get_max_tx_power(int32_t *max_tx_power_rf_port_1,
                                     int32_t *max_tx_power_rf_port_2,
@@ -1102,10 +1116,39 @@ sl_status_t sl_wfx_get_max_tx_power(int32_t *max_tx_power_rf_port_1,
 
   result = sl_wfx_send_command(SL_WFX_GET_MAX_TX_POWER_REQ_ID, NULL, 0, interface, (sl_wfx_generic_confirmation_t **)&reply);
 
-  if (result == SL_SUCCESS) {
+  if (result == SL_STATUS_OK) {
     result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_GET_MAX_TX_POWER_REQ_ID);
     *max_tx_power_rf_port_1 = sl_wfx_htole32(reply->body.max_tx_power_rf_port1);
     *max_tx_power_rf_port_2 = sl_wfx_htole32(reply->body.max_tx_power_rf_port2);
+  }
+
+  return result;
+}
+
+/**************************************************************************//**
+ * @brief Get the PMK used to connect to the current secure network
+ *
+ * @param password is the current Pairwise Master Key
+ * @param password_length is its length in bytes
+ * @param interface is the interface used to send the request.
+ *   @arg         SL_WFX_STA_INTERFACE
+ *   @arg         SL_WFX_SOFTAP_INTERFACE
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
+ *****************************************************************************/
+sl_status_t sl_wfx_get_pmk(uint8_t *password,
+                           uint32_t *password_length,
+                           sl_wfx_interface_t interface)
+{
+  sl_status_t     result;
+  sl_wfx_get_pmk_cnf_t *reply = NULL;
+
+  result = sl_wfx_send_command(SL_WFX_GET_PMK_REQ_ID, NULL, 0, interface, (sl_wfx_generic_confirmation_t **)&reply);
+
+  if (result == SL_STATUS_OK) {
+    result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_GET_PMK_REQ_ID);
+    memcpy(password, reply->body.password, sl_wfx_htole32(reply->body.password_length));
+    *password_length = sl_wfx_htole32(reply->body.password_length);
   }
 
   return result;
@@ -1118,8 +1161,8 @@ sl_status_t sl_wfx_get_max_tx_power(int32_t *max_tx_power_rf_port_1,
  * @param signal_strength returns the RCPI value averaged on the last packets
  * received. RCPI ranges from 0 - 220 with 220 corresponds to 0 dBm and each
  * increment represents an increase of 0.5 dBm.
- * @returns SL_SUCCESS if the command has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_get_ap_client_signal_strength(const sl_wfx_mac_address_t *client, uint32_t *signal_strength)
 {
@@ -1135,7 +1178,7 @@ sl_status_t sl_wfx_get_ap_client_signal_strength(const sl_wfx_mac_address_t *cli
                                SL_WFX_SOFTAP_INTERFACE,
                                (sl_wfx_generic_confirmation_t **)&reply);
 
-  if (result == SL_SUCCESS) {
+  if (result == SL_STATUS_OK) {
     result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_GET_AP_CLIENT_SIGNAL_STRENGTH_REQ_ID);
     *signal_strength = sl_wfx_htole32(reply->body.rcpi);
   }
@@ -1155,14 +1198,14 @@ sl_status_t sl_wfx_get_ap_client_signal_strength(const sl_wfx_mac_address_t *cli
  *
  * @param pds_data: Data to be sent in the compressed PDS format
  * @param pds_data_length: Size of the data to be sent
- * @returns SL_SUCCESS if the configuration has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the configuration has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *
  * @note The PDS (Platform Data Set) file contains the WF200 settings
  *****************************************************************************/
 sl_status_t sl_wfx_send_configuration(const char *pds_data, uint32_t pds_data_length)
 {
-  sl_status_t                      result         = SL_SUCCESS;
+  sl_status_t                      result         = SL_STATUS_OK;
   sl_wfx_generic_message_t        *frame          = NULL;
   sl_wfx_configuration_cnf_t      *reply          = NULL;
   sl_wfx_configuration_req_body_t *config_request = NULL;
@@ -1187,7 +1230,7 @@ sl_status_t sl_wfx_send_configuration(const char *pds_data, uint32_t pds_data_le
   result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_CONFIGURATION_REQ_ID);
 
   error_handler:
-  if (result == SL_TIMEOUT) {
+  if (result == SL_STATUS_TIMEOUT) {
     if (sl_wfx_context->used_buffers > 0) {
       sl_wfx_context->used_buffers--;
     }
@@ -1204,8 +1247,8 @@ sl_status_t sl_wfx_send_configuration(const char *pds_data, uint32_t pds_data_le
  * @param gpio_label is the GPIO label to control (defined in the PDS)
  * @param gpio_mode defines how to read or set the GPIO
  * @param value returns the read value or the detailed error cause
- * @returns SL_SUCCESS if the request has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_control_gpio(uint8_t gpio_label, uint8_t gpio_mode, uint32_t *value)
 {
@@ -1218,7 +1261,7 @@ sl_status_t sl_wfx_control_gpio(uint8_t gpio_label, uint8_t gpio_mode, uint32_t 
 
   result = sl_wfx_send_command(SL_WFX_CONTROL_GPIO_REQ_ID, &payload, sizeof(payload), SL_WFX_STA_INTERFACE, (sl_wfx_generic_confirmation_t **)&reply);
 
-  if (result == SL_SUCCESS) {
+  if (result == SL_STATUS_OK) {
     result = sl_wfx_get_status_code(sl_wfx_htole32(reply->body.status), SL_WFX_CONTROL_GPIO_REQ_ID);
     *value = sl_wfx_htole32(reply->body.value);
   }
@@ -1258,8 +1301,8 @@ sl_status_t sl_wfx_control_gpio(uint8_t gpio_label, uint8_t gpio_mode, uint32_t 
  * @param periodic_tx_rx_sampling_time is the period (in microseconds) from first_slot_time of following samplings of the directionality on PRIORITY signal (1 to 1023)
  * @param coex_quota is the duration (in microseconds) for which RF is granted to Coex before it is moved to Wlan
  * @param wlan_quota is the duration (in microseconds) for which RF is granted to Wlan before it is moved to Coex
- * @returns SL_SUCCESS if the request has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_pta_settings(uint8_t pta_mode,
                                 uint8_t request_signal_active_level,
@@ -1314,8 +1357,8 @@ sl_status_t sl_wfx_pta_settings(uint8_t pta_mode,
  *   @arg         SL_WFX_PTA_PRIORITY_BALANCED
  *   @arg         SL_WFX_PTA_PRIORITY_WLAN_HIGH
  *   @arg         SL_WFX_PTA_PRIORITY_WLAN_MAXIMIZED
- * @returns SL_SUCCESS if the request has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_pta_priority(uint32_t priority)
 {
@@ -1335,8 +1378,8 @@ sl_status_t sl_wfx_pta_priority(uint32_t priority)
  * @param pta_state defines the requested state of the PTA
  *   @arg         SL_WFX_PTA_OFF
  *   @arg         SL_WFX_PTA_ON
- * @returns SL_SUCCESS if the request has been sent correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_pta_state(uint32_t pta_state)
 {
@@ -1354,7 +1397,7 @@ sl_status_t sl_wfx_pta_state(uint32_t pta_state)
  * @brief Prevent Rollback request
  *
  * @param magic_word: Used to prevent mistakenly sent request from burning the OTP
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_prevent_rollback(uint32_t magic_word)
 {
@@ -1368,15 +1411,15 @@ sl_status_t sl_wfx_prevent_rollback(uint32_t magic_word)
 /**************************************************************************//**
  * @brief Shutdown the Wi-Fi chip
  *
- * @returns SL_SUCCESS if the Wi-Fi chip has been shutdown correctly,
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the Wi-Fi chip has been shutdown correctly,
+ * SL_STATUS_FAIL otherwise
  *
  * @note Send the shutdown command, clear the WUP bit and the GPIO WUP to enable
  * the Wi-Fi chips to go to sleep
  *****************************************************************************/
 sl_status_t sl_wfx_shutdown(void)
 {
-  sl_status_t               result = SL_SUCCESS;
+  sl_status_t               result = SL_STATUS_OK;
   sl_wfx_generic_message_t *frame  = NULL;
 
   result = sl_wfx_allocate_command_buffer(&frame, SL_WFX_SHUT_DOWN_REQ_ID, SL_WFX_CONTROL_BUFFER, sizeof(sl_wfx_shut_down_req_t));
@@ -1397,7 +1440,7 @@ sl_status_t sl_wfx_shutdown(void)
   sl_wfx_context->state &= ~SL_WFX_STARTED;
 
   error_handler:
-  if (result == SL_TIMEOUT) {
+  if (result == SL_STATUS_TIMEOUT) {
     if (sl_wfx_context->used_buffers > 0) {
       sl_wfx_context->used_buffers--;
     }
@@ -1413,14 +1456,14 @@ sl_status_t sl_wfx_shutdown(void)
 /**************************************************************************//**
  * @brief Send a command to WF200
  *
- * @param command_id is the ID of the command to be sent (cf. wfm_fm_api.h)
+ * @param command_id is the ID of the command to be sent (cf. sl_wfx_cmd_api.h)
  * @param data is the pointer to the data to be sent by the command
  * @param data_size is the size of the data to be sent
  * @param interface is the interface affected by the command
  * @param response is a pointer to the response retrieved
  *   @arg         SL_WFX_STA_INTERFACE
  *   @arg         SL_WFX_SOFTAP_INTERFACE
- * @returns SL_SUCCESS if the command is sent correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command is sent correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_send_command(uint8_t command_id,
                                 void *data,
@@ -1455,7 +1498,7 @@ sl_status_t sl_wfx_send_command(uint8_t command_id,
   }
 
   error_handler:
-  if (result == SL_TIMEOUT) {
+  if (result == SL_STATUS_TIMEOUT) {
     if (sl_wfx_context->used_buffers > 0) {
       sl_wfx_context->used_buffers--;
     }
@@ -1469,14 +1512,17 @@ sl_status_t sl_wfx_send_command(uint8_t command_id,
 /**************************************************************************//**
  * @brief Send a request to the Wi-Fi chip
  *
- * @param command_id is the ID of the command to be sent (cf. wfm_fm_api.h)
+ * @param command_id is the ID of the command to be sent (cf. sl_wfx_cmd_api.h)
  * @param request is the pointer to the request to be sent
  * @param request_length is the size of the request to be sent
- * @returns SL_SUCCESS if the command is sent correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the command is sent correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_send_request(uint8_t command_id, sl_wfx_generic_message_t *request, uint16_t request_length)
 {
-  sl_status_t result = SL_ERROR_OUT_OF_BUFFERS;
+  sl_status_t result = SL_STATUS_NO_MORE_RESOURCE;
+
+  result = sl_wfx_host_lock();
+  SL_WFX_ERROR_CHECK(result);
 
   if (sl_wfx_context->used_buffers < sl_wfx_input_buffer_number) {
     // Write the buffer header
@@ -1486,13 +1532,17 @@ sl_status_t sl_wfx_send_request(uint8_t command_id, sl_wfx_generic_message_t *re
 #ifdef SL_WFX_USE_SECURE_LINK
     if (sl_wfx_context->secure_link_renegotiation_state == SL_WFX_SECURELINK_RENEGOTIATION_PENDING
         && command_id != SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_REQ_ID) {
-      result = SL_ERROR;
+      result = SL_STATUS_FAIL;
       goto error_handler;
     }
 
     if (sl_wfx_secure_link_encryption_required_get(command_id) == SL_WFX_SECURE_LINK_ENCRYPTION_REQUIRED) {
       // Nonce for encryption should have RX and HP counters 0, only use TX counter
       sl_wfx_nonce_t encryption_nonce = { 0, 0, sl_wfx_context->secure_link_nonce.tx_packet_count };
+
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLK)
+      sl_wfx_host_log("TX packet %lu\n", sl_wfx_context->secure_link_nonce.tx_packet_count);
+#endif
 
       // Round up to next crypto block size the part that will be ciphered
       request_length = ((request_length + 15 - 2) & ~15) + 2;
@@ -1514,6 +1564,9 @@ sl_status_t sl_wfx_send_request(uint8_t command_id, sl_wfx_generic_message_t *re
 
       if (sl_wfx_context->secure_link_nonce.tx_packet_count > SL_WFX_SECURE_LINK_NONCE_WATERMARK
           && sl_wfx_context->secure_link_renegotiation_state == SL_WFX_SECURELINK_DEFAULT) {
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLK)
+        sl_wfx_host_log("--SLK renegotiation needed--\r\n");
+#endif
         //queue key re-negotiation
         sl_wfx_context->secure_link_renegotiation_state = SL_WFX_SECURELINK_RENEGOTIATION_NEEDED;
       }
@@ -1534,6 +1587,14 @@ sl_status_t sl_wfx_send_request(uint8_t command_id, sl_wfx_generic_message_t *re
   }
 
   error_handler:
+  if (sl_wfx_host_unlock()) {
+    result = SL_STATUS_FAIL;
+  }
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_ERROR)
+  if (result != SL_STATUS_OK) {
+    sl_wfx_host_log("Send request error %u\n", result);
+  }
+#endif
   return result;
 }
 
@@ -1543,9 +1604,9 @@ sl_status_t sl_wfx_send_request(uint8_t command_id, sl_wfx_generic_message_t *re
  * @param ctrl_reg is the control register value of the last call of
  * sl_wfx_receive_frame(). If equal to 0, the driver will read the control
  * register.
- * @returns SL_SUCCESS if the frame has been received correctly,
- * SL_WIFI_NO_PACKET_TO_RECEIVE if no frame are pending inside the Wi-Fi chip
- * SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the frame has been received correctly,
+ * SL_STATUS_WIFI_NO_PACKET_TO_RECEIVE if no frame are pending inside the Wi-Fi chip
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_receive_frame(uint16_t *ctrl_reg)
 {
@@ -1554,6 +1615,9 @@ sl_status_t sl_wfx_receive_frame(uint16_t *ctrl_reg)
   sl_wfx_received_message_type_t message_type;
   sl_wfx_buffer_type_t      buffer_type = SL_WFX_RX_FRAME_BUFFER;
   uint32_t                  read_length, frame_size;
+
+  result = sl_wfx_host_lock();
+  SL_WFX_ERROR_CHECK(result);
 
   frame_size = (*ctrl_reg & SL_WFX_CONT_NEXT_LEN_MASK) * 2;
   /* if frame_size is equal to 0, read the control register to know the frame size */
@@ -1564,7 +1628,7 @@ sl_status_t sl_wfx_receive_frame(uint16_t *ctrl_reg)
     frame_size = (*ctrl_reg & SL_WFX_CONT_NEXT_LEN_MASK) * 2;
     /* At this point, if frame_size is equal to zero, nothing to be read by the host */
     if (frame_size == 0) {
-      result = SL_WIFI_NO_PACKET_TO_RECEIVE;
+      result = SL_STATUS_WIFI_NO_PACKET_TO_RECEIVE;
       SL_WFX_ERROR_CHECK(result);
     }
   }
@@ -1608,6 +1672,10 @@ sl_status_t sl_wfx_receive_frame(uint16_t *ctrl_reg)
     nonce_ptr++;
     new_packet_count |= (*nonce_ptr & 0x3FFF) << 16;
 
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLK)
+    sl_wfx_host_log("RX packet %lu\n", new_packet_count);
+#endif
+
     // Update secure link nonce values. Currently only RX counter is expected
     switch ( (network_rx_buffer->header.info & SL_WFX_MSG_INFO_SECURE_LINK_MASK) >> SL_WFX_MSG_INFO_SECURE_LINK_OFFSET ) {
       case 0x1: sl_wfx_context->secure_link_nonce.tx_packet_count = new_packet_count; break;
@@ -1626,6 +1694,9 @@ sl_status_t sl_wfx_receive_frame(uint16_t *ctrl_reg)
     if ((sl_wfx_context->secure_link_nonce.rx_packet_count > SL_WFX_SECURE_LINK_NONCE_WATERMARK
          || sl_wfx_context->secure_link_nonce.hp_packet_count > SL_WFX_SECURE_LINK_NONCE_WATERMARK)
         && sl_wfx_context->secure_link_renegotiation_state == SL_WFX_SECURELINK_DEFAULT) {
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLK)
+      sl_wfx_host_log("--SLK renegotiation needed--\r\n");
+#endif
       sl_wfx_context->secure_link_renegotiation_state = SL_WFX_SECURELINK_RENEGOTIATION_NEEDED;
     }
 
@@ -1645,18 +1716,29 @@ sl_status_t sl_wfx_receive_frame(uint16_t *ctrl_reg)
   }
 #ifdef SL_WFX_USE_SECURE_LINK
   if (sl_wfx_context->secure_link_renegotiation_state == SL_WFX_SECURELINK_RENEGOTIATION_NEEDED) {
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLK)
+    sl_wfx_host_log("--SLK renegotiation pending--\r\n");
+#endif
     sl_wfx_context->secure_link_renegotiation_state = SL_WFX_SECURELINK_RENEGOTIATION_PENDING;
     //notify host
     sl_wfx_host_schedule_secure_link_renegotiation();
   }
 #endif //SL_WFX_USE_SECURE_LINK
+  if (sl_wfx_host_unlock()) {
+    result = SL_STATUS_FAIL;
+  }
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_ERROR)
+  if (result != SL_STATUS_OK) {
+    sl_wfx_host_log("Receive frame error %u\n", result);
+  }
+#endif
   return result;
 }
 
 /**************************************************************************//**
  * @brief Enable the Wi-Fi chip irq
  *
- * @return SL_SUCCESS if the irq is enabled correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the irq is enabled correctly, SL_STATUS_FAIL otherwise
  *
  * @note Enable the host irq and set the Wi-Fi chip register accordingly
  *****************************************************************************/
@@ -1683,7 +1765,7 @@ sl_status_t sl_wfx_enable_irq(void)
 /**************************************************************************//**
  * @brief Disable the Wi-Fi chip irq
  *
- * @return SL_SUCCESS if the irq is disabled correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the irq is disabled correctly, SL_STATUS_FAIL otherwise
  *
  * @note Disable the host irq and set the Wi-Fi chip register accordingly
  *****************************************************************************/
@@ -1710,8 +1792,8 @@ sl_status_t sl_wfx_disable_irq(void)
 /**************************************************************************//**
  * @brief Set access mode message
  *
- * @return SL_SUCCESS if the message mode is enabled correctly,
- * SL_ERROR otherwise
+ * @return SL_STATUS_OK if the message mode is enabled correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_access_mode_message(void)
 {
@@ -1733,7 +1815,7 @@ sl_status_t sl_wfx_set_access_mode_message(void)
  * @brief Set the Wi-Fi chip wake up bit
  *
  * @param state is the state of the wake up bit to configure
- * @return SL_SUCCESS if the bit has been set correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the bit has been set correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_wake_up_bit(uint8_t state)
 {
@@ -1759,7 +1841,7 @@ sl_status_t sl_wfx_set_wake_up_bit(uint8_t state)
  * @brief Active the power save feature in the FMAC driver and let the WFx go
  * in sleep mode
  *
- * @return SL_SUCCESS if the bit has been set correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the bit has been set correctly, SL_STATUS_FAIL otherwise
  *
  * @note In connected state, it is required to activate the Wi-Fi power mode
  * using sl_wfx_set_power_mode() to allow the WFx chip to go to sleep.
@@ -1770,17 +1852,23 @@ sl_status_t sl_wfx_enable_device_power_save(void)
 
   if (sl_wfx_context->state & SL_WFX_POWER_SAVE_ACTIVE) {
     /* Power save is already active, return */
-    result = SL_ERROR;
+    result = SL_STATUS_FAIL;
     SL_WFX_ERROR_CHECK(result);
   }
-  sl_wfx_context->state |= SL_WFX_POWER_SAVE_ACTIVE;
 
   result = sl_wfx_set_wake_up_bit(0);
   SL_WFX_ERROR_CHECK(result);
+
+  sl_wfx_context->state |= SL_WFX_POWER_SAVE_ACTIVE;
+
   result = sl_wfx_host_set_wake_up_pin(0);
   SL_WFX_ERROR_CHECK(result);
 
   sl_wfx_context->state |= SL_WFX_SLEEPING;
+
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLEEP)
+  sl_wfx_host_log("Power save enabled\r\n");
+#endif
 
   error_handler:
   return result;
@@ -1790,7 +1878,7 @@ sl_status_t sl_wfx_enable_device_power_save(void)
  * @brief Disable the power save feature in the FMAC driver and prevent the WFx
  * going in sleep mode
  *
- * @return SL_SUCCESS if the bit has been set correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the bit has been set correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_disable_device_power_save(void)
 {
@@ -1798,16 +1886,24 @@ sl_status_t sl_wfx_disable_device_power_save(void)
 
   if (!(sl_wfx_context->state & SL_WFX_POWER_SAVE_ACTIVE)) {
     /* Power save is already disable, return */
-    result = SL_ERROR;
+    result = SL_STATUS_FAIL;
     SL_WFX_ERROR_CHECK(result);
   }
 
   sl_wfx_context->state &= ~SL_WFX_POWER_SAVE_ACTIVE;
 
+  result = sl_wfx_host_set_wake_up_pin(1);
+  SL_WFX_ERROR_CHECK(result);
+  result = sl_wfx_host_wait_for_wake_up();
+  SL_WFX_ERROR_CHECK(result);
+  sl_wfx_context->state &= ~SL_WFX_SLEEPING;
+
   result = sl_wfx_set_wake_up_bit(1);
   SL_WFX_ERROR_CHECK(result);
 
-  sl_wfx_context->state &= ~SL_WFX_SLEEPING;
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLEEP)
+  sl_wfx_host_log("Power save disabled\r\n");
+#endif
 
   error_handler:
   return result;
@@ -1820,7 +1916,7 @@ sl_status_t sl_wfx_disable_device_power_save(void)
 /**************************************************************************//**
  * @brief Init the Wi-Fi chip
  *
- * @return SL_SUCCESS if the initialization is successful, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the initialization is successful, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 static sl_status_t sl_wfx_init_chip(void)
 {
@@ -1863,7 +1959,7 @@ static sl_status_t sl_wfx_init_chip(void)
   }
 
   if ((value16 & SL_WFX_CONT_RDY_BIT) != SL_WFX_CONT_RDY_BIT) {
-    status = SL_TIMEOUT;
+    status = SL_STATUS_TIMEOUT;
     SL_WFX_ERROR_CHECK(status);
   }
 
@@ -1871,7 +1967,7 @@ static sl_status_t sl_wfx_init_chip(void)
   status = sl_wfx_reg_read_32(SL_WFX_CONFIG_REG_ID, &value32);
   SL_WFX_ERROR_CHECK(status);
   if ((value32 & SL_WFX_CONFIG_ACCESS_MODE_BIT) == 0) {
-    status = SL_ERROR;
+    status = SL_STATUS_FAIL;
     SL_WFX_ERROR_CHECK(status);
   }
 
@@ -1882,7 +1978,7 @@ static sl_status_t sl_wfx_init_chip(void)
 /**************************************************************************//**
  * @brief run the Wi-Fi chip bootloader
  *
- * @return SL_SUCCESS if the bootloader runs correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the bootloader runs correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 static sl_status_t sl_wfx_download_run_bootloader(void)
 {
@@ -1907,7 +2003,7 @@ static sl_status_t sl_wfx_download_run_bootloader(void)
   status = sl_wfx_apb_read_32(ADDR_DOWNLOAD_FIFO_BASE, &value32);
   SL_WFX_ERROR_CHECK(status);
   if (value32 != 0x23abc88e) {
-    status = SL_ERROR;
+    status = SL_STATUS_FAIL;
     SL_WFX_ERROR_CHECK(status);
   }
 
@@ -1918,10 +2014,10 @@ static sl_status_t sl_wfx_download_run_bootloader(void)
 /**************************************************************************//**
  * @brief Download the Wi-Fi chip firmware
  *
- * @return SL_SUCCESS if the firmware is downloaded correctly,
- * SL_WIFI_INVALID_KEY if the firmware keyset does not match the chip one,
- * SL_WIFI_FIRMWARE_DOWNLOAD_TIMEOUT or SL_TIMEOUT if the process times out,
- * SL_ERROR otherwise
+ * @return SL_STATUS_OK if the firmware is downloaded correctly,
+ * SL_STATUS_WIFI_INVALID_KEY if the firmware keyset does not match the chip one,
+ * SL_STATUS_WIFI_FIRMWARE_DOWNLOAD_TIMEOUT or SL_STATUS_TIMEOUT if the process times out,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 static sl_status_t sl_wfx_download_run_firmware(void)
 {
@@ -2018,7 +2114,7 @@ static sl_status_t sl_wfx_download_run_firmware(void)
     SL_WFX_ERROR_CHECK(status);
 
     if (value32 != NCP_STATE_DOWNLOAD_PENDING) {
-      status = SL_ERROR;
+      status = SL_STATUS_FAIL;
       SL_WFX_ERROR_CHECK(status);
     }
 
@@ -2034,7 +2130,7 @@ static sl_status_t sl_wfx_download_run_firmware(void)
     }
 
     if ((put - get) > (DOWNLOAD_FIFO_SIZE - DOWNLOAD_BLOCK_SIZE)) {
-      status = SL_WIFI_FIRMWARE_DOWNLOAD_TIMEOUT;
+      status = SL_STATUS_WIFI_FIRMWARE_DOWNLOAD_TIMEOUT;
       SL_WFX_ERROR_CHECK(status);
     }
 
@@ -2050,6 +2146,10 @@ static sl_status_t sl_wfx_download_run_firmware(void)
     uint32_t block_address = ADDR_DOWNLOAD_FIFO_BASE + (put % DOWNLOAD_FIFO_SIZE);
     status = sl_wfx_apb_write(block_address, buffer, block_size);
     SL_WFX_ERROR_CHECK(status);
+
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_FW_LOAD)
+    sl_wfx_host_log("FW> %d/%d \n\r", put, image_length);
+#endif
 
     /* update the put register */
     put += block_size;
@@ -2082,15 +2182,15 @@ static sl_status_t sl_wfx_download_run_firmware(void)
  * @param address is the address of the value to be polled
  * @param polled_value waiting for the value to be equal to polled_value
  * @param max_retries is the number of polling to be done before returning
- * SL_TIMEOUT
- * @return SL_SUCCESS if the value is received correctly,
- * SL_TIMEOUT if the value is not found in time,
- * SL_ERROR if not able to poll the value from the Wi-Fi chip
+ * SL_STATUS_TIMEOUT
+ * @return SL_STATUS_OK if the value is received correctly,
+ * SL_STATUS_TIMEOUT if the value is not found in time,
+ * SL_STATUS_FAIL if not able to poll the value from the Wi-Fi chip
  *****************************************************************************/
 static sl_status_t sl_wfx_poll_for_value(uint32_t address, uint32_t polled_value, uint32_t max_retries)
 {
   uint32_t    value;
-  sl_status_t status = SL_SUCCESS;
+  sl_status_t status = SL_STATUS_OK;
 
   for (; max_retries > 0; max_retries--) {
     status = sl_wfx_apb_read_32(address, &value);
@@ -2102,7 +2202,7 @@ static sl_status_t sl_wfx_poll_for_value(uint32_t address, uint32_t polled_value
     }
   }
   if (value != polled_value) {
-    status = SL_TIMEOUT;
+    status = SL_STATUS_TIMEOUT;
   }
 
   error_handler:
@@ -2114,8 +2214,8 @@ static sl_status_t sl_wfx_poll_for_value(uint32_t address, uint32_t polled_value
  *
  * @param chip_keyset is the value retrieved from the Wi-Fi chip
  * @param firmware_keyset is the 8 first bytes of the firmware
- * @return SL_SUCCESS if the firmware is compatible with the WF200,
- * SL_WIFI_INVALID_KEY otherwise
+ * @return SL_STATUS_OK if the firmware is compatible with the WF200,
+ * SL_STATUS_WIFI_INVALID_KEY otherwise
  *****************************************************************************/
 static sl_status_t sl_wfx_compare_keysets(uint8_t chip_keyset, char *firmware_keyset)
 {
@@ -2129,9 +2229,9 @@ static sl_status_t sl_wfx_compare_keysets(uint8_t chip_keyset, char *firmware_ke
   keyset_value     = (uint8_t)strtoul(keyset_string, NULL, 16);
 
   if (keyset_value == chip_keyset) {
-    result = SL_SUCCESS;
+    result = SL_STATUS_OK;
   } else {
-    result = SL_WIFI_INVALID_KEY;
+    result = SL_STATUS_WIFI_INVALID_KEY;
   }
   return result;
 }
@@ -2145,7 +2245,7 @@ static sl_status_t sl_wfx_compare_keysets(uint8_t chip_keyset, char *firmware_ke
  *   @arg         SL_WFX_ANTENNA_TX1_RX2
  *   @arg         SL_WFX_ANTENNA_TX2_RX1
  *   @arg         SL_WFX_ANTENNA_DIVERSITY
- * @return SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_set_antenna_config(sl_wfx_antenna_config_t config)
 {
@@ -2174,12 +2274,12 @@ sl_status_t sl_wfx_set_antenna_config(sl_wfx_antenna_config_t config)
  *
  * @param revision is the pointer to retrieve the revision version
  * @param type is the pointer to retrieve the type
- * @return SL_SUCCESS if the values are retrieved correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the values are retrieved correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_get_hardware_revision_and_type(uint8_t *revision, uint8_t *type)
 {
   uint32_t config_reg = 0;
-  sl_status_t status  = SL_SUCCESS;
+  sl_status_t status  = SL_STATUS_OK;
 
   status = sl_wfx_reg_read_32(SL_WFX_CONFIG_REG_ID, &config_reg);
 
@@ -2192,15 +2292,15 @@ sl_status_t sl_wfx_get_hardware_revision_and_type(uint8_t *revision, uint8_t *ty
  * @brief Get the part opn
  *
  * @param opn
- * @return SL_SUCCESS if the values are retrieved correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the values are retrieved correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_get_opn(uint8_t **opn)
 {
-  sl_status_t status = SL_ERROR;
+  sl_status_t status = SL_STATUS_FAIL;
 
   if (sl_wfx_context != NULL) {
     *opn = (uint8_t *) &(sl_wfx_context->wfx_opn);
-    status = SL_SUCCESS;
+    status = SL_STATUS_OK;
   }
 
   return status;
@@ -2220,64 +2320,84 @@ sl_status_t sl_wfx_get_status_code(uint32_t wfx_status, uint8_t command_id)
   if (command_id & SL_WFX_MSG_ID_GENERAL_API_MASK) {
     switch (wfx_status) {
       case SL_WFX_STATUS_SUCCESS:
-      case SL_MAC_KEY_STATUS_SUCCESS:
-      case SL_PUB_KEY_EXCHANGE_STATUS_SUCCESS:
-      case PREVENT_ROLLBACK_CNF_SUCCESS:
-        result = SL_SUCCESS;
+      case SL_WFX_MAC_KEY_STATUS_SUCCESS:
+      case SL_WFX_PUB_KEY_EXCHANGE_STATUS_SUCCESS:
+      case SL_WFX_PREVENT_ROLLBACK_CNF_SUCCESS:
+        result = SL_STATUS_OK;
         break;
       case SL_WFX_STATUS_FAILURE:
-      case SL_MAC_KEY_STATUS_FAILED_KEY_ALREADY_BURNED:
-      case SL_MAC_KEY_STATUS_FAILED_RAM_MODE_NOT_ALLOWED:
-      case SL_MAC_KEY_STATUS_FAILED_UNKNOWN_MODE:
-      case SL_PUB_KEY_EXCHANGE_STATUS_FAILED:
-      case PREVENT_ROLLBACK_CNF_WRONG_MAGIC_WORD:
-        result = SL_ERROR;
+      case SL_WFX_MAC_KEY_STATUS_FAILED_KEY_ALREADY_BURNED:
+      case SL_WFX_MAC_KEY_STATUS_FAILED_RAM_MODE_NOT_ALLOWED:
+      case SL_WFX_MAC_KEY_STATUS_FAILED_UNKNOWN_MODE:
+      case SL_WFX_PUB_KEY_EXCHANGE_STATUS_FAILED:
+      case SL_WFX_PREVENT_ROLLBACK_CNF_WRONG_MAGIC_WORD:
+        result = SL_STATUS_FAIL;
         break;
       case SL_WFX_INVALID_PARAMETER:
-        result = SL_WIFI_INVALID_PARAMETER;
+        result = SL_STATUS_INVALID_PARAMETER;
         break;
       case SL_WFX_STATUS_GPIO_WARNING:
-        result = SL_WIFI_WARNING;
+        result = SL_STATUS_WIFI_WARNING;
         break;
       case SL_WFX_ERROR_UNSUPPORTED_MSG_ID:
-        result = SL_WIFI_UNSUPPORTED_MESSAGE_ID;
+        result = SL_STATUS_WIFI_UNSUPPORTED_MESSAGE_ID;
         break;
       default:
-        result = SL_ERROR;
+        result = SL_STATUS_FAIL;
         break;
     }
   } else {
     switch (wfx_status) {
       case WFM_STATUS_SUCCESS:
-        result = SL_SUCCESS;
+        result = SL_STATUS_OK;
         break;
       case WFM_STATUS_INVALID_PARAMETER:
-        result = SL_WIFI_INVALID_PARAMETER;
+        result = SL_STATUS_INVALID_PARAMETER;
         break;
       case WFM_STATUS_WRONG_STATE:
-        result = SL_WIFI_WRONG_STATE;
+        result = SL_STATUS_WIFI_WRONG_STATE;
         break;
       case WFM_STATUS_GENERAL_FAILURE:
-        result = SL_ERROR;
+        result = SL_STATUS_FAIL;
         break;
       case WFM_STATUS_CHANNEL_NOT_ALLOWED:
-        result = SL_WIFI_CHANNEL_NOT_ALLOWED;
+        result = SL_STATUS_WIFI_CHANNEL_NOT_ALLOWED;
         break;
       case WFM_STATUS_WARNING:
-        result = SL_WIFI_WARNING;
+        result = SL_STATUS_WIFI_WARNING;
+        break;
+      case WFM_STATUS_NO_MATCHING_AP:
+        result = SL_STATUS_WIFI_NO_MATCHING_AP;
+        break;
+      case WFM_STATUS_CONNECTION_ABORTED:
+        result = SL_STATUS_WIFI_CONNECTION_ABORTED;
+        break;
+      case WFM_STATUS_CONNECTION_TIMEOUT:
+        result = SL_STATUS_WIFI_CONNECTION_TIMEOUT;
+        break;
+      case WFM_STATUS_CONNECTION_REJECTED_BY_AP:
+        result = SL_STATUS_WIFI_CONNECTION_REJECTED_BY_AP;
+        break;
+      case WFM_STATUS_CONNECTION_AUTH_FAILURE:
+        result = SL_STATUS_WIFI_CONNECTION_AUTH_FAILURE;
         break;
       case WFM_STATUS_RETRY_EXCEEDED:
-        result = SL_WIFI_RETRY_EXCEEDED;
+        result = SL_STATUS_WIFI_RETRY_EXCEEDED;
         break;
       case WFM_STATUS_TX_LIFETIME_EXCEEDED:
-        result = SL_WIFI_TX_LIFETIME_EXCEEDED;
+        result = SL_STATUS_WIFI_TX_LIFETIME_EXCEEDED;
         break;
       default:
-        result = SL_ERROR;
+        result = SL_STATUS_FAIL;
         break;
     }
   }
 
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_ERROR)
+  if (result != SL_STATUS_OK && result != SL_STATUS_WIFI_WARNING) {
+    sl_wfx_host_log("Cnf status %u\n", result);
+  }
+#endif
   return result;
 }
 
@@ -2288,8 +2408,8 @@ sl_status_t sl_wfx_get_status_code(uint32_t wfx_status, uint8_t command_id)
  * @param command_id is the ID of the command to check if encryption is required
  * @param type of the buffer to allocate
  * @param buffer_size is the size of the buffer to allocate
- * @return SL_SUCCESS if the values are retrieved correctly,
- * SL_TIMEOUT if the buffer is not allocated in time, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the values are retrieved correctly,
+ * SL_STATUS_TIMEOUT if the buffer is not allocated in time, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_allocate_command_buffer(sl_wfx_generic_message_t **buffer,
                                            uint32_t command_id,
@@ -2337,7 +2457,7 @@ sl_status_t sl_wfx_allocate_command_buffer(sl_wfx_generic_message_t **buffer,
  * @param buffer
  * @param command_id is the ID of the command to check if encryption is required
  * @param type of the buffer to allocate
- * @return SL_SUCCESS if the values are retrieved correctly, SL_ERROR otherwise
+ * @return SL_STATUS_OK if the values are retrieved correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_free_command_buffer(sl_wfx_generic_message_t *buffer, uint32_t command_id, sl_wfx_buffer_type_t type)
 {

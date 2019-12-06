@@ -46,7 +46,7 @@
 									<listOptionValue builtIn="false" value="../../../../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../../../../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver"/>
-									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver/firmware/3.0.0"/>
+									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver/firmware/3.3.1"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.1670122205" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -55,7 +55,6 @@
 									<listOptionValue builtIn="false" value="STM32F429xx"/>
 									<listOptionValue builtIn="false" value="_DEBUG"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI"/>
-									<listOptionValue builtIn="false" value="SL_WFX_USE_RF1_OUTPUT"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.endianess.1854274048" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess" value="com.atollic.truestudio.common_options.target.endianess.little" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.191909026" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" value="STM32F429ZI" valueType="enumerated"/>
@@ -190,7 +189,7 @@
 									<listOptionValue builtIn="false" value="../../../../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../../../../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver"/>
-									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver/firmware/3.0.0"/>
+									<listOptionValue builtIn="false" value="../../../../Drivers/wfx_fmac_driver/firmware/3.3.1"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.1158498083" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -201,7 +200,6 @@
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_MODE_THRESHOLD=512"/>
-									<listOptionValue builtIn="false" value="SL_WFX_USE_RF1_OUTPUT"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.endianess.1496752917" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess" value="com.atollic.truestudio.common_options.target.endianess.little" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.1924543056" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" value="STM32F429ZI" valueType="enumerated"/>

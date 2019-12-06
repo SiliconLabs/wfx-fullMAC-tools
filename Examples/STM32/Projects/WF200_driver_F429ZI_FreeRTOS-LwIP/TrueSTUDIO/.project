@@ -127,6 +127,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Src/sl_wfx_host/sl_wfx_host.c</locationURI>
 		</link>
 		<link>
+			<name>Application/SL_WFX_Host/sl_wfx_host_events.c</name>
+			<type>1</type>
+			<locationURI>PROJECT_FOLDER/Src/sl_wfx_host/sl_wfx_host_events.c</locationURI>
+		</link>
+		<link>
 			<name>Application/SL_WFX_Host/sl_wfx_host_sdio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/sl_wfx_host/sl_wfx_host_sdio.c</locationURI>
@@ -142,9 +147,9 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Src/sl_wfx_host/sl_wfx_task.c</locationURI>
 		</link>
 		<link>
-			<name>Application/User/UART_input.c</name>
+			<name>Application/User/demo_config.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Src/UART_input.c</locationURI>
+			<locationURI>PROJECT_FOLDER/Inc/demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>Application/User/dhcp_client.c</name>
@@ -172,11 +177,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Src/lwip_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>Application/User/lwip_freertos.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Inc/lwip_freertos.h</locationURI>
-		</link>
-		<link>
 			<name>Application/User/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/main.c</locationURI>
@@ -195,6 +195,11 @@
 			<name>Application/User/stm32f4xx_it.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/stm32f4xx_it.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/wifi_cli.c</name>
+			<type>1</type>
+			<locationURI>PROJECT_FOLDER/Src/wifi_cli.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
@@ -462,4 +467,10 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/apps/http/httpd.c</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>PROJECT_FOLDER</name>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D</value>
+		</variable>
+	</variableList>
 </projectDescription>

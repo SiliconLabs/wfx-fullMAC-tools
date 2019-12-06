@@ -1,87 +1,63 @@
-/**
-  ******************************************************************************
-  * @file    dhcp_client.c 
-  * @brief   Ethernet specefic module
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright © 2017 STMicroelectronics International N.V. 
-  * All rights reserved.</center></h2>
-  *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
-  *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
+/***************************************************************************//**
+ * @file
+ * @brief LwIP DHCP client implementation
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *****************************************************************************/
+
 #include "cmsis_os.h"
 #include "lwip/dhcp.h"
 #include "dhcp_client.h"
-#include "lwip_freertos.h"
+#include "demo_config.h"
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
+ // DHCP client states
+#define DHCP_OFF                   (uint8_t) 0
+#define DHCP_START                 (uint8_t) 1
+#define DHCP_WAIT_ADDRESS          (uint8_t) 2
+#define DHCP_ADDRESS_ASSIGNED      (uint8_t) 3
+#define DHCP_TIMEOUT               (uint8_t) 4
+#define DHCP_LINK_DOWN             (uint8_t) 5
 
 #define MAX_DHCP_TRIES  4
-volatile uint8_t DHCP_state = DHCP_OFF;
+    
+/// Current DHCP state machine state.
+static volatile uint8_t dhcp_state = DHCP_OFF;
 
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-/**
-  * @brief  Notify the User about the network interface config status
-  * @param  netif: the network interface
-  * @retval None
-  */
-void User_notification(int link_up) 
+/***************************************************************************//**
+ * Notify DHCP client task about the wifi status
+ *
+ * @param link_up link status
+ ******************************************************************************/
+void dhcpclient_set_link_state(int link_up)
 {
-  if (link_up)
-  {
-    DHCP_state = DHCP_START;
-  }
-  else
-  {  
+  if (link_up) {
+    dhcp_state = DHCP_START;
+  } else {
     /* Update DHCP state machine */
-    DHCP_state = DHCP_LINK_DOWN;
-  } 
+    dhcp_state = DHCP_LINK_DOWN;
+  }
 }
 
-/**
-  * @brief  DHCP Process
-  * @param  argument: network interface
-  * @retval None
-  */
-void DHCP_thread(void const * argument)
+/***************************************************************************//**
+ * DHCP client task.
+ *
+ * @param arg Network interface
+ ******************************************************************************/
+void dhcpclient_start(void const * argument)
 {
   struct netif *netif = (struct netif *) argument;
   ip_addr_t ipaddr;
@@ -91,7 +67,7 @@ void DHCP_thread(void const * argument)
   
   for (;;)
   {
-    switch (DHCP_state)
+    switch (dhcp_state)
     {
     case DHCP_START:
       {
@@ -99,7 +75,7 @@ void DHCP_thread(void const * argument)
         ip_addr_set_zero_ip4(&netif->netmask);
         ip_addr_set_zero_ip4(&netif->gw);       
         dhcp_start(netif);
-        DHCP_state = DHCP_WAIT_ADDRESS;
+        dhcp_state = DHCP_WAIT_ADDRESS;
       }
       break;
       
@@ -107,7 +83,7 @@ void DHCP_thread(void const * argument)
       {                
         if (dhcp_supplied_address(netif)) 
         {
-          DHCP_state = DHCP_ADDRESS_ASSIGNED;	
+          dhcp_state = DHCP_ADDRESS_ASSIGNED;	
           printf("IP address : %d.%d.%d.%d\r\n",
                   sta_netif.ip_addr.addr & 0xff,
                   (sta_netif.ip_addr.addr >> 8) & 0xff,
@@ -121,7 +97,7 @@ void DHCP_thread(void const * argument)
           /* DHCP timeout */
           if (dhcp->tries > MAX_DHCP_TRIES)
           {
-            DHCP_state = DHCP_TIMEOUT;
+            dhcp_state = DHCP_TIMEOUT;
             
             /* Stop DHCP */
             dhcp_stop(netif);
@@ -140,7 +116,7 @@ void DHCP_thread(void const * argument)
     {
       /* Stop DHCP */
       dhcp_stop(netif);
-      DHCP_state = DHCP_OFF; 
+      dhcp_state = DHCP_OFF; 
     }
     break;
     default: break;
@@ -150,5 +126,3 @@ void DHCP_thread(void const * argument)
     osDelay(250);
   }
 }
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

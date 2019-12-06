@@ -2346,7 +2346,7 @@
         <name>$PROJ_DIR$\..\Src\ethernetif.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Src\lwip.c</name>
+        <name>$PROJ_DIR$\..\Src\lwip_app.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>

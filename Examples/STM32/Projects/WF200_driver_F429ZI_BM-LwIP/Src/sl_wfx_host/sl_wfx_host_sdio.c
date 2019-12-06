@@ -53,7 +53,7 @@ sl_status_t sl_wfx_host_sdio_enable_high_speed_mode( void )
 
   SDIO_Init(SDIO, Init);
   SDIO_PowerState_ON(SDIO);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_init_bus( void )
@@ -66,35 +66,35 @@ sl_status_t sl_wfx_host_init_bus( void )
   errorstate = SDMMC_CmdGoIdleState(SDIO);
   if(errorstate != SDMMC_ERROR_NONE)
   {
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   sl_wfx_host_wait(1); //Mandatory because wf200 reply to cmd0,
   /* CMD8 */
   errorstate = SDMMC_CmdOperCond(SDIO);
   if(errorstate != SDMMC_ERROR_NONE)
   {  
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   /* CMD3 */
   errorstate = SDMMC_CmdSetRelAdd(SDIO, NULL);
   if(errorstate != SDMMC_ERROR_NONE)
   {  
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   /* CMD7 */
   errorstate = SDMMC_CmdSelDesel(SDIO, 0x00010000);
   if(errorstate != SDMMC_ERROR_NONE)
   {  
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_deinit_bus( void )
 {
   MX_SDIO_DeInit();
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx)
@@ -130,7 +130,7 @@ static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx)
 }
 
 /* Command 52 */
-sl_status_t sl_wfx_host_sdio_transfer_cmd52( sl_wfx_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer ){
+sl_status_t sl_wfx_host_sdio_transfer_cmd52( sl_wfx_host_bus_transfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer ){
   uint32_t status;
   SDIO_CmdInitTypeDef command;
   if(type == SL_WFX_BUS_WRITE){
@@ -159,13 +159,13 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd52( sl_wfx_host_bus_tranfer_type_t type
     {
       *buffer = response_flags & 0xFF;
     }else{
-      return SL_ERROR;
+      return SL_STATUS_FAIL;
     }
   }else{
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 /* Command 53 */
@@ -209,7 +209,7 @@ sl_status_t sl_wfx_host_sdio_read_cmd53( uint8_t function, uint32_t address, uin
   uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
   if(((response_flags>> 8) & 0xFF) != 0x20)
   {
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   
   while(!__SDIO_GET_FLAG(SDIO, SDIO_FLAG_RXOVERR | SDIO_FLAG_DCRCFAIL | SDIO_FLAG_DTIMEOUT | SDIO_FLAG_DATAEND))
@@ -233,7 +233,7 @@ sl_status_t sl_wfx_host_sdio_read_cmd53( uint8_t function, uint32_t address, uin
   
   /* Clear all the static flags */
   __SDIO_CLEAR_FLAG(SDIO, SDIO_STATIC_FLAGS);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_sdio_write_cmd53( uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length )
@@ -271,7 +271,7 @@ sl_status_t sl_wfx_host_sdio_write_cmd53( uint8_t function, uint32_t address, ui
   uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
   if(((response_flags>> 8) & 0xFF) != 0x20)
   {
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   
   /* Prepare Data */
@@ -295,12 +295,12 @@ sl_status_t sl_wfx_host_sdio_write_cmd53( uint8_t function, uint32_t address, ui
   
   /* Clear all the static flags */
   __SDIO_CLEAR_FLAG(SDIO, SDIO_STATIC_FLAGS);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length)
+sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_transfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length)
 {    
-  sl_status_t    result  = SL_ERROR;
+  sl_status_t    result  = SL_STATUS_FAIL;
   
   if(type == SL_WFX_BUS_WRITE)
   {
@@ -315,13 +315,13 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_tranfer_type_t type,
 sl_status_t sl_wfx_host_enable_platform_interrupt( void )
 {
   __SDIO_ENABLE_IT(SDIO, SDIO_IT_SDIOIT);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_disable_platform_interrupt( void )
 {
   __SDIO_DISABLE_IT(SDIO, SDIO_IT_SDIOIT);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 static uint32_t sdio_optimal_block_size( uint16_t buffer_size )

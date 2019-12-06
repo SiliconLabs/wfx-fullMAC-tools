@@ -18,6 +18,7 @@
 #include "stm32f4xx_hal.h"
 #include <string.h>
 
+#include "sl_wfx.h"
 #include "sl_wfx_host.h"
 #include "demo_config.h"
 
@@ -115,7 +116,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
   
   /* Compute packet frame length */
   frame_length = SL_WFX_ROUND_UP(p->tot_len, 2);
-
+  
   sl_wfx_allocate_command_buffer((sl_wfx_generic_message_t**)(&tx_buffer),
                                  SL_WFX_SEND_FRAME_REQ_ID,
                                  SL_WFX_TX_FRAME_BUFFER,
@@ -135,19 +136,20 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
     result = sl_wfx_send_ethernet_frame(tx_buffer,
                                         frame_length,
                                         SL_WFX_SOFTAP_INTERFACE,
-                                        WFM_PRIORITY_BE);
+                                        0);
   }
   else
   {
     result = sl_wfx_send_ethernet_frame(tx_buffer,
                                         frame_length,
                                         SL_WFX_STA_INTERFACE,
-                                        WFM_PRIORITY_BE);
+                                        0);
   }
   sl_wfx_free_command_buffer((sl_wfx_generic_message_t*) tx_buffer,
                              SL_WFX_SEND_FRAME_REQ_ID,
                              SL_WFX_TX_FRAME_BUFFER);
-  if(result == SL_SUCCESS)
+
+  if(result == SL_STATUS_OK)
   {
     errval = ERR_OK;
   }else{
@@ -168,7 +170,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
  * @return
  *    LwIP pbuf filled with received packet, or NULL on error
  ******************************************************************************/
-static struct pbuf * low_level_input(struct netif *netif, sl_wfx_received_ind_t* rx_buffer)
+static struct pbuf *low_level_input(struct netif *netif, sl_wfx_received_ind_t* rx_buffer)
 {
   struct pbuf *p, *q;
   uint8_t *buffer;

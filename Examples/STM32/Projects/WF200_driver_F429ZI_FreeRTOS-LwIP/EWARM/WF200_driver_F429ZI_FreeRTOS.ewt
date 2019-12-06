@@ -2328,6 +2328,9 @@
         <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_host.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_host_events.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_host_sdio.c</name>
       </file>
       <file>
@@ -2339,6 +2342,9 @@
     </group>
     <group>
       <name>User</name>
+      <file>
+        <name>$PROJ_DIR$\..\Inc\demo_config.h</name>
+      </file>
       <file>
         <name>$PROJ_DIR$\..\Src\dhcp_client.c</name>
       </file>
@@ -2355,9 +2361,6 @@
         <name>$PROJ_DIR$\..\Src\lwip_freertos.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Inc\lwip_freertos.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
       </file>
       <file>
@@ -2370,7 +2373,7 @@
         <name>$PROJ_DIR$\..\Src\stm32f4xx_it.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Src\UART_input.c</name>
+        <name>$PROJ_DIR$\..\Src\wifi_cli.c</name>
       </file>
     </group>
   </group>

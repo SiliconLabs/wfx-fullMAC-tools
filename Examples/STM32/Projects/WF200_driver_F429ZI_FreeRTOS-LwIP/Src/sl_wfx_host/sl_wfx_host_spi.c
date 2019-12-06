@@ -14,10 +14,6 @@
  * limitations under the License.
  *****************************************************************************/
 
-/**************************************************************************//**
- * SPI interface implementation: STM32F4 + FreeRTOS
- *****************************************************************************/
-
 #include "cmsis_os.h"
 #include <stdbool.h>
 #include "sl_wfx_host_pin.h"
@@ -29,42 +25,42 @@ DMA_HandleTypeDef hdma_spi1_tx;
 DMA_HandleTypeDef hdma_spi1_rx;
 SemaphoreHandle_t spiDMASemaphore;
 
-sl_status_t sl_wfx_host_init_bus( void )
+sl_status_t sl_wfx_host_init_bus(void)
 {
   /* Init SPI interface */
   MX_SPI1_Init();
   /*Create semaphore to handle SPI*/
   spiDMASemaphore = xSemaphoreCreateBinary();
   xSemaphoreGive(spiDMASemaphore);  
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_deinit_bus( void )
+sl_status_t sl_wfx_host_deinit_bus(void)
 {
   /* Deinit SPI interface */
   HAL_SPI_MspDeInit(&hspi1);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_spi_cs_assert()
+sl_status_t sl_wfx_host_spi_cs_assert(void)
 {
   HAL_GPIO_WritePin(SL_WFX_CS_PORT_SPI, SL_WFX_CS_GPIO_SPI, GPIO_PIN_RESET);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_spi_cs_deassert()
+sl_status_t sl_wfx_host_spi_cs_deassert(void)
 {
   HAL_GPIO_WritePin(SL_WFX_CS_PORT_SPI, SL_WFX_CS_GPIO_SPI, GPIO_PIN_SET);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_tranfer_type_t type,
+sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_transfer_type_t type,
                                                   uint8_t *header,
                                                   uint16_t header_length,
                                                   uint8_t *buffer,
                                                   uint16_t buffer_length)
 {
-  sl_status_t    result  = SL_ERROR;
+  sl_status_t    result  = SL_STATUS_FAIL;
   const bool     is_read = ( type == SL_WFX_BUS_READ );
   
   /* Wait for the DMA channels to be available */
@@ -74,12 +70,12 @@ sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_tranfer_type_t
     HAL_SPI_Transmit(&hspi1, header, header_length, 1000);
     if(is_read)
     {
-      if(HAL_SPI_Receive_DMA(&hspi1, buffer, buffer_length) == HAL_OK) result = SL_SUCCESS;
+      if(HAL_SPI_Receive_DMA(&hspi1, buffer, buffer_length) == HAL_OK) result = SL_STATUS_OK;
     }else{
-      if(HAL_SPI_Transmit_DMA(&hspi1, buffer, buffer_length) == HAL_OK) result = SL_SUCCESS;
+      if(HAL_SPI_Transmit_DMA(&hspi1, buffer, buffer_length) == HAL_OK) result = SL_STATUS_OK;
     }
   }else{
-    result = SL_TIMEOUT;
+    result = SL_STATUS_TIMEOUT;
   }
   /* Wait to receive the semaphore back from the DMA. In case of a read function, this means data is ready to be read*/ 
   if(xSemaphoreTake(spiDMASemaphore, portMAX_DELAY) == pdTRUE )
@@ -89,18 +85,19 @@ sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_tranfer_type_t
   return result;
 }
 
-sl_status_t sl_wfx_host_enable_platform_interrupt( void )
+sl_status_t sl_wfx_host_enable_platform_interrupt(void)
 {
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 10, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_disable_platform_interrupt( void )
+
+sl_status_t sl_wfx_host_disable_platform_interrupt(void)
 {
   HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 /* SPI1 init function */

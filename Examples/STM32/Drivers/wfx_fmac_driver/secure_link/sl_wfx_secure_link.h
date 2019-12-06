@@ -23,13 +23,18 @@
 
 #include "sl_wfx.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #ifdef SL_WFX_USE_SECURE_LINK
 
 void sl_wfx_init_secure_link_encryption_bitmap(uint8_t *bitmap);
 
 sl_status_t sl_wfx_secure_link_set_mac_key(const uint8_t *sl_mac_key, sl_wfx_securelink_mac_key_dest_t destination);
 
-sl_status_t sl_wfx_secure_link_exchange_keys(const uint8_t *sl_mac_key);
+sl_status_t sl_wfx_secure_link_exchange_keys(const uint8_t *sl_mac_key, uint8_t *sl_host_pub_key);
 
 sl_status_t sl_wfx_secure_link_renegotiate_session_key(void);
 
@@ -44,5 +49,9 @@ void sl_wfx_secure_link_bitmap_remove_request_id(uint8_t *bitmap, uint8_t reques
 uint8_t sl_wfx_secure_link_encryption_required_get(uint8_t request_id);
 
 #endif //SL_WFX_USE_SECURE_LINK
+
+#ifdef __cplusplus
+} /*extern "C" */
+#endif
 
 #endif // SL_WFX_SECURE_LINK_H

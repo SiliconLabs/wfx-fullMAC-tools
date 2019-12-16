@@ -22,6 +22,7 @@ extern "C" {
  * WiFi configuration dialog via UART.
  *****************************************************************************/
 void wifi_cli_cfg_dialog(void);
+void wifi_cli_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo);
 #ifdef __cplusplus
 }
 #endif

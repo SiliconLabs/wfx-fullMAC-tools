@@ -15,31 +15,33 @@
  *
  ******************************************************************************/
 
+#include <stdio.h>
 #include "demo_config.h"
-#include  <bsp_os.h>
-#include  "bsp.h"
-#include  <cpu/include/cpu.h>
-#include  <kernel/include/os.h>
-#include  <kernel/include/os_trace.h>
-#include  <common/include/common.h>
-#include  <common/include/lib_def.h>
-#include  <common/include/rtos_utils.h>
-#include  <common/include/toolchains.h>
-#include  "retargetserial.h"
-#include  "em_cmu.h"
-#include  "em_emu.h"
-#include  "em_chip.h"
-#include  "wfx_host_cfg.h"
-#include  "wifi_cli.h"
-#include  "wfx_host_events.h"
+#include <bsp_os.h>
+#include "bsp.h"
+#include <cpu/include/cpu.h>
+#include <kernel/include/os.h>
+#include <kernel/include/os_trace.h>
+#include <common/include/common.h>
+#include <common/include/lib_def.h>
+#include <common/include/rtos_utils.h>
+#include <common/include/toolchains.h>
+#include <common/include/auth.h>
+#include <common/include/shell.h>
+#include "retargetserial.h"
+#include "em_cmu.h"
+#include "em_emu.h"
+#include "em_chip.h"
+#include "wfx_host_cfg.h"
+#include "wifi_cli.h"
+#include "wfx_host_events.h"
 #include "io.h"
 #include "wfx_task.h"
 #include "wfx_host.h"
-#include <stdio.h>
-#include <common/include/auth.h>
-#include <common/include/shell.h>
-#ifdef SL_WFX_USE_SECURE_LINK
-#include  <mbedtls/threading.h>
+#include "lwipopts.h"
+#if LWIP_APP_TLS_ENABLED
+#include <mbedtls/threading.h>
+#include MBEDTLS_CONFIG_FILE
 #endif
 #include "sleep.h"
 #define  EX_MAIN_START_TASK_PRIO              30u
@@ -110,12 +112,12 @@ int  main(void)
 
   OS_TRACE_INIT(); // Initialize trace if enabled
   OSInit(&err);    // Initialize the Kernel.
-#ifdef SL_WFX_USE_SECURE_LINK
+
+#if LWIP_APP_TLS_ENABLED
   // Enable mbedtls Micrium OS support
-#if defined ( MBEDTLS_THREADING_C )
   THREADING_setup();
 #endif
-#endif
+
   APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
   // Initialize Kernel tick source.
   BSP_TickInit();

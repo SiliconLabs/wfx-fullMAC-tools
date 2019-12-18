@@ -112,7 +112,6 @@ void lwip_button_handler(uint32_t button_id);
 #endif
 
 //#define LWIP_IPERF_SERVER ///< If defined, iperf server is enabled
-//#define LWIP_HTTP_SERVER  ///< If defined, http server is enabled
 
 #define WLAN_SSID_DEFAULT       "AP_name"                         ///< wifi ssid for client mode
 #define WLAN_PASSKEY_DEFAULT    "passkey"                         ///< wifi password for client mode

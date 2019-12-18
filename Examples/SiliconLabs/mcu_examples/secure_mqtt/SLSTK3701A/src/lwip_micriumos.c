@@ -36,23 +36,24 @@
 #include "sleep.h"
 
 // LwIP includes.
-#include "ethernetif.h"
 #include "lwip/netif.h"
 #include "lwip/tcpip.h"
 #include "lwip/ip_addr.h"
 #include "lwip/apps/httpd.h"
 #include "lwip/apps/mqtt.h"
 #include "lwip/netifapi.h"
-#include "demo_config.h"
+#if LWIP_APP_TLS_ENABLED
+#include "lwip/altcp_tls.h"
+#endif
+#ifdef LWIP_IPERF_SERVER
+#include "lwip/ip_addr.h"
+#include "lwip/apps/lwiperf.h"
+#endif
 #include "wifi_cli.h"
 #include "dhcp_client.h"
 #include "dhcp_server.h"
 #include "ethernetif.h"
 #include "wfx_host.h"
-#ifdef LWIP_IPERF_SERVER
-#include "lwip/ip_addr.h"
-#include "lwip/apps/lwiperf.h"
-#endif
 #include "wfx_task.h"
 #include "dhcp_server.h"
 #include "wfx_host.h"
@@ -63,6 +64,12 @@ static void netif_config(void);
 
 #define LWIP_TASK_PRIO              23u
 #define LWIP_TASK_STK_SIZE         800u
+
+#if LWIP_APP_TLS_ENABLED
+#define LWIP_APP_MQTT_PORT        8883u
+#else
+#define LWIP_APP_MQTT_PORT        1883u
+#endif
 
 /// LwIP station network interface structure.
 struct netif sta_netif;
@@ -142,7 +149,17 @@ static struct mqtt_connect_client_info_t mqtt_client_info = {
   NULL, NULL,
   10 /*Keep alive (seconds)*/,
   NULL, NULL, 0, 0,
+#if LWIP_APP_TLS_ENABLED
+  NULL
+#endif
 };
+
+#if LWIP_APP_TLS_ENABLED
+/// TLS
+extern const char ca_certificate[];
+extern const char efm32gg11_certificate[];
+extern const char efm32gg11_key[];
+#endif
 
 
 #ifdef LWIP_IPERF_SERVER
@@ -379,10 +396,23 @@ static void lwip_task(void *p_arg)
   mqtt_client = mqtt_client_new();
   LWIP_ASSERT("MQTT: allocation error", mqtt_client);
 
+#if LWIP_APP_TLS_ENABLED
+  // Create a TLS context for the client
+  mqtt_client_info.tls_config =
+      altcp_tls_create_config_client_2wayauth((uint8_t *)ca_certificate,
+                                              strlen(ca_certificate)+1,
+                                              (uint8_t *)efm32gg11_key,
+                                              strlen(efm32gg11_key)+1,
+                                              NULL,
+                                              0,
+                                              (uint8_t *)efm32gg11_certificate,
+                                              strlen(efm32gg11_certificate)+1);
+#endif
+
   // Connect to the MQTT broker
   res = mqtt_client_connect(mqtt_client,
                             &broker_ip,
-                            1883,
+                            LWIP_APP_MQTT_PORT,
                             mqtt_connection_cb,
                             NULL,
                             &mqtt_client_info);

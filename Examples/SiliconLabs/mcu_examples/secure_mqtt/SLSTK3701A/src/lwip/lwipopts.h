@@ -142,4 +142,14 @@
 #define DEFAULT_THREAD_STACKSIZE        500
 #define TCPIP_THREAD_PRIO               20u
 
+// TLS
+#if LWIP_APP_TLS_ENABLED
+#define LWIP_ALTCP                      1
+#define LWIP_ALTCP_TLS                  1
+#define LWIP_ALTCP_TLS_MBEDTLS          1
+#define ALTCP_MBEDTLS_RNG_FN            mbedtls_entropy_func
+#define ALTCP_MBEDTLS_ENTROPY_PTR       ((unsigned char *)"mqtt")
+#define ALTCP_MBEDTLS_ENTROPY_LEN       (sizeof(ALTCP_MBEDTLS_ENTROPY_PTR))
+#endif
+
 #endif /* __LWIPOPTS_H__ */

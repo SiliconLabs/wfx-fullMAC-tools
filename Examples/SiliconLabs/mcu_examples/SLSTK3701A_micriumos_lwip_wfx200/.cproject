@@ -418,7 +418,9 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="GG11 STK SDIO - GNU ARM v7.2.1 - Debug"/>
+		<configuration configurationName="GG11 STK SDIO - GNU ARM v7.2.1 - Debug">
+			<resource resourceType="PROJECT" workspacePath="/SLSTK3701A_micriumos_lwip_wfx200"/>
+		</configuration>
 		<configuration configurationName="GNU ARM v7.2.1 - Release">
 			<resource resourceType="PROJECT" workspacePath="/SLSTK3701A_micriumos_lwip_wfx200"/>
 		</configuration>
@@ -428,11 +430,15 @@
 		<configuration configurationName="GG11 STK - GNU ARM v7.2.1 - Debug">
 			<resource resourceType="PROJECT" workspacePath="/SLSTK3701A_micriumos_lwip_wfx200"/>
 		</configuration>
-		<configuration configurationName="GG11 STK SPI - GNU ARM v7.2.1 - Debug"/>
+		<configuration configurationName="GG11 STK SPI - GNU ARM v7.2.1 - Debug">
+			<resource resourceType="PROJECT" workspacePath="/SLSTK3701A_micriumos_lwip_wfx200"/>
+		</configuration>
 		<configuration configurationName="GNU ARM v7.2.1 - Debug">
 			<resource resourceType="PROJECT" workspacePath="/SLSTK3701A_micriumos_lwip_wfx200"/>
 		</configuration>
-		<configuration configurationName="GG11 STK SPI POWER SAVE - GNU ARM v7.2.1 - Debug"/>
+		<configuration configurationName="GG11 STK SPI POWER SAVE - GNU ARM v7.2.1 - Debug">
+			<resource resourceType="PROJECT" workspacePath="/SLSTK3701A_micriumos_lwip_wfx200"/>
+		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>

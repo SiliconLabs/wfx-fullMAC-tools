@@ -41,7 +41,7 @@
 #include "wfx_host.h"
 
 // Bus Task Configurations
-#define WFX_BUS_TASK_PRIO              15u
+#define WFX_BUS_TASK_PRIO              16u
 #define WFX_BUS_TASK_STK_SIZE         512u
 #define WFX_EVENT_TIMEOUT_MS           (0)
 

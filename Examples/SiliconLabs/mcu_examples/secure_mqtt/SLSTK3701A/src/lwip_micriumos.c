@@ -35,6 +35,8 @@
 #include "string.h"
 #include "sleep.h"
 
+#include "demo_config.h"
+
 // LwIP includes.
 #include "lwip/netif.h"
 #include "lwip/tcpip.h"
@@ -144,8 +146,15 @@ char event_log[50];
 /// MQTT
 static ip_addr_t broker_ip;
 static mqtt_client_t *mqtt_client = NULL;
+
+#ifdef EFM32GG11B820F2048GM64
+static const char device_name[] = "wgm160p";
+#else
+static const char device_name[] = "efm32gg11";
+#endif
+
 static struct mqtt_connect_client_info_t mqtt_client_info = {
-  "efm32gg11",
+  device_name,
   NULL, NULL,
   10 /*Keep alive (seconds)*/,
   NULL, NULL, 0, 0,
@@ -157,8 +166,20 @@ static struct mqtt_connect_client_info_t mqtt_client_info = {
 #if LWIP_APP_TLS_ENABLED
 /// TLS
 extern const char ca_certificate[];
+
+#ifdef EFM32GG11B820F2048GM64
+extern const char wgm160p_certificate[];
+extern const char wgm160p_key[];
+
+static const char* device_certificate = wgm160p_certificate;
+static const char* device_key = wgm160p_key;
+#else
 extern const char efm32gg11_certificate[];
 extern const char efm32gg11_key[];
+
+static const char* device_certificate = efm32gg11_certificate;
+static const char* device_key = efm32gg11_key;
+#endif
 #endif
 
 
@@ -401,12 +422,12 @@ static void lwip_task(void *p_arg)
   mqtt_client_info.tls_config =
       altcp_tls_create_config_client_2wayauth((uint8_t *)ca_certificate,
                                               strlen(ca_certificate)+1,
-                                              (uint8_t *)efm32gg11_key,
-                                              strlen(efm32gg11_key)+1,
+                                              (uint8_t *)device_key,
+                                              strlen(device_key)+1,
                                               NULL,
                                               0,
-                                              (uint8_t *)efm32gg11_certificate,
-                                              strlen(efm32gg11_certificate)+1);
+                                              (uint8_t *)device_certificate,
+                                              strlen(device_certificate)+1);
 #endif
 
   // Connect to the MQTT broker

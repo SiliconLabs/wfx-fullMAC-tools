@@ -152,4 +152,7 @@
 #define ALTCP_MBEDTLS_ENTROPY_LEN       (sizeof(ALTCP_MBEDTLS_ENTROPY_PTR))
 #endif
 
+// DNS
+#define LWIP_DNS                        1
+
 #endif /* __LWIPOPTS_H__ */

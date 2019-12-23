@@ -38,6 +38,7 @@
 #include "demo_config.h"
 
 // LwIP includes.
+#include "lwip/dns.h"
 #include "lwip/netif.h"
 #include "lwip/tcpip.h"
 #include "lwip/ip_addr.h"
@@ -72,6 +73,8 @@ static void netif_config(void);
 #else
 #define LWIP_APP_MQTT_PORT        1883u
 #endif
+
+#define LWIP_APP_ECHO_ENABLED        1u
 
 /// LwIP station network interface structure.
 struct netif sta_netif;
@@ -256,24 +259,22 @@ static void mqtt_incoming_data_cb (void *arg,
   }
 }
 
-static void lwip_example_config_prompt (void)
+static void lwip_example_wifi_config_prompt (void)
 {
-  char buf[16];
-  uint8_t *ptr_ip = (uint8_t *)&broker_ip.addr;
-  int res;
-  bool error = false;
+  char buf[4];
+  bool error;
 
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockBegin(sleepEM2);
 #endif
 
   printf("\nEnter the SSID of the AP you want to connect:\n");
-  wifi_cli_get_input(wlan_ssid, sizeof(wlan_ssid), 1);
+  wifi_cli_get_input(wlan_ssid, sizeof(wlan_ssid), LWIP_APP_ECHO_ENABLED);
 
   do {
     error = false;
     printf("Enter the Passkey of the AP you want to connect (8-chars min):\n");
-    wifi_cli_get_input(wlan_passkey, sizeof(wlan_passkey), 1);
+    wifi_cli_get_input(wlan_passkey, sizeof(wlan_passkey), LWIP_APP_ECHO_ENABLED);
 
     if (strlen(wlan_passkey) < 8) {
       printf("Size error\n");
@@ -284,7 +285,7 @@ static void lwip_example_config_prompt (void)
   do {
     error = false;
     printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\nEnter 1,2,3 or 4:\n");
-    wifi_cli_get_input(buf, 2 + 1 /* let the user tap enter */, 1);
+    wifi_cli_get_input(buf, 2 + 1 /* let the user tap enter */, LWIP_APP_ECHO_ENABLED);
 
     if (!strncmp(buf, "1", 1)) {
       wlan_security = WFM_SECURITY_MODE_OPEN;
@@ -300,24 +301,69 @@ static void lwip_example_config_prompt (void)
     }
   } while (error);
 
+  printf("\n");
+
+#ifdef SLEEP_ENABLED
+  SLEEP_SleepBlockEnd(sleepEM2);
+#endif
+}
+
+static void dns_found_cb (const char *name,
+                          const ip_addr_t *ipaddr,
+                          void *callback_arg)
+{
+  RTOS_ERR err;
+
+  (void)callback_arg;
+
+  OSTaskQPost(&lwip_task_tcb,
+              (void *)ipaddr,
+              sizeof(ip_addr_t),
+              OS_OPT_POST_NONE,
+              &err);
+}
+
+static void lwip_example_mqtt_config_prompt (void)
+{
+  ip_addr_t *ipaddr;
+  char buf[64];
+  RTOS_ERR err;
+  uint16_t len;
+  err_t res;
+  bool error;
+
+#ifdef SLEEP_ENABLED
+  SLEEP_SleepBlockBegin(sleepEM2);
+#endif
+
+  printf("\n");
+
   do {
     error = false;
-    printf("Enter the IP address of your MQTT broker:\n");
-    wifi_cli_get_input(buf, sizeof(buf), 1);
-    // TODO manage DNS resolution
-    res = sscanf(buf,
-                 "%hu.%hu.%hu.%hu",
-                 (short unsigned int *)&ptr_ip[0],
-                 (short unsigned int *)&ptr_ip[1],
-                 (short unsigned int *)&ptr_ip[2],
-                 (short unsigned int *)&ptr_ip[3]);
-    if (res != 4) {
-      printf("Wrong IP format\n");
+    printf("Enter the MQTT broker address:\n");
+    wifi_cli_get_input(buf, sizeof(buf), LWIP_APP_ECHO_ENABLED);
+
+    res = dns_gethostbyname(buf, &broker_ip, dns_found_cb, NULL);
+    if (res == ERR_INPROGRESS) {
+      // Wait for the DNS resolution
+      ipaddr = (ip_addr_t*)OSTaskQPend(0,
+                                       OS_OPT_PEND_BLOCKING,
+                                       &len,
+                                       NULL,
+                                       &err);
+
+      if (ipaddr != NULL) {
+        printf("\nHostname %s resolved\n", buf);
+        broker_ip = *ipaddr;
+      } else {
+        printf("\nHostname %s resolution error\n", buf);
+        error = true;
+      }
+    } else if (res == ERR_ARG) {
+      printf("Wrong hostname\n");
       error = true;
     }
   } while (error);
-
-  printf("\n");
 
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockEnd(sleepEM2);
@@ -352,6 +398,8 @@ void lwip_button_handler (uint32_t button_id)
  ******************************************************************************/
 static void lwip_task(void *p_arg)
 {
+  ip_addr_t prim_dns_addr = IPADDR4_INIT_BYTES(8, 8, 8, 8);
+  ip_addr_t sec_dns_addr = IPADDR4_INIT_BYTES(8, 8, 4, 4);
   uint8_t *ptr_ip = (uint8_t *)&broker_ip.addr;
   char pub_event_topic[32];
   char pub_data_topic[32];
@@ -379,8 +427,13 @@ static void lwip_task(void *p_arg)
   lwiperf_start_tcp_server_default(lwip_iperf_results, 0);
 #endif
 
-  // Prompt the user to configure the example
-  lwip_example_config_prompt();
+  // Initialize the DNS client (connecting to Google DNS servers)
+  dns_setserver(0, &prim_dns_addr);
+  dns_setserver(0, &sec_dns_addr);
+  dns_init();
+
+  // Prompt the user to configure the Wi-Fi connection
+  lwip_example_wifi_config_prompt();
 
   printf("Waiting for the Wi-Fi connection...\r\n");
   sl_wfx_send_join_command((uint8_t*) wlan_ssid,
@@ -409,6 +462,9 @@ static void lwip_task(void *p_arg)
   while (use_dhcp_client && dhcp_supplied_address(&sta_netif) == 0) {
     OSTimeDly(500, OS_OPT_TIME_DLY, &err);
   }
+
+  // Prompt the user to configure the MQTT connection
+  lwip_example_mqtt_config_prompt();
 
   printf("Connecting to MQTT broker (%u.%u.%u.%u)...\r\n",
          ptr_ip[0], ptr_ip[1], ptr_ip[2], ptr_ip[3]);
@@ -451,7 +507,7 @@ static void lwip_task(void *p_arg)
                           mqtt_incoming_data_cb,
                           NULL);
 
-  mqtt_sub_unsub(mqtt_client, sub_topic, 0, mqtt_suscribe_cb, NULL, 1);
+  mqtt_sub_unsub(mqtt_client, sub_topic, 0 /*qos*/, mqtt_suscribe_cb, NULL, 1);
 
   snprintf(pub_data_topic,
            sizeof(pub_data_topic),

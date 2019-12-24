@@ -63,8 +63,6 @@
 
 static void netif_config(void);
 
-#define LWIP_APP_TX_TICK_PERIOD   1000u
-
 #define LWIP_TASK_PRIO              23u
 #define LWIP_TASK_STK_SIZE         800u
 
@@ -74,6 +72,8 @@ static void netif_config(void);
 #define LWIP_APP_MQTT_PORT        1883u
 #endif
 
+#define LWIP_APP_TX_TICK_PERIOD   1000u
+#define LWIP_APP_NB_LEDS             2u
 #define LWIP_APP_ECHO_ENABLED        1u
 
 /// LwIP station network interface structure.
@@ -152,9 +152,13 @@ static mqtt_client_t *mqtt_client = NULL;
 
 #ifdef EFM32GG11B820F2048GM64
 static const char device_name[] = "wgm160p";
+static const char button_json_object[] = "{\"name\":\"PB%u\"}";
 #else
 static const char device_name[] = "efm32gg11";
+static const char button_json_object[] = "{\"name\":\"BTN%u\"}";
 #endif
+
+static const char led_json_object[] = "{\"name\":\"LED%u\",\"state\":\"%s\"}";
 
 static struct mqtt_connect_client_info_t mqtt_client_info = {
   device_name,
@@ -248,14 +252,35 @@ static void mqtt_incoming_data_cb (void *arg,
                                    uint16_t len,
                                    uint8_t flags)
 {
-  (void)arg;
+  char buf[32];
+  char state[4];
+  int res;
+  unsigned int led_id;
 
-  for (int i=0; i<len; i++) {
-    printf("%02X", data[i]);
+  (void)arg;
+  (void)flags;
+
+  // Limit the input data size
+  strncpy(buf, (char*)data, sizeof(buf));
+  if (len < sizeof(buf)) {
+    buf[len] = '\0';
   }
 
-  if (flags & MQTT_DATA_FLAG_LAST) {
-    printf("\r\n");
+  // Extract the data information
+  res = sscanf(buf, led_json_object, &led_id, state);
+  if (res == 2) {
+    if (led_id < LWIP_APP_NB_LEDS) {
+      // sscanf captures everything up to the null termination
+      if (strcmp(state, "On\"}") == 0) {
+        BSP_LedSet(led_id);
+      } else if (strcmp(state, "Off\"}") == 0) {
+        BSP_LedClear(led_id);
+      }
+    } else {
+      printf("Wrong led id\n");
+    }
+  } else {
+    printf("Wrong JSON format\n");
   }
 }
 
@@ -344,24 +369,32 @@ static void lwip_example_mqtt_config_prompt (void)
     wifi_cli_get_input(buf, sizeof(buf), LWIP_APP_ECHO_ENABLED);
 
     res = dns_gethostbyname(buf, &broker_ip, dns_found_cb, NULL);
-    if (res == ERR_INPROGRESS) {
-      // Wait for the DNS resolution
-      ipaddr = (ip_addr_t*)OSTaskQPend(0,
-                                       OS_OPT_PEND_BLOCKING,
-                                       &len,
-                                       NULL,
-                                       &err);
+    switch (res) {
+      case ERR_OK:
+        printf("\n");
+        break;
 
-      if (ipaddr != NULL) {
-        printf("\nHostname %s resolved\n", buf);
-        broker_ip = *ipaddr;
-      } else {
-        printf("\nHostname %s resolution error\n", buf);
+      case ERR_INPROGRESS:
+        // Wait for the DNS resolution
+        ipaddr = (ip_addr_t*)OSTaskQPend(0,
+                                         OS_OPT_PEND_BLOCKING,
+                                         &len,
+                                         NULL,
+                                         &err);
+
+        if (ipaddr != NULL) {
+          printf("\nHostname %s resolved\n", buf);
+          broker_ip = *ipaddr;
+        } else {
+          printf("\nHostname %s resolution error\n", buf);
+          error = true;
+        }
+        break;
+
+      case ERR_ARG:
+        printf("Wrong hostname\n");
         error = true;
-      }
-    } else if (res == ERR_ARG) {
-      printf("Wrong hostname\n");
-      error = true;
+        break;
     }
   } while (error);
 
@@ -381,6 +414,7 @@ void lwip_button_handler (uint32_t button_id)
 
   if ((button_id == 0)
       || (button_id == 1)) {
+    // Toggle the associated LED as a life indicator
     BSP_LedToggle(button_id);
 
     OSTaskQPost(&lwip_task_tcb,
@@ -404,10 +438,9 @@ static void lwip_task(void *p_arg)
   char pub_event_topic[32];
   char pub_data_topic[32];
   char sub_topic[32];
-  char string[32];
-  char event[8];
+  char string[128];
+  char tmp[32];
   int res, len;
-  uint32_t cnt = 1;
   uint32_t evt_button_id;
   OS_TICK tick, timeout = LWIP_APP_TX_TICK_PERIOD;
   RTOS_ERR err;
@@ -498,9 +531,8 @@ static void lwip_task(void *p_arg)
   // Subscribe to a topic
   snprintf(sub_topic,
            sizeof(sub_topic),
-           "/downstream/%s/#",
+           "%s/leds/set",
            mqtt_client_info.client_id);
-  sub_topic[sizeof(sub_topic)-1] = '\0';
 
   mqtt_set_inpub_callback(mqtt_client,
                           mqtt_incoming_publish_cb,
@@ -509,17 +541,16 @@ static void lwip_task(void *p_arg)
 
   mqtt_sub_unsub(mqtt_client, sub_topic, 0 /*qos*/, mqtt_suscribe_cb, NULL, 1);
 
+  // Configure the publish topics
   snprintf(pub_data_topic,
            sizeof(pub_data_topic),
-           "/upstream/%s/data",
+           "%s/leds/state",
            mqtt_client_info.client_id);
-  pub_data_topic[sizeof(pub_data_topic)-1] = '\0';
 
   snprintf(pub_event_topic,
            sizeof(pub_event_topic),
-           "/upstream/%s/event",
+           "%s/button/event",
            mqtt_client_info.client_id);
-  pub_event_topic[sizeof(pub_event_topic)-1] = '\0';
 
   // Infinite loop, publishing data periodically and on event
   for (;; ) {
@@ -530,29 +561,47 @@ static void lwip_task(void *p_arg)
                                           &err);
 
     if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
-      len = snprintf(event, sizeof(event), "button%lu", evt_button_id);
+      // An event occurred, publish the source event
+
+      //{"name":"BTN1"}
+      len = snprintf(string,
+                     sizeof(string),
+                     button_json_object,
+                     (uint16_t)evt_button_id);
 
       mqtt_publish(mqtt_client,
                    pub_event_topic,
-                   (void *)event,
+                   (void *)string,
                    len,
-                   0 /*qos*/,
+                   1 /*qos*/,
                    0,
                    mqtt_publish_cb,
                    NULL);
 
     } else if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_TIMEOUT) {
-      len = snprintf(string, sizeof(string), "Hello %lu!", cnt);
+      // Periodical TX, publish the LED states
+
+      //{"leds":[{"name":"LED0","state":"Off"},{"name":"LED1","state":"On"}]}
+      len = snprintf(string, sizeof(string), "{\"leds\":[");
+      for (int i=0; i<LWIP_APP_NB_LEDS; i++) {
+        len += snprintf(tmp,
+                 sizeof(tmp),
+                 led_json_object,
+                 i,
+                 BSP_LedGet(i) ? "On" : "Off");
+        strcat(tmp, ","); len++;
+        strcat(string, tmp);
+      }
+      strcpy(&string[len-1] /*Overwrite the last comma*/, "]}"); len++ /*-1 + 2*/;
 
       mqtt_publish(mqtt_client,
                    pub_data_topic,
                    (void *)string,
                    len,
-                   0 /*qos*/,
+                   1 /*qos*/,
                    0,
                    mqtt_publish_cb,
                    NULL);
-      cnt++;
 
       // Compute the next publishing period
       tick = OSTimeGet(&err);

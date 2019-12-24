@@ -73,7 +73,6 @@ static void netif_config(void);
 #endif
 
 #define LWIP_APP_TX_TICK_PERIOD   1000u
-#define LWIP_APP_NB_LEDS             2u
 #define LWIP_APP_ECHO_ENABLED        1u
 
 /// LwIP station network interface structure.
@@ -269,7 +268,7 @@ static void mqtt_incoming_data_cb (void *arg,
   // Extract the data information
   res = sscanf(buf, led_json_object, &led_id, state);
   if (res == 2) {
-    if (led_id < LWIP_APP_NB_LEDS) {
+    if (led_id < BSP_NO_OF_LEDS) {
       // sscanf captures everything up to the null termination
       if (strcmp(state, "On\"}") == 0) {
         BSP_LedSet(led_id);
@@ -284,7 +283,7 @@ static void mqtt_incoming_data_cb (void *arg,
   }
 }
 
-static void lwip_example_wifi_config_prompt (void)
+static void lwip_app_wifi_config_prompt (void)
 {
   char buf[4];
   bool error;
@@ -333,6 +332,39 @@ static void lwip_example_wifi_config_prompt (void)
 #endif
 }
 
+static void lwip_app_wifi_connection (void)
+{
+  RTOS_ERR err;
+
+  printf("Waiting for the Wi-Fi connection...\r\n");
+  sl_wfx_send_join_command((uint8_t*) wlan_ssid,
+                           strlen(wlan_ssid),
+                           NULL,
+                           0,
+                           wlan_security,
+                           1,
+                           0,
+                           (uint8_t*) wlan_passkey,
+                           strlen(wlan_passkey),
+                           NULL,
+                           0);
+
+  OSFlagPend(&sl_wfx_event_group,
+             SL_WFX_CONNECT,
+             0,
+             OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
+             0,
+             &err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    printf("Wait error %d\r\n", err.Code);
+  }
+
+  // Wait for the IP address binding if necessary
+  while (use_dhcp_client && dhcp_supplied_address(&sta_netif) == 0) {
+    OSTimeDly(500, OS_OPT_TIME_DLY, &err);
+  }
+}
+
 static void dns_found_cb (const char *name,
                           const ip_addr_t *ipaddr,
                           void *callback_arg)
@@ -348,7 +380,7 @@ static void dns_found_cb (const char *name,
               &err);
 }
 
-static void lwip_example_mqtt_config_prompt (void)
+static void lwip_app_mqtt_config_prompt (void)
 {
   ip_addr_t *ipaddr;
   char buf[64];
@@ -466,38 +498,13 @@ static void lwip_task(void *p_arg)
   dns_init();
 
   // Prompt the user to configure the Wi-Fi connection
-  lwip_example_wifi_config_prompt();
+  lwip_app_wifi_config_prompt();
 
-  printf("Waiting for the Wi-Fi connection...\r\n");
-  sl_wfx_send_join_command((uint8_t*) wlan_ssid,
-                           strlen(wlan_ssid),
-                           NULL,
-                           0,
-                           wlan_security,
-                           1,
-                           0,
-                           (uint8_t*) wlan_passkey,
-                           strlen(wlan_passkey),
-                           NULL,
-                           0);
-
-  OSFlagPend(&sl_wfx_event_group,
-             SL_WFX_CONNECT,
-             0,
-             OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
-             0,
-             &err);
-  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-    printf("Wait error %d\r\n", err.Code);
-  }
-
-  // Wait for the IP address binding if necessary
-  while (use_dhcp_client && dhcp_supplied_address(&sta_netif) == 0) {
-    OSTimeDly(500, OS_OPT_TIME_DLY, &err);
-  }
+  // Realize the Wi-Fi connection
+  lwip_app_wifi_connection();
 
   // Prompt the user to configure the MQTT connection
-  lwip_example_mqtt_config_prompt();
+  lwip_app_mqtt_config_prompt();
 
   printf("Connecting to MQTT broker (%u.%u.%u.%u)...\r\n",
          ptr_ip[0], ptr_ip[1], ptr_ip[2], ptr_ip[3]);
@@ -583,7 +590,7 @@ static void lwip_task(void *p_arg)
 
       //{"leds":[{"name":"LED0","state":"Off"},{"name":"LED1","state":"On"}]}
       len = snprintf(string, sizeof(string), "{\"leds\":[");
-      for (int i=0; i<LWIP_APP_NB_LEDS; i++) {
+      for (int i=0; i<BSP_NO_OF_LEDS; i++) {
         len += snprintf(tmp,
                  sizeof(tmp),
                  led_json_object,

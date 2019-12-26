@@ -23,6 +23,7 @@ extern "C" {
  *****************************************************************************/
 void wifi_cli_cfg_dialog(void);
 void wifi_cli_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo);
+void wifi_cli_get_input_tmo(char *buf, uint32_t size, uint8_t timeout_sec, CPU_BOOLEAN echo);
 #ifdef __cplusplus
 }
 #endif

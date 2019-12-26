@@ -50,16 +50,19 @@
 static char wifi_cli_input_buf[WIFI_CLI_INPUT_BUF_SIZE];
 
 /**************************************************************************//**
- * Get text input from user.
+ * Get text input from user with a timeout.
  *
  * @param buf Buffer to hold the input string.
+ * @param size Size of the buffer holding the input string.
+ * @param timeout_sec Time in seconds to wait for an input (0: infinite timeout).
  * @param echo Enable or disable text echo to user.
  *****************************************************************************/
-void wifi_cli_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo)
+void wifi_cli_get_input_tmo(char *buf, uint32_t size, uint8_t timeout_sec, CPU_BOOLEAN echo)
 {
   RTOS_ERR err;
   int c;
   size_t i;
+  uint32_t ctr = timeout_sec * 1000;
 
   Mem_Set(buf, '\0', size); // Clear previous input
 
@@ -68,6 +71,11 @@ void wifi_cli_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo)
       OSTimeDly(100,
                 OS_OPT_TIME_DLY,
                 &err);
+      ctr = ctr - 100;
+      if (ctr == 0) {
+        // Timeout reached, exit
+        return;
+      }
     }
 
     if (c == ASCII_CHAR_DELETE || c ==  0x08) { // User entered backspace
@@ -86,9 +94,6 @@ void wifi_cli_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo)
           printf("\n");
         }
         break;
-      } else {
-        i--;
-        continue;
       }
     }
     if (echo) {
@@ -101,29 +106,26 @@ void wifi_cli_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo)
 }
 
 /**************************************************************************//**
+ * Get text input from user.
+ *
+ * @param buf Buffer to hold the input string.
+ * @param size Size of the buffer holding the input string.
+ * @param echo Enable or disable text echo to user.
+ *****************************************************************************/
+void wifi_cli_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo)
+{
+  wifi_cli_get_input_tmo(buf, size, 0, echo);
+}
+
+/**************************************************************************//**
  * WiFi configuration dialog via UART.
  *****************************************************************************/
 void wifi_cli_cfg_dialog(void)
 {
-  RTOS_ERR err;
-  CPU_INT08U ctr;
-  int c;
   printf("\nPress <Enter> within 5 seconds to configure the demo...\n");
-  OSTimeDly(100,             //   100 OS Ticks
-            OS_OPT_TIME_DLY,
-            &err);
-  ctr = 0;
-  while ((c = RETARGET_ReadChar()) < 0) {      // Wait for valid input
-    OSTimeDly(100,
-              OS_OPT_TIME_DLY,
-              &err);
-    ctr++;
-    if (ctr > 50) {
-      break;
-    }
-  }
+  wifi_cli_get_input_tmo(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 5, 1);
 
-  if (c == '\r' || c == '\n') {
+  if (wifi_cli_input_buf[0] == '\r' || wifi_cli_input_buf[0] == '\n') {
     printf("Select a WiFi mode:\n1. Station\n2. SoftAP\nEnter 1 or 2:\n");
 
     wifi_cli_get_input(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 1);

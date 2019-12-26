@@ -20,16 +20,19 @@
  *****************************************************************************/
 
 
-#include  <bsp_os.h>
-#include  "bsp.h"
+#include <bsp_os.h>
+#include "bsp.h"
+#include "ecode.h"
+#include "dmadrv.h"
+#include "em_msc.h"
 
-#include  <cpu/include/cpu.h>
-#include  <kernel/include/os.h>
-#include  <kernel/include/os_trace.h>
-#include  <common/include/common.h>
-#include  <common/include/lib_def.h>
-#include  <common/include/rtos_utils.h>
-#include  <common/include/toolchains.h>
+#include <cpu/include/cpu.h>
+#include <kernel/include/os.h>
+#include <kernel/include/os_trace.h>
+#include <common/include/common.h>
+#include <common/include/lib_def.h>
+#include <common/include/rtos_utils.h>
+#include <common/include/toolchains.h>
 
 #include "sl_wfx.h"
 #include "string.h"
@@ -171,21 +174,19 @@ static struct mqtt_connect_client_info_t mqtt_client_info = {
 
 #if LWIP_APP_TLS_ENABLED
 /// TLS
-extern const char ca_certificate[];
+#define CA_CERTIFICATE_ADDR       (FLASH_BASE + FLASH_SIZE - 3*FLASH_PAGE_SIZE)
+#define DEVICE_CERTIFICATE_ADDR   (CA_CERTIFICATE_ADDR + FLASH_PAGE_SIZE)
+#define DEVICE_KEY_ADDR           (DEVICE_CERTIFICATE_ADDR + FLASH_PAGE_SIZE)
 
-#ifdef EFM32GG11B820F2048GM64
-extern const char wgm160p_certificate[];
-extern const char wgm160p_key[];
+static const char *ca_certificate = (char *)CA_CERTIFICATE_ADDR;
+static const char *device_certificate = (char *)DEVICE_CERTIFICATE_ADDR;
+static const char *device_key = (char *)DEVICE_KEY_ADDR;
 
-static const char* device_certificate = wgm160p_certificate;
-static const char* device_key = wgm160p_key;
-#else
-extern const char efm32gg11_certificate[];
-extern const char efm32gg11_key[];
-
-static const char* device_certificate = efm32gg11_certificate;
-static const char* device_key = efm32gg11_key;
-#endif
+static char key_buf[2048]; // Buffer used to contain 2048bits certificates/keys
+static char *ptr_key_last_call = key_buf;
+static unsigned int usart_rx_dma_channel = 0;
+static unsigned int usart_echo_dma_channel = 0;
+static bool usart_dma_initialized = false;
 #endif
 
 
@@ -205,6 +206,9 @@ static void lwip_iperf_results(void *arg, enum lwiperf_report_type report_type,
 
 #endif
 
+/**************************************************************************//**
+ * Manage a MQTT connection result.
+ *****************************************************************************/
 static void mqtt_connection_cb (mqtt_client_t *client,
                                 void *arg,
                                 mqtt_connection_status_t status)
@@ -218,6 +222,9 @@ static void mqtt_connection_cb (mqtt_client_t *client,
   }
 }
 
+/**************************************************************************//**
+ * Manage a MQTT subscription result.
+ *****************************************************************************/
 static void mqtt_suscribe_cb (void *arg, err_t err)
 {
   (void)arg;
@@ -229,6 +236,9 @@ static void mqtt_suscribe_cb (void *arg, err_t err)
   }
 }
 
+/**************************************************************************//**
+ * Manage a MQTT publishing result.
+ *****************************************************************************/
 static void mqtt_publish_cb (void *arg, err_t err)
 {
   (void)arg;
@@ -238,6 +248,9 @@ static void mqtt_publish_cb (void *arg, err_t err)
   }
 }
 
+/**************************************************************************//**
+ * Manage a MQTT incoming data.
+ *****************************************************************************/
 static void mqtt_incoming_publish_cb (void *arg,
                                       const char *topic,
                                       uint32_t tot_len)
@@ -269,7 +282,7 @@ static void mqtt_incoming_data_cb (void *arg,
   res = sscanf(buf, led_json_object, &led_id, state);
   if (res == 2) {
     if (led_id < BSP_NO_OF_LEDS) {
-      // sscanf captures everything up to the null termination
+      // sscanf captures everything up to the nul termination
       if (strcmp(state, "On\"}") == 0) {
         BSP_LedSet(led_id);
       } else if (strcmp(state, "Off\"}") == 0) {
@@ -283,6 +296,9 @@ static void mqtt_incoming_data_cb (void *arg,
   }
 }
 
+/**************************************************************************//**
+ * Prompt the user to provide the Wi-Fi configuration.
+ *****************************************************************************/
 static void lwip_app_wifi_config_prompt (void)
 {
   char buf[4];
@@ -332,11 +348,15 @@ static void lwip_app_wifi_config_prompt (void)
 #endif
 }
 
+/**************************************************************************//**
+ * Connect to a Wi-Fi AP and wait until an IP address is set.
+ *****************************************************************************/
 static void lwip_app_wifi_connection (void)
 {
   RTOS_ERR err;
 
   printf("Waiting for the Wi-Fi connection...\r\n");
+  // Connect to the Wi-Fi AP
   sl_wfx_send_join_command((uint8_t*) wlan_ssid,
                            strlen(wlan_ssid),
                            NULL,
@@ -349,22 +369,26 @@ static void lwip_app_wifi_connection (void)
                            NULL,
                            0);
 
+  // Wait for the connection establishment
   OSFlagPend(&sl_wfx_event_group,
              SL_WFX_CONNECT,
              0,
              OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
              0,
              &err);
-  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+  if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
+    // Wait for the IP address binding if necessary
+    while (use_dhcp_client && dhcp_supplied_address(&sta_netif) == 0) {
+      OSTimeDly(500, OS_OPT_TIME_DLY, &err);
+    }
+  } else {
     printf("Wait error %d\r\n", err.Code);
-  }
-
-  // Wait for the IP address binding if necessary
-  while (use_dhcp_client && dhcp_supplied_address(&sta_netif) == 0) {
-    OSTimeDly(500, OS_OPT_TIME_DLY, &err);
   }
 }
 
+/**************************************************************************//**
+ * Manage a DNS response.
+ *****************************************************************************/
 static void dns_found_cb (const char *name,
                           const ip_addr_t *ipaddr,
                           void *callback_arg)
@@ -380,6 +404,214 @@ static void dns_found_cb (const char *name,
               &err);
 }
 
+#if LWIP_APP_TLS_ENABLED
+/**************************************************************************//**
+ * Manage the USART reception using the DMA.
+ *****************************************************************************/
+static bool usart_rx_dma_callback (unsigned int channel,
+                                   unsigned int sequenceNo,
+                                   void *userParam)
+{
+  char *ptr_last_char;
+  RTOS_ERR  err;
+
+  (void)channel;
+  (void)sequenceNo;
+  (void)userParam;
+
+  ptr_last_char = ((char *)LDMA->CH[usart_rx_dma_channel].DST - 1);
+
+  // Is an end of line ?
+  if ((*ptr_last_char == '\r') || (*ptr_last_char == '\n')) {
+    // Check for the end of a certificate or key
+    if (strstr(ptr_key_last_call, "-----END ") != NULL) {
+      // Notify the task
+      OSTaskSemPost(&lwip_task_tcb, OS_OPT_POST_NONE, &err);
+    }
+    // Update the pointer on the key buffer to speed up the strstr processing
+    ptr_key_last_call = ptr_last_char;
+  }
+
+  // Check the buffer to avoid an overflow
+  if (ptr_last_char < &key_buf[2048]) {
+    // Re-enable the DMA
+    LDMA->CHDONE &= ~(1 << usart_rx_dma_channel);
+    LDMA->CHEN |= (1 << usart_rx_dma_channel);
+  }
+
+  return false;
+}
+
+/**************************************************************************//**
+ * Manage the terminal echo using the DMA.
+ *****************************************************************************/
+static bool usart_echo_dma_callback (unsigned int channel,
+                                     unsigned int sequenceNo,
+                                     void *userParam)
+{
+  char *ptr_last_char;
+
+  (void)channel;
+  (void)sequenceNo;
+  (void)userParam;
+
+  ptr_last_char = ((char *)LDMA->CH[usart_echo_dma_channel].SRC - 1);
+
+  // Is an end of line ?
+  if (*ptr_last_char == '\r') {
+    // Add a new line to have a consistent display
+    //FIXME: terminal with CRLF input
+    ptr_last_char = ((char *)LDMA->CH[usart_echo_dma_channel].DST);
+    *ptr_last_char = '\n';
+  }
+
+  // Re-enable the DMA
+  LDMA->CHDONE &= ~(1 << usart_echo_dma_channel);
+  LDMA->CHEN |= (1 << usart_echo_dma_channel);
+
+  return false;
+}
+
+/**************************************************************************//**
+ * Retrieve a TLS certificate/key from the UART using DMA.
+ *
+ * @param echo Enable/Disable the echo
+ * @return -1: error
+ *         0 <=: the key size (including the NUL termination)
+ *****************************************************************************/
+static int lwip_app_get_keys (bool echo)
+{
+  int ret = -1;
+  RTOS_ERR err;
+  Ecode_t ecode = ECODE_EMDRV_DMADRV_OK;
+
+  if (!usart_dma_initialized) {
+    // Initialize the DMA driver and allocate resources
+    DMADRV_Init();
+    ecode  = DMADRV_AllocateChannel(&usart_rx_dma_channel, NULL);
+    ecode |= DMADRV_AllocateChannel(&usart_echo_dma_channel, NULL);
+  }
+
+  if (ecode == ECODE_EMDRV_DMADRV_OK) {
+    // Reset the key buffer
+    memset(key_buf, 0, sizeof(key_buf));
+    ptr_key_last_call = key_buf;
+
+    ecode  = DMADRV_PeripheralMemory(usart_rx_dma_channel,
+                                     dmadrvPeripheralSignal_USART4_RXDATAV,
+                                     key_buf,
+                                     (void *)&USART4->RXDATA,
+                                     true,
+                                     1, // Each character produces an interrupt
+                                     dmadrvDataSize1 /*Byte*/,
+                                     usart_rx_dma_callback,
+                                     NULL);
+
+    if (echo) {
+      // The current priority executes the echo DMA after the RX DMA.
+      ecode |= DMADRV_MemoryPeripheral(usart_echo_dma_channel,
+                                       dmadrvPeripheralSignal_USART4_RXDATAV,
+                                       (void *)&USART4->TXDATA,
+                                       key_buf,
+                                       true,
+                                       1, // Each character produces an interrupt
+                                       dmadrvDataSize1 /*Byte*/,
+                                       usart_echo_dma_callback,
+                                       NULL);
+    }
+  }
+
+  if (ecode == ECODE_EMDRV_DMADRV_OK) {
+    usart_dma_initialized = true;
+
+    // Wait for the whole key to be received
+    OSTaskSemPend(0,
+                  OS_OPT_PEND_BLOCKING,
+                  NULL,
+                  &err);
+
+    ecode |= DMADRV_StopTransfer(usart_rx_dma_channel);
+    ecode |= DMADRV_StopTransfer(usart_echo_dma_channel);
+
+    if ((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE)
+        && (ecode == ECODE_OK)) {
+      ret = strlen(key_buf) + 1 /*NUL termination*/;
+    }
+  } else {
+    printf("USART DMA start error\n");
+  }
+
+  return ret;
+}
+
+/**************************************************************************//**
+ * Convert a TLS certificate/key end of lines to suit MBEDTLS parsing.
+ *****************************************************************************/
+static void lwip_app_convert_keys_eol (void)
+{
+  char *ptr_eol;
+
+  // Iterate through the key buffer to replace potential '\r'
+  // characters by '\n'.
+  while ((ptr_eol = strstr(key_buf, "\r")) != NULL) {
+    if (*(ptr_eol+1) != '\n') {
+      // Convert '\r' into '\n'
+      *ptr_eol = '\n';
+    } else {
+      // Assume the whole key is correctly formated
+      break;
+    }
+  }
+}
+
+/**************************************************************************//**
+ * Retrieve a TLS certificate/key and store it.
+ *
+ * @param flash_address Flash address where to store the certificate/key.
+ *
+ * @return 0 on success, 0> otherwise
+ *****************************************************************************/
+static int lwip_app_retrieve_and_store_key (uint32_t flash_address)
+{
+  uint32_t value;
+  int res = -1;
+  int len;
+  uint8_t align;
+
+  // Retrieve the key
+  len = lwip_app_get_keys(LWIP_APP_ECHO_ENABLED);
+
+  // Convert the end of line characters if needed to suit the mbedtls parsing
+  lwip_app_convert_keys_eol();
+
+  // Erase the page where the key is going to be stored
+  res = MSC_ErasePage((uint32_t *)flash_address);
+  if (res == 0) {
+    // Ensure the data is a multiple of 4 and write it in the flash
+    align = len % 4;
+    res = MSC_WriteWord((uint32_t *)flash_address, key_buf, len - align);
+    if ((res == 0) && align) {
+      // Write the remaining bytes
+      memcpy(&value, &key_buf[len - align], align);
+      res = MSC_WriteWord((uint32_t *)flash_address + (len-align)/4,
+                          &value,
+                          sizeof(value));
+    }
+
+    if (res != 0) {
+      printf("Key: write error\r\n");
+    }
+  } else {
+    printf("Key: erase error\r\n");
+  }
+
+  return res;
+}
+#endif
+
+/**************************************************************************//**
+ * Prompt the user to provide the MQTT configuration.
+ *****************************************************************************/
 static void lwip_app_mqtt_config_prompt (void)
 {
   ip_addr_t *ipaddr;
@@ -393,6 +625,23 @@ static void lwip_app_mqtt_config_prompt (void)
   SLEEP_SleepBlockBegin(sleepEM2);
 #endif
 
+#if LWIP_APP_TLS_ENABLED
+  printf("\nPress <Enter> within 5 seconds to load the TLS keys:\n");
+  wifi_cli_get_input_tmo(buf, 1/*Enter*/ + 1 /*NUL*/, 5, LWIP_APP_ECHO_ENABLED);
+
+  if (buf[0] == '\r' || buf[0] == '\n') {
+    printf("Enter the root CA:\n");
+    lwip_app_retrieve_and_store_key(CA_CERTIFICATE_ADDR);
+
+    printf("\nEnter the device certificate:\n");
+    lwip_app_retrieve_and_store_key(DEVICE_CERTIFICATE_ADDR);
+
+    printf("\nEnter the device key:\n");
+    lwip_app_retrieve_and_store_key(DEVICE_KEY_ADDR);
+
+  }
+#endif
+
   printf("\n");
 
   do {
@@ -400,6 +649,7 @@ static void lwip_app_mqtt_config_prompt (void)
     printf("Enter the MQTT broker address:\n");
     wifi_cli_get_input(buf, sizeof(buf), LWIP_APP_ECHO_ENABLED);
 
+    // Execute a DNS request
     res = dns_gethostbyname(buf, &broker_ip, dns_found_cb, NULL);
     switch (res) {
       case ERR_OK:
@@ -524,6 +774,7 @@ static void lwip_task(void *p_arg)
                                               0,
                                               (uint8_t *)device_certificate,
                                               strlen(device_certificate)+1);
+  LWIP_ASSERT("TLS: context creation error", mqtt_client_info.tls_config != NULL);
 #endif
 
   // Connect to the MQTT broker

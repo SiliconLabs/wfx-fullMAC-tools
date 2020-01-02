@@ -66,7 +66,7 @@
 		<link>
 			<name>security_files</name>
 			<type>2</type>
-			<location>C:/workdir/wfx-fullMAC-tools/Examples/SiliconLabs/mcu_examples/secure_mqtt/security_files</location>
+			<locationURI>PARENT-1-PROJECT_LOC/security_files</locationURI>
 		</link>
 		<link>
 			<name>shared</name>

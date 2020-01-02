@@ -7,16 +7,18 @@ for details on the WF200 Wi-Fi Expansion Kit.
 
 ## Repository content
 
-* Examples: contains implementations of the FMAC driver on different platforms
+* Examples: contains applications using the FMAC driver on different platforms
   * Silicon Labs MCU
-    * SLSTK3701A_micriumos_lwip_wfx200: Example using Micrium OS and LwIP running
+    * SLSTK3701A_micriumos_lwip_wfx200: Commissioning Example using Micrium OS, LwIP and the combo mode running
     on the EFM32 Giant Gecko GG11 Starter Kit (more information about the example [here](./Examples/SiliconLabs/mcu_examples/SLSTK3701A_micriumos_lwip_wfx200/README.md))
-	* WGM160P_micriumos_lwip_wfx200: Example using Micrium OS and LwIP running
-	on the WGM160P Wi-Fi Module Radio Board (more information about the example [here](./Examples/SiliconLabs/mcu_examples/WGM160P_micriumos_lwip_wfx200/README.md))
+    * WGM160P_micriumos_lwip_wfx200: Commissioning Example using Micrium OS, LwIP and the combo mode running
+    on the WGM160P Wi-Fi Module Radio Board (more information about the example [here](./Examples/SiliconLabs/mcu_examples/WGM160P_micriumos_lwip_wfx200/README.md))
+	* secure_mqtt: MQTT over TLS example using Micrium OS, LwIP (MQTT, DHCP, DNS clients), Mbed TLS running
+    on the EFM32 Giant Gecko GG11 Starter Kit and WGM160P (more information about the example [here](./Examples/SiliconLabs/mcu_examples/secure_mqtt/README.md))
   * STM32
-    * WF200_driver_F429ZI_BM-LwIP: Bare metal example with LwIP running on the
+    * WF200_driver_F429ZI_BM-LwIP: Commissioning Example on Bare Metal using LwIP and the combo mode running with LwIP running on the
     NUCLEO-F429ZI board (more information about the example [here](./Examples/STM32/Projects/WF200_driver_F429ZI_BM-LwIP/README.md))
-    * WF200_driver_F429ZI_FreeRTOS-LwIP: Example using FreeRTOS and LwIP running
+    * WF200_driver_F429ZI_FreeRTOS-LwIP: Commissioning Example using FreeRTOS, LwIP and the combo mode running
     on the NUCLEO-F429ZI board (more information about the example [here](./Examples/STM32/Projects/WF200_driver_F429ZI_FreeRTOS-LwIP/README.md))
 * Tools: contains generic tools
   * pds_compress: Python script to compress Platform Data Set files

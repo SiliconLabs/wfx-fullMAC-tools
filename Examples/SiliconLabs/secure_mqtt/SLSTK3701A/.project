@@ -19,6 +19,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>PDS</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC/PDS</locationURI>
+		</link>
+		<link>
 			<name>lwip</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/util/third_party/lwip/lwip</locationURI>
@@ -36,7 +41,7 @@
 		<link>
 			<name>shared</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/shared</locationURI>
+			<location>C:/workdir/wfx-fullMAC-tools/Examples/SiliconLabs/shared</location>
 		</link>
 		<link>
 			<name>BSP/bsp_bcc.c</name>

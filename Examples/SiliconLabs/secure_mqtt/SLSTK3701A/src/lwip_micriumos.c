@@ -60,11 +60,9 @@
 #endif
 #include "wifi_cli.h"
 #include "dhcp_client.h"
-#include "dhcp_server.h"
 #include "ethernetif.h"
 #include "wfx_host.h"
 #include "wfx_task.h"
-#include "dhcp_server.h"
 #include "wfx_host.h"
 
 static void netif_config(void);
@@ -901,7 +899,6 @@ sl_status_t lwip_set_ap_link_up(void)
 {
   netifapi_netif_set_up(&ap_netif);
   netifapi_netif_set_link_up(&ap_netif);
-  dhcpserver_start();
   return SL_STATUS_OK;
 }
 
@@ -926,7 +923,6 @@ void lwip_disable_dhcp_client(void)
  *****************************************************************************/
 sl_status_t lwip_set_ap_link_down(void)
 {
-  dhcpserver_stop();
   netifapi_netif_set_link_down(&ap_netif);
   netifapi_netif_set_down(&ap_netif);
   return SL_STATUS_OK;

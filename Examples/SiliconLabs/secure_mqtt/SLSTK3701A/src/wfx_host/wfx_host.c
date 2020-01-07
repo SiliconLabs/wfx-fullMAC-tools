@@ -61,7 +61,6 @@
 #include "wfx_task.h"
 #include "udelay.h"
 #include "demo_config.h"
-#include "dhcp_server.h"
 #include "wfx_host.h"
 
 extern char event_log[];
@@ -673,7 +672,6 @@ void sl_wfx_start_ap_callback(uint32_t status)
 void sl_wfx_stop_ap_callback(void)
 {
   RTOS_ERR err;
-  dhcpserver_clear_stored_mac ();
   printf("SoftAP stopped\r\n");
   sl_wfx_context->state &= ~SL_WFX_AP_INTERFACE_UP;
   OSFlagPost(&sl_wfx_event_group, SL_WFX_STOP_AP, OS_OPT_POST_FLAG_SET, &err);
@@ -695,9 +693,6 @@ void sl_wfx_client_connected_callback(uint8_t* mac)
  *****************************************************************************/
 void sl_wfx_ap_client_rejected_callback(uint32_t status, uint8_t* mac)
 {
-  struct eth_addr mac_addr;
-  memcpy(&mac_addr, mac, SL_WFX_BSSID_SIZE);
-  dhcpserver_remove_mac(&mac_addr);
   printf("Client rejected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
          (int)status, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
@@ -707,9 +702,6 @@ void sl_wfx_ap_client_rejected_callback(uint32_t status, uint8_t* mac)
  *****************************************************************************/
 void sl_wfx_ap_client_disconnected_callback(uint32_t status, uint8_t* mac)
 {
-  struct eth_addr mac_addr;
-  memcpy(&mac_addr, mac, SL_WFX_BSSID_SIZE);
-  dhcpserver_remove_mac(&mac_addr);
   printf("Client disconnected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
          (int)status, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }

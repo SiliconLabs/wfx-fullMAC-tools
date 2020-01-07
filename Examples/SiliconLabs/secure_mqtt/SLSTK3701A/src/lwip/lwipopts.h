@@ -119,19 +119,6 @@
 // Enable/disable Socket API (require to use sockets.c)
 #define LWIP_SOCKET                     0
 
-// httpd settings
-/** Set this to 1 to include "fsdata_custom.c" instead of "fsdata.c" for the
- * file system (to prevent changing the file included in LwIP) */
-#define HTTPD_USE_CUSTOM_FSDATA   0
-#define HTTPD_FSDATA_FILE      "httpfsdata.c"
-#define LWIP_HTTPD_CGI 1
-#define LWIP_HTTPD_SSI 1
-#define LWIP_HTTPD_SSI_INCLUDE_TAG 0
-#define LWIP_HTTPD_MAX_TAG_NAME_LEN 16
-/* LwIP Stack Parameters (modified compared to initialization value in opt.h) -*/
-#define LWIP_HTTPD_DYNAMIC_HEADERS 1
-#define LWIP_HTTPD_MAX_TAG_INSERT_LEN 4096
-
 // OS related options
 #define TCPIP_THREAD_NAME              "TCP/IP"
 #define TCPIP_THREAD_STACKSIZE          1000

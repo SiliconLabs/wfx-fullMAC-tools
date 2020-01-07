@@ -61,7 +61,6 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/SEGGER&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/lwip/lwip/src/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/pds}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
@@ -69,11 +68,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/apps}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip/system}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/Sample/MicriumOSKernel&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/bsp/siliconlabs/generic/include&quot;"/>
@@ -127,24 +125,8 @@
 							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.archiver.base.746190604" name="GNU ARM Archiver" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.archiver.base"/>
 						</toolChain>
 					</folderInfo>
-					<folderInfo id="com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904.756172441" name="/" resourcePath="shared">
-						<toolChain id="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe.142166452" name="Si32 GNU ARM" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" unusedChildren="">
-							<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level.371173116.227368340" name="Debug Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level.371173116"/>
-							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.platform.base" isAbstract="false" name="Debug Platform" osList="win32,linux,macosx" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.platform.base"/>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.1479523335" name="GNU ARM C Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.955675337">
-								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.56536365" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
-							</tool>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base.1990682917" name="GNU ARM C++ Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base.316925194"/>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.assembler.base.1685269778" name="GNU ARM Assembler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.assembler.base.2106452223">
-								<inputType id="org.eclipse.cdt.core.asmSource.1152616630" superClass="org.eclipse.cdt.core.asmSource"/>
-							</tool>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base.392189164" name="GNU ARM C Linker" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base.1143582043"/>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base.1315616968" name="GNU ARM C++ Linker" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base.1385763118"/>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.archiver.base.1015416022" name="GNU ARM Archiver" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.archiver.base.746190604"/>
-						</toolChain>
-					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|src/wfx_host/sdio/|src/wfx_host/wfx_host_crypto.c|src/wfx_host/wfx_securelink_task.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|shared/lwip/fsdata|micrium_os/ports/source/gnu/armv6m_cpu_a.S" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|src/wfx_host/sdio/|src/wfx_host/wfx_host_crypto.c|src/wfx_host/wfx_securelink_task.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|micrium_os/ports/source/gnu/armv6m_cpu_a.S" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -213,7 +195,6 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/lwip/lwip/src/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/pds}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
@@ -221,11 +202,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/apps}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip/system}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/bsp/siliconlabs/generic/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/CMSIS/Include&quot;"/>
@@ -275,108 +255,8 @@
 							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.archiver.base.1587071901" name="GNU ARM Archiver" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.archiver.base"/>
 						</toolChain>
 					</folderInfo>
-					<folderInfo id="com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904@0.shared" name="/" resourcePath="shared">
-						<toolChain id="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe.1485401662" name="Si32 GNU ARM" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" unusedChildren="">
-							<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level.371173116.227368340.589631345" name="Debug Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level.371173116"/>
-							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.platform.base.1565133598" isAbstract="false" name="Debug Platform" osList="win32,linux,macosx" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.platform.base"/>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.1745980256" name="GNU ARM C Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.475109406">
-								<option id="gnu.c.compiler.option.include.paths.944979448" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdio/Drivers/io/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdio/io}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/pds}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/systemview/SEGGER}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/systemview/MicriumOSKernel}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/apps}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/fsdata}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lwip/src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip/system}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emdrv/dmadrv/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emdrv/rtcdrv/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emdrv/common/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emdrv/dmadrv/config}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emdrv/sleep/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg/emdrv}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os/io/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emlib/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/hardware/kit/common/bsp}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/Device/SiliconLabs/EFM32GG11B/Include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/CMSIS/Include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/emlib/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/hardware/kit/SLSTK3701A_EFM32GG11/config}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/configs}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/sl_crypto/include}&quot;"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/LibraryModules/Micrium/platform/micrium_os"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/LibraryModules/Micrium/platform/micrium_os/bsp/siliconlabs/generic/include"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/Common/BSP/hardware/kit/common/bsp"/>
-									<listOptionValue builtIn="false" value="C:/platform/Device/SiliconLabs/EFM32GG11B/Include"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/Common/CMSIS/platform/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/Common/emlib/platform/emlib/inc"/>
-									<listOptionValue builtIn="false" value="C:/hardware/kit/SLSTK3701A_EFM32GG11/config"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/dmadrv/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/dmadrv/config&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/rtcdrv/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/common/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/configs&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/sl_crypto/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/SEGGER&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/MicriumOSKernel&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/Config&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/service/sleeptimer/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/service/sleeptimer/config&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/nvm/config&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/nvm/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/LibraryModules/Micrium/platform/micrium_os&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/LibraryModules/Micrium/platform/micrium_os/bsp/siliconlabs/generic/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/Common/BSP/hardware/kit/common/bsp&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/Common/CMSIS/platform/CMSIS/Include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/Common/emlib/platform/emlib/inc&quot;"/>
-								</option>
-								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.1955908597" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
-							</tool>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base.400631155" name="GNU ARM C++ Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base.2011065556"/>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.assembler.base.1100978863" name="GNU ARM Assembler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.assembler.base.1629300728">
-								<option id="gnu.both.asm.option.include.paths.799933492" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/LibraryModules/Micrium/platform/micrium_os"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/LibraryModules/Micrium/platform/micrium_os/bsp/siliconlabs/generic/include"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/Common/BSP/hardware/kit/common/bsp"/>
-									<listOptionValue builtIn="false" value="C:/platform/Device/SiliconLabs/EFM32GG11B/Include"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/Common/CMSIS/platform/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="C:/SiliconLabs/SimplicityStudio/v4/developer/sdks/gecko_sdk_suite/v2.5/.studio/modules/Common/emlib/platform/emlib/inc"/>
-									<listOptionValue builtIn="false" value="C:/hardware/kit/SLSTK3701A_EFM32GG11/config"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/Config&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/LibraryModules/Micrium/platform/micrium_os&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/LibraryModules/Micrium/platform/micrium_os/bsp/siliconlabs/generic/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/Common/BSP/hardware/kit/common/bsp&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/Common/CMSIS/platform/CMSIS/Include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/.studio/modules/Common/emlib/platform/emlib/inc&quot;"/>
-								</option>
-								<inputType id="org.eclipse.cdt.core.asmSource.1368310562" superClass="org.eclipse.cdt.core.asmSource"/>
-							</tool>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base.1987594807" name="GNU ARM C Linker" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base.611893224"/>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base.595177119" name="GNU ARM C++ Linker" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base.1009623254"/>
-							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.archiver.base.1832010692" name="GNU ARM Archiver" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.archiver.base.1587071901"/>
-						</toolChain>
-					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|sdio|src/wfx_host/wfx_host_crypto.c|src/wfx_host/wfx_securelink_task.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|shared/lwip/fsdata|sdk|micrium_os/ports/source/gnu/armv6m_cpu_a.S|src/wfx_host/wfx_host_sdio.c|BSP/bsp_sd_hc.c|emdrv/spidrv" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|src/wfx_host/wfx_host_crypto.c|src/wfx_host/wfx_securelink_task.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|micrium_os/ports/source/gnu/armv6m_cpu_a.S|src/wfx_host/wfx_host_sdio.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -423,7 +303,6 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/SEGGER&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/lwip/lwip/src/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/pds}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
@@ -431,11 +310,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/apps}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/lwip/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip/system}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/Sample/MicriumOSKernel&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/bsp/siliconlabs/generic/include&quot;"/>
@@ -499,7 +377,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|src/wfx_host/wfx_host_crypto.c|src/wfx_host/wfx_securelink_task.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|shared/lwip/fsdata|micrium_os/ports/source/gnu/armv6m_cpu_a.S" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|src/wfx_host/wfx_host_crypto.c|src/wfx_host/wfx_securelink_task.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|micrium_os/ports/source/gnu/armv6m_cpu_a.S" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

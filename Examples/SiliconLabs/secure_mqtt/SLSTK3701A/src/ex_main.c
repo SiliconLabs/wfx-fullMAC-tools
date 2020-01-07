@@ -33,7 +33,6 @@
 #include "em_emu.h"
 #include "em_chip.h"
 #include "wfx_host_cfg.h"
-#include "wifi_cli.h"
 #include "wfx_host_events.h"
 #include "io.h"
 #include "wfx_task.h"

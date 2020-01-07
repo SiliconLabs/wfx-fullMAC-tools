@@ -1,0 +1,3 @@
+[submodule "wfx-fullMAC-driver"]
+	path = wfx-fullMAC-driver
+	url = https://github.com/SiliconLabs/wfx-fullMAC-driver

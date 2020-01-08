@@ -36,10 +36,7 @@
 
 #include "sl_wfx.h"
 #include "string.h"
-
-#ifdef SLEEP_ENABLED
 #include "sleep.h"
-#endif
 
 #include "demo_config.h"
 

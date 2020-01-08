@@ -40,7 +40,7 @@
 #include <kernel/include/os.h>
 #include <common/include/rtos_utils.h>
 #include <common/include/rtos_err.h>
-//#include "sleep.h"
+#include "sleep.h"
 
 
 #define USART WFX_HOST_CFG_SPI_USART

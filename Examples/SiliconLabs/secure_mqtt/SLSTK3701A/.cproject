@@ -43,6 +43,7 @@
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2026396169" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.1091880051" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
@@ -83,6 +84,7 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/Device/SiliconLabs/EFM32GG11B/Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/common/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/io/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.261519505" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -171,10 +173,11 @@
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
 									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
 									<listOptionValue builtIn="false" value="SLEEP_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.960391177" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.13917865" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
@@ -193,17 +196,17 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/Config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/SEGGER&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/lwip/lwip/src/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip/system}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os&quot;"/>
@@ -212,8 +215,11 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emlib/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/SLSTK3701A_EFM32GG11/config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/bsp&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/Device/SiliconLabs/EFM32GG11B/Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/Sample/MicriumOSKernel&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/io/include&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.1014462801" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -256,7 +262,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|src/wfx_host/wfx_host_crypto.c|src/wfx_host/wfx_securelink_task.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|micrium_os/bsp/siliconlabs/generic/source/bsp_os.c|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|micrium_os/ports/source/gnu/armv6m_cpu_a.S|src/wfx_host/wfx_host_sdio.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|src/wfx_host/wfx_host_crypto.c|src/wfx_host/wfx_securelink_task.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/drivers|micrium_os/io|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|micrium_os/ports/source/gnu/armv6m_cpu_a.S|src/wfx_host/wfx_host_sdio.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -325,6 +331,7 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/Device/SiliconLabs/EFM32GG11B/Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/common/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/io/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols.641573430" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>

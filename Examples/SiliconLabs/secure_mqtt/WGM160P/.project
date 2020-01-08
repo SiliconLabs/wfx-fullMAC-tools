@@ -124,6 +124,11 @@
 			<locationURI>STUDIO_SDK_LOC/platform/emdrv/nvm</locationURI>
 		</link>
 		<link>
+			<name>emdrv/sleep</name>
+			<type>2</type>
+			<locationURI>STUDIO_SDK_LOC/platform/emdrv/sleep</locationURI>
+		</link>
+		<link>
 			<name>emlib/em_assert.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_assert.c</locationURI>
@@ -162,6 +167,11 @@
 			<name>emlib/em_msc.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_msc.c</locationURI>
+		</link>
+		<link>
+			<name>emlib/em_rmu.c</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_rmu.c</locationURI>
 		</link>
 		<link>
 			<name>emlib/em_rtcc.c</name>

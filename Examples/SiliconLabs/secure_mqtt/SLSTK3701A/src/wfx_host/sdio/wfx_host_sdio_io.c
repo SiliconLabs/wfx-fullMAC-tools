@@ -27,6 +27,7 @@
 #include "wfx_host_cfg.h"
 
 #include "wfx_task.h"
+#include "sleep.h"
 
 #ifndef SL_WIFI_CFG_SD_CONTROLLER_NAME
 #define SL_WIFI_CFG_SD_CONTROLLER_NAME             "sd0"
@@ -35,7 +36,6 @@
 static SD_BUS_HANDLE sd_bus_handle = 0;
 static bool sdio_enabled = false;
 #ifdef SLEEP_ENABLED
-#include "sleep.h"
 static bool useWIRQ = false;
 #endif
 /****************************************************************************************************//**

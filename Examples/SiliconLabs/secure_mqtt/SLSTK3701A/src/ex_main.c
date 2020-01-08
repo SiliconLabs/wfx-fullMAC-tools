@@ -42,7 +42,7 @@
 #include <mbedtls/threading.h>
 #include MBEDTLS_CONFIG_FILE
 #endif
-
+#include "sleep.h"
 #define  EX_MAIN_START_TASK_PRIO              30u
 #define  EX_MAIN_START_TASK_STK_SIZE         512u
 
@@ -57,11 +57,6 @@ static  OS_TCB   main_start_task_tcb;
 static  void     main_start_task (void  *p_arg);
 
 #ifdef SLEEP_ENABLED
-#include "sleep.h"
-
-static  void     idleHook(void);
-static  void     setupHooks(void);
-
 static bool sleepCallback(SLEEP_EnergyMode_t emode)
 {
 #ifdef SL_WFX_USE_SPI
@@ -79,6 +74,19 @@ static bool sleepCallback(SLEEP_EnergyMode_t emode)
 static void wakeupCallback(SLEEP_EnergyMode_t emode)
 {
 
+}
+
+/***************************************************************************//**
+ * @brief
+ *   This is the idle hook.
+ *
+ * @detail
+ *   This will be called by the Micrium OS idle task when there is no other
+ *   task ready to run. We just enter the lowest possible energy mode.
+ ******************************************************************************/
+void OSIdleEnterHook(void)
+{
+  SLEEP_Sleep();
 }
 #endif
 
@@ -119,10 +127,10 @@ int  main(void)
 #endif
 
   APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-  // Initialize Kernel tick source.
-//  BSP_TickInit();
+
 #ifdef SLEEP_ENABLED
-  setupHooks();
+  // Don't allow EM3, since we use LF clocks.
+  SLEEP_SleepBlockBegin(sleepEM3);
 #endif
   OSTaskCreate(&main_start_task_tcb, // Create the Start Task.
                "Ex Main Start Task",
@@ -306,35 +314,4 @@ static  void  main_start_task(void  *p_arg)
   OSTaskDel(0, &err);
 
 }
-#ifdef SLEEP_ENABLED
-/***************************************************************************//**
- * @brief
- *   This is the idle hook.
- *
- * @detail
- *   This will be called by the Micrium OS idle task when there is no other
- *   task ready to run. We just enter the lowest possible energy mode.
- ******************************************************************************/
-static void idleHook(void)
-{
-  SLEEP_Sleep();
-}
-
-/***************************************************************************//**
- * @brief
- *   Setup the Micrium OS hooks. We are only using the idle task hook.
- *   See the Mcirium OS documentation for more information on the
- *   other available hooks.
- ******************************************************************************/
-static void setupHooks(void)
-{
-  CPU_SR_ALLOC();
-
-  CPU_CRITICAL_ENTER();
-  /* Don't allow EM3, since we use LF clocks. */
-  SLEEP_SleepBlockBegin(sleepEM3);
-  OS_AppIdleTaskHookPtr = idleHook;
-  CPU_CRITICAL_EXIT();
-}
-#endif
 

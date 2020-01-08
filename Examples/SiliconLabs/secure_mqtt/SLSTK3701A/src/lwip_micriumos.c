@@ -498,6 +498,30 @@ static int lwip_app_get_keys (bool echo)
     memset(key_buf, 0, sizeof(key_buf));
     ptr_key_last_call = key_buf;
 
+#ifdef EFM32GG11B820F2048GM64
+    ecode  = DMADRV_PeripheralMemory(usart_rx_dma_channel,
+                                     dmadrvPeripheralSignal_USART0_RXDATAV,
+                                     key_buf,
+                                     (void *)&USART0->RXDATA,
+                                     true,
+                                     1, // Each character produces an interrupt
+                                     dmadrvDataSize1 /*Byte*/,
+                                     usart_rx_dma_callback,
+                                     NULL);
+
+    if (echo) {
+      // The current priority executes the echo DMA after the RX DMA.
+      ecode |= DMADRV_MemoryPeripheral(usart_echo_dma_channel,
+                                       dmadrvPeripheralSignal_USART0_RXDATAV,
+                                       (void *)&USART0->TXDATA,
+                                       key_buf,
+                                       true,
+                                       1, // Each character produces an interrupt
+                                       dmadrvDataSize1 /*Byte*/,
+                                       usart_echo_dma_callback,
+                                       NULL);
+    }
+#else
     ecode  = DMADRV_PeripheralMemory(usart_rx_dma_channel,
                                      dmadrvPeripheralSignal_USART4_RXDATAV,
                                      key_buf,
@@ -520,6 +544,7 @@ static int lwip_app_get_keys (bool echo)
                                        usart_echo_dma_callback,
                                        NULL);
     }
+#endif
   }
 
   if (ecode == ECODE_EMDRV_DMADRV_OK) {

@@ -41,7 +41,12 @@
 		<link>
 			<name>shared</name>
 			<type>2</type>
-			<location>C:/workdir/wfx-fullMAC-tools/Examples/SiliconLabs/shared</location>
+			<locationURI>PARENT-2-PROJECT_LOC/shared</locationURI>
+		</link>
+		<link>
+			<name>systemview</name>
+			<type>2</type>
+			<locationURI>STUDIO_SDK_LOC/util/third_party/segger/systemview</locationURI>
 		</link>
 		<link>
 			<name>BSP/bsp_bcc.c</name>
@@ -162,21 +167,6 @@
 			<name>service/sleeptimer</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/platform/service/sleeptimer</locationURI>
-		</link>
-		<link>
-			<name>systemview/Config</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/util/third_party/segger/systemview/Config</locationURI>
-		</link>
-		<link>
-			<name>systemview/MicriumOSKernel</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/util/third_party/segger/systemview/Sample/MicriumOSKernel</locationURI>
-		</link>
-		<link>
-			<name>systemview/SEGGER</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/util/third_party/segger/systemview/SEGGER</locationURI>
 		</link>
 		<link>
 			<name>CMSIS/EFM32GG11B/startup_gcc_efm32gg11b.s</name>

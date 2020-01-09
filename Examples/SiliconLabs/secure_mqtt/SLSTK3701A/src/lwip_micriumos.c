@@ -55,7 +55,7 @@
 #include "lwip/ip_addr.h"
 #include "lwip/apps/lwiperf.h"
 #endif
-#include "wifi_cli.h"
+#include "console.h"
 #include "dhcp_client.h"
 #include "ethernetif.h"
 #include "wfx_host.h"
@@ -307,12 +307,12 @@ static void lwip_app_wifi_config_prompt (void)
 #endif
 
   printf("\nEnter the SSID of the AP you want to connect:\n");
-  wifi_cli_get_input(wlan_ssid, sizeof(wlan_ssid), LWIP_APP_ECHO_ENABLED);
+  console_get_input(wlan_ssid, sizeof(wlan_ssid), LWIP_APP_ECHO_ENABLED);
 
   do {
     error = false;
     printf("Enter the Passkey of the AP you want to connect (8-chars min):\n");
-    wifi_cli_get_input(wlan_passkey, sizeof(wlan_passkey), LWIP_APP_ECHO_ENABLED);
+    console_get_input(wlan_passkey, sizeof(wlan_passkey), LWIP_APP_ECHO_ENABLED);
 
     if (strlen(wlan_passkey) < 8) {
       printf("Size error\n");
@@ -323,7 +323,7 @@ static void lwip_app_wifi_config_prompt (void)
   do {
     error = false;
     printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\nEnter 1,2,3 or 4:\n");
-    wifi_cli_get_input(buf, 2 + 1 /* let the user tap enter */, LWIP_APP_ECHO_ENABLED);
+    console_get_input(buf, 2 + 1 /* let the user tap enter */, LWIP_APP_ECHO_ENABLED);
 
     if (!strncmp(buf, "1", 1)) {
       wlan_security = WFM_SECURITY_MODE_OPEN;
@@ -650,7 +650,7 @@ static void lwip_app_mqtt_config_prompt (void)
 
 #if LWIP_APP_TLS_ENABLED
   printf("\nPress <Enter> within 5 seconds to load the TLS keys:\n");
-  wifi_cli_get_input_tmo(buf, 1/*Enter*/ + 1 /*NUL*/, 5, LWIP_APP_ECHO_ENABLED);
+  console_get_input_tmo(buf, 1/*Enter*/ + 1 /*NUL*/, 5, LWIP_APP_ECHO_ENABLED);
 
   if (buf[0] == '\r' || buf[0] == '\n') {
     printf("Enter the root CA:\n");
@@ -670,7 +670,7 @@ static void lwip_app_mqtt_config_prompt (void)
   do {
     error = false;
     printf("Enter the MQTT broker address:\n");
-    wifi_cli_get_input(buf, sizeof(buf), LWIP_APP_ECHO_ENABLED);
+    console_get_input(buf, sizeof(buf), LWIP_APP_ECHO_ENABLED);
 
     // Execute a DNS request
     res = dns_gethostbyname(buf, &broker_ip, dns_found_cb, NULL);

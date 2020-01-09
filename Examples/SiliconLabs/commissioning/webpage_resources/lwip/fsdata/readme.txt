@@ -1,2 +1,0 @@
-Every time you regenerate the fs with makefsdata, insert FS_FILE_FLAGS_HEADER_INCLUDED in fsdata.c as shown below:
-const struct fsdata_file file_index_html[] = {{file_fsdata_c, data_index_html, data_index_html + 12, sizeof(data_index_html) - 12, FS_FILE_FLAGS_HEADER_INCLUDED}};

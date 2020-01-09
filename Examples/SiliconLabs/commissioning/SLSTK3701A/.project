@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>WGM160P_commissioning</name>
+	<name>SLSTK3701A_commissioning</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -24,6 +24,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/PDS</locationURI>
 		</link>
 		<link>
+			<name>cfg</name>
+			<type>2</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg</locationURI>
+		</link>
+		<link>
 			<name>console</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/shared/uOS_shell/console</locationURI>
@@ -42,16 +47,6 @@
 			<name>micrium_os</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/platform/micrium_os</locationURI>
-		</link>
-		<link>
-			<name>src</name>
-			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A/src</locationURI>
-		</link>
-		<link>
-			<name>wgm160p</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/shared/wgm160p</locationURI>
 		</link>
 		<link>
 			<name>BSP/bsp_bcc.c</name>
@@ -104,56 +99,6 @@
 			<locationURI>PARENT-4-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver</locationURI>
 		</link>
 		<link>
-			<name>cfg/SEGGER_RTT_Conf.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/SEGGER_RTT_Conf.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/SEGGER_SYSVIEW_Conf.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/SEGGER_SYSVIEW_Conf.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/bsp_cfg.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/bsp_cfg.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/common_cfg.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/common_cfg.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/cpu_cfg.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/cpu_cfg.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/os_cfg.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/os_cfg.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/os_cfg_trace.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/os_cfg_trace.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/rtos_cfg.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/rtos_cfg.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/rtos_description.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/rtos_description.h</locationURI>
-		</link>
-		<link>
-			<name>cfg/rtos_err_cfg.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/rtos_err_cfg.h</locationURI>
-		</link>
-		<link>
 			<name>emdrv/dmadrv</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/platform/emdrv/dmadrv</locationURI>
@@ -177,11 +122,6 @@
 			<name>emlib/em_core.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_core.c</locationURI>
-		</link>
-		<link>
-			<name>emlib/em_crypto.c</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_crypto.c</locationURI>
 		</link>
 		<link>
 			<name>emlib/em_emu.c</name>

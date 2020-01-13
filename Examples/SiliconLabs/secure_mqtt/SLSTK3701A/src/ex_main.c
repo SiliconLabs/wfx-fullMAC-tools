@@ -299,7 +299,7 @@ static  void  main_start_task(void  *p_arg)
   BSP_OS_Init();
   BSP_LedsInit();
 
-  printf("WF200 Micrium OS LwIP Example\n");
+  printf("WFX Secure MQTT Example\n");
 
   //start wfx bus communication task.
   wfxtask_start();

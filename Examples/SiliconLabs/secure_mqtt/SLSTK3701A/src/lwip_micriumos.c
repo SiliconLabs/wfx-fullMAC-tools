@@ -62,7 +62,8 @@
 #include "wfx_task.h"
 #include "wfx_host.h"
 
-static void netif_config(void);
+static int netif_config(void);
+static int lwip_app_mqtt_connection (void);
 
 #define LWIP_TASK_PRIO              23u
 #define LWIP_TASK_STK_SIZE         800u
@@ -187,7 +188,6 @@ static unsigned int usart_echo_dma_channel = 0;
 static bool usart_dma_initialized = false;
 #endif
 
-
 #ifdef LWIP_IPERF_SERVER
 /***************************************************************************//**
  * @brief Function to handle iperf results report
@@ -203,22 +203,6 @@ static void lwip_iperf_results(void *arg, enum lwiperf_report_type report_type,
 }
 
 #endif
-
-/**************************************************************************//**
- * Manage a MQTT connection result.
- *****************************************************************************/
-static void mqtt_connection_cb (mqtt_client_t *client,
-                                void *arg,
-                                mqtt_connection_status_t status)
-{
-  (void)arg;
-
-  if (status == MQTT_CONNECT_ACCEPTED) {
-    printf("Connection success\r\n");
-  } else {
-    printf("Connection error: %d\r\n", status);
-  }
-}
 
 /**************************************************************************//**
  * Manage a MQTT subscription result.
@@ -291,6 +275,41 @@ static void mqtt_incoming_data_cb (void *arg,
     }
   } else {
     printf("Wrong JSON format\n");
+  }
+}
+
+/**************************************************************************//**
+ * Manage a MQTT connection change of state.
+ *****************************************************************************/
+static void mqtt_connection_cb (mqtt_client_t *client,
+                                void *arg,
+                                mqtt_connection_status_t status)
+{
+  (void)client;
+  (void)arg;
+
+  if (status == MQTT_CONNECT_ACCEPTED) {
+    printf("Connection success\r\n");
+
+    char sub_topic[32];
+
+    // Subscribe to a topic
+    snprintf(sub_topic,
+             sizeof(sub_topic),
+             "%s/leds/set",
+             mqtt_client_info.client_id);
+
+    mqtt_set_inpub_callback(mqtt_client,
+                            mqtt_incoming_publish_cb,
+                            mqtt_incoming_data_cb,
+                            NULL);
+
+    mqtt_sub_unsub(mqtt_client, sub_topic, 0 /*qos*/, mqtt_suscribe_cb, NULL, 1);
+  } else {
+    printf("Disconnection(%d)\r\n", status);
+
+    // Reconnect immediately
+    lwip_app_mqtt_connection();
   }
 }
 
@@ -709,6 +728,61 @@ static void lwip_app_mqtt_config_prompt (void)
 }
 
 /**************************************************************************//**
+ * Initialize the MQTT resources.
+ *****************************************************************************/
+static int lwip_app_mqtt_initialization (void)
+{
+  int ret = -1;
+
+  // Create a new MQTT client
+  mqtt_client = mqtt_client_new();
+
+#if LWIP_APP_TLS_ENABLED
+  // Create a TLS context for the client
+  mqtt_client_info.tls_config =
+      altcp_tls_create_config_client_2wayauth((uint8_t *)ca_certificate,
+                                              strlen(ca_certificate)+1,
+                                              (uint8_t *)device_key,
+                                              strlen(device_key)+1,
+                                              NULL,
+                                              0,
+                                              (uint8_t *)device_certificate,
+                                              strlen(device_certificate)+1);
+#endif
+
+  if ((mqtt_client != NULL) && (mqtt_client_info.tls_config != NULL)) {
+    // Initialization success
+    ret = 0;
+  }
+
+  return ret;
+}
+
+/**************************************************************************//**
+ * Connect to a MQTT broker.
+ *****************************************************************************/
+static int lwip_app_mqtt_connection (void)
+{
+  uint8_t *ptr_ip = (uint8_t *)&broker_ip.addr;
+  int ret = -1;
+
+  if (mqtt_client != NULL) {
+    printf("Connecting to MQTT broker (%u.%u.%u.%u)...\r\n",
+           ptr_ip[0], ptr_ip[1], ptr_ip[2], ptr_ip[3]);
+
+    // Connect to the MQTT broker
+    ret = mqtt_client_connect(mqtt_client,
+                              &broker_ip,
+                              LWIP_APP_MQTT_PORT,
+                              mqtt_connection_cb,
+                              NULL,
+                              &mqtt_client_info);
+  }
+
+  return ret;
+}
+
+/**************************************************************************//**
  * Button handler
  *
  * @param button_id Button Id related to the event
@@ -722,11 +796,15 @@ void lwip_button_handler (uint32_t button_id)
     // Toggle the associated LED as a life indicator
     BSP_LedToggle(button_id);
 
-    OSTaskQPost(&lwip_task_tcb,
-                (void *)button_id,
-                sizeof(button_id),
-                OS_OPT_POST_NONE,
-                &err);
+    // Notify the thread to publish a message if the client is connected
+    if ((mqtt_client != NULL)
+        && (mqtt_client_is_connected(mqtt_client))) {
+      OSTaskQPost(&lwip_task_tcb,
+                  (void *)button_id,
+                  sizeof(button_id),
+                  OS_OPT_POST_NONE,
+                  &err);
+    }
   }
 }
 
@@ -739,10 +817,8 @@ static void lwip_task(void *p_arg)
 {
   ip_addr_t prim_dns_addr = IPADDR4_INIT_BYTES(8, 8, 8, 8);
   ip_addr_t sec_dns_addr = IPADDR4_INIT_BYTES(8, 8, 4, 4);
-  uint8_t *ptr_ip = (uint8_t *)&broker_ip.addr;
   char pub_event_topic[32];
   char pub_data_topic[32];
-  char sub_topic[32];
   char string[128];
   char tmp[32];
   int res, len;
@@ -759,7 +835,11 @@ static void lwip_task(void *p_arg)
   }
 
   // Initialize the LwIP stack
-  netif_config();
+  res = netif_config();
+  if (res != 0) {
+    // Error, no need to go further
+    while(1);
+  }
 
 #ifdef LWIP_IPERF_SERVER
   lwiperf_start_tcp_server_default(lwip_iperf_results, 0);
@@ -779,48 +859,12 @@ static void lwip_task(void *p_arg)
   // Prompt the user to configure the MQTT connection
   lwip_app_mqtt_config_prompt();
 
-  printf("Connecting to MQTT broker (%u.%u.%u.%u)...\r\n",
-         ptr_ip[0], ptr_ip[1], ptr_ip[2], ptr_ip[3]);
-
-  // Create a new MQTT client
-  mqtt_client = mqtt_client_new();
-  LWIP_ASSERT("MQTT: allocation error", mqtt_client);
-
-#if LWIP_APP_TLS_ENABLED
-  // Create a TLS context for the client
-  mqtt_client_info.tls_config =
-      altcp_tls_create_config_client_2wayauth((uint8_t *)ca_certificate,
-                                              strlen(ca_certificate)+1,
-                                              (uint8_t *)device_key,
-                                              strlen(device_key)+1,
-                                              NULL,
-                                              0,
-                                              (uint8_t *)device_certificate,
-                                              strlen(device_certificate)+1);
-  LWIP_ASSERT("TLS: context creation error", mqtt_client_info.tls_config != NULL);
-#endif
+  res = lwip_app_mqtt_initialization();
+  LWIP_ASSERT("MQTT: init error", res == 0);
 
   // Connect to the MQTT broker
-  res = mqtt_client_connect(mqtt_client,
-                            &broker_ip,
-                            LWIP_APP_MQTT_PORT,
-                            mqtt_connection_cb,
-                            NULL,
-                            &mqtt_client_info);
+  res = lwip_app_mqtt_connection();
   LWIP_ASSERT("MQTT: connection error\r\n", res == 0);
-
-  // Subscribe to a topic
-  snprintf(sub_topic,
-           sizeof(sub_topic),
-           "%s/leds/set",
-           mqtt_client_info.client_id);
-
-  mqtt_set_inpub_callback(mqtt_client,
-                          mqtt_incoming_publish_cb,
-                          mqtt_incoming_data_cb,
-                          NULL);
-
-  mqtt_sub_unsub(mqtt_client, sub_topic, 0 /*qos*/, mqtt_suscribe_cb, NULL, 1);
 
   // Configure the publish topics
   snprintf(pub_data_topic,
@@ -956,12 +1000,14 @@ sl_status_t lwip_set_ap_link_down(void)
 /***************************************************************************//**
  * Initializes LwIP network interface.
  ******************************************************************************/
-static void netif_config(void)
+static int netif_config(void)
 {
   sl_status_t status;
   ip_addr_t sta_ipaddr, ap_ipaddr;
   ip_addr_t sta_netmask, ap_netmask;
   ip_addr_t sta_gw, ap_gw;
+  int ret = -1;
+
   if (use_dhcp_client) {
     ip_addr_set_zero_ip4(&sta_ipaddr);
     ip_addr_set_zero_ip4(&sta_netmask);
@@ -987,6 +1033,7 @@ static void netif_config(void)
              wifi.firmware_minor,
              wifi.firmware_build);
       printf("WF200 initialization successful\r\n");
+      ret = 0;
       break;
     case SL_STATUS_WIFI_INVALID_KEY:
       printf("Failed to init WF200: Firmware keyset invalid\r\n");
@@ -1014,6 +1061,8 @@ static void netif_config(void)
 
   // Registers the default network interface.
   netif_set_default(&sta_netif);
+
+  return ret;
 }
 
 /**************************************************************************//**

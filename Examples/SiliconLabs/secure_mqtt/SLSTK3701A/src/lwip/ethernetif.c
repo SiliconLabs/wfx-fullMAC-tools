@@ -114,17 +114,11 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
   if (result == SL_STATUS_OK) {
     buffer = tx_buffer->body.packet_data;
 
-//    printf("\r\n");
     framelength = 0;
     /* copy frame from pbufs to driver buffers */
     for (q = p; q != NULL; q = q->next) {
       /* Get bytes in current lwIP buffer */
       byteslefttocopy = q->len;
-
-//      for (int i=0; i<q->len; i++) {
-//        printf("%02X", ((uint8_t*)q->payload)[i]);
-//      }
-//      printf("\r\n");
 
       /* Copy the bytes */
       memcpy( (uint8_t*)((uint8_t*)buffer + bufferoffset), (uint8_t*)((uint8_t*)q->payload), byteslefttocopy);

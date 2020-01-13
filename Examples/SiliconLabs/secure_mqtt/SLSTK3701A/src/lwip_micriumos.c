@@ -850,6 +850,7 @@ static void lwip_task(void *p_arg)
                      button_json_object,
                      (uint16_t)evt_button_id);
 
+      LOCK_TCPIP_CORE();
       mqtt_publish(mqtt_client,
                    pub_event_topic,
                    (void *)string,
@@ -858,6 +859,7 @@ static void lwip_task(void *p_arg)
                    0,
                    mqtt_publish_cb,
                    NULL);
+      UNLOCK_TCPIP_CORE();
 
     } else if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_TIMEOUT) {
       // Periodical TX, publish the LED states
@@ -875,6 +877,7 @@ static void lwip_task(void *p_arg)
       }
       strcpy(&string[len-1] /*Overwrite the last comma*/, "]}"); len++ /*-1 + 2*/;
 
+      LOCK_TCPIP_CORE();
       mqtt_publish(mqtt_client,
                    pub_data_topic,
                    (void *)string,
@@ -883,6 +886,7 @@ static void lwip_task(void *p_arg)
                    0,
                    mqtt_publish_cb,
                    NULL);
+      UNLOCK_TCPIP_CORE();
 
       // Compute the next publishing period
       tick = OSTimeGet(&err);

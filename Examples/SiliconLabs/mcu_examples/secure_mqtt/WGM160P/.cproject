@@ -36,7 +36,7 @@
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.1080565494" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols.1195057932" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SECURE_LINK=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO=1"/>
@@ -46,7 +46,7 @@
 									<listOptionValue builtIn="false" value="SLEXP8022A=1"/>
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
 									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
 									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=15"/>
 								</option>
@@ -82,7 +82,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emlib/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p/config}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os}&quot;"/>
@@ -90,6 +89,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/CMSIS/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/emlib/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/console}&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.400397526" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -170,7 +170,7 @@
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.832535037" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols.1306900033" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SECURE_LINK=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO=1"/>
@@ -181,7 +181,7 @@
 									<listOptionValue builtIn="false" value="SLEXP8022A=1"/>
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
 									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
 									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=15"/>
 								</option>
@@ -217,7 +217,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emlib/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p/config}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os}&quot;"/>
@@ -225,6 +224,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/CMSIS/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/emlib/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/console}&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.1962800007" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>

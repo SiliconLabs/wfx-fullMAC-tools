@@ -41,8 +41,7 @@
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
-									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2026396169" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.1091880051" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
@@ -76,7 +75,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emlib/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/hardware/kit/common/bsp}&quot;"/>
@@ -88,6 +86,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/configs}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/sl_crypto/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/console}&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.261519505" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -185,7 +184,6 @@
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
-									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.960391177" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.13917865" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
@@ -219,7 +217,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emlib/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/hardware/kit/common/bsp}&quot;"/>
@@ -231,6 +228,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/configs}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/sl_crypto/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/console}&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.1014462801" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -328,8 +326,7 @@
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
-									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
-									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=15"/>
+									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.287923225" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.1727323452" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
@@ -363,7 +360,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/emlib/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/wifi_cli}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/platform/micrium_os/bsp/siliconlabs/generic/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/sdk/hardware/kit/common/bsp}&quot;"/>
@@ -375,6 +371,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/configs}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/mbedtls/sl_crypto/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/shared/uOS_shell/console}&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.395645542" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>

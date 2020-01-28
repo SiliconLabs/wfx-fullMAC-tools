@@ -48,14 +48,12 @@
 #include "lwip/apps/httpd.h"
 #include "lwip/apps/mqtt.h"
 #include "lwip/netifapi.h"
-#if LWIP_APP_TLS_ENABLED
 #include "lwip/altcp_tls.h"
-#endif
 #ifdef LWIP_IPERF_SERVER
 #include "lwip/ip_addr.h"
 #include "lwip/apps/lwiperf.h"
 #endif
-#include "wifi_cli.h"
+#include "console.h"
 #include "dhcp_client.h"
 #include "dhcp_server.h"
 #include "ethernetif.h"
@@ -64,16 +62,11 @@
 #include "dhcp_server.h"
 #include "wfx_host.h"
 
-static void netif_config(void);
+static int netif_config(void);
+static int lwip_app_mqtt_connection(void);
 
 #define LWIP_TASK_PRIO              23u
 #define LWIP_TASK_STK_SIZE         800u
-
-#if LWIP_APP_TLS_ENABLED
-#define LWIP_APP_MQTT_PORT        8883u
-#else
-#define LWIP_APP_MQTT_PORT        1883u
-#endif
 
 #define LWIP_APP_TX_TICK_PERIOD   1000u
 #define LWIP_APP_ECHO_ENABLED        1u
@@ -149,15 +142,32 @@ static OS_TCB lwip_task_tcb;
 char event_log[50];
 
 /// MQTT
-static ip_addr_t broker_ip;
+static ip_addr_t mqtt_broker_ip;
+static uint16_t mqtt_broker_port;
+static char mqtt_username[256];
+static char mqtt_password[256];
+static char mqtt_publish_topic[128];
+static char mqtt_subscribe_topic[128];
+static bool mqtt_is_session_encrypted = true;
+static bool mqtt_is_session_protected = false;
 static mqtt_client_t *mqtt_client = NULL;
 
 #ifdef EFM32GG11B820F2048GM64
-static const char device_name[] = "wgm160p";
+static const char device_name[32] = "wgm160p";
 static const char button_json_object[] = "{\"name\":\"PB%u\"}";
+static console_config_t console_config = {
+  .usart_instance = USART0,
+  .dma_peripheral_signal = dmadrvPeripheralSignal_USART0_RXDATAV,
+  .echo = 1
+};
 #else
-static const char device_name[] = "efm32gg11";
+static const char device_name[32] = "efm32gg11";
 static const char button_json_object[] = "{\"name\":\"BTN%u\"}";
+static console_config_t console_config = {
+  .usart_instance = USART4,
+  .dma_peripheral_signal = dmadrvPeripheralSignal_USART4_RXDATAV,
+  .echo = 1
+};
 #endif
 
 static const char led_json_object[] = "{\"name\":\"LED%u\",\"state\":\"%s\"}";
@@ -167,12 +177,9 @@ static struct mqtt_connect_client_info_t mqtt_client_info = {
   NULL, NULL,
   10 /*Keep alive (seconds)*/,
   NULL, NULL, 0, 0,
-#if LWIP_APP_TLS_ENABLED
   NULL
-#endif
 };
 
-#if LWIP_APP_TLS_ENABLED
 /// TLS
 #define CA_CERTIFICATE_ADDR       (FLASH_BASE + FLASH_SIZE - 3*FLASH_PAGE_SIZE)
 #define DEVICE_CERTIFICATE_ADDR   (CA_CERTIFICATE_ADDR + FLASH_PAGE_SIZE)
@@ -182,12 +189,7 @@ static const char *ca_certificate = (char *)CA_CERTIFICATE_ADDR;
 static const char *device_certificate = (char *)DEVICE_CERTIFICATE_ADDR;
 static const char *device_key = (char *)DEVICE_KEY_ADDR;
 
-static char key_buf[2048]; // Buffer used to contain 2048bits certificates/keys
-static char *ptr_key_last_call = key_buf;
-static unsigned int usart_rx_dma_channel = 0;
-static unsigned int usart_echo_dma_channel = 0;
-static bool usart_dma_initialized = false;
-#endif
+static char input_buf[2048]; // Buffer with sufficient size to contain 2048bits certificates/keys
 
 
 #ifdef LWIP_IPERF_SERVER
@@ -207,25 +209,9 @@ static void lwip_iperf_results(void *arg, enum lwiperf_report_type report_type,
 #endif
 
 /**************************************************************************//**
- * Manage a MQTT connection result.
- *****************************************************************************/
-static void mqtt_connection_cb (mqtt_client_t *client,
-                                void *arg,
-                                mqtt_connection_status_t status)
-{
-  (void)arg;
-
-  if (status == MQTT_CONNECT_ACCEPTED) {
-    printf("Connection success\r\n");
-  } else {
-    printf("Connection error: %d\r\n", status);
-  }
-}
-
-/**************************************************************************//**
  * Manage a MQTT subscription result.
  *****************************************************************************/
-static void mqtt_suscribe_cb (void *arg, err_t err)
+static void mqtt_subscribe_cb (void *arg, err_t err)
 {
   (void)arg;
 
@@ -297,35 +283,54 @@ static void mqtt_incoming_data_cb (void *arg,
 }
 
 /**************************************************************************//**
+ * Manage a MQTT connection change of state.
+ *****************************************************************************/
+static void mqtt_connection_cb (mqtt_client_t *client,
+                                void *arg,
+                                mqtt_connection_status_t status)
+{
+  RTOS_ERR err;
+
+  (void)client;
+  (void)arg;
+
+  if (status == MQTT_CONNECT_ACCEPTED) {
+    printf("Connection success\r\n");
+  } else {
+    printf("Disconnection(%d)\r\n", status);
+  }
+
+  OSTaskSemPost(&lwip_task_tcb, OS_OPT_POST_NONE, &err);
+}
+
+/**************************************************************************//**
  * Prompt the user to provide the Wi-Fi configuration.
  *****************************************************************************/
 static void lwip_app_wifi_config_prompt (void)
 {
   char buf[4];
+  int res;
   bool error;
 
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockBegin(sleepEM2);
 #endif
 
-  printf("\nEnter the SSID of the AP you want to connect:\n");
-  wifi_cli_get_input(wlan_ssid, sizeof(wlan_ssid), LWIP_APP_ECHO_ENABLED);
-
   do {
-    error = false;
-    printf("Enter the Passkey of the AP you want to connect (8-chars min):\n");
-    wifi_cli_get_input(wlan_passkey, sizeof(wlan_passkey), LWIP_APP_ECHO_ENABLED);
-
-    if (strlen(wlan_passkey) < 8) {
-      printf("Size error\n");
-      error = true;
-    }
-  } while (error);
+      printf("\nEnter the SSID of the AP you want to connect:\n");
+      res = console_get_line(wlan_ssid, sizeof(wlan_ssid));
+  } while (res < 0);
 
   do {
     error = false;
     printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\nEnter 1,2,3 or 4:\n");
-    wifi_cli_get_input(buf, 2 + 1 /* let the user tap enter */, LWIP_APP_ECHO_ENABLED);
+    res = console_get_line(buf, sizeof(buf));
+
+    if (res <= 0) {
+      // Invalid input
+      error = true;
+      continue;
+    }
 
     if (!strncmp(buf, "1", 1)) {
       wlan_security = WFM_SECURITY_MODE_OPEN;
@@ -340,6 +345,13 @@ static void lwip_app_wifi_config_prompt (void)
       error = true;
     }
   } while (error);
+
+  if (wlan_security != WFM_SECURITY_MODE_OPEN) {
+    do {
+      printf("Enter the Passkey of the AP you want to connect (8-chars min):\n");
+      res = console_get_line(wlan_passkey, sizeof(wlan_passkey));
+    } while (res < 8);
+  }
 
   printf("\n");
 
@@ -404,164 +416,57 @@ static void dns_found_cb (const char *name,
               &err);
 }
 
-#if LWIP_APP_TLS_ENABLED
-/**************************************************************************//**
- * Manage the USART reception using the DMA.
- *****************************************************************************/
-static bool usart_rx_dma_callback (unsigned int channel,
-                                   unsigned int sequenceNo,
-                                   void *userParam)
-{
-  char *ptr_last_char;
-  RTOS_ERR  err;
-
-  (void)channel;
-  (void)sequenceNo;
-  (void)userParam;
-
-  ptr_last_char = ((char *)LDMA->CH[usart_rx_dma_channel].DST - 1);
-
-  // Is an end of line ?
-  if ((*ptr_last_char == '\r') || (*ptr_last_char == '\n')) {
-    // Check for the end of a certificate or key
-    if (strstr(ptr_key_last_call, "-----END ") != NULL) {
-      // Notify the task
-      OSTaskSemPost(&lwip_task_tcb, OS_OPT_POST_NONE, &err);
-    }
-    // Update the pointer on the key buffer to speed up the strstr processing
-    ptr_key_last_call = ptr_last_char;
-  }
-
-  // Check the buffer to avoid an overflow
-  if (ptr_last_char < &key_buf[2048]) {
-    // Re-enable the DMA
-    LDMA->CHDONE &= ~(1 << usart_rx_dma_channel);
-    LDMA->CHEN |= (1 << usart_rx_dma_channel);
-  }
-
-  return false;
-}
-
-/**************************************************************************//**
- * Manage the terminal echo using the DMA.
- *****************************************************************************/
-static bool usart_echo_dma_callback (unsigned int channel,
-                                     unsigned int sequenceNo,
-                                     void *userParam)
-{
-  char *ptr_last_char;
-
-  (void)channel;
-  (void)sequenceNo;
-  (void)userParam;
-
-  ptr_last_char = ((char *)LDMA->CH[usart_echo_dma_channel].SRC - 1);
-
-  // Is an end of line ?
-  if (*ptr_last_char == '\r') {
-    // Add a new line to have a consistent display
-    //FIXME: terminal with CRLF input
-    ptr_last_char = ((char *)LDMA->CH[usart_echo_dma_channel].DST);
-    *ptr_last_char = '\n';
-  }
-
-  // Re-enable the DMA
-  LDMA->CHDONE &= ~(1 << usart_echo_dma_channel);
-  LDMA->CHEN |= (1 << usart_echo_dma_channel);
-
-  return false;
-}
-
-/**************************************************************************//**
- * Retrieve a TLS certificate/key from the UART using DMA.
- *
- * @param echo Enable/Disable the echo
- * @return -1: error
- *         0 <=: the key size (including the NUL termination)
- *****************************************************************************/
-static int lwip_app_get_keys (bool echo)
-{
-  int ret = -1;
-  RTOS_ERR err;
-  Ecode_t ecode = ECODE_EMDRV_DMADRV_OK;
-
-  if (!usart_dma_initialized) {
-    // Initialize the DMA driver and allocate resources
-    DMADRV_Init();
-    ecode  = DMADRV_AllocateChannel(&usart_rx_dma_channel, NULL);
-    ecode |= DMADRV_AllocateChannel(&usart_echo_dma_channel, NULL);
-  }
-
-  if (ecode == ECODE_EMDRV_DMADRV_OK) {
-    // Reset the key buffer
-    memset(key_buf, 0, sizeof(key_buf));
-    ptr_key_last_call = key_buf;
-
-    ecode  = DMADRV_PeripheralMemory(usart_rx_dma_channel,
-                                     dmadrvPeripheralSignal_USART4_RXDATAV,
-                                     key_buf,
-                                     (void *)&USART4->RXDATA,
-                                     true,
-                                     1, // Each character produces an interrupt
-                                     dmadrvDataSize1 /*Byte*/,
-                                     usart_rx_dma_callback,
-                                     NULL);
-
-    if (echo) {
-      // The current priority executes the echo DMA after the RX DMA.
-      ecode |= DMADRV_MemoryPeripheral(usart_echo_dma_channel,
-                                       dmadrvPeripheralSignal_USART4_RXDATAV,
-                                       (void *)&USART4->TXDATA,
-                                       key_buf,
-                                       true,
-                                       1, // Each character produces an interrupt
-                                       dmadrvDataSize1 /*Byte*/,
-                                       usart_echo_dma_callback,
-                                       NULL);
-    }
-  }
-
-  if (ecode == ECODE_EMDRV_DMADRV_OK) {
-    usart_dma_initialized = true;
-
-    // Wait for the whole key to be received
-    OSTaskSemPend(0,
-                  OS_OPT_PEND_BLOCKING,
-                  NULL,
-                  &err);
-
-    ecode |= DMADRV_StopTransfer(usart_rx_dma_channel);
-    ecode |= DMADRV_StopTransfer(usart_echo_dma_channel);
-
-    if ((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE)
-        && (ecode == ECODE_OK)) {
-      ret = strlen(key_buf) + 1 /*NUL termination*/;
-    }
-  } else {
-    printf("USART DMA start error\n");
-  }
-
-  return ret;
-}
-
 /**************************************************************************//**
  * Convert a TLS certificate/key end of lines to suit MBEDTLS parsing.
  *****************************************************************************/
 static void lwip_app_convert_keys_eol (void)
 {
+  char *ptr_buf = input_buf;
   char *ptr_eol;
 
   // Iterate through the key buffer to replace potential '\r'
   // characters by '\n'.
-  while ((ptr_eol = strstr(key_buf, "\r")) != NULL) {
+  while ((ptr_eol = strstr(ptr_buf, "\r")) != NULL) {
     if (*(ptr_eol+1) != '\n') {
       // Convert '\r' into '\n'
       *ptr_eol = '\n';
+      ptr_buf = ptr_eol + 1;
     } else {
       // Assume the whole key is correctly formated
       break;
     }
   }
+}
+
+/**************************************************************************//**
+ * Callback checking that a TLS certificate/key (in PEM format) is
+ * completely received from the console.
+ *****************************************************************************/
+static bool lwip_app_is_complete_key_received_cb (char *buffer_pos)
+{
+  // Check for the end of a certificate or key
+  return (strstr(buffer_pos, "-----END ") != NULL);
+}
+
+/**************************************************************************//**
+ * Retrieve a TLS certificate/key from the UART using DMA.
+ * @return -1: error
+ *         0 <=: the key size
+ *****************************************************************************/
+static int lwip_app_get_keys (void)
+{
+  int res;
+
+  res = console_get_lines(input_buf,
+                          sizeof(input_buf),
+                          lwip_app_is_complete_key_received_cb);
+
+  if (res > 0) {
+    // Convert the end of line characters if needed to suit the mbedtls parsing
+    lwip_app_convert_keys_eol();
+  }
+
+  return res;
 }
 
 /**************************************************************************//**
@@ -579,20 +484,17 @@ static int lwip_app_retrieve_and_store_key (uint32_t flash_address)
   uint8_t align;
 
   // Retrieve the key
-  len = lwip_app_get_keys(LWIP_APP_ECHO_ENABLED);
-
-  // Convert the end of line characters if needed to suit the mbedtls parsing
-  lwip_app_convert_keys_eol();
+  len = lwip_app_get_keys();
 
   // Erase the page where the key is going to be stored
   res = MSC_ErasePage((uint32_t *)flash_address);
   if (res == 0) {
     // Ensure the data is a multiple of 4 and write it in the flash
     align = len % 4;
-    res = MSC_WriteWord((uint32_t *)flash_address, key_buf, len - align);
+    res = MSC_WriteWord((uint32_t *)flash_address, input_buf, len - align);
     if ((res == 0) && align) {
       // Write the remaining bytes
-      memcpy(&value, &key_buf[len - align], align);
+      memcpy(&value, &input_buf[len - align], align);
       res = MSC_WriteWord((uint32_t *)flash_address + (len-align)/4,
                           &value,
                           sizeof(value));
@@ -607,39 +509,22 @@ static int lwip_app_retrieve_and_store_key (uint32_t flash_address)
 
   return res;
 }
-#endif
 
 /**************************************************************************//**
  * Prompt the user to provide the MQTT configuration.
  *****************************************************************************/
 static void lwip_app_mqtt_config_prompt (void)
 {
+  long long port;
   ip_addr_t *ipaddr;
-  char buf[64];
+  char *ptr_end;
   RTOS_ERR err;
   uint16_t len;
-  err_t res;
+  int res;
   bool error;
 
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockBegin(sleepEM2);
-#endif
-
-#if LWIP_APP_TLS_ENABLED
-  printf("\nPress <Enter> within 5 seconds to load the TLS keys:\n");
-  wifi_cli_get_input_tmo(buf, 1/*Enter*/ + 1 /*NUL*/, 5, LWIP_APP_ECHO_ENABLED);
-
-  if (buf[0] == '\r' || buf[0] == '\n') {
-    printf("Enter the root CA:\n");
-    lwip_app_retrieve_and_store_key(CA_CERTIFICATE_ADDR);
-
-    printf("\nEnter the device certificate:\n");
-    lwip_app_retrieve_and_store_key(DEVICE_CERTIFICATE_ADDR);
-
-    printf("\nEnter the device key:\n");
-    lwip_app_retrieve_and_store_key(DEVICE_KEY_ADDR);
-
-  }
 #endif
 
   printf("\n");
@@ -647,10 +532,15 @@ static void lwip_app_mqtt_config_prompt (void)
   do {
     error = false;
     printf("Enter the MQTT broker address:\n");
-    wifi_cli_get_input(buf, sizeof(buf), LWIP_APP_ECHO_ENABLED);
+    res = console_get_line(input_buf, sizeof(input_buf));
+    if (res <= 0) {
+      // Input invalid
+      error = true;
+      continue;
+    }
 
     // Execute a DNS request
-    res = dns_gethostbyname(buf, &broker_ip, dns_found_cb, NULL);
+    res = dns_gethostbyname(input_buf, &mqtt_broker_ip, dns_found_cb, NULL);
     switch (res) {
       case ERR_OK:
         printf("\n");
@@ -665,10 +555,10 @@ static void lwip_app_mqtt_config_prompt (void)
                                          &err);
 
         if (ipaddr != NULL) {
-          printf("\nHostname %s resolved\n", buf);
-          broker_ip = *ipaddr;
+          printf("\nHostname %s resolved\n", input_buf);
+          mqtt_broker_ip = *ipaddr;
         } else {
-          printf("\nHostname %s resolution error\n", buf);
+          printf("\nHostname %s resolution error\n", input_buf);
           error = true;
         }
         break;
@@ -680,9 +570,253 @@ static void lwip_app_mqtt_config_prompt (void)
     }
   } while (error);
 
+  do {
+    error = false;
+    printf("Enter the MQTT port:\n");
+    res = console_get_line(input_buf, sizeof(input_buf));
+    if (res <= 0) {
+      // Input invalid
+      error = true;
+      continue;
+    }
+
+    port = strtoll(input_buf, &ptr_end, 0);
+    if (((ptr_end != NULL) && (*ptr_end != '\0'))
+        || (port > USHRT_MAX)){
+      error = true;
+    } else {
+      mqtt_broker_port = port;
+    }
+  } while (error);
+
+  do {
+    error = false;
+    printf("Enter the MQTT publish topic (%d-chars max):\n",
+           sizeof(mqtt_publish_topic)-1);
+    res = console_get_line(mqtt_publish_topic, sizeof(mqtt_publish_topic));
+    if (res <= 0) {
+      // Input invalid
+      error = true;
+      continue;
+    }
+  } while (error);
+
+  do {
+    error = false;
+    printf("Enter the MQTT subscribe topic (%d-chars max):\n",
+           sizeof(mqtt_subscribe_topic)-1);
+    res = console_get_line(mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic));
+    if (res <= 0) {
+      // Input invalid
+      error = true;
+      continue;
+    }
+  } while (error);
+
+  printf("Do you need to configure a user/password ? [y/n]\n");
+  console_get_line(input_buf, sizeof(input_buf));
+
+  if ((input_buf[0] == 'y') || (input_buf[0] == 'Y')) {
+    mqtt_is_session_protected = true;
+
+    do {
+      error = false;
+      printf("Enter the MQTT session username (%d-chars max):\n",
+             sizeof(mqtt_username)-1);
+
+      res = console_get_line(input_buf, sizeof(input_buf));
+      if ((res < 0)
+          || (res >= sizeof(mqtt_username)-1)) {
+        // Input invalid
+        error = true;
+      } else {
+        strcpy(mqtt_username, input_buf);
+      }
+    } while (error);
+
+    do {
+      error = false;
+      printf("Enter the MQTT session password (%d-chars max):\n",
+             sizeof(mqtt_password)-1);
+
+      res = console_get_line(input_buf, sizeof(input_buf));
+      if ((res < 0)
+          || (res >= sizeof(mqtt_password)-1)) {
+        // Input invalid
+        error = true;
+      } else {
+        strcpy(mqtt_password, input_buf);
+      }
+    } while (error);
+  }
+
+  printf("Is this an encrypted MQTT session ? [y/n]\n");
+  console_get_line(input_buf, sizeof(input_buf));
+
+  if ((input_buf[0] == 'y') || (input_buf[0] == 'Y')) {
+    mqtt_is_session_encrypted = true;
+
+    printf("\nPress <Enter> within 5 seconds to load the TLS keys:\n");
+    res = console_get_line_tmo(input_buf, sizeof(input_buf), 5);
+
+    if (res == 0 /*Empty input*/) {
+      printf("Enter the root CA authenticating the server:\n");
+      lwip_app_retrieve_and_store_key(CA_CERTIFICATE_ADDR);
+
+      printf("\nEnter the device certificate:\n");
+      lwip_app_retrieve_and_store_key(DEVICE_CERTIFICATE_ADDR);
+
+      printf("\nEnter the device key:\n");
+      lwip_app_retrieve_and_store_key(DEVICE_KEY_ADDR);
+    }
+
+  }
+
+  printf("\n");
+
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockEnd(sleepEM2);
 #endif
+}
+
+/**************************************************************************//**
+ * Initialize the MQTT resources.
+ *****************************************************************************/
+static int lwip_app_mqtt_initialization (void)
+{
+  int ret = 0;
+
+  // Create a new MQTT client
+  mqtt_client = mqtt_client_new();
+  if (mqtt_client == NULL) {
+    // Error
+    ret = -1;
+  }
+
+  if (mqtt_is_session_encrypted) {
+    // Create a TLS context for the client
+    mqtt_client_info.tls_config =
+        altcp_tls_create_config_client_2wayauth((uint8_t *)ca_certificate,
+                                                strlen(ca_certificate)+1,
+                                                (uint8_t *)device_key,
+                                                strlen(device_key)+1,
+                                                NULL,
+                                                0,
+                                                (uint8_t *)device_certificate,
+                                                strlen(device_certificate)+1);
+
+    if (mqtt_client_info.tls_config == NULL) {
+      // Error
+      ret = -1;
+    }
+  }
+
+  if (mqtt_is_session_protected) {
+    mqtt_client_info.client_user = mqtt_username;
+
+    // Update the password if defined by the user
+    if (strlen(mqtt_password) > 0) {
+      mqtt_client_info.client_pass = mqtt_password;
+    }
+  }
+
+  return ret;
+}
+
+/**************************************************************************//**
+ * Connect to a MQTT broker.
+ *****************************************************************************/
+static int lwip_app_mqtt_connection (void)
+{
+  uint8_t *ptr_ip = (uint8_t *)&mqtt_broker_ip.addr;
+  int ret = -1;
+  RTOS_ERR err;
+
+  if (mqtt_client != NULL) {
+    printf("Connecting to MQTT broker (%u.%u.%u.%u)...\r\n",
+           ptr_ip[0], ptr_ip[1], ptr_ip[2], ptr_ip[3]);
+
+    OSTaskSemSet(NULL, 0, &err);
+
+    LOCK_TCPIP_CORE();
+    // Connect to the MQTT broker
+    ret = mqtt_client_connect(mqtt_client,
+                              &mqtt_broker_ip,
+                              mqtt_broker_port,
+                              mqtt_connection_cb,
+                              NULL,
+                              &mqtt_client_info);
+    UNLOCK_TCPIP_CORE();
+
+    if (ret == 0) {
+      // Wait for the connection result
+      OSTaskSemPend(0, OS_OPT_PEND_BLOCKING, NULL, &err);
+    }
+  }
+
+  return ret;
+}
+
+/**************************************************************************//**
+ * Publish a MQTT message.
+ *****************************************************************************/
+static int lwip_app_mqtt_publish (char *publish_topic,
+                                  char *message,
+                                  u8_t qos,
+                                  u8_t retain,
+                                  mqtt_request_cb_t publish_cb)
+{
+  uint16_t len = 0;
+  err_t err;
+
+  if (message != NULL) {
+    len = strlen(message);
+  }
+
+  LOCK_TCPIP_CORE();
+  err = mqtt_publish(mqtt_client,
+                     publish_topic,
+                     (void *)message,
+                     len,
+                     qos,
+                     retain,
+                     publish_cb,
+                     NULL);
+  UNLOCK_TCPIP_CORE();
+
+  return err;
+}
+
+/**************************************************************************//**
+ * Subscribe to MQTT topic.
+ *****************************************************************************/
+static int lwip_app_mqtt_subscribe (char *subscribe_topic,
+                                    u8_t qos,
+                                    mqtt_request_cb_t subscribe_cb,
+                                    mqtt_incoming_publish_cb_t incoming_pub_cb,
+                                    mqtt_incoming_data_cb_t incoming_data_cb)
+{
+  err_t err = -1;
+
+  if ((subscribe_topic != NULL)
+      && (strlen(subscribe_topic) > 0)) {
+
+    LOCK_TCPIP_CORE();
+    mqtt_sub_unsub(mqtt_client,
+                   subscribe_topic,
+                   qos,
+                   subscribe_cb,
+                   NULL,
+                   1);
+    UNLOCK_TCPIP_CORE();
+
+    mqtt_set_inpub_callback(mqtt_client,
+                            incoming_pub_cb,
+                            incoming_data_cb,
+                            NULL);
+  }
+
+  return err;
 }
 
 /**************************************************************************//**
@@ -699,11 +833,15 @@ void lwip_button_handler (uint32_t button_id)
     // Toggle the associated LED as a life indicator
     BSP_LedToggle(button_id);
 
-    OSTaskQPost(&lwip_task_tcb,
-                (void *)button_id,
-                sizeof(button_id),
-                OS_OPT_POST_NONE,
-                &err);
+    // Notify the thread to publish a message if the client is connected
+    if ((mqtt_client != NULL)
+        && (mqtt_client_is_connected(mqtt_client))) {
+      OSTaskQPost(&lwip_task_tcb,
+                  (void *)button_id,
+                  sizeof(button_id),
+                  OS_OPT_POST_NONE,
+                  &err);
+    }
   }
 }
 
@@ -716,14 +854,10 @@ static void lwip_task(void *p_arg)
 {
   ip_addr_t prim_dns_addr = IPADDR4_INIT_BYTES(8, 8, 8, 8);
   ip_addr_t sec_dns_addr = IPADDR4_INIT_BYTES(8, 8, 4, 4);
-  uint8_t *ptr_ip = (uint8_t *)&broker_ip.addr;
-  char pub_event_topic[32];
-  char pub_data_topic[32];
-  char sub_topic[32];
-  char string[128];
+  void *evt_data = NULL;
+  char message[128];
   char tmp[32];
   int res, len;
-  uint32_t evt_button_id;
   OS_TICK tick, timeout = LWIP_APP_TX_TICK_PERIOD;
   RTOS_ERR err;
 
@@ -736,7 +870,11 @@ static void lwip_task(void *p_arg)
   }
 
   // Initialize the LwIP stack
-  netif_config();
+  res = netif_config();
+  if (res != 0) {
+    // Error, no need to go further
+    while(1);
+  }
 
 #ifdef LWIP_IPERF_SERVER
   lwiperf_start_tcp_server_default(lwip_iperf_results, 0);
@@ -747,6 +885,10 @@ static void lwip_task(void *p_arg)
   dns_setserver(0, &sec_dns_addr);
   dns_init();
 
+  // Initialize the console
+  res = console_init(&console_config);
+  LWIP_ASSERT("Console: init error", res == 0);
+
   // Prompt the user to configure the Wi-Fi connection
   lwip_app_wifi_config_prompt();
 
@@ -756,115 +898,76 @@ static void lwip_task(void *p_arg)
   // Prompt the user to configure the MQTT connection
   lwip_app_mqtt_config_prompt();
 
-  printf("Connecting to MQTT broker (%u.%u.%u.%u)...\r\n",
-         ptr_ip[0], ptr_ip[1], ptr_ip[2], ptr_ip[3]);
-
-  // Create a new MQTT client
-  mqtt_client = mqtt_client_new();
-  LWIP_ASSERT("MQTT: allocation error", mqtt_client);
-
-#if LWIP_APP_TLS_ENABLED
-  // Create a TLS context for the client
-  mqtt_client_info.tls_config =
-      altcp_tls_create_config_client_2wayauth((uint8_t *)ca_certificate,
-                                              strlen(ca_certificate)+1,
-                                              (uint8_t *)device_key,
-                                              strlen(device_key)+1,
-                                              NULL,
-                                              0,
-                                              (uint8_t *)device_certificate,
-                                              strlen(device_certificate)+1);
-  LWIP_ASSERT("TLS: context creation error", mqtt_client_info.tls_config != NULL);
-#endif
-
-  // Connect to the MQTT broker
-  res = mqtt_client_connect(mqtt_client,
-                            &broker_ip,
-                            LWIP_APP_MQTT_PORT,
-                            mqtt_connection_cb,
-                            NULL,
-                            &mqtt_client_info);
-  LWIP_ASSERT("MQTT: connection error\r\n", res == 0);
-
-  // Subscribe to a topic
-  snprintf(sub_topic,
-           sizeof(sub_topic),
-           "%s/leds/set",
-           mqtt_client_info.client_id);
-
-  mqtt_set_inpub_callback(mqtt_client,
-                          mqtt_incoming_publish_cb,
-                          mqtt_incoming_data_cb,
-                          NULL);
-
-  mqtt_sub_unsub(mqtt_client, sub_topic, 0 /*qos*/, mqtt_suscribe_cb, NULL, 1);
-
-  // Configure the publish topics
-  snprintf(pub_data_topic,
-           sizeof(pub_data_topic),
-           "%s/leds/state",
-           mqtt_client_info.client_id);
-
-  snprintf(pub_event_topic,
-           sizeof(pub_event_topic),
-           "%s/button/event",
-           mqtt_client_info.client_id);
+  // Initialize the MQTT client
+  res = lwip_app_mqtt_initialization();
+  LWIP_ASSERT("MQTT: init error", res == 0);
 
   // Infinite loop, publishing data periodically and on event
   for (;; ) {
-    evt_button_id = (uint32_t)OSTaskQPend(timeout,
-                                          OS_OPT_PEND_BLOCKING,
-                                          (uint16_t *)&len,
-                                          NULL,
-                                          &err);
+    if (mqtt_client_is_connected(mqtt_client) == 0) {
+      // MQTT client not connected, (re)connect to the broker
 
-    if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
-      // An event occurred, publish the source event
+      res = lwip_app_mqtt_connection();
+      if (res == 0) {
+        // Connection success
+        lwip_app_mqtt_subscribe(mqtt_subscribe_topic,
+                                0 /*qos*/,
+                                mqtt_subscribe_cb,
+                                mqtt_incoming_publish_cb,
+                                mqtt_incoming_data_cb);
 
-      //{"name":"BTN1"}
-      len = snprintf(string,
-                     sizeof(string),
-                     button_json_object,
-                     (uint16_t)evt_button_id);
-
-      mqtt_publish(mqtt_client,
-                   pub_event_topic,
-                   (void *)string,
-                   len,
-                   1 /*qos*/,
-                   0,
-                   mqtt_publish_cb,
-                   NULL);
-
-    } else if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_TIMEOUT) {
-      // Periodical TX, publish the LED states
-
-      //{"leds":[{"name":"LED0","state":"Off"},{"name":"LED1","state":"On"}]}
-      len = snprintf(string, sizeof(string), "{\"leds\":[");
-      for (int i=0; i<BSP_NO_OF_LEDS; i++) {
-        len += snprintf(tmp,
-                 sizeof(tmp),
-                 led_json_object,
-                 i,
-                 BSP_LedGet(i) ? "On" : "Off");
-        strcat(tmp, ","); len++;
-        strcat(string, tmp);
+        // Compute the next publishing period
+        tick = OSTimeGet(&err);
+        timeout = LWIP_APP_TX_TICK_PERIOD - (tick % LWIP_APP_TX_TICK_PERIOD);
+      } else {
+        // Wait a while before trying to reconnect
+        timeout = 1000;
       }
-      strcpy(&string[len-1] /*Overwrite the last comma*/, "]}"); len++ /*-1 + 2*/;
+    } else {
+      // MQTT client connected, publish some data
 
-      mqtt_publish(mqtt_client,
-                   pub_data_topic,
-                   (void *)string,
-                   len,
-                   1 /*qos*/,
-                   0,
-                   mqtt_publish_cb,
-                   NULL);
+      if (evt_data == NULL) {
+        // Periodical TX, prepare a message containing the LED states
+
+        //{"leds":[{"name":"LED0","state":"Off"},{"name":"LED1","state":"On"}]}
+        len = snprintf(message, sizeof(message), "{\"leds\":[");
+        for (int i=0; i<BSP_NO_OF_LEDS; i++) {
+          len += snprintf(tmp,
+                          sizeof(tmp),
+                          led_json_object,
+                          i,
+                          BSP_LedGet(i) ? "On" : "Off");
+          strcat(tmp, ","); len++;
+          strcat(message, tmp);
+        }
+        strcpy(&message[len-1] /*Overwrite the last comma*/, "]}"); len++ /*-1 + 2*/;
+      } else {
+        // An event occurred, prepare a message containing the source event
+
+        //{"name":"BTN1"}
+        len = snprintf(message,
+                       sizeof(message),
+                       button_json_object,
+                       (uint16_t)((uint32_t)evt_data));
+      }
+
+      // Publish the prepared message
+      lwip_app_mqtt_publish(mqtt_publish_topic, message,
+                            1 /*qos*/,
+                            0 /*retain*/,
+                            mqtt_publish_cb);
 
       // Compute the next publishing period
       tick = OSTimeGet(&err);
       timeout = LWIP_APP_TX_TICK_PERIOD - (tick % LWIP_APP_TX_TICK_PERIOD);
     }
+
+    // Wait for next event or timeout
+    evt_data = OSTaskQPend(timeout,
+                           OS_OPT_PEND_BLOCKING,
+                           (uint16_t *)&len,
+                           NULL,
+                           &err);
   }
 }
 /**************************************************************************//**
@@ -931,12 +1034,14 @@ sl_status_t lwip_set_ap_link_down(void)
 /***************************************************************************//**
  * Initializes LwIP network interface.
  ******************************************************************************/
-static void netif_config(void)
+static int netif_config(void)
 {
   sl_status_t status;
   ip_addr_t sta_ipaddr, ap_ipaddr;
   ip_addr_t sta_netmask, ap_netmask;
   ip_addr_t sta_gw, ap_gw;
+  int ret = -1;
+
   if (use_dhcp_client) {
     ip_addr_set_zero_ip4(&sta_ipaddr);
     ip_addr_set_zero_ip4(&sta_netmask);
@@ -962,6 +1067,7 @@ static void netif_config(void)
              wifi.firmware_minor,
              wifi.firmware_build);
       printf("WF200 initialization successful\r\n");
+      ret = 0;
       break;
     case SL_STATUS_WIFI_INVALID_KEY:
       printf("Failed to init WF200: Firmware keyset invalid\r\n");
@@ -989,6 +1095,8 @@ static void netif_config(void)
 
   // Registers the default network interface.
   netif_set_default(&sta_netif);
+
+  return ret;
 }
 
 /**************************************************************************//**

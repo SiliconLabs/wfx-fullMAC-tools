@@ -40,7 +40,7 @@
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2026396169" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
@@ -182,8 +182,8 @@
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.960391177" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.13917865" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
@@ -324,8 +324,8 @@
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration.h&quot;"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.287923225" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>

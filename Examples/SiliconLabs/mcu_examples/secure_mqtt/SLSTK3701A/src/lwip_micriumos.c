@@ -53,6 +53,7 @@
 #include "lwip/ip_addr.h"
 #include "lwip/apps/lwiperf.h"
 #endif
+#include "trng.h"
 #include "console.h"
 #include "dhcp_client.h"
 #include "dhcp_server.h"
@@ -694,6 +695,13 @@ static int lwip_app_mqtt_initialization (void)
   }
 
   if (mqtt_is_session_encrypted) {
+#ifdef SLEEP_ENABLED
+    // Ensure the TRNG peripheral is started before creating the context.
+    // Indeed it is stopped when going to sleep (EM2).
+    mbedtls_trng_context trng_ctx;
+    mbedtls_trng_init(&trng_ctx);
+#endif
+
     // Create a TLS context for the client
     mqtt_client_info.tls_config =
         altcp_tls_create_config_client_2wayauth((uint8_t *)ca_certificate,

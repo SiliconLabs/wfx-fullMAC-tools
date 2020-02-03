@@ -3,7 +3,7 @@
 The purpose of this application is to provide an example of secure MQTT client implementation using a WFx chip and the FMAC driver.
 The lwIP stack and Mbed TLS libraries being already used by WFx projects, the natural choice has been to use the MQTT client implementation
 provided by the lwIP stack and the TLS layer implementation provided by Mbed TLS. A comforting reason is that Mbed TLS is intended to be easily 
-integrated to the LwIP stack.
+integrated to the lwIP stack.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ One of the supported platforms listed below is required to run the example:
   [**WFM200S Wi-Fi® Expansion Kit (SLEXP8023A)**](https://www.silabs.com/products/development-tools/wireless/wi-fi/wfm200-expansion-kit)
 * [**WGM160P Wi-Fi® Module Starter Kit**](https://www.silabs.com/products/development-tools/wireless/wi-fi/wgm160p-wifi-module-starter-kit)
 
-Additionally a PC is required to configure the board and it can also be used to load a binary file on the board, to compile the Simplicity Studio project or to run a local MQTT broker.
+Additionally, a PC is required to configure the board and it can also be used to load a binary file on the board, to compile the Simplicity Studio project or to run a local MQTT broker.
 
 ### Software Prerequisites
 
@@ -60,9 +60,9 @@ containing the name of LED to change the state (i.e. `LED0` or `LED1`) and the w
 
 ## TLS Security
 
-The application is expecting a double authentication between the client (i.e. the device) and the server (i.e. the MQTT broker) which is the most secured and the most used by cloud services,
-which why the certificate of a Certification Authority (CA), a device certificate signed by the CA and a device private key are requested during the start. The expected format for these
-information is the x509 PEM format.
+The application is expecting a double authentication between the client (i.e. the device) and the server (i.e. the MQTT broker) which is the most secured and the most used by cloud services.
+This is why the certificate of a Certification Authority (CA) signing the server certificate, a device certificate signed by your own CA and a device private key are requested during the start.
+The expected format for these information is the x509 PEM format.
 
 These information can either be:
 
@@ -75,7 +75,8 @@ running a MQTT broker on your PC. Please refer to the [**Mosquitto Broker**](#mo
 
 > **These certificates and keys are provided only for test and debug on a local environment, and should not be used in production or outside of this example.**
 
-## Mosquitto Broker
+<br>
+## Local Mosquitto Broker
 
 A MQTT broker can be easily launched on your computer by using for instance the Mosquitto broker.
 
@@ -122,4 +123,161 @@ to this topic, in this case the MQTT client monitoring the traffic.
 **Windows:** `& 'C:\Program Files\mosquitto\mosquitto_pub.exe' -h localhost -t "test/broker" -m "Hello World!" --cafile .\ca.crt --cert .\mosquitto_client.crt --key .\mosquitto_client.key`
 
 **Linux:** `mosquitto_pub -h localhost -t "test/broker" -m "Hello World!" --cafile .\ca.crt --cert .\mosquitto_client.crt --key .\mosquitto_client.key`
+
+<br>
+## Azure IoT Hub
+
+> To test this example with an Azure IoT Hub server, an Azure IoT Hub account is required. First create an account if you don't already have one.
+
+### Configuration
+
+#### CA Certificate
+
+The first thing to do, if it is not already done, is to add your Certification Authority (CA) certificate to your Azure IoT Hub account.
+This certificate will be used to authenticate the device certificate, itself signed by this CA certificate.
+
+If you don't already have a CA certificate, you can either:
+
+* Create one from a known certification authority (e.g. [**Let's Encrypt**](https://letsencrypt.org/)). This option is recommended
+in the case where the device certificate will be sent to third parties. Indeed, having a CA certificate, itself signed by a well known
+certification authority enforces the trust.
+* Create one yourself using the [**OpenSSL Toolkit**](https://www.openssl.org/) for instance. This option is sufficient if the device
+certificate is used by "internal" services. The Azure IoT Hub service can be considered as "internal" since you manage the CA certificate
+used to authenticate the devices.
+
+The instructions below describe how to add your CA certificate to a Azure IoT Hub account:
+
+* Click on **[Add]** from the **[Settings -> Certificates]** page.
+* Enter a certificate name.
+* Retrieve the CA certificate from your filesystem.
+* Click on **[Save]**.
+
+Now that the CA certificate is added, it should appear in the **[Settings -> Certificates]** page with an **_Unverified_** status.
+Azure IoT Hub service requires a *Proof a Possession* of the CA certificate to change the status to **_Verified_**. This consist
+into challenging you to create a dummy certificate signed by this CA certificate to make sure you have total access to this
+CA certificate and private key.
+
+To realize the *Proof of Possession* follow the instructions below:
+
+* Select your CA certificate in the **[Settings -> Certificates]** page.
+* Click on **[Generate Verification Code]** in the Certificate Details window.
+* Copy the Verification Code.
+* Create a new key
+* Create a signature request to sign this new key by the CA certificate and enter the Verification Code generated by Azure IoT Hub as Common Name of this request.
+* Create the verification certificate with the signature request.
+* Upload the verification certificate from the Certificate Details window.
+* Finally click on **[Verify]**.
+
+Your CA certificate status should change to a **_Verified_** status.
+
+#### Device Creation
+
+* Click on **[New]** from the **[Explorers -> IoT devices]** page.
+* Enter a Device ID.
+
+> Take care to enter a Device ID corresponding to the Common Name field of the device certificate.
+
+* Select **[X.509 CA Signed]**
+* Finalize the device creation by clicking on **[Save]**.
+
+### Device Certificate/Key Creation
+
+As for the CA certificate, the Azure IoT Hub let you manage the generation of device certificates and private keys,
+the [**OpenSSL Toolkit**](https://www.openssl.org/) provides the means to generate them.
+
+### MQTT communication
+
+| Name             | Value                                      | Comment                                                |
+|------------------|--------------------------------------------|--------------------------------------------------------|
+| Broker address   | xxxxxxxxxxxx.azure-devices.net             | Imposed                                                |
+| Port             | 8883                                       | Imposed                                                |
+| Username         | xxxxxxxxxxxx.azure-devices.net/_DeviceId_  | Imposed, e.g. xxxxxxxxxxxx.azure-devices.net/efm32gg11 |
+| Password         |                                            | Empty                                                  |
+| Publish Topic    | devices/_DeviceId_/messages/events/        | Imposed, e.g. devices/efm32gg11/messages/events/       |
+| Subscribe Topic  | devices/_DeviceId_/messages/devicebound/#  | Imposed, e.g. devices/efm32gg11/messages/devicebound/# |
+
+<br>
+## AWS IoT Core Service
+
+> To test this example with an AWS server, an AWS account is required. First create an account if you don't already have one.
+
+### Configuration
+
+#### Policy Creation
+
+The policies define the actions allowed or denied to a device (aka Thing in AWS) or a group of devices.
+
+Follow the instructions below to create a policy:
+
+* Click on **[Create]** in **[Secure -> Policies]** page of the IoT Core Service.
+* Enter a name describing the policy.
+* Add the operation(s) you want to allow or deny. AWS autofills the ARN field with a template, adjust it to fit your needs.
+* Finalize the policy creation by clicking on **[Create]**.
+
+Here is an example of what a policy looks like:
+
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iot:Connect",
+      "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:client/${iot:Connection.Thing.ThingName}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Publish",
+      "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topic/${iot:Connection.Thing.ThingName}/data"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Subscribe",
+      "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topicfilter/${iot:Connection.Thing.ThingName}/rx"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Receive",
+      "Resource": "arn:aws:iot:eu-west-3:xxxxxxxxxxxx:topic/${iot:Connection.Thing.ThingName}/rx"
+    }
+  ]
+}
+```
+
+This policy allows only MQTT clients, with an Id corresponding to an existing thing name, to:
+
+* connect to the MQTT broker.
+* publish data on the topic **_ThingName_/data**.
+* subscribe and allow to receive messages from the topic **_ThingName_/data**.
+
+
+#### Thing Creation
+
+* Click on **[Create]** in **[Manage -> Things]** page and **[Create a single thing]** in the next page. Only a name is required in this menu.
+* Generate the device certificate and keys by selecting the option suiting your use case.
+
+> You can either let AWS generate them, this option is the easiest and quickest especially if you don't have the knowledges about certificate and key generation.
+Other options are useful if you already have a device private key, or even your own Certification Authority (CA) allow you to manage all the sensitive information.
+These options will require the use of the [**OpenSSL Toolkit**](https://www.openssl.org/).
+
+* **[Download]** the generate certificate and private key from the resulting page.
+* **[Activate]** the device from the same page.
+* **[Attach a policy]** (without it the thing is basically useless).
+* Finalize the thing creation by clicking on **[Register Thing]**.
+
+### AWS certificate
+
+The Amazon server certificate (**Amazon Root CA 1**) is necessary to the device the authenticate the server.
+This certificate can be retrieve at [**https://www.amazontrust.com/repository/**](https://www.amazontrust.com/repository/).
+
+### MQTT communication
+
+| Name             | Value                                                                       | Comment                                                |
+|------------------|-----------------------------------------------------------------------------|--------------------------------------------------------|
+| Broker address   | Available in the **[Settings -> Custom endpoint]** section of Azure IoT Hub | Imposed                                                |
+| Port             | 8883                                                                        | Imposed                                                |
+| Username         | None                                                                        |                                                        |
+| Password         | None                                                                        |                                                        |
+| Publish Topic    | Depends on the policies attached to the thing                               | e.g. efm32gg11/data                                    |
+| Subscribe Topic  | Depends on the policies attached to the thing                               | e.g. efm32gg11/rx                                      |
  

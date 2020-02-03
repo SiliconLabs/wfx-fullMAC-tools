@@ -38,9 +38,8 @@
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
-									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
@@ -171,9 +170,8 @@
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
-									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
 									<listOptionValue builtIn="false" value="SLEEP_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
@@ -339,12 +337,11 @@
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="SLEXP802X=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=256"/>
-									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
-									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
-									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
+									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=15"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 								</option>

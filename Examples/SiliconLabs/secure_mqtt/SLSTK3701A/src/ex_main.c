@@ -38,10 +38,8 @@
 #include "wfx_task.h"
 #include "wfx_host.h"
 #include "lwipopts.h"
-#if LWIP_APP_TLS_ENABLED
 #include <mbedtls/threading.h>
 #include MBEDTLS_CONFIG_FILE
-#endif
 #include "sleep.h"
 #define  EX_MAIN_START_TASK_PRIO              30u
 #define  EX_MAIN_START_TASK_STK_SIZE         512u
@@ -121,10 +119,8 @@ int  main(void)
   OS_TRACE_INIT(); // Initialize trace if enabled
   OSInit(&err);    // Initialize the Kernel.
 
-#if LWIP_APP_TLS_ENABLED
   // Enable mbedtls Micrium OS support
   THREADING_setup();
-#endif
 
   APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 

@@ -1,28 +1,34 @@
-/**************************************************************************//**
-* @file console.h
-* @brief Console management based on Micrium OS + Shell
-* @version 1.0.0
-******************************************************************************
-* # License
-* <b>Copyright 2018 Silicon Labs, Inc. http://www.silabs.com</b>
-*******************************************************************************
-*
-* This file is licensed under the Silabs License Agreement. See the file
-* "Silabs_License_Agreement.txt" for details. Before using this software for
-* any purpose, you must agree to the terms of that agreement.
-*
-******************************************************************************/
-#ifndef CONSOLE_H
-#define CONSOLE_H
+
+#ifndef CONSOLE_H_
+#define CONSOLE_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void console_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo);
-void console_get_input_tmo(char *buf, uint32_t size, uint8_t timeout_sec, CPU_BOOLEAN echo);
+#include <stdbool.h>
+
+typedef bool (*console_is_rx_end_cb_t)(char *buffer_pos);
+
+typedef struct console_config_s {
+  USART_TypeDef *usart_instance;
+  DMADRV_PeripheralSignal_t dma_peripheral_signal;
+  uint8_t echo;
+} console_config_t;
+
+int console_init(console_config_t *config);
+int console_get_line(char *buffer, uint32_t buffer_size);
+int console_get_line_tmo(char *buffer, uint32_t buffer_size, uint32_t timeout);
+int console_get_lines(char *buffer,
+                      uint32_t buffer_size,
+                      console_is_rx_end_cb_t rx_end_cb);
+int console_get_lines_tmo (char *buffer,
+                           uint32_t buffer_size,
+                           uint32_t timeout,
+                           console_is_rx_end_cb_t rx_end_cb);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // CONSOLE_H
+
+#endif //CONSOLE_H_

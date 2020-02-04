@@ -2,8 +2,9 @@
 
 This repository contains tools and examples to use the **WFx Wi-Fi FMAC driver**
 (FMAC standing for Full-MAC). The WF200 is a Wi-Fi transceiver and this code is
-meant to be run with the WF200 Wi-Fi Expansion Kit. See [this page](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit)
-for details on the WF200 Wi-Fi Expansion Kit.
+meant to be run with the [WF200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit),
+the [WFM200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wfm200-expansion-kit) and also the
+[WGM160P Wi-Fi Module Starter Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wgm160p-wifi-module-starter-kit).
 
 ## Repository content
 

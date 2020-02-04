@@ -64,11 +64,12 @@
 static int netif_config(void);
 static int lwip_app_mqtt_connection(void);
 
-#define LWIP_TASK_PRIO              23u
-#define LWIP_TASK_STK_SIZE         800u
+#define LWIP_TASK_PRIO                        23u
+#define LWIP_TASK_STK_SIZE                   800u
 
-#define LWIP_APP_TX_TICK_PERIOD   1000u
-#define LWIP_APP_ECHO_ENABLED        1u
+#define LWIP_APP_TX_TICK_PERIOD             1000u
+#define LWIP_APP_ECHO_ENABLED                  1u
+#define LWIP_APP_MQTT_KEEPALIVE_INTERVAL      10u // Seconds
 
 /// LwIP station network interface structure.
 struct netif sta_netif;
@@ -150,9 +151,10 @@ static char mqtt_subscribe_topic[128];
 static bool mqtt_is_session_encrypted = true;
 static bool mqtt_is_session_protected = false;
 static mqtt_client_t *mqtt_client = NULL;
+static char mqtt_client_id[32];
+static struct mqtt_connect_client_info_t mqtt_client_info;
 
 #ifdef EFM32GG11B820F2048GM64
-static const char device_name[32] = "wgm160p";
 static const char button_json_object[] = "{\"name\":\"PB%u\"}";
 static console_config_t console_config = {
   .usart_instance = USART0,
@@ -160,7 +162,6 @@ static console_config_t console_config = {
   .echo = 1
 };
 #else
-static const char device_name[32] = "efm32gg11";
 static const char button_json_object[] = "{\"name\":\"BTN%u\"}";
 static console_config_t console_config = {
   .usart_instance = USART4,
@@ -170,14 +171,6 @@ static console_config_t console_config = {
 #endif
 
 static const char led_json_object[] = "{\"name\":\"LED%u\",\"state\":\"%s\"}";
-
-static struct mqtt_connect_client_info_t mqtt_client_info = {
-  device_name,
-  NULL, NULL,
-  10 /*Keep alive (seconds)*/,
-  NULL, NULL, 0, 0,
-  NULL
-};
 
 /// TLS
 #define CA_CERTIFICATE_ADDR       (FLASH_BASE + FLASH_SIZE - 3*FLASH_PAGE_SIZE)
@@ -589,6 +582,18 @@ static void lwip_app_mqtt_config_prompt (void)
 
   do {
     error = false;
+    printf("Enter the MQTT client Id (%d-chars max):\n",
+           sizeof(mqtt_client_id)-1);
+    res = console_get_line(mqtt_client_id, sizeof(mqtt_client_id));
+    if (res <= 0) {
+      // Input invalid
+      error = true;
+      continue;
+    }
+  } while (error);
+
+  do {
+    error = false;
     printf("Enter the MQTT publish topic (%d-chars max):\n",
            sizeof(mqtt_publish_topic)-1);
     res = console_get_line(mqtt_publish_topic, sizeof(mqtt_publish_topic));
@@ -691,6 +696,19 @@ static int lwip_app_mqtt_initialization (void)
     ret = -1;
   }
 
+  // Add MQTT context information
+  mqtt_client_info.client_id = mqtt_client_id;
+  mqtt_client_info.keep_alive = LWIP_APP_MQTT_KEEPALIVE_INTERVAL;
+
+  if (mqtt_is_session_protected) {
+    mqtt_client_info.client_user = mqtt_username;
+
+    // Update the password if defined by the user
+    if (strlen(mqtt_password) > 0) {
+      mqtt_client_info.client_pass = mqtt_password;
+    }
+  }
+
   if (mqtt_is_session_encrypted) {
 #ifdef SLEEP_ENABLED
     // Ensure the TRNG peripheral is started before creating the context.
@@ -713,15 +731,6 @@ static int lwip_app_mqtt_initialization (void)
     if (mqtt_client_info.tls_config == NULL) {
       // Error
       ret = -1;
-    }
-  }
-
-  if (mqtt_is_session_protected) {
-    mqtt_client_info.client_user = mqtt_username;
-
-    // Update the password if defined by the user
-    if (strlen(mqtt_password) > 0) {
-      mqtt_client_info.client_pass = mqtt_password;
     }
   }
 

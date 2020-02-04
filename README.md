@@ -2,17 +2,17 @@
 
 This repository contains tools and examples to use the **WFx Wi-Fi FMAC driver**
 (FMAC standing for Full-MAC). The WF200 is a Wi-Fi transceiver and this code is
-meant to be run with the WF200 Wi-Fi Expansion Kit. See [this page](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit)
-for details on the WF200 Wi-Fi Expansion Kit.
+meant to be run with the [WF200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit),
+the [WFM200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wfm200-expansion-kit) and also the
+[WGM160P Wi-Fi Module Starter Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wgm160p-wifi-module-starter-kit).
 
 ## Repository content
 
 * Examples: contains applications using the FMAC driver on different platforms
   * Silicon Labs MCU
-    * SLSTK3701A_micriumos_lwip_wfx200: Commissioning Example using Micrium OS, LwIP and the combo mode running
-    on the EFM32 Giant Gecko GG11 Starter Kit (more information about the example [here](./Examples/SiliconLabs/SLSTK3701A_micriumos_lwip_wfx200/README.md))
-    * WGM160P_micriumos_lwip_wfx200: Commissioning Example using Micrium OS, LwIP and the combo mode running
-    on the WGM160P Wi-Fi Module Radio Board (more information about the example [here](./Examples/SiliconLabs/WGM160P_micriumos_lwip_wfx200/README.md))
+    * commissioning: Commissioning Example using Micrium OS, LwIP and the combo mode running
+    on the EFM32 Giant Gecko GG11 Starter Kit (more information about the example [here](./Examples/SiliconLabs/commissioning/SLSTK3701A/README.md))
+    and on the WGM160P Wi-Fi Module Radio Board (more information about the example [here](./Examples/SiliconLabs/commissioning/WGM160P/README.md))
 	* secure_mqtt: MQTT over TLS example using Micrium OS, LwIP (MQTT, DHCP, DNS clients), Mbed TLS running
     on the EFM32 Giant Gecko GG11 Starter Kit and WGM160P (more information about the example [here](./Examples/SiliconLabs/secure_mqtt/README.md))
   * STM32

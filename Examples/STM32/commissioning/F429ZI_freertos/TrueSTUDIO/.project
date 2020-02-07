@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>WF200_driver_F429ZI_FreeRTOS</name>
+	<name>F429ZI_freertos</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -209,172 +209,172 @@
 		<link>
 			<name>Drivers/SL_WFX_Driver/sl_wfx.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/wfx_fmac_driver/sl_wfx.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver/sl_wfx.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/SL_WFX_Driver/sl_wfx_bus.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/wfx_fmac_driver/bus/sl_wfx_bus.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver/bus/sl_wfx_bus.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/SL_WFX_Driver/sl_wfx_bus_sdio.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/SL_WFX_Driver/sl_wfx_bus_spi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver/bus/sl_wfx_bus_spi.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_cortex.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma_ex.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_flash.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_flash_ex.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_flash_ramfunc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_gpio.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_mmc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_mmc.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_mmc.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pcd.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pcd_ex.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pwr.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pwr_ex.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rcc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rcc_ex.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_spi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim_ex.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_ll_sdmmc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_sdmmc.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_sdmmc.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_ll_usb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/cmsis_os.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/croutine.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/croutine.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/croutine.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/event_groups.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/heap_4.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/list.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/list.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/list.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/port.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/queue.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/queue.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/queue.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/tasks.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/tasks.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/tasks.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/timers.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/timers.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/FreeRTOS/Source/timers.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api</name>
@@ -389,7 +389,7 @@
 		<link>
 			<name>Middlewares/LwIP/core</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/core</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/core</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/netif</name>
@@ -399,42 +399,42 @@
 		<link>
 			<name>Middlewares/LwIP/api/api_lib.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/api/api_lib.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/api/api_lib.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/api_msg.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/api/api_msg.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/api/api_msg.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/err.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/api/err.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/api/err.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/netbuf.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/api/netbuf.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/api/netbuf.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/netdb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/api/netdb.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/api/netdb.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/netifapi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/api/netifapi.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/api/netifapi.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/sockets.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/api/sockets.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/api/sockets.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/tcpip.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/api/tcpip.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/api/tcpip.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/apps/httpd</name>
@@ -444,27 +444,27 @@
 		<link>
 			<name>Middlewares/LwIP/apps/lwiperf.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/apps/lwiperf/lwiperf.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/apps/lwiperf/lwiperf.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/netif/ethernet.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/netif/ethernet.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/netif/ethernet.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/netif/sys_arch.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/system/OS/sys_arch.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/system/OS/sys_arch.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/apps/httpd/fs.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/apps/http/fs.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/apps/http/fs.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/apps/httpd/httpd.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/Third_Party/LwIP/src/apps/http/httpd.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/LwIP/src/apps/http/httpd.c</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>

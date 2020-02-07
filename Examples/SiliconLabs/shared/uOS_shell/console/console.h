@@ -6,6 +6,9 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+#include "dmadrv.h"
+
 typedef bool (*console_is_rx_end_cb_t)(char *buffer_pos);
 
 typedef struct console_config_s {

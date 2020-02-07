@@ -19,6 +19,11 @@
 
 #include "sl_wfx_constants.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /* High level WF200 bus API */
 sl_status_t sl_wfx_init_bus(void);
 
@@ -48,5 +53,9 @@ sl_status_t sl_wfx_apb_write_32(uint32_t address, uint32_t value_in);
 sl_status_t sl_wfx_apb_read_32(uint32_t address, uint32_t *value_out);
 
 sl_status_t sl_wfx_apb_write(uint32_t address, const void *buffer, uint32_t length);
+
+#ifdef __cplusplus
+} /*extern "C" */
+#endif
 
 #endif // SL_WFX_BUS_H

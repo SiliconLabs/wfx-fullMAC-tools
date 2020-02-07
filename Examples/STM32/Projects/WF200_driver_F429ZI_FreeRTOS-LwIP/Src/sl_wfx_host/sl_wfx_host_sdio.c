@@ -14,10 +14,6 @@
  * limitations under the License.
  *****************************************************************************/
 
-/**************************************************************************//**
- * SDIO interface implementation: STM32F4 + FreeRTOS
- *****************************************************************************/
-
 #include "cmsis_os.h"
 #include "sl_wfx.h"
 #include "stm32f4xx_hal.h"
@@ -35,7 +31,7 @@
 
 static void MX_SDIO_Init(void);
 static void MX_SDIO_DeInit(void);
-static uint32_t sdio_optimal_block_size( uint16_t buffer_size );
+static uint32_t sdio_optimal_block_size(uint16_t buffer_size);
 static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx);
 extern void HAL_SDIO_MspInit(void);
 
@@ -43,10 +39,10 @@ DMA_HandleTypeDef hdma_sdio_rx;
 DMA_HandleTypeDef hdma_sdio_tx;
 SemaphoreHandle_t sdioDMASemaphore;
    
-sl_status_t sl_wfx_host_sdio_enable_high_speed_mode( void )
+sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)
 {
   SDIO_InitTypeDef Init;
-  Init.ClockEdge           = SDIO_CLOCK_EDGE_RISING;
+  Init.ClockEdge           = SDIO_CLOCK_EDGE_FALLING;
   Init.ClockBypass         = SDIO_CLOCK_BYPASS_DISABLE;
   Init.ClockPowerSave      = SDIO_CLOCK_POWER_SAVE_DISABLE;
   Init.BusWide             = SDIO_BUS_WIDE_4B;
@@ -55,10 +51,10 @@ sl_status_t sl_wfx_host_sdio_enable_high_speed_mode( void )
 
   SDIO_Init(SDIO, Init);
   SDIO_PowerState_ON(SDIO);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_init_bus( void )
+sl_status_t sl_wfx_host_init_bus(void)
 {
   uint32_t errorstate = SDMMC_ERROR_NONE;
   
@@ -71,35 +67,35 @@ sl_status_t sl_wfx_host_init_bus( void )
   errorstate = SDMMC_CmdGoIdleState(SDIO);
   if(errorstate != SDMMC_ERROR_NONE)
   {
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
-  sl_wfx_host_wait(1); //Mandatory because wf200 reply to cmd0,
+  HAL_Delay(1); //Mandatory because wf200 reply to cmd0,
   /* CMD8 */
   errorstate = SDMMC_CmdOperCond(SDIO);
   if(errorstate != SDMMC_ERROR_NONE)
   {  
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   /* CMD3 */
   errorstate = SDMMC_CmdSetRelAdd(SDIO, NULL);
   if(errorstate != SDMMC_ERROR_NONE)
   {  
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   /* CMD7 */
   errorstate = SDMMC_CmdSelDesel(SDIO, 0x00010000);
   if(errorstate != SDMMC_ERROR_NONE)
   {  
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_deinit_bus( void )
+sl_status_t sl_wfx_host_deinit_bus(void)
 {
   MX_SDIO_DeInit();
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx)
@@ -135,7 +131,11 @@ static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx)
 }
 
 /* Command 52 */
-sl_status_t sl_wfx_host_sdio_transfer_cmd52( sl_wfx_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer ){
+sl_status_t sl_wfx_host_sdio_transfer_cmd52(sl_wfx_host_bus_transfer_type_t type,
+                                            uint8_t function,
+                                            uint32_t address,
+                                            uint8_t* buffer)
+{
   uint32_t status;
   SDIO_CmdInitTypeDef command;
   if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE )
@@ -166,14 +166,14 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd52( sl_wfx_host_bus_tranfer_type_t type
       {
         *buffer = response_flags & 0xFF;
       }else{
-        return SL_ERROR;
+        return SL_STATUS_FAIL;
       }
     }else{
-      return SL_ERROR;
+      return SL_STATUS_FAIL;
     }
     xSemaphoreGive(sdioDMASemaphore); 
   }
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 static void SDIO_transmit_cplt(DMA_HandleTypeDef *hdma)
@@ -189,23 +189,26 @@ static void SDIO_receive_cplt(DMA_HandleTypeDef *hdma)
 }
 
 /* Command 53 */
-sl_status_t sl_wfx_host_sdio_read_cmd53( uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length )
+sl_status_t sl_wfx_host_sdio_read_cmd53(uint8_t function,
+                                        uint32_t address,
+                                        uint8_t* buffer,
+                                        uint16_t buffer_length)
 {    
   SDIO_CmdInitTypeDef command;
   SDIO_DataInitTypeDef config;
   
   SDIO->DCTRL = 0U;  
   
-  if( buffer_length >= SL_WFX_SDIO_BLOCK_MODE_THRESHOLD )
+  if(buffer_length >= SL_WFX_SDIO_BLOCK_MODE_THRESHOLD)
   {
     uint32_t block_count = ( buffer_length / SL_WFX_SDIO_BLOCK_SIZE ) + ( ( ( buffer_length % SL_WFX_SDIO_BLOCK_SIZE ) == 0 ) ? 0 : 1 );
-    command.Argument = SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT( block_count );
+    command.Argument = SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT(block_count);
     config.TransferMode  = SDIO_TRANSFER_MODE_BLOCK;
     config.DataBlockSize = sdio_optimal_block_size(SL_WFX_SDIO_BLOCK_SIZE);
   }
   else
   {
-    command.Argument = SDIO_CMD53_COUNT( buffer_length );
+    command.Argument = SDIO_CMD53_COUNT(buffer_length);
     config.TransferMode  = SDIO_TRANSFER_MODE_STREAM;
     config.DataBlockSize = sdio_optimal_block_size(buffer_length);
   }
@@ -234,12 +237,15 @@ sl_status_t sl_wfx_host_sdio_read_cmd53( uint8_t function, uint32_t address, uin
   uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
   if(((response_flags>> 8) & 0xFF) != 0x20)
   {
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_sdio_write_cmd53( uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length )
+sl_status_t sl_wfx_host_sdio_write_cmd53(uint8_t function, 
+                                         uint32_t address,
+                                         uint8_t* buffer,
+                                         uint16_t buffer_length)
 {
   SDIO_CmdInitTypeDef command;
   SDIO_DataInitTypeDef config;
@@ -247,16 +253,16 @@ sl_status_t sl_wfx_host_sdio_write_cmd53( uint8_t function, uint32_t address, ui
   SDIO->DCTRL = 0U;  
   hdma_sdio_tx.XferCpltCallback = SDIO_transmit_cplt;
 
-  if( buffer_length >= SL_WFX_SDIO_BLOCK_MODE_THRESHOLD )
+  if(buffer_length >= SL_WFX_SDIO_BLOCK_MODE_THRESHOLD)
   {
     uint32_t block_count = ( buffer_length / SL_WFX_SDIO_BLOCK_SIZE ) + ( ( ( buffer_length % SL_WFX_SDIO_BLOCK_SIZE ) == 0 ) ? 0 : 1 );
-    command.Argument = SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT( block_count );
+    command.Argument = SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT(block_count);
     config.TransferMode  = SDIO_TRANSFER_MODE_BLOCK;
     config.DataBlockSize = sdio_optimal_block_size(SL_WFX_SDIO_BLOCK_SIZE);
   }
   else
   {
-    command.Argument = SDIO_CMD53_COUNT( buffer_length );
+    command.Argument = SDIO_CMD53_COUNT(buffer_length);
     config.TransferMode  = SDIO_TRANSFER_MODE_STREAM;
     config.DataBlockSize = sdio_optimal_block_size(buffer_length);
   }
@@ -275,7 +281,7 @@ sl_status_t sl_wfx_host_sdio_write_cmd53( uint8_t function, uint32_t address, ui
   uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
   if(((response_flags>> 8) & 0xFF) != 0x20)
   {
-    return SL_ERROR;
+    return SL_STATUS_FAIL;
   }
   
   /* Prepare Data */
@@ -287,45 +293,49 @@ sl_status_t sl_wfx_host_sdio_write_cmd53( uint8_t function, uint32_t address, ui
   HAL_DMA_Start_IT(&hdma_sdio_tx, (uint32_t)buffer, (uint32_t)&SDIO->FIFO, (uint32_t)buffer_length/4);
   __SDIO_DMA_ENABLE(SDIO);
   
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_sdio_transfer_cmd53( sl_wfx_host_bus_tranfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length )
+sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_transfer_type_t type,
+                                            uint8_t function,
+                                            uint32_t address,
+                                            uint8_t* buffer,
+                                            uint16_t buffer_length)
 {    
-  sl_status_t    result  = SL_ERROR;
-
-  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE )
+  sl_status_t    result  = SL_STATUS_FAIL;
+  
+  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE)
   {
     if(type == SL_WFX_BUS_WRITE)
     {
-      result = sl_wfx_host_sdio_write_cmd53( function, address, buffer, buffer_length );
+      result = sl_wfx_host_sdio_write_cmd53(function, address, buffer, buffer_length);
     }else{
-      result = sl_wfx_host_sdio_read_cmd53( function, address, buffer, buffer_length );
+      result = sl_wfx_host_sdio_read_cmd53(function, address, buffer, buffer_length);
     }
   }else{
-    result = SL_TIMEOUT;
+    result = SL_STATUS_TIMEOUT;
   }
   /* Wait to receive the semaphore back from the DMA. In case of a read function, this means data is ready to be read*/ 
-  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE )
+  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE)
   {     
     xSemaphoreGive(sdioDMASemaphore); 
   }
   return result;
 }
 
-sl_status_t sl_wfx_host_enable_platform_interrupt( void )
+sl_status_t sl_wfx_host_enable_platform_interrupt(void)
 {
   __SDIO_ENABLE_IT(SDIO, SDIO_IT_SDIOIT);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_disable_platform_interrupt( void )
+sl_status_t sl_wfx_host_disable_platform_interrupt(void)
 {
   __SDIO_DISABLE_IT(SDIO, SDIO_IT_SDIOIT);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-static uint32_t sdio_optimal_block_size( uint16_t buffer_size )
+static uint32_t sdio_optimal_block_size(uint16_t buffer_size)
 {
     if ( buffer_size > (uint16_t) 2048 )
         return SDIO_DATABLOCK_SIZE_4096B;

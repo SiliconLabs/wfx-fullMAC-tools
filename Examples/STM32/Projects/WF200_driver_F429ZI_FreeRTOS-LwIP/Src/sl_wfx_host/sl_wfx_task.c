@@ -16,10 +16,11 @@
 
 #include "cmsis_os.h"
 #include "sl_wfx.h"
-#include "lwip_freertos.h"
+#include "demo_config.h"
    
 osThreadId busCommTaskHandle;
 osSemaphoreId s_xDriverSemaphore;
+EventGroupHandle_t sl_wfx_event_group;
 
 /* Default parameters */
 sl_wfx_context_t wifi;
@@ -37,7 +38,7 @@ uint8_t softap_channel                    = SOFTAP_CHANNEL_DEFAULT;
  */
 static void prvBusCommTask(void const * pvParameters);
 
-void vBusCommStart(void)
+void wifi_bus_comm_start(void)
 {
   osThreadDef(busCommTask, prvBusCommTask, osPriorityRealtime, 0, 512);
   busCommTaskHandle = osThreadCreate(osThread(busCommTask), NULL);
@@ -60,26 +61,19 @@ error_handler:
 
 static void prvBusCommTask(void const * pvParameters)
 {
-  /* create a semaphore used for making driver accesses atomic */
+  /* create a mutex used for making driver accesses atomic */
   s_xDriverSemaphore = xSemaphoreCreateMutex();
-    
+
+  /* create an event group to track Wi-Fi events */
+  sl_wfx_event_group = xEventGroupCreate();
+  
   for(;;)
   {
     /*Wait for an interrupt from WF200*/
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    
     /*Receive the frame(s) pending in WF200*/
-
-    /* See if we can obtain the semaphore.  If the semaphore is not
-    available wait to see if it becomes free. */
-    if(xSemaphoreTake(s_xDriverSemaphore, 500) == pdTRUE)
-    {
-      receive_frames();
-      xSemaphoreGive(s_xDriverSemaphore);
-    }
-    else
-    {
-      printf("Wi-Fi RX sem timeout\r\n");
-    }
+    receive_frames();
   }
 }
 

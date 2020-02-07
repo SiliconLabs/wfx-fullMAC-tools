@@ -35,38 +35,21 @@
   *
   ******************************************************************************
   */
-/* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
-/* USER CODE BEGIN Includes */
-#include "lwip.h"
 #include "sl_wfx.h"
 #include "sl_wfx_host_pin.h"
+#include "lwip_app.h"
 #include "demo_config.h"
-/* USER CODE END Includes */
-
-/* Private variables ---------------------------------------------------------*/
 
 UART_HandleTypeDef huart3;
 
-/* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 extern void sl_wfx_process(void);
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
-/* USER CODE BEGIN PFP */
-/* Private function prototypes -----------------------------------------------*/
-
-/* USER CODE END PFP */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
@@ -75,50 +58,25 @@ static void MX_USART3_UART_Init(void);
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration----------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
 
-  /* USER CODE BEGIN 2 */
-  /* Clear the console and buffer */
   printf("\033\143");
   printf("\033[3J");
   sl_lwip_init();
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   
   while (1)
   {
-  /* USER CODE END WHILE */
-
-  /* USER CODE BEGIN 3 */
     sl_wfx_process();
     sl_lwip_process();
   }
-  /* USER CODE END 3 */
-
 }
 
 /**
@@ -264,10 +222,6 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  file: The file name as string.
@@ -276,12 +230,10 @@ static void MX_GPIO_Init(void)
   */
 void _Error_Handler(char *file, int line)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
   }
-  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
@@ -294,10 +246,8 @@ void _Error_Handler(char *file, int line)
   */
 void assert_failed(uint8_t* file, uint32_t line)
 { 
-  /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
 

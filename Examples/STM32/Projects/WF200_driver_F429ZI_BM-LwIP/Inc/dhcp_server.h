@@ -17,7 +17,55 @@
 #ifndef DHCP_SERVER_H
 #define DHCP_SERVER_H
 
-void dhcpserver_start(void);
-void dhcpserver_stop(void);
+#include <string.h>
+#include "lwip/dhcp.h"
+#include "lwip/tcpip.h"
+#include "lwip/prot/dhcp.h"
+#include "lwip/etharp.h"
+#include "lwip/prot/ethernet.h"
+#include "demo_config.h"
 
+#define DHCPS_MAX_CLIENT 8 /// Max number of dhcp clients.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/***************************************************************************//**
+ * Start DHCP server.
+ ******************************************************************************/
+void dhcpserver_start(void);
+
+/***************************************************************************//**
+ * Stop DHCP server.
+ ******************************************************************************/
+void dhcpserver_stop(void);
+/***************************************************************************//**
+ * Remove mac address from list of clients.
+ *
+ * @param mac MAC address to remove.
+ ******************************************************************************/
+void dhcpserver_remove_mac(struct eth_addr *mac);
+/***************************************************************************//**
+ * Get mac address in client list.
+ *
+ * @param client Number of client.
+ * @param mac mac address result
+ * @returns mac address (all zeros if none)
+ ******************************************************************************/
+void dhcpserver_get_mac(uint8_t client, struct eth_addr *mac);
+/***************************************************************************//**
+ * Get IP associated to MAC address.
+ *
+ * @param mac MAC address of client.
+ * @returns IP address
+ ******************************************************************************/
+ip_addr_t dhcpserver_get_ip(struct eth_addr *mac);
+
+/***************************************************************************//**
+ * Clear stored mac addresses in client list.
+ ******************************************************************************/
+void dhcpserver_clear_stored_mac(void);
+#ifdef __cplusplus
+}
+#endif
 #endif

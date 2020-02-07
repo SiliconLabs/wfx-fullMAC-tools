@@ -27,22 +27,24 @@
 #include "lwip/netifapi.h"
 
 #include "sl_wfx.h"
+#include "sl_wfx_host.h"
 #include "sl_wfx_host_pin.h"
 #include "dhcp_server.h"
 #include "dhcp_client.h"
-#include "lwip_freertos.h"
-#include "uart_input.h"
+#include "demo_config.h"
+#include "wifi_cli.h"
 
 extern sl_wfx_context_t wifi;
-extern sl_wfx_scan_result_ind_body_t scan_list[];
+extern scan_result_list_t scan_list[];
 extern uint8_t scan_count_web; 
 
 /* station and softAP network interface structures */
 struct netif sta_netif, ap_netif;
-char ssid_json_list[4096];
-char ssid[32], passkey[64];
-sl_wfx_security_mode_t secu;
-
+char string_list[4096];
+char event_log[50];
+uint8_t ap_channel;
+struct eth_addr ap_mac;
+  
 int use_dhcp_client = USE_DHCP_CLIENT_DEFAULT;
 
 /* Station IP address */
@@ -73,76 +75,96 @@ uint8_t ap_gw_addr1 = AP_GW_ADDR1_DEFAULT;
 uint8_t ap_gw_addr2 = AP_GW_ADDR2_DEFAULT;
 uint8_t ap_gw_addr3 = AP_GW_ADDR3_DEFAULT;
 
-/* Time to waitfor user input */
-#define WAIT_TIME_FOR_INPUT ( 5000UL / portTICK_RATE_MS ) 
-
 static void StartThread(void const * argument);
 static void Netif_Config(void);
 
 #ifdef LWIP_HTTP_SERVER
 static char from_hex(char ch);
 static sl_status_t url_decode(char *str);
-// prototype CGI handler
-static const char *LedToggleCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
-static const char *GetUpdatedStatesCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
-static const char *StartScanCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
-static const char *ConnectNetworkCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
-static const char *DisconnectNetworkCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
-// this structure contains the name of the LED CGI and corresponding handler for the LEDs
-static const tCGI LedToggleCGI={"/led_toggle.cgi", LedToggleCGIhandler};
-static const tCGI GetUpdatedStatesCGI={"/get_updated_states.cgi", GetUpdatedStatesCGIhandler};
-// this structure contains the name of the scan CGI and corresponding handler for the scan
-static const tCGI StartScanCGI={"/start_scan.cgi", StartScanCGIhandler};
-static const tCGI ConnectNetworkCGI={"/connect_network.cgi", ConnectNetworkCGIhandler};
-static const tCGI DisconnectNetworkCGI={"/disconnect_network.cgi", DisconnectNetworkCGIhandler};
-//table of the CGI names and handlers
-static tCGI theCGItable[5];
-// Server-Side Include (SSI) tags
+/* prototype CGI handler */
+static const char *toggle_led_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+static const char *start_station_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+static const char *stop_station_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+static const char *start_softap_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+static const char *stop_softap_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+static const char *disconnect_client_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+static const char *start_scan_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+static const char *get_led_states_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+static const char *get_interface_states_cgi_handler(int index, int num_params, char *pc_param[], char *pc_value[]);
+/* List CGI scripts and corresponding handler */
+static const tCGI toggle_led_cgi={"/toggle_led.cgi", toggle_led_cgi_handler};
+static const tCGI start_station_cgi={"/start_station.cgi", start_station_cgi_handler};
+static const tCGI stop_station_cgi={"/stop_station.cgi", stop_station_cgi_handler};
+static const tCGI start_softap_cgi={"/start_softap.cgi", start_softap_cgi_handler};
+static const tCGI stop_softap_cgi={"/stop_softap.cgi", stop_softap_cgi_handler};
+static const tCGI disconnect_client_cgi={"/disconnect_client.cgi", disconnect_client_cgi_handler};
+static const tCGI start_scan_cgi={"/start_scan.cgi", start_scan_cgi_handler};
+static const tCGI get_led_states_cgi={"/get_led_states.cgi", get_led_states_cgi_handler};
+static const tCGI get_interface_states_cgi={"/get_interface_states.cgi", get_interface_states_cgi_handler};
+/* SSI handler */
+static uint16_t ssi_handler(int index, char *pc_insert, int insert_len);
+
+/* table of the CGI names and handlers */
+static tCGI cgi_table[9];
+
+/* Server-Side Include (SSI) tags */
 static char const *ssi_tags[] = {
-    "led0_state",
-    "led1_state",
-    "t_scan",
-    "status",
-    "ip_address"
+  "led0_state",
+  "led1_state",
+  "scan_list",
+  "softap_state",
+  "softap_ssid",
+  "softap_ip",
+  "softap_mac",
+  "softap_secu",
+  "softap_channel",
+  "clients_list",
+  "station_state",
+  "station_ip",
+  "station_mac",
+  "ap_ssid",
+  "ap_mac",
+  "ap_secu",
+  "ap_channel",
+  "event"
 };
-static uint16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen);
 
 /***************************************************************************//**
- * @brief Initialize the web server CGI handlers
+ * @brief Initialize the web server CGI handlers and SSI handler
  ******************************************************************************/
-static void myCGIinit(void)
+static void cgi_ssi_init(void)
 {
-    //add LED control CGI to the table
-    theCGItable[0] = LedToggleCGI;
-    theCGItable[1] = GetUpdatedStatesCGI;
-    
-    //add scan control CGI to the table
-    theCGItable[2] = StartScanCGI;
-    
-    theCGItable[3] = ConnectNetworkCGI;
-    theCGItable[4] = DisconnectNetworkCGI;
-    
-    //give the table to the HTTP server
-    http_set_cgi_handlers(theCGItable, 5);
-    http_set_ssi_handler(ssi_handler, ssi_tags, 5);
+  cgi_table[0] = toggle_led_cgi;
+  cgi_table[1] = start_station_cgi;
+  cgi_table[2] = stop_station_cgi;
+  cgi_table[3] = start_softap_cgi;
+  cgi_table[4] = stop_softap_cgi;
+  cgi_table[5] = disconnect_client_cgi;
+  cgi_table[6] = start_scan_cgi;
+  cgi_table[7] = get_led_states_cgi;
+  cgi_table[8] = get_interface_states_cgi;
+  
+  //give the CGI and SSI tables to the HTTP server
+  http_set_cgi_handlers(cgi_table, 9);
+  http_set_ssi_handler(ssi_handler, ssi_tags, 18);
 }
 
 /***************************************************************************//**
- * @brief Web server CGI handler for controlling the LEDs. The function pointer for a CGI 
- * script handler is defined in httpd.h as tCGIHandler.
+ * @brief Web server CGI handler for controlling the LEDs.
  ******************************************************************************/
-static const char *LedToggleCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+static const char *toggle_led_cgi_handler(int index, int num_params,
+                                          char *pc_param[], char *pc_value[])
 {
-  // Check the cgi parameters, e.g., GET /led_toggle.cgi?led_id=1
-  for (uint32_t i=0; i<iNumParams; i++) {
-    if (strcmp(pcParam[i], "led_id") == 0) 
+  /* Check the cgi parameters */
+  for (uint16_t i = 0; i < num_params; i++) {
+    if (strcmp(pc_param[i], "led_id") == 0) 
     {
-      if (strcmp(pcValue[i], "0") == 0) 
+      if (strcmp(pc_value[i], "0") == 0) 
       {
         printf("LED 0 toggle\r\n");
         HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
         HAL_GPIO_TogglePin(SL_WFX_LED0_PORT, SL_WFX_LED0_GPIO);
-      }else if (strcmp(pcValue[i], "1") == 0)
+      }else if (strcmp(pc_value[i], "1") == 0)
       {
         printf("LED 1 toggle\r\n");
         HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
@@ -151,156 +173,338 @@ static const char *LedToggleCGIhandler(int iIndex, int iNumParams, char *pcParam
     }
   }
   
-  //uniform resource identifier to send after CGI call, i.e., path and filename of the response
   return "/empty.json";
-} //LedCGIhandler
-
-/***************************************************************************//**
- * @brief Web server CGI handler for monitoring the state of example.
- * The function pointer for a CGI script handler is defined in httpd.h as tCGIHandler.
- ******************************************************************************/
-static const char *GetUpdatedStatesCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
-{
-  //uniform resource identifier to send after CGI call, i.e., path and filename of the response
-  return "/updated_states.json";
 }
 
 /***************************************************************************//**
-* @brief Web server CGI handler for starting a scan. The function pointer for a CGI 
-* script handler is defined in httpd.h as tCGIHandler.
-******************************************************************************/
-static const char *StartScanCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
-{
-  sl_status_t result;
-  
-  result = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0, NULL,0,NULL,0);
-  if ((result == SL_SUCCESS) || (result == SL_WIFI_WARNING))
-  {
-    sl_wfx_host_setup_waited_event(SL_WFX_SCAN_COMPLETE_IND_ID);
-    sl_wfx_host_wait_for_confirmation(SL_WFX_SCAN_COMPLETE_IND_ID, SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS, NULL);
-  }
-
-  return "/scan_results.json";
-} //ScanCGIhandler
-
-/***************************************************************************//**
- * @brief Web server CGI handler to connect to a Wi-Fi network.
- * The function pointer for a CGI script handler is defined in httpd.h as tCGIHandler.
+ * @brief Web server CGI handler to start the station interface.
  ******************************************************************************/
-static const char *ConnectNetworkCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+static const char *start_station_cgi_handler(int index, int num_params,
+                                             char *pc_param[], char *pc_value[])
 {
   sl_status_t status;
   int ssid_length, passkey_length;
   
-  if (iNumParams == 3) {
-    if (strcmp(pcParam[0], "ssid") == 0) 
+  if (num_params == 3) {
+    if (strcmp(pc_param[0], "ssid") == 0) 
     {
-      url_decode(pcValue[0]);
-      printf("%s\n\r", pcValue[0]);
-      ssid_length = strlen(pcValue[0]);
-      memset(ssid, 0, 32);
-      strncpy(ssid, pcValue[0], ssid_length);
+      url_decode(pc_value[0]);
+      ssid_length = strlen(pc_value[0]);
+      memset(wlan_ssid, 0, 32);
+      strncpy(wlan_ssid, pc_value[0], ssid_length);
     }
-    if (strcmp(pcParam[1], "pwd") == 0) 
+    if (strcmp(pc_param[1], "pwd") == 0) 
     {
-      url_decode(pcValue[1]);
-      printf("%s\n\r", pcValue[1]);
-      passkey_length = strlen(pcValue[1]);
-      memset(passkey, 0, 64);
-      strncpy(passkey, pcValue[1], passkey_length);
+      url_decode(pc_value[1]);
+      passkey_length = strlen(pc_value[1]);
+      memset(wlan_passkey, 0, 64);
+      strncpy(wlan_passkey, pc_value[1], passkey_length);
     }
-    if (strcmp(pcParam[2], "secu") == 0)
+    if (strcmp(pc_param[2], "secu") == 0)
     {
-      url_decode(pcValue[2]);
-      printf("%s\n\r", pcValue[2]);
-      if ((strcmp(pcValue[2], "WPA2") == 0) || (strcmp(pcValue[2], "WPA") == 0))
+      url_decode(pc_value[2]);
+      if ((strcmp(pc_value[2], "WPA2") == 0) || (strcmp(pc_value[2], "WPA") == 0))
       {
-        secu = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
-      }else if (strcmp(pcValue[2], "WEP") == 0)
+        wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
+      }else if (strcmp(pc_value[2], "WEP") == 0)
       {
-        secu = WFM_SECURITY_MODE_WEP;
-      }else if (strcmp(pcValue[2], "OPEN") == 0)
+        wlan_security = WFM_SECURITY_MODE_WEP;
+      }else if (strcmp(pc_value[2], "OPEN") == 0)
       {
-        secu = WFM_SECURITY_MODE_OPEN;
+        wlan_security = WFM_SECURITY_MODE_OPEN;
       }
     }
-    if (!(sl_wfx_context->state & SL_WFX_STA_INTERFACE_CONNECTED))
+    if (!(wifi.state & SL_WFX_STA_INTERFACE_CONNECTED))
     {
-      status = sl_wfx_send_join_command((uint8_t*) ssid, ssid_length,
-                                        NULL, 0, secu, 0, 0,
-                                        (uint8_t*) passkey, passkey_length,
+      status = sl_wfx_send_join_command((uint8_t*) wlan_ssid, ssid_length,
+                                        NULL, 0, wlan_security, 0, 0,
+                                        (uint8_t*) wlan_passkey, passkey_length,
                                         NULL, 0);
-      if(status != SL_SUCCESS)
+      if(status != SL_STATUS_OK)
       {
-        printf("Command error\r\n");
+        printf("Connection command error\r\n");
+        strcpy(event_log, "Connection command error");
+      } else {
+        /*if connected, latch the MAC address and the channel from the scan list*/
+        for (uint16_t i = 0; i < SL_WFX_MAX_SCAN_RESULTS; i++) {
+          if (strcmp((char *) scan_list[i].ssid_def.ssid, wlan_ssid) == 0) {
+            ap_channel = scan_list[i].channel;
+            memcpy(&ap_mac, scan_list[i].mac, SL_WFX_BSSID_SIZE);
+          }
+        }
       }
     }
   }else{
     printf("Invalid Connection Request\r\n");
+    strcpy(event_log, "Invalid Connection Request");
   }
   
-  //uniform resource identifier to send after CGI call, i.e., path and filename of the response
   return "/empty.json";
 }
 
 /***************************************************************************//**
-* @brief Web server CGI handler for starting a scan. The function pointer for a CGI 
-* script handler is defined in httpd.h as tCGIHandler.
-******************************************************************************/
-static const char *DisconnectNetworkCGIhandler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+ * @brief Web server CGI handler to stop the station interface.
+ ******************************************************************************/
+static const char *stop_station_cgi_handler(int index, int num_params,
+                                            char *pc_param[], char *pc_value[])
 {
   sl_wfx_send_disconnect_command();
   
-  //uniform resource identifier to send after CGI call, i.e., path and filename of the response
   return "/empty.json";
 }
 
-static uint16_t ssi_handler(int iIndex, char *pcInsert, int iInsertLen)
+/***************************************************************************//**
+ * @brief Web server CGI handler to start the softAP interface.
+ ******************************************************************************/
+static const char *start_softap_cgi_handler(int index, int num_params,
+                                            char *pc_param[], char *pc_value[])
+{
+  sl_wfx_start_ap_command(softap_channel, (uint8_t*) softap_ssid, 
+                          strlen(softap_ssid), 0, 0, softap_security,
+                          0, (uint8_t*) softap_passkey, strlen(softap_passkey),
+                          NULL, 0, NULL, 0);
+  return "/empty.json";
+}
+
+/***************************************************************************//**
+ * @brief Web server CGI handler to start the softAP interface.
+ ******************************************************************************/
+static const char *stop_softap_cgi_handler(int index, int num_params,
+                                           char *pc_param[], char *pc_value[])
+{
+  sl_wfx_stop_ap_command();
+  return "/empty.json";
+}
+
+/***************************************************************************//**
+ * @brief Web server CGI handler to disconnect a client from the softAP
+ * interface.
+ ******************************************************************************/
+static const char *disconnect_client_cgi_handler(int index, int num_params,
+                                                 char *pc_param[], char *pc_value[])
+{
+  sl_wfx_mac_address_t mac_address;
+  const char separator[1] = ":";
+  char *mac_byte = NULL;
+  
+  for (uint16_t i = 0; i < num_params; i++) {
+    if (strcmp(pc_param[i], "mac") == 0) 
+    {
+      mac_byte = strtok(pc_value[i], separator);
+      mac_address.octet[0] = (uint8_t)strtoul(mac_byte, NULL, 16);
+      for(uint8_t i = 1; i < 6; i++)
+      {
+        mac_byte = strtok(NULL, separator);
+        mac_address.octet[i] = (uint8_t)strtoul(mac_byte, NULL, 16);
+      }
+      sl_wfx_disconnect_ap_client_command(&mac_address);
+    }
+  }
+  
+  return "/empty.json";
+}
+
+/***************************************************************************//**
+ * @brief Web server CGI handler to start a scan.
+ ******************************************************************************/
+static const char *start_scan_cgi_handler(int index, int num_params,
+                                          char *pc_param[], char *pc_value[])
+{
+  sl_status_t result;
+  
+  /* Reset scan list */
+  scan_count_web = 0;
+  memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
+  
+  xEventGroupClearBits(sl_wfx_event_group, SL_WFX_SCAN_COMPLETE);
+  /* perform a scan on every Wi-Fi channel in active mode */
+  result = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0, NULL,0,NULL,0,NULL);
+  if ((result == SL_STATUS_OK) || (result == SL_STATUS_WIFI_WARNING))
+  {
+    if(xEventGroupWaitBits(sl_wfx_event_group, SL_WFX_SCAN_COMPLETE,
+                           pdTRUE, pdTRUE, 5000/portTICK_PERIOD_MS) == 0)
+    {
+      printf("Scan command timeout\r\n");
+    }
+  }
+
+  return "/scan_results.json";
+}
+
+/***************************************************************************//**
+ * @brief Web server CGI handler to get the LED states.
+ ******************************************************************************/
+static const char *get_led_states_cgi_handler(int index,
+                                              int num_params,
+                                              char *pc_param[],
+                                              char *pc_value[])
+{
+  return "/led_states.json";
+}
+
+/***************************************************************************//**
+ * @brief Web server CGI handler to get the interface states.
+ ******************************************************************************/
+static const char *get_interface_states_cgi_handler(int index,
+                                                    int num_params,
+                                                    char *pc_param[],
+                                                    char *pc_value[])
+{
+  return "/interface_states.json";
+}
+
+static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
 {
   int value, result;
-  char ssid_json_lign[100];
-    
-  switch (iIndex) {
+  char string_field[100];
+  char client_name[9] = {'C', 'l', 'i', 'e', 'n', 't', ' ', ' ', '\0'};
+  uint8_t add_separator = 0;
+  
+  switch (index) {
   case 0: /* <!--#led0_state--> */
     value = HAL_GPIO_ReadPin(SL_WFX_LED0_PORT, SL_WFX_LED0_GPIO);
-    result = snprintf(pcInsert, 2, "%d", value);
+    result = snprintf(pc_insert, 2, "%d", value);
     break;
   case 1: /* <!--#led1_state--> */
     value = HAL_GPIO_ReadPin(SL_WFX_LED1_PORT, SL_WFX_LED1_GPIO);
-    result = snprintf(pcInsert, 2, "%d", value);
+    result = snprintf(pc_insert, 2, "%d", value);
     break;
-  case 2: /* <!--#t_scan--> */
+  case 2: /* <!--#scan_list--> */
     for(int i = 0; i < scan_count_web; i++)
     {
-      snprintf(ssid_json_lign, 100, "{\"ssid\":\"%s\", \"rssi\":\"%d\", \"secu\":\"%s\"}",
+      snprintf(string_field, 100, "{\"ssid\":\"%s\", \"rssi\":\"%d\", \"secu\":\"%s\"}",
                (strlen((char *) scan_list[i].ssid_def.ssid) != 0) ? scan_list[i].ssid_def.ssid : "Hidden",
                ((int16_t)(scan_list[i].rcpi - 220)/2),
                (scan_list[i].security_mode.wpa2) ? "WPA2" : \
                  ((scan_list[i].security_mode.wpa) ? "WPA" : \
                    ((scan_list[i].security_mode.wep) ? "WEP": "OPEN")));
-      strcat(ssid_json_list, ssid_json_lign);
-      if(i != (scan_count_web - 1)) strcat(ssid_json_list, ", ");
+      strcat(string_list, string_field);
+      if(i != (scan_count_web - 1)) strcat(string_list, ",");
     }
-    result = snprintf(pcInsert, strlen(ssid_json_list) + 1, ssid_json_list);
-    scan_count_web = 0;
-    memset(scan_list, 0, sizeof(sl_wfx_scan_result_ind_body_t) * 50);
-    memset(ssid_json_list, 0, sizeof(ssid_json_list));
+    result = snprintf(pc_insert, strlen(string_list) + 1, string_list);
+    memset(string_list, 0, sizeof(string_list));
     break;
-  case 3: /* <!--#status--> */
+  case 3: /* <!--#softap_state--> */
+    if(wifi.state & SL_WFX_AP_INTERFACE_UP)
+    {
+      result = snprintf(pc_insert, 2, "1");
+    }else{
+      result = snprintf(pc_insert, 2, "0");
+    }
+    break;
+  case 4: /* <!--#softap_ssid--> */
+    result = snprintf(pc_insert, 32, "%s", softap_ssid);
+    break;
+  case 5: /* <!--#softap_ip--> */
+    result = sprintf(pc_insert, "%d.%d.%d.%d",
+                     ap_netif.ip_addr.addr & 0xff,
+                     (ap_netif.ip_addr.addr >> 8) & 0xff,
+                     (ap_netif.ip_addr.addr >> 16) & 0xff,
+                     (ap_netif.ip_addr.addr >> 24) & 0xff);
+    break;
+  case 6: /* <!--#softap_mac--> */
+    result = sprintf(pc_insert, 
+                     "%02X:%02X:%02X:%02X:%02X:%02X", 
+                     wifi.mac_addr_1.octet[0],
+                     wifi.mac_addr_1.octet[1],
+                     wifi.mac_addr_1.octet[2],
+                     wifi.mac_addr_1.octet[3],
+                     wifi.mac_addr_1.octet[4],
+                     wifi.mac_addr_1.octet[5]);
+    break;
+  case 7: /* <!--#softap_secu--> */
+    if(softap_security == WFM_SECURITY_MODE_OPEN)                result = sprintf(pc_insert, "OPEN");
+    else if(softap_security == WFM_SECURITY_MODE_WEP)            result = sprintf(pc_insert, "WEP");
+    else if(softap_security == WFM_SECURITY_MODE_WPA2_WPA1_PSK)  result = sprintf(pc_insert, "WPA1/WPA2");
+    else if(softap_security == WFM_SECURITY_MODE_WPA2_PSK)       result = sprintf(pc_insert, "WPA2");
+    break;
+  case 8: /* <!--#softap_channel--> */
+    result = sprintf(pc_insert, "%d", softap_channel);
+    break;
+  case 9: /* <!--#clients_list--> */
+    for(uint8_t i = 0; i < DHCPS_MAX_CLIENT; i++)
+    {
+      struct eth_addr mac;
+      dhcpserver_get_mac(i, &mac);
+      if(!(mac.addr[0] == 0 && mac.addr[1] == 0 &&
+         mac.addr[2] == 0 && mac.addr[3] == 0 &&
+           mac.addr[4] == 0 && mac.addr[5] == 0))
+      {
+    	ip_addr_t ip_addr = dhcpserver_get_ip(&mac);
+        if(add_separator) strcat(string_list, ",");
+        client_name[7] = i + 49;
+        snprintf(string_field, 100,
+                 "{\"name\":\"%s\", \"ip\":\"%d.%d.%d.%d\", \"mac\":\"%02X:%02X:%02X:%02X:%02X:%02X\"}",
+                 client_name,
+                 (int)(ip_addr.addr & 0xff),
+                 (int)((ip_addr.addr >> 8) & 0xff),
+                 (int)((ip_addr.addr >> 16) & 0xff),
+                 (int)((ip_addr.addr >> 24) & 0xff),
+                 mac.addr[0],
+                 mac.addr[1],
+                 mac.addr[2],
+                 mac.addr[3],
+                 mac.addr[4],
+                 mac.addr[5]);
+        add_separator = 1;
+        strcat(string_list, string_field);
+      }
+    }
+    result = snprintf(pc_insert, strlen(string_list) + 1, string_list);
+    memset(string_list, 0, sizeof(string_list));
+    break;
+  case 10: /* <!--#station_state--> */
     if(wifi.state & SL_WFX_STA_INTERFACE_CONNECTED)
     {
-      result = snprintf(pcInsert, 50, "Connected to %s", ssid);
+      result = snprintf(pc_insert, 2, "1");
     }else{
-      result = snprintf(pcInsert, 50, "Not Connected");
+      result = snprintf(pc_insert, 2, "0");
     }
     break;
-  case 4: /* <!--#ip_address--> */
-    result = snprintf(pcInsert, 25, "%d.%d.%d.%d",
-                      sta_netif.ip_addr.addr & 0xff,
-                      (sta_netif.ip_addr.addr >> 8) & 0xff,
-                      (sta_netif.ip_addr.addr >> 16) & 0xff,
-                      (sta_netif.ip_addr.addr >> 24) & 0xff);
+  case 11: /* <!--#station_ip--> */
+    result = sprintf(pc_insert, "%d.%d.%d.%d",
+                     sta_netif.ip_addr.addr & 0xff,
+                     (sta_netif.ip_addr.addr >> 8) & 0xff,
+                     (sta_netif.ip_addr.addr >> 16) & 0xff,
+                     (sta_netif.ip_addr.addr >> 24) & 0xff);
     break;
+  case 12: /* <!--#station_mac--> */
+    result = sprintf(pc_insert, 
+                     "%02X:%02X:%02X:%02X:%02X:%02X", 
+                     wifi.mac_addr_0.octet[0],
+                     wifi.mac_addr_0.octet[1],
+                     wifi.mac_addr_0.octet[2],
+                     wifi.mac_addr_0.octet[3],
+                     wifi.mac_addr_0.octet[4],
+                     wifi.mac_addr_0.octet[5]);
+    break;
+  case 13: /* <!--#ap_ssid--> */
+    result = snprintf(pc_insert, 32, "%s", wlan_ssid);
+    break;
+  case 14: /* <!--#ap_mac--> */
+    result = sprintf(pc_insert, 
+                     "%02X:%02X:%02X:%02X:%02X:%02X", 
+                     ap_mac.addr[0],
+                     ap_mac.addr[1],
+                     ap_mac.addr[2],
+                     ap_mac.addr[3],
+                     ap_mac.addr[4],
+                     ap_mac.addr[5]);
+    break;
+  case 15: /* <!--#ap_secu--> */
+    if(wlan_security == WFM_SECURITY_MODE_OPEN)                result = sprintf(pc_insert, "OPEN");
+    else if(wlan_security == WFM_SECURITY_MODE_WEP)            result = sprintf(pc_insert, "WEP");
+    else if(wlan_security == WFM_SECURITY_MODE_WPA2_WPA1_PSK)  result = sprintf(pc_insert, "WPA1/WPA2");
+    else if(wlan_security == WFM_SECURITY_MODE_WPA2_PSK)       result = sprintf(pc_insert, "WPA2");
+    break;
+  case 16: /* <!--#ap_channel--> */
+    result = sprintf(pc_insert, "%d", ap_channel);
+    break;
+  case 17: /* <!--#event--> */
+    result = sprintf(pc_insert, "%s", event_log);
+    strcpy(event_log, "");
+    break;
+  default: result = snprintf(pc_insert, 1, "");
   }
   
   return result;
@@ -316,7 +520,7 @@ static sl_status_t url_decode(char *str) {
   char *pstr = str, rstr[64];
   int i = 0;
   
-  if(strlen(str) > 64) return SL_ERROR;
+  if(strlen(str) > 64) return SL_STATUS_FAIL;
   
   while (*pstr) {
     if (*pstr == '%') {
@@ -333,7 +537,7 @@ static sl_status_t url_decode(char *str) {
   }
   rstr[i] = '\0';
   strcpy(str, &rstr[0]);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 #endif //LWIP_HTTP_SERVER
@@ -344,139 +548,17 @@ static sl_status_t url_decode(char *str) {
 /***************************************************************************//**
  * @brief Function to handle iperf results report
  ******************************************************************************/
-void lwip_iperf_results (void *arg, enum lwiperf_report_type report_type,
-                         const ip_addr_t* local_addr, u16_t local_port, const ip_addr_t* remote_addr, u16_t remote_port,
-                         u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec)
+static void lwip_iperf_results(void *arg, enum lwiperf_report_type report_type,
+                               const ip_addr_t* local_addr, u16_t local_port, const ip_addr_t* remote_addr, u16_t remote_port,
+                               u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec)
 {
-  printf("\r\nIperf Report:\r\n");
-  printf("Interval %d.%ds\r\n",(int)(ms_duration/1000),(int)(ms_duration%1000));
-  printf("Bytes transferred %d.%dM\r\n",(int)(bytes_transferred/1024/1024),(int)((((bytes_transferred/1024)*1000)/1024)%1000));
-  printf("%d.%d Mbps\r\n\r\n",(int)(bandwidth_kbitpsec/1024),(int)(((bandwidth_kbitpsec*1000)/1024)%1000));
+  printf("\r\nIperf Server Report:\r\n");
+  printf("Interval %d.%d sec\r\n", (int)(ms_duration / 1000), (int)(ms_duration % 1000));
+  printf("Bytes transferred %d.%d MBytes\r\n", (int)(bytes_transferred / 1024 / 1024), (int)((((bytes_transferred / 1024) * 1000) / 1024) % 1000));
+  printf("%d.%d Mbits/sec\r\n\r\n", (int)(bandwidth_kbitpsec / 1024), (int)(((bandwidth_kbitpsec * 1000) / 1024) % 1000));
 }
 
 #endif //LWIP_IPERF_SERVER
-
-static uint32_t waitForString(TickType_t waitTime)
-{
-  //start receive loop
-  xSemaphoreGive (uartInputSemaphore);
-  //wait for data 
-  if (xSemaphoreTake(stringRcvSemaphore,waitTime) == pdFALSE)
-  {
-    vUARTInputStop();
-    return 0;
-  }
-  return 1;
-}
-
-static void getUserInput(void)
-{
-  uint8_t soft_ap_mode = 1;
-  
-  printf ("Press enter within %d seconds to configure the demo...\r\n\r\n", WAIT_TIME_FOR_INPUT/1000);
-  if (waitForString(WAIT_TIME_FOR_INPUT) == pdTRUE )
-  {
-    printf ("Choose mode:\r\n1. Station\r\n2. AP\r\nType 1 or 2:\r\n");
-    waitForString(portMAX_DELAY);
-    if (UART_Input_String[0] == '2')
-    {
-       soft_ap_mode = 1;
-       printf ("\r\n AP mode selected\r\n");
-    }
-    else
-    {
-       soft_ap_mode = 0;
-       printf ("\r\n Station mode selected\r\n");
-    }
-    printf ("\r\nEnter SSID:\r\n");
-    waitForString(portMAX_DELAY);
-    if (soft_ap_mode)
-    {
-      strcpy(softap_ssid,UART_Input_String);
-    }
-    else
-    {
-      strcpy(wlan_ssid,UART_Input_String);
-    }
-    printf ("\r\n\r\nEnter passkey:\r\n");
-    waitForString(portMAX_DELAY);
-    if (soft_ap_mode)
-    {
-      strcpy(softap_passkey,UART_Input_String);
-    }
-    else
-    {
-      strcpy(wlan_passkey,UART_Input_String);
-    }
-    printf ("\r\n\r\nChoose security mode:\r\n1. OPEN\r\n2. WEP\r\n3. WPA2 WPA1 PSK\r\n4. WPA2 PSK\r\n");
-    waitForString(portMAX_DELAY);
-    if (soft_ap_mode)
-    {
-      switch (UART_Input_String[0]) {
-      case '1':
-        softap_security = WFM_SECURITY_MODE_OPEN;
-        break;
-      case '2':
-        softap_security = WFM_SECURITY_MODE_WEP;
-        break;
-      case '3':
-        softap_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
-        break;
-      default:
-        softap_security = WFM_SECURITY_MODE_WPA2_PSK;
-        break;
-      }
-    }
-    else
-    {
-      switch (UART_Input_String[0]) {
-      case '1':
-        wlan_security = WFM_SECURITY_MODE_OPEN;
-        break;
-      case '2':
-        wlan_security = WFM_SECURITY_MODE_WEP;
-        break;
-      case '3':
-        wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
-        break;
-      default:
-        wlan_security = WFM_SECURITY_MODE_WPA2_PSK;
-        break;
-      }
-    }
-  }
-  
-  printf ("\r\n\r\nStarting demo...\r\n");
-  if (soft_ap_mode)
-  {
-    printf ("AP mode\r\n");
-    printf ("SSID = %s\r\n",softap_ssid);
-    printf ("Passkey = %s\r\n",softap_passkey);
-    printf ("IP address = %d.%d.%d.%d\r\n",
-                  ap_ip_addr0,
-                  ap_ip_addr1,
-                  ap_ip_addr2,
-                  ap_ip_addr3);
-    sl_wfx_start_ap_command(softap_channel, (uint8_t*) softap_ssid, 
-                            strlen(softap_ssid), 0, 0, softap_security, 0, 
-                            (uint8_t*) softap_passkey, strlen(softap_passkey), 
-                            NULL, 0, NULL, 0);
-    lwip_set_ap_link_up();
-  }
-  else
-  {
-    printf ("Station mode\r\n");
-    printf ("SSID = %s\r\n",wlan_ssid);
-    printf ("Passkey = %s\r\n",wlan_passkey);
-    sl_wfx_send_join_command((uint8_t*) wlan_ssid, strlen(wlan_ssid), NULL, 0, 
-                             wlan_security, 1, WFM_MGMT_FRAME_PROTECTION_OPTIONAL,
-                             (uint8_t*) wlan_passkey, strlen(wlan_passkey), NULL, 0);
-    if(!use_dhcp_client)
-    {
-      lwip_set_sta_link_up();
-    }
-  }
-}
 
 /***************************************************************************//**
  * @brief
@@ -489,7 +571,7 @@ static void getUserInput(void)
  *    none
  ******************************************************************************/
 static void StartThread(void const * argument)
-{  
+{
   /* Create tcp_ip stack thread */
   tcpip_init(NULL, NULL);
   
@@ -499,8 +581,8 @@ static void StartThread(void const * argument)
 #ifdef LWIP_HTTP_SERVER  
   /* Initialize webserver demo */
   httpd_init();
-  //initialise the CGI handlers
-  myCGIinit();
+  /* initialise the CGI and SSI handlers */
+  cgi_ssi_init();
 #endif
 #ifdef LWIP_IPERF_SERVER
   lwiperf_start_tcp_server_default(lwip_iperf_results,0);
@@ -509,12 +591,9 @@ static void StartThread(void const * argument)
   if (use_dhcp_client)
   {
     /* Start DHCP Client */
-    osThreadDef(DHCP, DHCP_thread, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE * 2);
+    osThreadDef(DHCP, dhcpclient_start, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE * 2);
     osThreadCreate (osThread(DHCP), &sta_netif);
   }
-  
-  /* Get user configuration input on UART */
-  getUserInput();
 
   for( ;; )
   {
@@ -523,78 +602,52 @@ static void StartThread(void const * argument)
   }
 }
 
-/***************************************************************************//**
- * @brief
- *    Sets station link status to up in LwIP
- *
- * @param[in] 
- *    none
- *
- * @return
- *    none
- ******************************************************************************/
-void lwip_set_sta_link_up (void)
+/**************************************************************************//**
+ * Set station link status to up.
+ *****************************************************************************/
+sl_status_t lwip_set_sta_link_up(void)
 {
   netifapi_netif_set_up(&sta_netif);
   netifapi_netif_set_link_up(&sta_netif);
-  if (use_dhcp_client)
-  {
-    User_notification(1);
+  if (use_dhcp_client) {
+	  dhcpclient_set_link_state(1);
   }
+  return SL_STATUS_OK;
 }
 
-/***************************************************************************//**
- * @brief
- *    Sets station link status to down in LwIP
- *
- * @param[in] 
- *    none
- *
- * @return
- *    none
-******************************************************************************/
-void lwip_set_sta_link_down (void)
+/**************************************************************************//**
+ * Set station link status to down.
+ *****************************************************************************/
+sl_status_t lwip_set_sta_link_down(void)
 {
-  if (use_dhcp_client)
-  {
-    User_notification(0);
+  if (use_dhcp_client) {
+    dhcpclient_set_link_state(0);
   }
   netifapi_netif_set_link_down(&sta_netif);
   netifapi_netif_set_down(&sta_netif);
+  return SL_STATUS_OK;
 }
 
-/***************************************************************************//**
- * @brief
- *    Sets softAP link status to up in LwIP
- *
- * @param[in] 
- *    none
- *
- * @return
- *    none
- ******************************************************************************/
-void lwip_set_ap_link_up (void)
+/**************************************************************************//**
+ * Set AP link status to up.
+ *****************************************************************************/
+sl_status_t lwip_set_ap_link_up(void)
 {
   netifapi_netif_set_up(&ap_netif);
   netifapi_netif_set_link_up(&ap_netif);
   dhcpserver_start();
+  return SL_STATUS_OK;
 }
 
-/***************************************************************************//**
- * @brief
- *    Sets softAP link status to down in LwIP
- *
- * @param[in] 
- *    none
- *
- * @return
- *    none
- ******************************************************************************/
-void lwip_set_ap_link_down (void)
+/**************************************************************************//**
+ * Set AP link status to down.
+ *****************************************************************************/
+sl_status_t lwip_set_ap_link_down(void)
 {
   dhcpserver_stop();
   netifapi_netif_set_link_down(&ap_netif);
   netifapi_netif_set_down(&ap_netif);
+  return SL_STATUS_OK;
 }
 
 /***************************************************************************//**
@@ -637,7 +690,7 @@ static void Netif_Config(void)
   status = sl_wfx_init(&wifi);
   printf("FMAC Driver version    %s\r\n", FMAC_DRIVER_VERSION_STRING);
   switch(status) {
-  case SL_SUCCESS:
+  case SL_STATUS_OK:
     wifi.state = SL_WFX_STARTED;
     printf("WF200 Firmware version %d.%d.%d\r\n", 
            wifi.firmware_major,
@@ -645,16 +698,16 @@ static void Netif_Config(void)
            wifi.firmware_build);
     printf("WF200 initialization successful\r\n");
     break;
-  case SL_WIFI_INVALID_KEY:
+  case SL_STATUS_WIFI_INVALID_KEY:
     printf("Failed to init WF200: Firmware keyset invalid\r\n");
     break;
-  case SL_WIFI_FIRMWARE_DOWNLOAD_TIMEOUT:
+  case SL_STATUS_WIFI_FIRMWARE_DOWNLOAD_TIMEOUT:
     printf("Failed to init WF200: Firmware download timeout\r\n");
     break;
-  case SL_TIMEOUT:
+  case SL_STATUS_TIMEOUT:
     printf("Failed to init WF200: Poll for value timeout\r\n");
     break;
-  case SL_ERROR:
+  case SL_STATUS_FAIL:
     printf("Failed to init WF200: Error\r\n");
     break;
   default :
@@ -666,21 +719,22 @@ static void Netif_Config(void)
   netif_add(&ap_netif, &ap_ipaddr, &ap_netmask, &ap_gw, NULL, &ap_ethernetif_init, &tcpip_input);
   
   /* Registers the default network interface */
-  netif_set_default(&sta_netif);  
+  netif_set_default(&sta_netif);
+
+#ifndef DISABLE_CFG_MENU
+  wifi_cli_cfg_dialog(); // Prompt the user for a chance to override the configuration
+#else
+  sl_wfx_start_ap_command(softap_channel, (uint8_t*) softap_ssid, strlen(softap_ssid), 0, 0, softap_security, 0, (uint8_t*) softap_passkey, strlen(softap_passkey), NULL, 0, NULL, 0);
+  lwip_set_ap_link_up();
+#endif
 }
 
-/***************************************************************************//**
- * @brief
- *    Main function to call to start LwIP 
- *
- * @param[in] 
- *    none
- *
- * @return
- *    none
- ******************************************************************************/
-void lwip_start (void)
+/**************************************************************************//**
+ * Start LwIP task.
+ *****************************************************************************/
+sl_status_t lwip_start(void)
 {
   osThreadDef(Start, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
   osThreadCreate (osThread(Start), NULL);
+  return SL_STATUS_OK;
 }

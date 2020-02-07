@@ -107,8 +107,8 @@ uint8_t sl_wfx_secure_link_encryption_required_get(uint8_t request_id)
  * @param destination: Memory section where it should be written
  *   @arg         SL_MAC_KEY_DEST_OTP
  *   @arg         SL_MAC_KEY_DEST_RAM
- * @returns Returns SL_SUCCESS if the request has been sent correctly,
- * SL_ERROR otherwise
+ * @returns Returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_secure_link_set_mac_key(const uint8_t *sl_mac_key, sl_wfx_securelink_mac_key_dest_t destination)
 {
@@ -135,12 +135,13 @@ sl_status_t sl_wfx_secure_link_set_mac_key(const uint8_t *sl_mac_key, sl_wfx_sec
  * @brief Exchange SecureLink public keys
  *
  * @param sl_mac_key: MAC key to be used
- * @returns Returns SL_SUCCESS if the request has been sent correctly,
- * SL_WIFI_SECURE_LINK_EXCHANGE_FAILED otherwise
+ * @param sl_host_pub_key: public key of the host
+ * @returns Returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_WIFI_SECURE_LINK_EXCHANGE_FAILED otherwise
  *****************************************************************************/
-sl_status_t sl_wfx_secure_link_exchange_keys(const uint8_t *sl_mac_key)
+sl_status_t sl_wfx_secure_link_exchange_keys(const uint8_t *sl_mac_key, uint8_t *sl_host_pub_key)
 {
-  sl_status_t       status = SL_SUCCESS;
+  sl_status_t       status = SL_STATUS_OK;
   sl_wfx_generic_message_t  *request_packet = NULL;
   sl_wfx_securelink_exchange_pub_keys_cnf_t     *response_packet = NULL;
   sl_wfx_securelink_exchange_pub_keys_req_body_t *request = NULL;
@@ -151,11 +152,16 @@ sl_status_t sl_wfx_secure_link_exchange_keys(const uint8_t *sl_mac_key)
 
   request = (sl_wfx_securelink_exchange_pub_keys_req_body_t *)&request_packet->body;
 
-  // Only algorithm supported for now is Curve25519
+#ifdef SL_WFX_SLK_CURVE25519
   request->algorithm = sl_wfx_htole32(SECURE_LINK_CURVE25519);
+#else
+  request->algorithm = sl_wfx_htole32(SECURE_LINK_KDF);
+#endif
 
   status = sl_wfx_host_compute_pub_key(request, sl_mac_key);
   SL_WFX_ERROR_CHECK(status);
+
+  memcpy(sl_host_pub_key, &request->host_pub_key, SL_WFX_HOST_PUB_KEY_SIZE);
 
   status = sl_wfx_send_request(SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_REQ_ID, request_packet, request_length);
   SL_WFX_ERROR_CHECK(status);
@@ -175,16 +181,17 @@ sl_status_t sl_wfx_secure_link_exchange_keys(const uint8_t *sl_mac_key)
 /**************************************************************************//**
  * @brief Renegotiate session key request
  *
- * @returns SL_SUCCESS if the setting is applied correctly, SL_ERROR otherwise
+ * @returns SL_STATUS_OK if the setting is applied correctly, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 sl_status_t sl_wfx_secure_link_renegotiate_session_key(void)
 {
   sl_status_t result;
   sl_wfx_securelink_exchange_pub_keys_ind_t *exchange_pub_keys_ind;
+  uint8_t sl_host_pub_key[SL_WFX_HOST_PUB_KEY_SIZE];
 
   sl_wfx_context->secure_link_renegotiation_state = SL_WFX_SECURELINK_RENEGOTIATION_PENDING;
 
-  result = sl_wfx_secure_link_exchange_keys(sl_wfx_context->secure_link_mac_key);
+  result = sl_wfx_secure_link_exchange_keys(sl_wfx_context->secure_link_mac_key, sl_host_pub_key);
   SL_WFX_ERROR_CHECK(result);
 
   result = sl_wfx_host_setup_waited_event(SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID);
@@ -192,21 +199,22 @@ sl_status_t sl_wfx_secure_link_renegotiate_session_key(void)
 
   result = sl_wfx_host_wait_for_confirmation(SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID, SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS, (void **)&exchange_pub_keys_ind);
   SL_WFX_ERROR_CHECK(result);
-  if (sl_wfx_htole32(exchange_pub_keys_ind->body.status) != SL_PUB_KEY_EXCHANGE_STATUS_SUCCESS) {
-    result = SL_WIFI_SECURE_LINK_EXCHANGE_FAILED;
+  if (sl_wfx_htole32(exchange_pub_keys_ind->body.status) != SL_WFX_PUB_KEY_EXCHANGE_STATUS_SUCCESS) {
+    result = SL_STATUS_WIFI_SECURE_LINK_EXCHANGE_FAILED;
     goto error_handler;
   }
   result = sl_wfx_get_status_code(sl_wfx_htole32(exchange_pub_keys_ind->body.status), SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID);
   SL_WFX_ERROR_CHECK(result);
 
-  result = sl_wfx_host_verify_pub_key(exchange_pub_keys_ind, sl_wfx_context->secure_link_mac_key);
+  result = sl_wfx_host_verify_pub_key(exchange_pub_keys_ind, sl_wfx_context->secure_link_mac_key, sl_host_pub_key);
   SL_WFX_ERROR_CHECK(result);
 
-#ifdef SL_WFX_DEBUG
-  printf("--Key renegotiated--\r\n");
+#if (SL_WFX_DEBUG_MASK & SL_WFX_DEBUG_SLK)
+  sl_wfx_host_log("--Key renegotiated--\r\n");
 #endif
 
   error_handler:
+  sl_wfx_host_free_crypto_context();
   sl_wfx_context->secure_link_renegotiation_state = SL_WFX_SECURELINK_DEFAULT;
   return result;
 }
@@ -219,8 +227,8 @@ sl_status_t sl_wfx_secure_link_renegotiate_session_key(void)
  *  during a complete power cycle, even very long.
  * @note Disabling the session key protection downgrades the link security and is NOT RECOMMENDED.
  * @note The magic word SL_WFX_SESSION_KEY_PROTECTION_DISABLE_MAGIC is used to disable this protection.
- * @returns Returns SL_SUCCESS if the request has been sent correctly,
- * SL_ERROR otherwise
+ * @returns Returns SL_STATUS_OK if the request has been sent correctly,
+ * SL_STATUS_FAIL otherwise
  *
  * @note The bitmap used as a parameter will be copied to the context bitmap if the setting
  * completed successfully.
@@ -276,7 +284,7 @@ void sl_wfx_secure_link_bitmap_set_all_encrypted(uint8_t *bitmap)
 
   memset(bitmap, 0xFF, SL_WFX_SECURE_LINK_ENCRYPTION_BITMAP_SIZE);
 
-  // Some messages ignore the bitmap setting, remove them so that the driver and Ineo stay in sync
+  // Some messages ignore the bitmap setting, remove them so that the driver and the device stay in sync
   sl_wfx_secure_link_bitmap_remove_request_id(bitmap, SL_WFX_EXCEPTION_IND_ID);
   sl_wfx_secure_link_bitmap_remove_request_id(bitmap, SL_WFX_ERROR_IND_ID);
   sl_wfx_secure_link_bitmap_remove_request_id(bitmap, SL_WFX_STARTUP_IND_ID);

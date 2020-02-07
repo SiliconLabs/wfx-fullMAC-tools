@@ -79,15 +79,13 @@
 
 #define BIT(n) (1 << (n))
 
-/* WBF - Control register bit set */
-/* next o/p length, bit 11 to 0 */
+/* Control register bit set */
 #define SL_WFX_CONT_NEXT_LEN_MASK      (0x0FFF)
 #define SL_WFX_CONT_WUP_BIT            (BIT(12))
 #define SL_WFX_CONT_RDY_BIT            (BIT(13))
 #define SL_WFX_CONT_FRAME_TYPE_INFO    (BIT(14) | BIT(15))
 
-/* SPI Config register bit set */
-/*TODO update these bits definitions : word_mode are now in 8 and 9*/
+/* Config register bit set */
 #define SL_WFX_CONFIG_FRAME_BIT        (BIT(2))
 #define SL_WFX_CONFIG_WORD_MODE_BITS   (BIT(8) | BIT(9))
 #define SL_WFX_CONFIG_WORD_MODE_1      (BIT(8))
@@ -114,6 +112,16 @@
 #define SL_WFX_CONFIG_DATA_IRQ_ENABLE  (BIT(16))
 #define SL_WFX_CONFIG_WUP_IRQ_ENABLE   (BIT(17))
 #define SL_WFX_CONFIG_DATA_WUP_ENABLE  (BIT(16) | BIT(17))
+
+/* SDIO CCCR register offsets */
+#define SL_WFX_SDIO_CCCR_IO_QUEUE_ENABLE        (0x02)
+#define SL_WFX_SDIO_CCCR_IRQ_ENABLE             (0x04)
+#define SL_WFX_SDIO_CCCR_BUS_INTERFACE_CONTROL  (0x07)
+#define SL_WFX_SDIO_CCCR_HIGH_SPEED_ENABLE      (0x13)
+
+/* SDIO FBR1 register offsets */
+#define SL_WFX_SDIO_FBR1_BLOCK_SIZE_LSB (0x110)   /* Function 1 16-bit block size LSB */
+#define SL_WFX_SDIO_FBR1_BLOCK_SIZE_MSB (0x111)   /* Function 1 16-bit block size MSB */
 
 #define FW_VERSION_VALUE               0x00000001
 

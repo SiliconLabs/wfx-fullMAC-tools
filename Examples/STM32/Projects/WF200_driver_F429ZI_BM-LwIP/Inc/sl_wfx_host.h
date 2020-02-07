@@ -20,9 +20,9 @@
 #include <stdint.h>
 #include "sl_wfx.h"
   
-#define SL_WFX_EVENT_MAX_SIZE  512
-#define SL_WFX_EVENT_LIST_SIZE 1
-#define SL_WFX_MAX_STATIONS    8
+#define SL_WFX_EVENT_MAX_SIZE   512
+#define SL_WFX_EVENT_LIST_SIZE  1
+#define SL_WFX_MAX_STATIONS     8
 #define SL_WFX_MAX_SCAN_RESULTS 50
 
 /* WFX host callbacks */
@@ -37,5 +37,13 @@ void sl_wfx_generic_status_callback( sl_wfx_generic_ind_t* frame );
 void sl_wfx_client_connected_callback( uint8_t* mac );
 void sl_wfx_ap_client_disconnected_callback( uint32_t status, uint8_t* mac );
 void sl_wfx_ap_client_rejected_callback(  uint32_t status, uint8_t* mac );
+
+typedef struct __attribute__((__packed__)) scan_result_list_s {
+  sl_wfx_ssid_def_t ssid_def;
+  uint8_t  mac[SL_WFX_MAC_ADDR_SIZE];
+  uint16_t channel;
+  sl_wfx_security_mode_bitmask_t security_mode;
+  uint16_t rcpi;
+} scan_result_list_t;
 
 #endif /* SL_WFX_HOST_H */

@@ -14,10 +14,6 @@
  * limitations under the License.
  *****************************************************************************/
 
-/**************************************************************************//**
- * SPI interface implementation: STM32F4 + Bare Metal
- *****************************************************************************/
-
 #include <stdbool.h>
 #include "sl_wfx_host_pin.h"
 
@@ -29,44 +25,44 @@ sl_status_t sl_wfx_host_init_bus( void )
 {
   /* Init SPI interface */
   MX_SPI1_Init();
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_deinit_bus( void )
 {
   /* Deinit SPI interface */
   HAL_SPI_MspDeInit(&hspi1);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_spi_cs_assert()
 {
   HAL_GPIO_WritePin(SL_WFX_CS_PORT_SPI, SL_WFX_CS_GPIO_SPI, GPIO_PIN_RESET);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_spi_cs_deassert()
 {
   HAL_GPIO_WritePin(SL_WFX_CS_PORT_SPI, SL_WFX_CS_GPIO_SPI, GPIO_PIN_SET);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_tranfer_type_t type,
+sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_transfer_type_t type,
                                                   uint8_t *header,
                                                   uint16_t header_length,
                                                   uint8_t *buffer,
                                                   uint16_t buffer_length)
 {
-  sl_status_t    result  = SL_ERROR;
+  sl_status_t    result  = SL_STATUS_FAIL;
   const bool     is_read = ( type == SL_WFX_BUS_READ );
   
   /* send the 2-byte header without DMA */
   HAL_SPI_Transmit(&hspi1, header, header_length, 1000);
   if(is_read)
   {
-    if(HAL_SPI_Receive(&hspi1, buffer, buffer_length, 50) == HAL_OK) result = SL_SUCCESS;
+    if(HAL_SPI_Receive(&hspi1, buffer, buffer_length, 50) == HAL_OK) result = SL_STATUS_OK;
   }else{
-    if(HAL_SPI_Transmit(&hspi1, buffer, buffer_length, 50) == HAL_OK) result = SL_SUCCESS;
+    if(HAL_SPI_Transmit(&hspi1, buffer, buffer_length, 50) == HAL_OK) result = SL_STATUS_OK;
   }
   
   return result;
@@ -77,13 +73,13 @@ sl_status_t sl_wfx_host_enable_platform_interrupt( void )
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_disable_platform_interrupt( void )
 {
   HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
-  return SL_SUCCESS;
+  return SL_STATUS_OK;
 }
 
 /* SPI1 init function */

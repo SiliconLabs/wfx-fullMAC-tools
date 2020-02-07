@@ -29,10 +29,6 @@
 #define SL_WFX_SDIO_BLOCK_MODE_THRESHOLD 0x200
 #endif
 
-// From the SDIO specification
-#define SDIO_FBR_FN1_BLOCK_SIZE_LSB_REGISTER  (0x110)   /* Function 1 16-bit block size LSB */
-#define SDIO_FBR_FN1_BLOCK_SIZE_MSB_REGISTER  (0x111)   /* Function 1 16-bit block size MSB */
-
 static uint32_t            rx_buffer_id;
 static uint32_t            tx_buffer_id;
 
@@ -100,33 +96,50 @@ sl_status_t sl_wfx_init_bus(void)
   result = sl_wfx_host_init_bus();
   SL_WFX_ERROR_CHECK(result);
 
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_READ, 0, 2, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_READ, 0,
+                                           SL_WFX_SDIO_CCCR_IO_QUEUE_ENABLE,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
 
   // Enables Function 1
   value_u8 |= (1 << 1);
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0, 2, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0,
+                                           SL_WFX_SDIO_CCCR_IO_QUEUE_ENABLE,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
 
   // Enables Master and Function 1 interrupts
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_READ, 0, 4, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_READ, 0,
+                                           SL_WFX_SDIO_CCCR_IRQ_ENABLE,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
   value_u8 |= 0x1 | (1 << 1);
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0, 4, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0,
+                                           SL_WFX_SDIO_CCCR_IRQ_ENABLE,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
 
   // Set bus width to 4-bit
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_READ, 0, 7, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_READ, 0,
+                                           SL_WFX_SDIO_CCCR_BUS_INTERFACE_CONTROL,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
   value_u8 = (value_u8 & 0xFC) | 0x2;
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0, 7, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0,
+                                           SL_WFX_SDIO_CCCR_BUS_INTERFACE_CONTROL,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
 
   // Switch to HS mode
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_READ, 0, 0x13, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_READ, 0,
+                                           SL_WFX_SDIO_CCCR_HIGH_SPEED_ENABLE,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
-  value_u8 |= 0x2;   // Set EHS to 1
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0, 0x13, &value_u8);
+  // Set Enable_High_Speed to 1
+  value_u8 |= 0x2;
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0,
+                                           SL_WFX_SDIO_CCCR_HIGH_SPEED_ENABLE,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
 
   // Enabled SDIO high speed mode
@@ -134,18 +147,22 @@ sl_status_t sl_wfx_init_bus(void)
 
   // Set function 1 block size
   value_u8 = SL_WFX_SDIO_BLOCK_SIZE & 0xff;
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0, SDIO_FBR_FN1_BLOCK_SIZE_LSB_REGISTER, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0,
+                                           SL_WFX_SDIO_FBR1_BLOCK_SIZE_LSB,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
 
   value_u8 = (SL_WFX_SDIO_BLOCK_SIZE >> 8) & 0xff;
-  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0, SDIO_FBR_FN1_BLOCK_SIZE_MSB_REGISTER, &value_u8);
+  result = sl_wfx_host_sdio_transfer_cmd52(SL_WFX_BUS_WRITE, 0,
+                                           SL_WFX_SDIO_FBR1_BLOCK_SIZE_MSB,
+                                           &value_u8);
   SL_WFX_ERROR_CHECK(result);
 
   result = sl_wfx_reg_read_32(SL_WFX_CONFIG_REG_ID, &value32);
   SL_WFX_ERROR_CHECK(result);
 
   if (value32 == 0 || value32 == 0xFFFFFFFF) {
-    result = SL_ERROR;
+    result = SL_STATUS_FAIL;
     SL_WFX_ERROR_CHECK(result);
   }
 

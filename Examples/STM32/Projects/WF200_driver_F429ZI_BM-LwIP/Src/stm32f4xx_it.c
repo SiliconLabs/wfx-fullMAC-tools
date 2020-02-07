@@ -84,9 +84,13 @@ void EXTI15_10_IRQHandler(void)
     HAL_GPIO_TogglePin(SL_WFX_LED0_PORT, SL_WFX_LED0_GPIO);
     HAL_GPIO_TogglePin(SL_WFX_LED1_PORT, SL_WFX_LED1_GPIO);
   }
+
+#ifdef SL_WFX_USE_SPI
   if (__HAL_GPIO_EXTI_GET_IT(SL_WFX_IRQ_GPIO_SPI) != RESET) {
     wf200_interrupt_event = 1;
   }
+#endif /* SL_WFX_USE_SPI */
+
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
   HAL_GPIO_EXTI_IRQHandler(SL_WFX_IRQ_GPIO_SPI);

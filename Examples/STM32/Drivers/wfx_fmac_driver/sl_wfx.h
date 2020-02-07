@@ -159,6 +159,10 @@ sl_status_t sl_wfx_get_max_tx_power(int32_t *max_tx_power_rf_port_1,
                                     int32_t *max_tx_power_rf_port_2,
                                     sl_wfx_interface_t interface);
 
+sl_status_t sl_wfx_get_pmk(uint8_t *password,
+                           uint32_t *password_length,
+                           sl_wfx_interface_t interface);
+
 sl_status_t sl_wfx_get_ap_client_signal_strength(const sl_wfx_mac_address_t *client, uint32_t *signal_strength);
 
 /*
@@ -184,7 +188,8 @@ sl_status_t sl_wfx_send_scan_command(uint16_t scan_mode,
                                      const sl_wfx_ssid_def_t *ssid_list,
                                      uint16_t ssid_list_count,
                                      const uint8_t *ie_data,
-                                     uint16_t ie_data_length);
+                                     uint16_t ie_data_length,
+                                     const uint8_t *bssid);
 
 sl_status_t sl_wfx_send_stop_scan_command(void);
 

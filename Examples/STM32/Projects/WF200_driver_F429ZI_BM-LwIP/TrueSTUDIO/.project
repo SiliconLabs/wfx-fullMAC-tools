@@ -139,7 +139,7 @@
 		<link>
 			<name>Application/User/dhcp_server.c</name>
 			<type>1</type>
-			<location>C:/Users/jutiron/Desktop/Github/wfx_fullMAC_tools/Examples/STM32/Projects/WF200_driver_F429ZI_BM-LwIP/Src/dhcp_server.c</location>
+			<locationURI>PROJECT_FOLDER/Src/dhcp_server.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/ethernetif.c</name>
@@ -147,9 +147,9 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Src/ethernetif.c</locationURI>
 		</link>
 		<link>
-			<name>Application/User/lwip.c</name>
+			<name>Application/User/lwip_app.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Src/lwip.c</locationURI>
+			<locationURI>PROJECT_FOLDER/Src/lwip_app.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/main.c</name>

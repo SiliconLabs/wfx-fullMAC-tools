@@ -30,17 +30,14 @@
   *
   ******************************************************************************
   */
-/* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
 
-/* USER CODE BEGIN 0 */
 #include "semphr.h"
 #include "sl_wfx.h"
 #include "sl_wfx_host_pin.h"
-/* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 #ifdef SL_WFX_USE_SPI
@@ -71,13 +68,7 @@ extern osThreadId UARTInputTaskHandle;
 */
 void SysTick_Handler(void)
 {
-  /* USER CODE BEGIN SysTick_IRQn 0 */
-
-  /* USER CODE END SysTick_IRQn 0 */
   osSystickHandler();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
-
-  /* USER CODE END SysTick_IRQn 1 */
 }
 
 /******************************************************************************/
@@ -92,13 +83,7 @@ void SysTick_Handler(void)
 */
 void TIM1_UP_TIM10_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 0 */
-
-  /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
-  /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
-
-  /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
 }
 
 /**
@@ -106,23 +91,23 @@ void TIM1_UP_TIM10_IRQHandler(void)
 */
 void EXTI15_10_IRQHandler(void)
 {
-  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  
+#ifdef SL_WFX_USE_SPI
   if (__HAL_GPIO_EXTI_GET_IT(SL_WFX_IRQ_GPIO_SPI) != RESET) {
     vTaskNotifyGiveFromISR( busCommTaskHandle, &xHigherPriorityTaskWoken );
   }
+#endif /* SL_WFX_USE_SPI */
+  
   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET) {
     HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
     HAL_GPIO_TogglePin(SL_WFX_LED0_PORT, SL_WFX_LED0_GPIO);
     HAL_GPIO_TogglePin(SL_WFX_LED1_PORT, SL_WFX_LED1_GPIO);
   }
-  /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
   HAL_GPIO_EXTI_IRQHandler(SL_WFX_IRQ_GPIO_SPI);
-  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-  /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
 #ifdef SL_WFX_USE_SPI
@@ -131,11 +116,7 @@ void EXTI15_10_IRQHandler(void)
 */
 void SPI1_IRQHandler(void)
 {
-  /* USER CODE BEGIN SPI1_IRQn 0 */
-  /* USER CODE END SPI1_IRQn 0 */
   HAL_SPI_IRQHandler(&hspi1);
-  /* USER CODE BEGIN SPI1_IRQn 1 */
-  /* USER CODE END SPI1_IRQn 1 */
 }
 
 /**
@@ -143,13 +124,7 @@ void SPI1_IRQHandler(void)
 */
 void DMA2_Stream0_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
-
-  /* USER CODE END DMA2_Stream0_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi1_rx);
-  /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-
-  /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
 /**
@@ -157,13 +132,7 @@ void DMA2_Stream0_IRQHandler(void)
 */
 void DMA2_Stream3_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA2_Stream3_IRQn 0 */
-
-  /* USER CODE END DMA2_Stream3_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi1_tx);
-  /* USER CODE BEGIN DMA2_Stream3_IRQn 1 */
-
-  /* USER CODE END DMA2_Stream3_IRQn 1 */
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
@@ -187,7 +156,6 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 */
 void SDIO_IRQHandler(void)
 {
-  /* USER CODE BEGIN SDIO_IRQn 0 */
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   if(__SDIO_GET_FLAG(SDIO, SDIO_IT_SDIOIT)){
     /*Receive SDIO interrupt on SDIO_DAT1 from Ineo*/
@@ -200,7 +168,6 @@ void SDIO_IRQHandler(void)
     xSemaphoreGiveFromISR( sdioDMASemaphore, &xHigherPriorityTaskWoken );
   }
   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-  /* USER CODE END SDIO_IRQn 1 */
 }
 
 /**
@@ -208,13 +175,7 @@ void SDIO_IRQHandler(void)
   */
 void DMA2_Stream3_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA2_Stream3_IRQn 0 */
-
-  /* USER CODE END DMA2_Stream3_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_sdio_rx);
-  /* USER CODE BEGIN DMA2_Stream3_IRQn 1 */
-
-  /* USER CODE END DMA2_Stream3_IRQn 1 */
 }
 
 /**
@@ -222,38 +183,26 @@ void DMA2_Stream3_IRQHandler(void)
   */
 void DMA2_Stream6_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA2_Stream6_IRQn 0 */
-
-  /* USER CODE END DMA2_Stream6_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_sdio_tx);
-  /* USER CODE BEGIN DMA2_Stream6_IRQn 1 */
-
-  /* USER CODE END DMA2_Stream6_IRQn 1 */
 }
 #endif /* SL_WFX_USE_SDIO */
 
-/* USER CODE BEGIN 1 */
 /**
 * @brief This function handles USART3 global interrupt.
 */
 void USART3_IRQHandler(void)
 {
-  /* USER CODE BEGIN USART3_IRQn 0 */
   uint32_t isrflags   = READ_REG(huart3.Instance->SR);
 
-  /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
-  /* USER CODE BEGIN USART3_IRQn 1 */
   /*Character received*/
   if((isrflags & USART_SR_RXNE) != RESET)
   {
     /*Notify UARTCmdTask that data is available*/
     vTaskNotifyGiveFromISR( UARTInputTaskHandle, pdFALSE );
   }
-  /* USER CODE END USART3_IRQn 1 */
 }
 
-/* USER CODE BEGIN 1 */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
   /*Release the UART binary semaphore*/
   xSemaphoreGiveFromISR(uart3Semaphore, pdFALSE);  
@@ -264,5 +213,4 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   /*Release the UART binary semaphore*/
   xSemaphoreGiveFromISR(uart3Semaphore, pdFALSE);  
 }
-/* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

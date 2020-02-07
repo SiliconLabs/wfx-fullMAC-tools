@@ -2,11 +2,7 @@
 
 # Silicon Labs Wi-Fi FMAC tools
 
-This repository contains tools and examples to use the **WFx Wi-Fi FMAC driver**
-(FMAC standing for Full-MAC). The WF200 is a Wi-Fi transceiver and this code is
-meant to be run with the [WF200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit),
-the [WFM200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wfm200-expansion-kit) and also the
-[WGM160P Wi-Fi Module Starter Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wgm160p-wifi-module-starter-kit).
+This repository contains tools and examples to use **Silicon Labs Wi-Fi FMAC driver** (FMAC standing for Full-MAC). This example codes are meant to be evaluated with hosts connected to the [WF200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit) or the [WFM200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wfm200-expansion-kit). It can also be ran in the [WGM160P Wi-Fi Module Starter Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wgm160p-wifi-module-starter-kit).
 
 ## Repository content
 
@@ -23,8 +19,8 @@ the [WFM200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-too
 
 ## FMAC driver source code
 
-The latest WFx Wi-Fi FMAC driver version in the [wfx-fullMAC-driver repository](https://github.com/SiliconLabs/wfx-fullMAC-driver)
+The latest Wi-Fi FMAC driver version in the [wfx-fullMAC-driver repository](https://github.com/SiliconLabs/wfx-fullMAC-driver)
 
 ## FMAC driver documentation
 
-The latest WFx Wi-Fi FMAC driver documentation in the [Silabs WF200 documentation](https://docs.silabs.com/wifi/wf200/rtos/latest/index).
+The latest Wi-Fi FMAC driver documentation in the [Silabs Wi-Fi documentation](https://docs.silabs.com/wifi/wf200/rtos/latest/index).

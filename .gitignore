@@ -22,3 +22,6 @@
 **/Exe/*.hex
 **/Exe/*.out 
 **/List/*.map
+
+# MQTT Example
+mosquitto_tls_examples.conf

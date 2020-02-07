@@ -50,24 +50,32 @@
 static char wifi_cli_input_buf[WIFI_CLI_INPUT_BUF_SIZE];
 
 /**************************************************************************//**
- * Get text input from user.
+ * Get text input from user with a timeout.
  *
  * @param buf Buffer to hold the input string.
+ * @param size Size of the buffer holding the input string.
+ * @param timeout_sec Time in seconds to wait for an input (0: infinite timeout).
  * @param echo Enable or disable text echo to user.
  *****************************************************************************/
-static void wifi_cli_get_input(char *buf, CPU_BOOLEAN echo)
+void wifi_cli_get_input_tmo(char *buf, uint32_t size, uint8_t timeout_sec, CPU_BOOLEAN echo)
 {
   RTOS_ERR err;
   int c;
   size_t i;
+  uint32_t ctr = timeout_sec * 1000;
 
-  Mem_Set(buf, '\0', WIFI_CLI_INPUT_BUF_SIZE); // Clear previous input
+  Mem_Set(buf, '\0', size); // Clear previous input
 
-  for (i = 0; i < WIFI_CLI_INPUT_BUF_SIZE - 1; i++) {
+  for (i = 0; i < size - 1; i++) {
     while ((c = RETARGET_ReadChar()) < 0) {    // Wait for valid input
       OSTimeDly(100,
                 OS_OPT_TIME_DLY,
                 &err);
+      ctr = ctr - 100;
+      if (ctr == 0) {
+        // Timeout reached, exit
+        return;
+      }
     }
 
     if (c == ASCII_CHAR_DELETE || c ==  0x08) { // User entered backspace
@@ -86,9 +94,6 @@ static void wifi_cli_get_input(char *buf, CPU_BOOLEAN echo)
           printf("\n");
         }
         break;
-      } else {
-        i--;
-        continue;
       }
     }
     if (echo) {
@@ -101,42 +106,39 @@ static void wifi_cli_get_input(char *buf, CPU_BOOLEAN echo)
 }
 
 /**************************************************************************//**
+ * Get text input from user.
+ *
+ * @param buf Buffer to hold the input string.
+ * @param size Size of the buffer holding the input string.
+ * @param echo Enable or disable text echo to user.
+ *****************************************************************************/
+void wifi_cli_get_input(char *buf, uint32_t size, CPU_BOOLEAN echo)
+{
+  wifi_cli_get_input_tmo(buf, size, 0, echo);
+}
+
+/**************************************************************************//**
  * WiFi configuration dialog via UART.
  *****************************************************************************/
 void wifi_cli_cfg_dialog(void)
 {
-  RTOS_ERR err;
-  CPU_INT08U ctr;
-  int c;
   printf("\nPress <Enter> within 5 seconds to configure the demo...\n");
-  OSTimeDly(100,             //   100 OS Ticks
-            OS_OPT_TIME_DLY,
-            &err);
-  ctr = 0;
-  while ((c = RETARGET_ReadChar()) < 0) {      // Wait for valid input
-    OSTimeDly(100,
-              OS_OPT_TIME_DLY,
-              &err);
-    ctr++;
-    if (ctr > 50) {
-      break;
-    }
-  }
+  wifi_cli_get_input_tmo(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 5, 1);
 
-  if (c == '\r' || c == '\n') {
+  if (wifi_cli_input_buf[0] == '\r' || wifi_cli_input_buf[0] == '\n') {
     printf("Select a WiFi mode:\n1. Station\n2. SoftAP\nEnter 1 or 2:\n");
 
-    wifi_cli_get_input(wifi_cli_input_buf, 1);
+    wifi_cli_get_input(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 1);
     lwip_enable_dhcp_client();
     if (!Str_Cmp(wifi_cli_input_buf, "1")) {
       printf("Enter the SSID of the AP you want to connect:\n");
-      wifi_cli_get_input(wifi_cli_input_buf, 1);
+      wifi_cli_get_input(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 1);
       strncpy(&wlan_ssid[0], wifi_cli_input_buf, sizeof(wlan_ssid));
       printf("Enter the Passkey of the AP you want to connect (8-chars min):\n");
-      wifi_cli_get_input(wifi_cli_input_buf, 1);
+      wifi_cli_get_input(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 1);
       strncpy(&wlan_passkey[0], wifi_cli_input_buf, sizeof(wlan_passkey));
       printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\nEnter 1,2,3 or 4:\n");
-      wifi_cli_get_input(wifi_cli_input_buf, 1);
+      wifi_cli_get_input(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 1);
       if (!Str_Cmp(wifi_cli_input_buf, "1")) {
     	  wlan_security = WFM_SECURITY_MODE_OPEN;
       } else if (!Str_Cmp(wifi_cli_input_buf, "2")) {
@@ -151,13 +153,13 @@ void wifi_cli_cfg_dialog(void)
       sl_wfx_send_join_command((uint8_t*) wlan_ssid, strlen(wlan_ssid), NULL, 0, wlan_security, 1, 0, (uint8_t*) wlan_passkey, strlen(wlan_passkey), NULL, 0);
     } else if (!Str_Cmp(wifi_cli_input_buf, "2")) {
       printf("Enter the SSID of the SoftAP you want to create:\n");
-      wifi_cli_get_input(wifi_cli_input_buf, 1);
+      wifi_cli_get_input(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 1);
       strncpy(&softap_ssid[0], wifi_cli_input_buf, sizeof(softap_ssid));
       printf("Enter the Passkey of the SoftAP you want to create (8-chars min):\n");
-      wifi_cli_get_input(wifi_cli_input_buf, 1);
+      wifi_cli_get_input(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 1);
       strncpy(&softap_passkey[0], wifi_cli_input_buf, sizeof(softap_passkey));
       printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\nEnter 1,2,3 or 4:\n");
-      wifi_cli_get_input(wifi_cli_input_buf, 1);
+      wifi_cli_get_input(wifi_cli_input_buf, sizeof(wifi_cli_input_buf), 1);
       if (!Str_Cmp(wifi_cli_input_buf, "1")) {
           softap_security = WFM_SECURITY_MODE_OPEN;
       } else if (!Str_Cmp(wifi_cli_input_buf, "2")) {

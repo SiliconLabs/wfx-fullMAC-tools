@@ -3,7 +3,7 @@
 <project>
   <fileVersion>2</fileVersion>
   <configuration>
-    <name>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI</name>
+    <name>spi</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -81,7 +81,7 @@
         </option>
         <option>
           <name>OCProductVersion</name>
-          <state>4.41A</state>
+          <state>7.80.2.11970</state>
         </option>
         <option>
           <name>OCDynDriverList</name>
@@ -795,12 +795,8 @@
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
-          <name>CCCatchSFERR</name>
-          <state>0</state>
-        </option>
-        <option>
           <name>JLinkSpeed</name>
-          <state>8000</state>
+          <state>1000</state>
         </option>
         <option>
           <name>CCJLinkDoLogfile</name>
@@ -808,7 +804,7 @@
         </option>
         <option>
           <name>CCJLinkLogFile</name>
-          <state>$TOOLKIT_DIR$\cspycommmmmmmmmmmm.log</state>
+          <state>$PROJ_DIR$\cspycomm.log</state>
         </option>
         <option>
           <name>CCJLinkHWResetDelay</name>
@@ -820,7 +816,7 @@
         </option>
         <option>
           <name>JLinkInitialSpeed</name>
-          <state>32</state>
+          <state>1000</state>
         </option>
         <option>
           <name>CCDoJlinkMultiTarget</name>
@@ -848,7 +844,7 @@
         </option>
         <option>
           <name>CCJLinkSpeedRadioV2</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCUSBDevice</name>
@@ -893,16 +889,16 @@
         </option>
         <option>
           <name>CCJLinkUpdateBreakpoints</name>
-          <state>main</state>
+          <state>_call_main</state>
         </option>
         <option>
           <name>CCJLinkInterfaceRadio</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCJLinkResetList</name>
           <version>6</version>
-          <state>7</state>
+          <state>5</state>
         </option>
         <option>
           <name>CCJLinkInterfaceCmdLine</name>
@@ -937,6 +933,10 @@
           <state>0</state>
         </option>
         <option>
+          <name>CCCatchSFERR</name>
+          <state>0</state>
+        </option>
+        <option>
           <name>CCCatchHARDERR</name>
           <state>0</state>
         </option>
@@ -963,7 +963,7 @@
         </option>
         <option>
           <name>CCCpuClockEdit</name>
-          <state>168.0</state>
+          <state></state>
         </option>
         <option>
           <name>CCSwoClockAuto</name>
@@ -1143,7 +1143,7 @@
         <debug>0</debug>
         <option>
           <name>CRDIDriverDll</name>
-          <state>Browse to your RDI driver</state>
+          <state>###Uninitialized###</state>
         </option>
         <option>
           <name>CRDILogFileCheck</name>
@@ -1213,7 +1213,7 @@
         <option>
           <name>CCSTLinkResetList</name>
           <version>1</version>
-          <state>0</state>
+          <state>2</state>
         </option>
         <option>
           <name>CCCpuClockEdit</name>
@@ -1311,7 +1311,7 @@
         <debug>0</debug>
         <option>
           <name>CThirdPartyDriverDll</name>
-          <state>Browse to your third-party driver</state>
+          <state>###Uninitialized###</state>
         </option>
         <option>
           <name>CThirdPartyLogFileCheck</name>
@@ -1597,7 +1597,7 @@
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\OpenRTOS\OpenRTOSPlugin.ewplugin</file>
-        <loadFlag>1</loadFlag>
+        <loadFlag>0</loadFlag>
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\Quadros\Quadros_EWB7_Plugin.ewplugin</file>
@@ -1642,7 +1642,7 @@
     </debuggerPlugins>
   </configuration>
   <configuration>
-    <name>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO</name>
+    <name>sdio</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -1720,7 +1720,7 @@
         </option>
         <option>
           <name>OCProductVersion</name>
-          <state>4.41A</state>
+          <state>7.80.2.11970</state>
         </option>
         <option>
           <name>OCDynDriverList</name>
@@ -2434,12 +2434,8 @@
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
-          <name>CCCatchSFERR</name>
-          <state>0</state>
-        </option>
-        <option>
           <name>JLinkSpeed</name>
-          <state>8000</state>
+          <state>1000</state>
         </option>
         <option>
           <name>CCJLinkDoLogfile</name>
@@ -2447,7 +2443,7 @@
         </option>
         <option>
           <name>CCJLinkLogFile</name>
-          <state>$TOOLKIT_DIR$\cspycommmmmmmmmmmm.log</state>
+          <state>$PROJ_DIR$\cspycomm.log</state>
         </option>
         <option>
           <name>CCJLinkHWResetDelay</name>
@@ -2459,7 +2455,7 @@
         </option>
         <option>
           <name>JLinkInitialSpeed</name>
-          <state>32</state>
+          <state>1000</state>
         </option>
         <option>
           <name>CCDoJlinkMultiTarget</name>
@@ -2487,7 +2483,7 @@
         </option>
         <option>
           <name>CCJLinkSpeedRadioV2</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCUSBDevice</name>
@@ -2532,16 +2528,16 @@
         </option>
         <option>
           <name>CCJLinkUpdateBreakpoints</name>
-          <state>main</state>
+          <state>_call_main</state>
         </option>
         <option>
           <name>CCJLinkInterfaceRadio</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCJLinkResetList</name>
           <version>6</version>
-          <state>7</state>
+          <state>5</state>
         </option>
         <option>
           <name>CCJLinkInterfaceCmdLine</name>
@@ -2576,6 +2572,10 @@
           <state>0</state>
         </option>
         <option>
+          <name>CCCatchSFERR</name>
+          <state>0</state>
+        </option>
+        <option>
           <name>CCCatchHARDERR</name>
           <state>0</state>
         </option>
@@ -2602,7 +2602,7 @@
         </option>
         <option>
           <name>CCCpuClockEdit</name>
-          <state>168.0</state>
+          <state></state>
         </option>
         <option>
           <name>CCSwoClockAuto</name>
@@ -2782,7 +2782,7 @@
         <debug>0</debug>
         <option>
           <name>CRDIDriverDll</name>
-          <state>Browse to your RDI driver</state>
+          <state>###Uninitialized###</state>
         </option>
         <option>
           <name>CRDILogFileCheck</name>
@@ -2950,7 +2950,7 @@
         <debug>0</debug>
         <option>
           <name>CThirdPartyDriverDll</name>
-          <state>Browse to your third-party driver</state>
+          <state>###Uninitialized###</state>
         </option>
         <option>
           <name>CThirdPartyLogFileCheck</name>
@@ -3236,7 +3236,7 @@
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\OpenRTOS\OpenRTOSPlugin.ewplugin</file>
-        <loadFlag>1</loadFlag>
+        <loadFlag>0</loadFlag>
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\Quadros\Quadros_EWB7_Plugin.ewplugin</file>
@@ -3281,7 +3281,7 @@
     </debuggerPlugins>
   </configuration>
   <configuration>
-    <name>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI_Powersave</name>
+    <name>spi_power_save</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -3359,7 +3359,7 @@
         </option>
         <option>
           <name>OCProductVersion</name>
-          <state>4.41A</state>
+          <state>7.80.2.11970</state>
         </option>
         <option>
           <name>OCDynDriverList</name>
@@ -4073,12 +4073,8 @@
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
-          <name>CCCatchSFERR</name>
-          <state>0</state>
-        </option>
-        <option>
           <name>JLinkSpeed</name>
-          <state>8000</state>
+          <state>1000</state>
         </option>
         <option>
           <name>CCJLinkDoLogfile</name>
@@ -4086,7 +4082,7 @@
         </option>
         <option>
           <name>CCJLinkLogFile</name>
-          <state>$TOOLKIT_DIR$\cspycommmmmmmmmmmm.log</state>
+          <state>$PROJ_DIR$\cspycomm.log</state>
         </option>
         <option>
           <name>CCJLinkHWResetDelay</name>
@@ -4098,7 +4094,7 @@
         </option>
         <option>
           <name>JLinkInitialSpeed</name>
-          <state>32</state>
+          <state>1000</state>
         </option>
         <option>
           <name>CCDoJlinkMultiTarget</name>
@@ -4126,7 +4122,7 @@
         </option>
         <option>
           <name>CCJLinkSpeedRadioV2</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCUSBDevice</name>
@@ -4171,16 +4167,16 @@
         </option>
         <option>
           <name>CCJLinkUpdateBreakpoints</name>
-          <state>main</state>
+          <state>_call_main</state>
         </option>
         <option>
           <name>CCJLinkInterfaceRadio</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCJLinkResetList</name>
           <version>6</version>
-          <state>7</state>
+          <state>5</state>
         </option>
         <option>
           <name>CCJLinkInterfaceCmdLine</name>
@@ -4215,6 +4211,10 @@
           <state>0</state>
         </option>
         <option>
+          <name>CCCatchSFERR</name>
+          <state>0</state>
+        </option>
+        <option>
           <name>CCCatchHARDERR</name>
           <state>0</state>
         </option>
@@ -4241,7 +4241,7 @@
         </option>
         <option>
           <name>CCCpuClockEdit</name>
-          <state>168.0</state>
+          <state></state>
         </option>
         <option>
           <name>CCSwoClockAuto</name>
@@ -4421,7 +4421,7 @@
         <debug>0</debug>
         <option>
           <name>CRDIDriverDll</name>
-          <state>Browse to your RDI driver</state>
+          <state>###Uninitialized###</state>
         </option>
         <option>
           <name>CRDILogFileCheck</name>
@@ -4589,7 +4589,7 @@
         <debug>0</debug>
         <option>
           <name>CThirdPartyDriverDll</name>
-          <state>Browse to your third-party driver</state>
+          <state>###Uninitialized###</state>
         </option>
         <option>
           <name>CThirdPartyLogFileCheck</name>
@@ -4875,7 +4875,7 @@
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\OpenRTOS\OpenRTOSPlugin.ewplugin</file>
-        <loadFlag>1</loadFlag>
+        <loadFlag>0</loadFlag>
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\Quadros\Quadros_EWB7_Plugin.ewplugin</file>
@@ -4920,7 +4920,7 @@
     </debuggerPlugins>
   </configuration>
   <configuration>
-    <name>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO_Powersave</name>
+    <name>sdio_power_save</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -4998,7 +4998,7 @@
         </option>
         <option>
           <name>OCProductVersion</name>
-          <state>4.41A</state>
+          <state>7.80.2.11970</state>
         </option>
         <option>
           <name>OCDynDriverList</name>
@@ -5712,12 +5712,8 @@
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
-          <name>CCCatchSFERR</name>
-          <state>0</state>
-        </option>
-        <option>
           <name>JLinkSpeed</name>
-          <state>8000</state>
+          <state>1000</state>
         </option>
         <option>
           <name>CCJLinkDoLogfile</name>
@@ -5725,7 +5721,7 @@
         </option>
         <option>
           <name>CCJLinkLogFile</name>
-          <state>$TOOLKIT_DIR$\cspycommmmmmmmmmmm.log</state>
+          <state>$PROJ_DIR$\cspycomm.log</state>
         </option>
         <option>
           <name>CCJLinkHWResetDelay</name>
@@ -5737,7 +5733,7 @@
         </option>
         <option>
           <name>JLinkInitialSpeed</name>
-          <state>32</state>
+          <state>1000</state>
         </option>
         <option>
           <name>CCDoJlinkMultiTarget</name>
@@ -5765,7 +5761,7 @@
         </option>
         <option>
           <name>CCJLinkSpeedRadioV2</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCUSBDevice</name>
@@ -5810,16 +5806,16 @@
         </option>
         <option>
           <name>CCJLinkUpdateBreakpoints</name>
-          <state>main</state>
+          <state>_call_main</state>
         </option>
         <option>
           <name>CCJLinkInterfaceRadio</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCJLinkResetList</name>
           <version>6</version>
-          <state>7</state>
+          <state>5</state>
         </option>
         <option>
           <name>CCJLinkInterfaceCmdLine</name>
@@ -5854,6 +5850,10 @@
           <state>0</state>
         </option>
         <option>
+          <name>CCCatchSFERR</name>
+          <state>0</state>
+        </option>
+        <option>
           <name>CCCatchHARDERR</name>
           <state>0</state>
         </option>
@@ -5880,7 +5880,7 @@
         </option>
         <option>
           <name>CCCpuClockEdit</name>
-          <state>168.0</state>
+          <state></state>
         </option>
         <option>
           <name>CCSwoClockAuto</name>
@@ -6060,7 +6060,7 @@
         <debug>0</debug>
         <option>
           <name>CRDIDriverDll</name>
-          <state>Browse to your RDI driver</state>
+          <state>###Uninitialized###</state>
         </option>
         <option>
           <name>CRDILogFileCheck</name>
@@ -6228,7 +6228,7 @@
         <debug>0</debug>
         <option>
           <name>CThirdPartyDriverDll</name>
-          <state>Browse to your third-party driver</state>
+          <state>###Uninitialized###</state>
         </option>
         <option>
           <name>CThirdPartyLogFileCheck</name>
@@ -6514,7 +6514,7 @@
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\OpenRTOS\OpenRTOSPlugin.ewplugin</file>
-        <loadFlag>1</loadFlag>
+        <loadFlag>0</loadFlag>
       </plugin>
       <plugin>
         <file>$TOOLKIT_DIR$\plugins\rtos\Quadros\Quadros_EWB7_Plugin.ewplugin</file>

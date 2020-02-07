@@ -30,8 +30,8 @@
 #include "sl_wfx_wf200_C0.h"
 
 /* Platform Data Set (PDS) include */
-#include "pds/brd8022a_pds.h"
-#include "pds/brd8023a_pds.h"
+#include "brd8022a_pds.h"
+#include "brd8023a_pds.h"
 
 
 extern int use_dhcp_client;

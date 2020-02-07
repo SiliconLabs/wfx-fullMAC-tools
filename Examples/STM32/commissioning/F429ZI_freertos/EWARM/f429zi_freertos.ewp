@@ -3,7 +3,7 @@
 <project>
   <fileVersion>2</fileVersion>
   <configuration>
-    <name>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI</name>
+    <name>spi</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -17,15 +17,15 @@
         <debug>0</debug>
         <option>
           <name>ExePath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI\Exe</state>
+          <state>spi\Exe</state>
         </option>
         <option>
           <name>ObjPath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI\Obj</state>
+          <state>spi\Obj</state>
         </option>
         <option>
           <name>ListPath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI\List</state>
+          <state>spi\List</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -318,17 +318,18 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\include</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\include</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\system</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Include</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\firmware\3.3.1</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\system</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Include</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware\3.3.1</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\PDS</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -980,7 +981,7 @@
     </settings>
   </configuration>
   <configuration>
-    <name>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO</name>
+    <name>sdio</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -994,15 +995,15 @@
         <debug>0</debug>
         <option>
           <name>ExePath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO\Exe</state>
+          <state>sdio\Exe</state>
         </option>
         <option>
           <name>ObjPath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO\Obj</state>
+          <state>sdio\Obj</state>
         </option>
         <option>
           <name>ListPath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO\List</state>
+          <state>sdio\List</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -1296,17 +1297,18 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\include</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\include</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\system</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Include</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\firmware\3.3.1</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\system</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Include</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware\3.3.1</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\PDS</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1958,7 +1960,7 @@
     </settings>
   </configuration>
   <configuration>
-    <name>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI_Powersave</name>
+    <name>spi_power_save</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -1972,15 +1974,15 @@
         <debug>0</debug>
         <option>
           <name>ExePath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI_Powersave\Exe</state>
+          <state>spi_power_save\Exe</state>
         </option>
         <option>
           <name>ObjPath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI_Powersave\Obj</state>
+          <state>spi_power_save\Obj</state>
         </option>
         <option>
           <name>ListPath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI_Powersave\List</state>
+          <state>spi_power_save\List</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -2274,17 +2276,18 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\include</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\include</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\system</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Include</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\firmware\3.3.1</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\system</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Include</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware\3.3.1</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\PDS</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -2936,7 +2939,7 @@
     </settings>
   </configuration>
   <configuration>
-    <name>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO_Powersave</name>
+    <name>sdio_power_save</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -2950,15 +2953,15 @@
         <debug>0</debug>
         <option>
           <name>ExePath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO_Powersave\Exe</state>
+          <state>sdio_power_save\Exe</state>
         </option>
         <option>
           <name>ObjPath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO_Powersave\Obj</state>
+          <state>sdio_power_save\Obj</state>
         </option>
         <option>
           <name>ListPath</name>
-          <state>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO_Powersave\List</state>
+          <state>sdio_power_save\List</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -3253,17 +3256,18 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\include</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\include</state>
-          <state>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\system</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Include</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\firmware\3.3.1</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\system</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
+          <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Include</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware\3.3.1</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\PDS</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -3933,15 +3937,15 @@
       <file>
         <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_host_sdio.c</name>
         <excluded>
-          <configuration>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI</configuration>
-          <configuration>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI_Powersave</configuration>
+          <configuration>spi</configuration>
+          <configuration>spi_power_save</configuration>
         </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_host_spi.c</name>
         <excluded>
-          <configuration>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO</configuration>
-          <configuration>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO_Powersave</configuration>
+          <configuration>sdio</configuration>
+          <configuration>sdio_power_save</configuration>
         </excluded>
       </file>
       <file>
@@ -3990,90 +3994,90 @@
     <group>
       <name>CMSIS</name>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c</name>
+        <name>$PROJ_DIR$\..\Src\system_stm32f4xx.c</name>
       </file>
     </group>
     <group>
       <name>SL_WFX_Driver</name>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\sl_wfx.c</name>
+        <name>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\sl_wfx.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\bus\sl_wfx_bus.c</name>
+        <name>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\bus\sl_wfx_bus.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\bus\sl_wfx_bus_sdio.c</name>
+        <name>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\bus\sl_wfx_bus_sdio.c</name>
         <excluded>
-          <configuration>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI</configuration>
-          <configuration>WF200_driver_F429ZI_FreeRTOS-LwIP_SPI_Powersave</configuration>
+          <configuration>spi</configuration>
+          <configuration>spi_power_save</configuration>
         </excluded>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\wfx_fmac_driver\bus\sl_wfx_bus_spi.c</name>
+        <name>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\bus\sl_wfx_bus_spi.c</name>
         <excluded>
-          <configuration>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO</configuration>
-          <configuration>WF200_driver_F429ZI_FreeRTOS-LwIP_SDIO_Powersave</configuration>
+          <configuration>sdio</configuration>
+          <configuration>sdio_power_save</configuration>
         </excluded>
       </file>
     </group>
     <group>
       <name>STM32F4xx_HAL_Driver</name>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_cortex.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_cortex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma_ex.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma_ex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ramfunc.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ramfunc.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_gpio.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_gpio.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pcd.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pcd.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pcd_ex.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pcd_ex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr_ex.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr_ex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc_ex.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc_ex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spi.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spi.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim_ex.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim_ex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_uart.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_uart.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_ll_sdmmc.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_ll_sdmmc.c</name>
       </file>
     </group>
   </group>
@@ -4082,34 +4086,34 @@
     <group>
       <name>FreeRTOS</name>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\croutine.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\croutine.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\event_groups.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\event_groups.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\MemMang\heap_4.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\MemMang\heap_4.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\list.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\list.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\port.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\portasm.s</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F\portasm.s</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\queue.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\queue.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\tasks.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\tasks.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\FreeRTOS\Source\timers.c</name>
+        <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\timers.c</name>
       </file>
     </group>
     <group>
@@ -4117,28 +4121,28 @@
       <group>
         <name>api</name>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\api\api_lib.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\api\api_lib.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\api\api_msg.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\api\api_msg.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\api\err.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\api\err.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\api\netbuf.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\api\netbuf.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\api\netdb.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\api\netdb.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\api\netifapi.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\api\netifapi.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\api\sockets.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\api\sockets.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\api\tcpip.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\api\tcpip.c</name>
         </file>
       </group>
       <group>
@@ -4146,14 +4150,14 @@
         <group>
           <name>httpd</name>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\apps\http\fs.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\apps\http\fs.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\apps\http\httpd.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\apps\http\httpd.c</name>
           </file>
         </group>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\apps\lwiperf\lwiperf.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\apps\lwiperf\lwiperf.c</name>
         </file>
       </group>
       <group>
@@ -4161,89 +4165,89 @@
         <group>
           <name>IPv4</name>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ipv4\autoip.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\autoip.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ipv4\dhcp.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\dhcp.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ipv4\etharp.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\etharp.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ipv4\icmp.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\icmp.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ipv4\igmp.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\igmp.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ipv4\ip4.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\ip4.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ipv4\ip4_addr.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\ip4_addr.c</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ipv4\ip4_frag.c</name>
+            <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\ip4_frag.c</name>
           </file>
         </group>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\def.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\def.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\dns.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\dns.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\inet_chksum.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\inet_chksum.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\init.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\init.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\ip.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ip.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\mem.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\mem.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\memp.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\memp.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\netif.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\netif.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\pbuf.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\pbuf.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\raw.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\raw.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\stats.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\stats.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\sys.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\sys.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\tcp.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\tcp.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\tcp_in.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\tcp_in.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\tcp_out.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\tcp_out.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\timeouts.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\timeouts.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\udp.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\udp.c</name>
         </file>
       </group>
       <group>
         <name>netif</name>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\netif\ethernet.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\netif\ethernet.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\system\OS\sys_arch.c</name>
+          <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\system\OS\sys_arch.c</name>
         </file>
       </group>
     </group>

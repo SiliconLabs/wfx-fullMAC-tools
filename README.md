@@ -7,7 +7,7 @@ This repository contains tools and examples to use **Silicon Labs Wi-Fi FMAC dri
 ## Repository content
 
 * Examples: contains applications using the FMAC driver on different platforms
-  * Silicon Labs MCU
+  * Silicon Labs MCU (**Gecko SDK v2.7.0 or newer required**)
     * commissioning: Commissioning example using Micrium OS, LwIP and the combo mode running on the EFM32 Giant Gecko GG11 Starter Kit (more information about the example [here](./Examples/SiliconLabs/commissioning/SLSTK3701A/README.md)) and on the WGM160P Wi-Fi Module Radio Board (more information about the example [here](./Examples/SiliconLabs/commissioning/WGM160P/README.md))
     * secure_mqtt: MQTT over TLS example using Micrium OS, LwIP (MQTT, DHCP, DNS clients), Mbed TLS running on the EFM32 Giant Gecko GG11 Starter Kit and WGM160P (more information about the example [here](./Examples/SiliconLabs/secure_mqtt/README.md))
   * STM32
@@ -20,6 +20,9 @@ This repository contains tools and examples to use **Silicon Labs Wi-Fi FMAC dri
 ## FMAC driver source code
 
 The latest Wi-Fi FMAC driver version in the [wfx-fullMAC-driver repository](https://github.com/SiliconLabs/wfx-fullMAC-driver)
+
+> Don't forget to launch the command below after cloning or updating this repository to retrieve the current submodule source code:
+`git submodule update --init --recursive`
 
 ## FMAC driver documentation
 

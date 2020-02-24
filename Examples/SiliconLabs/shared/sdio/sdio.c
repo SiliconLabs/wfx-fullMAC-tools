@@ -51,8 +51,6 @@
 void SDIO_Init (SDIO_TypeDef *sdio, const SDIO_Init_TypeDef_t *init)
 {
   uint32_t hostctrl1 = 0;
-  uint32_t divisor_msb = 0;
-  uint32_t divisor_lsb = 0;
 
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SDIO_REF_VALID(sdio));
@@ -137,8 +135,37 @@ void SDIO_Init (SDIO_TypeDef *sdio, const SDIO_Init_TypeDef_t *init)
   }
   sdio->HOSTCTRL1 = hostctrl1;
 
+  SDIO_SetClockFrequency(sdio, init->refFreq, init->desiredFreq);
+
+  sdio->HOSTCTRL1 |=      SDIO_HOSTCTRL1_SDBUSPOWER;
+
+  NVIC_ClearPendingIRQ(SDIO_IRQn);
+  NVIC_EnableIRQ(SDIO_IRQn);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Set the bus frequency of a SDIO peripheral.
+ *
+ * @param[in] sdio
+ *   A pointer to the SDIO peripheral instance.
+ *
+ * @param[in] refFreq
+ *   The value of the reference clock.
+ *
+ * @param[in] desiredFreq
+ *   The bus frequency desired, the actual frequency generated may not have
+   * exactly the same value.
+ ******************************************************************************/
+void SDIO_SetClockFrequency (SDIO_TypeDef *sdio,
+                             uint32_t refFreq,
+                             uint32_t desiredFreq)
+{
+  uint32_t divisor_msb = 0;
+  uint32_t divisor_lsb = 0;
+
   // Calculate the divisor for SD clock frequency (empirical formula)
-  divisor_lsb = (init->refFreq / init->desiredFreq) / 2;
+  divisor_lsb = (refFreq / desiredFreq) / 2;
 
   if (divisor_lsb > 0xFF) {
     divisor_msb = divisor_lsb >> 8;
@@ -153,10 +180,6 @@ void SDIO_Init (SDIO_TypeDef *sdio, const SDIO_Init_TypeDef_t *init)
   while (!(sdio->CLOCKCTRL & _SDIO_CLOCKCTRL_INTCLKSTABLE_MASK));
 
   sdio->CLOCKCTRL |=      SDIO_CLOCKCTRL_SDCLKEN;
-  sdio->HOSTCTRL1 |=      SDIO_HOSTCTRL1_SDBUSPOWER;
-
-  NVIC_ClearPendingIRQ(SDIO_IRQn);
-  NVIC_EnableIRQ(SDIO_IRQn);
 }
 
 void SDIO_DeInit (SDIO_TypeDef *sdio)

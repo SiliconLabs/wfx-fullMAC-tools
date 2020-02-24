@@ -23,6 +23,8 @@
 #include "em_gpio.h"
 #include "sdiodrv.h"
 
+#define SDIODRV_DFLT_FREQ_HZ        400000
+
 #define CMD7_RCA_MASK               0xFFFF0000
 #define CMD7_RCA_SHIFT              16
 #define CMD52_RW_FLAG_SHIFT         31
@@ -401,7 +403,7 @@ uint32_t SDIODRV_Init (SDIODRV_Handle_t *handle, SDIODRV_Init_t *init)
 
   // Initialize the peripheral
   sdio_init.refFreq = CMU_ClockFreqGet(cmuClock_SDIOREF);
-  sdio_init.desiredFreq = init->freq;
+  sdio_init.desiredFreq = SDIODRV_DFLT_FREQ_HZ;
   sdio_init.transferWidth = init->transferWidth;
   SDIO_Init(init->instance, &sdio_init);
 
@@ -448,9 +450,8 @@ uint32_t SDIODRV_DeInit (SDIODRV_Handle_t *handle)
 uint32_t SDIODRV_DeviceInitAndIdent (SDIODRV_Handle_t *handle, uint16_t *rca)
 {
   uint32_t res;
+  uint32_t ref_freq;
   uint16_t rca_tmp;
-
-  //TODO force 400kHz and switch after init
 
   // GO_IDLE_STATE (CMD0)
   res = send_cmd0_go_idle_state(handle);
@@ -472,6 +473,10 @@ uint32_t SDIODRV_DeviceInitAndIdent (SDIODRV_Handle_t *handle, uint16_t *rca)
       res = send_cmd3_send_relative_addr(handle, &rca_tmp);
       if (res == SDIODRV_ERROR_NONE) {
         *rca = rca_tmp;
+
+        // Initialization success, switch to the bus frequency requested by the user
+        ref_freq = CMU_ClockFreqGet(cmuClock_SDIOREF);
+        SDIO_SetClockFrequency(handle->init.instance, ref_freq, handle->init.freq);
       }
     }
   }

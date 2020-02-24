@@ -107,6 +107,9 @@ typedef struct SDIO_Cmd_s {
 
 void SDIO_Init(SDIO_TypeDef *sdio, const SDIO_Init_TypeDef_t *init);
 void SDIO_DeInit(SDIO_TypeDef *sdio);
+void SDIO_SetClockFrequency(SDIO_TypeDef *sdio,
+                            uint32_t refFreq,
+                            uint32_t desiredFreq);
 void SDIO_TxCmd(SDIO_TypeDef *sdio, SDIO_Cmd_t *cmd);
 void SDIO_TxCmdB(SDIO_TypeDef *sdio, SDIO_Cmd_t *cmd);
 uint32_t SDIO_GetCmdStatus(SDIO_TypeDef *sdio);

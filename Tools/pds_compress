@@ -367,6 +367,37 @@ def formatc(f_out, pds):
             buf = ""
     f_out.write(textwrap.dedent(tmpl_c) % out);
 
+tmpl_rust = """\
+/// PDS (platform data set) is SiLab's solution to configuring the wifi chip.
+/// Options such as GPIO, PA power, number of antennae are configured with PDS.
+/// The data set here is "compiled" using a script (pds_compressy) that
+/// can be found in SiliconLabs github repository:
+/// https://github.com/SiliconLabs/wfx-fullMAC-tools/Tools/pds_compress
+/// 
+/// The output is meant to be redirected into a .rs file in the same crate as your
+/// hal driver, and pulled in with the appropriate mod/use statements.
+
+pub const PDS_DATA: [&[u8]; %d] = [
+%s];
+"""
+
+def formatrust(f_out, pds):
+    stack = 0
+    lines = 0
+    buf = ""
+    out = ""
+    for c in pds:
+        buf += c
+        if c == '{' or c == '[':
+            stack += 1
+        if c == '}' or c == ']':
+            stack -= 1
+        if (c == '}' or c == ']') and stack == 1:
+            lines += 1
+            out += '    b"{%s}\\0", \n' % buf[1:];
+            buf = ""
+    f_out.write(textwrap.dedent(tmpl_rust) % (lines, out));
+
 def formattiny(f_out, pds):
     stack = 0
     for c in pds:
@@ -408,6 +439,8 @@ def parse_cmdline(args=sys.argv[1:]):
                   help="shortcut for --out=pds")
     parser.add_argument("-t", action="store_const", const="tinypds", dest="out_format",
                   help="shortcut for --out=tinypds")
+    parser.add_argument("-r", action="store_const", const="rust", dest="out_format",
+                  help="shortcut for --out=rust")
     return parser.parse_args(args)
 
 def main(options):
@@ -447,6 +480,8 @@ def main(options):
         formattiny(options.output, re.sub(r'([-A-Za-z0-9]+)', r'"\1"', str_result))
     elif options.out_format == "c":
         formatc(options.output, str_result)
+    elif options.out_format == "rust":
+        formatrust(options.output, str_result)
     elif options.out_format == "tinypds":
         formattiny(options.output, str_result)
     elif options.out_format == "pds":

@@ -30,7 +30,7 @@
 						<toolChain id="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe.1165012580" name="Si32 GNU ARM" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe">
 							<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level.1558868763" name="Debug Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level" value="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level.default" valueType="enumerated"/>
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF;com.silabs.ss.framework.debugger.core.BIN;com.silabs.ss.framework.debugger.core.HEX;com.silabs.ss.framework.debugger.core.S37;com.silabs.ss.framework.debugger.core.EBL;com.silabs.ss.framework.debugger.core.GBL" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.platform.base.749917484" isAbstract="false" name="Debug Platform" osList="win32,linux,macosx" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/WGM160P_commissioning}/GNU ARM v7.2.1 - Debug" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base.2018373584" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Si32 GNU ARM Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/WGM160P_commissioning_micriumos_micriumos}/GNU ARM v7.2.1 - Debug" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base.2018373584" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Si32 GNU ARM Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.289307902" name="GNU ARM C Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog.1257460236" name="Generate debugger-friendly prologs (-mno-sched-prolog)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog" value="true" valueType="boolean"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2000513713" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
@@ -40,7 +40,6 @@
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
-									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GM64=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SLK_CURVE25519=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
@@ -49,6 +48,7 @@
 									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
+									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO=1"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.265957821" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
@@ -57,8 +57,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
@@ -164,7 +164,7 @@
 						<toolChain id="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe.582596681" name="Si32 GNU ARM" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe">
 							<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level.1543110704" name="Debug Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level" value="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.debug.level.default" valueType="enumerated"/>
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF;com.silabs.ss.framework.debugger.core.BIN;com.silabs.ss.framework.debugger.core.HEX;com.silabs.ss.framework.debugger.core.S37;com.silabs.ss.framework.debugger.core.EBL;com.silabs.ss.framework.debugger.core.GBL" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.platform.base.433957685" isAbstract="false" name="Debug Platform" osList="win32,linux,macosx" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/WGM160P_commissioning}/GNU ARM v7.2.1 - Debug" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base.730985542" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Si32 GNU ARM Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/WGM160P_commissioning_micriumos_micriumos}/GNU ARM v7.2.1 - Debug" id="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base.730985542" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Si32 GNU ARM Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.1002542441" name="GNU ARM C Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog.1003753735" name="Generate debugger-friendly prologs (-mno-sched-prolog)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog" value="true" valueType="boolean"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.1739759954" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
@@ -174,7 +174,6 @@
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
 									<listOptionValue builtIn="false" value="RETARGET_VCOM=1"/>
-									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GM64=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SLK_CURVE25519=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
@@ -184,6 +183,7 @@
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
 									<listOptionValue builtIn="false" value="SLEEP_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
+									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO=1"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.1474793192" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
@@ -192,8 +192,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
@@ -273,24 +273,24 @@
 	</storageModule>
 	<storageModule moduleId="com.silabs.ss.framework.ide.project.core.cpp" project.generation="19" projectCommon.boardIds="com.silabs.board.none:0.0.0" projectCommon.buildArtifactType="EXE" projectCommon.importModeId="LINK" projectCommon.partId="mcu.arm.efm32.gg11.efm32gg11b820f2048gm64" projectCommon.sdkId="com.silabs.sdk.none:0.0.0"/>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="WGM160P_commissioning.com.silabs.ss.framework.ide.project.core.cdt.cdtMbsProjectType.1452440978" name="SLS CDT Project" projectType="com.silabs.ss.framework.ide.project.core.cdt.cdtMbsProjectType"/>
+		<project id="WGM160P_commissioning_micriumos.com.silabs.ss.framework.ide.project.core.cdt.cdtMbsProjectType.1452440978" name="SLS CDT Project" projectType="com.silabs.ss.framework.ide.project.core.cdt.cdtMbsProjectType"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="WGM160P POWERSAVE- Debug">
-			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning"/>
+			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning_micriumos"/>
 		</configuration>
 		<configuration configurationName="WGM160P POWER SAVE GNU ARM v7.2.1 - Debug">
-			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning"/>
+			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning_micriumos"/>
 		</configuration>
 		<configuration configurationName="WGM160P GNU ARM v7.2.1 - Debug">
-			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning"/>
+			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning_micriumos"/>
 		</configuration>
 		<configuration configurationName="WGM160P GNU ARM v7.2.1 - Debug">
 			<resource resourceType="PROJECT" workspacePath="/WGM160P_micriumos_lwip_wfx200"/>
 		</configuration>
 		<configuration configurationName="GNU ARM v7.2.1 - Debug">
-			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning"/>
+			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning_micriumos"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">

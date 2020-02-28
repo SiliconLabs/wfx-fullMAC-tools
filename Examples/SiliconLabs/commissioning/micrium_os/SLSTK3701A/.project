@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>SLSTK3701A_commissioning</name>
+	<name>SLSTK3701A_commissioning_micriumos</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -28,7 +28,7 @@
 		<link>
 			<name>PDS</name>
 			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/PDS</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/PDS</locationURI>
 		</link>
 		<link>
 			<name>cfg</name>
@@ -38,7 +38,7 @@
 		<link>
 			<name>console</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/shared/uOS_shell/console</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/uOS_shell/console</locationURI>
 		</link>
 		<link>
 			<name>lwip</name>
@@ -103,7 +103,7 @@
 		<link>
 			<name>Drivers/wfx_fmac_driver</name>
 			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver</locationURI>
 		</link>
 		<link>
 			<name>emdrv/dmadrv</name>

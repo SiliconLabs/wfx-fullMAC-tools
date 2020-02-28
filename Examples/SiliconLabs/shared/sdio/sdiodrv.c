@@ -249,67 +249,59 @@ static uint32_t send_cmd3_send_relative_addr (SDIODRV_Handle_t *handle, uint16_t
 }
 
 /**
- * Internal driver callback overloading the application callback
- * to hide some processing from the user.
+ * Internal function used to realize a response checking after a
+ * read/write operation and abstract the SDIO specificities from the user.
  */
-static void cmd52_callback (void *arg)
+static void read_write_checking_callback (SDIODRV_Event_t evt, uint32_t error)
 {
   uint32_t res;
   uint32_t resp;
   uint8_t  flags;
 
-  // Restore the application callback
-  sdiodrv_callbacks.cmdCompleteCb = sdiodrv_handle->appCb;
+  (void)error;
 
-  // Retrieve the response and check the status flag
-  resp = SDIO_GetResp(sdiodrv_handle->init.instance, 0);
-  flags = ((resp & R5_RESP_FLAGS_MASK) >> R5_RESP_FLAGS_SHIFT);
-  res = check_response_flags(flags, RESP_FLAG_IO_CURRENT_STATE_CMD_MASK);
+  if ((evt == SDIODRV_EVENT_CMD_COMPLETE)
+       && (sdiodrv_handle->cmd_idx == 52)) {
 
-  // Provide the result to the application
-  if (res == SDIODRV_ERROR_NONE) {
-    if (sdiodrv_handle->op == SDIODRV_IO_OP_READ) {
+    // Retrieve the response and check the status flag
+    resp = SDIO_GetResp(sdiodrv_handle->init.instance, 0);
+    flags = ((resp & R5_RESP_FLAGS_MASK) >> R5_RESP_FLAGS_SHIFT);
+    res = check_response_flags(flags, RESP_FLAG_IO_CURRENT_STATE_CMD_MASK);
+
+    // Provide the result to the application
+    if ((res == SDIODRV_ERROR_NONE)
+        && (sdiodrv_handle->op == SDIODRV_IO_OP_READ)) {
       // Read success, update the user variable
       *sdiodrv_handle->dataAddr = (uint8_t)(resp & R5_RW_DATA_MASK);
     }
 
-    if (sdiodrv_callbacks.cmdCompleteCb) {
-      sdiodrv_callbacks.cmdCompleteCb(NULL);
-    }
+    // Communication finished, restore the application callback
+    // and forward the event.
+    sdiodrv_callbacks.comEvtCb = sdiodrv_handle->appComEvtCb;
+    sdiodrv_callbacks.comEvtCb(evt, res);
+
+  } else if (evt == SDIODRV_EVENT_TRANS_COMPLETE) {
+
+    // Retrieve the response and check the status flag
+    resp = SDIO_GetResp(sdiodrv_handle->init.instance, 0);
+    flags = ((resp & R5_RESP_FLAGS_MASK) >> R5_RESP_FLAGS_SHIFT);
+    res = check_response_flags(flags, RESP_FLAG_IO_CURRENT_STATE_TRN_MASK);
+
+    // Communication finished, restore the application callback
+    // and forward the event.
+    sdiodrv_callbacks.comEvtCb = sdiodrv_handle->appComEvtCb;
+    sdiodrv_callbacks.comEvtCb(evt, res);
+
+  } else if (evt == SDIODRV_EVENT_COM_ERROR) {
+
+    // Communication finished, restore the application callback
+    // and forward the event.
+    sdiodrv_callbacks.comEvtCb = sdiodrv_handle->appComEvtCb;
+    sdiodrv_callbacks.comEvtCb(evt, SDIODRV_ERROR_CMDRESP);
+
   } else {
-    if (sdiodrv_callbacks.errorCb) {
-      sdiodrv_callbacks.errorCb((void *)res);
-    }
-  }
-}
-
-/**
- * Internal driver callback overloading the application callback
- * to hide some processing from the user.
- */
-static void cmd53_callback (void *arg)
-{
-  uint32_t res;
-  uint32_t resp;
-  uint8_t  flags;
-
-  // Restore the application callback
-  sdiodrv_callbacks.transferCompleteCb = sdiodrv_handle->appCb;
-
-  // Retrieve the response and check the status flag
-  resp = SDIO_GetResp(sdiodrv_handle->init.instance, 0);
-  flags = ((resp & R5_RESP_FLAGS_MASK) >> R5_RESP_FLAGS_SHIFT);
-  res = check_response_flags(flags, RESP_FLAG_IO_CURRENT_STATE_TRN_MASK);
-
-  // Provide the result to the application
-  if (res == SDIODRV_ERROR_NONE) {
-    if (sdiodrv_callbacks.transferCompleteCb) {
-      sdiodrv_callbacks.transferCompleteCb(NULL);
-    }
-  } else {
-    if (sdiodrv_callbacks.errorCb) {
-      sdiodrv_callbacks.errorCb((void *)res);
-    }
+    // Communication not finished, forward the event to the application
+    sdiodrv_handle->appComEvtCb(evt, SDIODRV_ERROR_NONE);
   }
 }
 
@@ -572,14 +564,15 @@ uint32_t SDIODRV_IOReadWriteDirect (SDIODRV_Handle_t *handle,
   }
 
   // Save the current information
+  handle->cmd_idx = cmd52.index;
   handle->op = op;
   handle->dataAddr = data;
-  handle->appCb = sdiodrv_callbacks.cmdCompleteCb;
+  handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
   sdiodrv_handle = handle;
 
   // Overload temporarily the application callback to perform
   // additional treatments before calling the real callback.
-  sdiodrv_callbacks.cmdCompleteCb = cmd52_callback;
+  sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
 
   if (op == SDIODRV_IO_OP_WRITE) {
     cmd52.args |= (uint32_t)(  (!!op << CMD52_RW_FLAG_SHIFT)
@@ -649,17 +642,18 @@ uint32_t SDIODRV_IOReadWriteExtendedBytes (SDIODRV_Handle_t *handle,
   }
 
   // Save the current information
+  handle->cmd_idx = cmd53.index;
   handle->op = op;
   handle->dataAddr = data;
   if (data != NULL) {
     handle->init.instance->SDMASYSADDR = (uint32_t)data;
   }
-  handle->appCb = sdiodrv_callbacks.transferCompleteCb;
+  handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
   sdiodrv_handle = handle;
 
   // Overload temporarily the application callback to perform
   // additional treatments before calling the real callback.
-  sdiodrv_callbacks.transferCompleteCb = cmd53_callback;
+  sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
 
   if (op == SDIODRV_IO_OP_WRITE) {
     cmd53.args |= (uint32_t)(!!op << CMD53_RW_FLAG_SHIFT);
@@ -730,12 +724,18 @@ uint32_t SDIODRV_IOReadWriteExtendedBlocks (SDIODRV_Handle_t *handle,
   }
 
   // Update the handle
+  handle->cmd_idx = cmd53.index;
   handle->op = op;
   handle->dataAddr = NULL;
   if (data != NULL) {
     handle->init.instance->SDMASYSADDR = (uint32_t)data;
   }
+  handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
   sdiodrv_handle = handle;
+
+  // Overload temporarily the application callback to perform
+  // additional treatments before calling the real callback.
+  sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
 
   if (op == SDIODRV_IO_OP_WRITE) {
     cmd53.args |= (uint32_t)(!!op << CMD53_RW_FLAG_SHIFT);
@@ -824,9 +824,7 @@ uint32_t SDIODRV_EnableInterrupts (SDIODRV_Handle_t *handle,
  ******************************************************************************/
 void SDIODRV_RegisterCallbacks (SDIODRV_Callbacks_t *callbacks)
 {
-  sdiodrv_callbacks.errorCb               = callbacks->errorCb;
-  sdiodrv_callbacks.cmdCompleteCb         = callbacks->cmdCompleteCb;
-  sdiodrv_callbacks.transferCompleteCb    = callbacks->transferCompleteCb;
+  sdiodrv_callbacks.comEvtCb              = callbacks->comEvtCb;
   sdiodrv_callbacks.cardInsertionCb       = callbacks->cardInsertionCb;
   sdiodrv_callbacks.cardRemovalCb         = callbacks->cardRemovalCb;
   sdiodrv_callbacks.cardInterruptCb       = callbacks->cardInterruptCb;
@@ -852,22 +850,23 @@ void SDIO_IRQHandler (void)
   pending = ifcr_value & SDIO->IEN;
 
   if ((pending & SDIO_IFCR_ERRINT) == SDIO_IFCR_ERRINT) {
-    if (sdiodrv_callbacks.errorCb) {
-      sdiodrv_callbacks.errorCb(NULL);
+    if (sdiodrv_callbacks.comEvtCb) {
+      sdiodrv_callbacks.comEvtCb(SDIODRV_EVENT_COM_ERROR,
+                                 SDIODRV_ERROR_CMDRESP);
     }
   }
 
-  if (((pending & SDIO_IFCR_CMDCOM) == SDIO_IFCR_CMDCOM)
-      && ((SDIO->TFRMODE & SDIO_TFRMODE_DMAEN) == 0)) {
-    if (sdiodrv_callbacks.cmdCompleteCb) {
-      sdiodrv_callbacks.cmdCompleteCb(NULL);
+  if ((pending & SDIO_IFCR_CMDCOM) == SDIO_IFCR_CMDCOM) {
+    if (sdiodrv_callbacks.comEvtCb) {
+      sdiodrv_callbacks.comEvtCb(SDIODRV_EVENT_CMD_COMPLETE,
+                                 SDIODRV_ERROR_NONE);
     }
   }
 
-  if (((pending & SDIO_IFCR_TRANCOM) == SDIO_IFCR_TRANCOM)
-      && ((SDIO->TFRMODE & SDIO_TFRMODE_DMAEN) == SDIO_TFRMODE_DMAEN)) {
-    if (sdiodrv_callbacks.transferCompleteCb) {
-      sdiodrv_callbacks.transferCompleteCb(NULL);
+  if ((pending & SDIO_IFCR_TRANCOM) == SDIO_IFCR_TRANCOM) {
+    if (sdiodrv_callbacks.comEvtCb) {
+      sdiodrv_callbacks.comEvtCb(SDIODRV_EVENT_TRANS_COMPLETE,
+                                 SDIODRV_ERROR_NONE);
     }
   }
 
@@ -877,13 +876,13 @@ void SDIO_IRQHandler (void)
 
   if ((pending & SDIO_IFCR_CARDINS) == SDIO_IFCR_CARDINS) {
     if (sdiodrv_callbacks.cardInsertionCb) {
-      sdiodrv_callbacks.cardInsertionCb(NULL);
+      sdiodrv_callbacks.cardInsertionCb();
     }
   }
 
   if ((pending & SDIO_IFCR_CARDRM) == SDIO_IFCR_CARDRM) {
     if (sdiodrv_callbacks.cardRemovalCb) {
-      sdiodrv_callbacks.cardRemovalCb(NULL);
+      sdiodrv_callbacks.cardRemovalCb();
     }
   }
 
@@ -891,19 +890,19 @@ void SDIO_IRQHandler (void)
     // Disable the interrupt to prevent it firing in loop
     SDIO->IFENC &= ~SDIO_IFENC_CARDINTEN;
     if (sdiodrv_callbacks.cardInterruptCb) {
-      sdiodrv_callbacks.cardInterruptCb(NULL);
+      sdiodrv_callbacks.cardInterruptCb();
     }
   }
 
   if ((pending & SDIO_IFCR_BOOTACKRCV) == SDIO_IFCR_BOOTACKRCV) {
     if (sdiodrv_callbacks.bootAckRcvCb) {
-      sdiodrv_callbacks.bootAckRcvCb(NULL);
+      sdiodrv_callbacks.bootAckRcvCb();
     }
   }
 
   if ((pending & SDIO_IFCR_BOOTTERMINATE) == SDIO_IFCR_BOOTTERMINATE) {
     if (sdiodrv_callbacks.bootTerminateCb) {
-      sdiodrv_callbacks.bootTerminateCb(NULL);
+      sdiodrv_callbacks.bootTerminateCb();
     }
   }
 }

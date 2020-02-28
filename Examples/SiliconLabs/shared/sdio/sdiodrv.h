@@ -62,22 +62,45 @@ typedef enum SDIODRV_IO_Operation_s {
   SDIODRV_IO_OP_WRITE
 } SDIODRV_IO_Operation_t;
 
+/** Driver event types. */
+typedef enum SDIODRV_Event_s {
+  SDIODRV_EVENT_COM_ERROR       = 0x0001,
+  SDIODRV_EVENT_CMD_COMPLETE    = 0x0002,
+  SDIODRV_EVENT_TRANS_COMPLETE  = 0x0004,
+  SDIODRV_EVENT_CARD_INSERTION  = 0x0008,
+  SDIODRV_EVENT_CARD_REMOVAL    = 0x0010,
+  SDIODRV_EVENT_CARD_INTERRUPT  = 0x0020,
+  SDIODRV_EVENT_BOOT_ACK_RCV    = 0x0040,
+  SDIODRV_EVENT_BOOT_TERM       = 0x0080,
+} SDIODRV_Event_t;
+
 /*******************************************************************************
  ******************************   CALLBACKS   **********************************
  ******************************************************************************/
 
 /***************************************************************************//**
  * @brief
- *   SDIODRV callback function.
+ *   SDIODRV Communication callback function.
  *
  * @details
- *   The callback functions are called when a command/transfer completes or
- *   an error/event occurs.
+ *   The callback is called when a command/transfer completes or an error occurs.
  *
- * @param[in] arg
- *   An argument may be passed to the callback function.
+ * @param[in] evt
+ *   Event type.
+ *
+ * @param[in] error
+ *   Additional information in case of an error.
  ******************************************************************************/
-typedef void (*SDIODRV_Callback_t)(void *arg);
+typedef void (*SDIODRV_Com_Callback_t)(SDIODRV_Event_t evt, uint32_t error);
+
+/***************************************************************************//**
+ * @brief
+ *   SDIODRV Event callback function.
+ *
+ * @details
+ *   The callback is called when the associated event occurs.
+ ******************************************************************************/
+typedef void (*SDIODRV_Evt_Callback_t)(void);
 
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
@@ -89,15 +112,14 @@ typedef void (*SDIODRV_Callback_t)(void *arg);
  * when initializing a SDIODRV instance.
  */
 typedef struct SDIODRV_Init_s {
-  SDIO_TypeDef       *instance;
-  uint32_t            freq;
-  uint16_t            sdioBlockMaxSize;
-  uint8_t             portLocationClk;
-  uint8_t             portLocationCmd;
-  uint8_t             portLocationDat;
-  uint8_t             portLocationCd;
-  uint8_t             portLocationWp;
-  CMU_Select_TypeDef  clockSource;
+  SDIO_TypeDef         *instance;
+  uint32_t              freq;
+  uint8_t               portLocationClk;
+  uint8_t               portLocationCmd;
+  uint8_t               portLocationDat;
+  uint8_t               portLocationCd;
+  uint8_t               portLocationWp;
+  CMU_Select_TypeDef    clockSource;
   SDIO_Transfer_Width_t transferWidth;
 } SDIODRV_Init_t;
 
@@ -108,22 +130,24 @@ typedef struct SDIODRV_Init_s {
  * the contents of the handle.
  */
 typedef struct SDIODRV_Handle_s {
-  SDIODRV_Init_t  init;
-  SDIODRV_Callback_t appCb;   // Variable storing the application defined callback
-  uint8_t *dataAddr;          // Current User Data address
-  SDIODRV_IO_Operation_t op;  // Current operation
+  SDIODRV_Init_t          init;
+  // Internal function to call before the application callback
+  SDIODRV_Com_Callback_t  appComEvtCb;
+  // Current User Data address
+  uint8_t                *dataAddr;
+  // Current operation
+  SDIODRV_IO_Operation_t  op;
+  uint8_t                 cmd_idx;
 } SDIODRV_Handle_t;
 
 /** SDIODRV callback functions. */
 typedef struct SDIODRV_Callbacks_s {
-  SDIODRV_Callback_t errorCb;
-  SDIODRV_Callback_t cmdCompleteCb;
-  SDIODRV_Callback_t transferCompleteCb;
-  SDIODRV_Callback_t cardInsertionCb;
-  SDIODRV_Callback_t cardRemovalCb;
-  SDIODRV_Callback_t cardInterruptCb;
-  SDIODRV_Callback_t bootAckRcvCb;
-  SDIODRV_Callback_t bootTerminateCb;
+  SDIODRV_Com_Callback_t comEvtCb;
+  SDIODRV_Evt_Callback_t cardInsertionCb;
+  SDIODRV_Evt_Callback_t cardRemovalCb;
+  SDIODRV_Evt_Callback_t cardInterruptCb;
+  SDIODRV_Evt_Callback_t bootAckRcvCb;
+  SDIODRV_Evt_Callback_t bootTerminateCb;
 } SDIODRV_Callbacks_t;
 
 /*******************************************************************************

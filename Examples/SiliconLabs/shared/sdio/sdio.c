@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include "em_assert.h"
 #include "em_device.h"
+#include "em_core.h"
 #include "sdio.h"
 
 #ifdef SDIO
@@ -207,6 +208,7 @@ void SDIO_DeInit (SDIO_TypeDef *sdio)
 void SDIO_TxCmd (SDIO_TypeDef *sdio, SDIO_Cmd_t *cmd)
 {
   uint32_t int_status;
+  CORE_DECLARE_IRQ_STATE;
 
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SDIO_REF_VALID(sdio));
@@ -217,9 +219,11 @@ void SDIO_TxCmd (SDIO_TypeDef *sdio, SDIO_Cmd_t *cmd)
   // Wait for the data reception end
   while (sdio->PRSSTAT & _SDIO_PRSSTAT_CMDINHIBITDAT_MASK);
 
+  CORE_ENTER_ATOMIC();
   // Clear status register
   int_status = sdio->IFCR;
   sdio->IFCR = int_status;
+  CORE_EXIT_ATOMIC();
 
   // Enable relevant interrupts
   sdio->IEN |= ( SDIO_IEN_CMDCOMSEN
@@ -277,6 +281,7 @@ void SDIO_TxCmd (SDIO_TypeDef *sdio, SDIO_Cmd_t *cmd)
 void SDIO_TxCmdB (SDIO_TypeDef *sdio, SDIO_Cmd_t *cmd)
 {
   uint32_t int_status;
+  CORE_DECLARE_IRQ_STATE;
 
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SDIO_REF_VALID(sdio));
@@ -287,9 +292,11 @@ void SDIO_TxCmdB (SDIO_TypeDef *sdio, SDIO_Cmd_t *cmd)
   // Wait for the data reception end
   while (sdio->PRSSTAT & _SDIO_PRSSTAT_CMDINHIBITDAT_MASK);
 
+  CORE_ENTER_ATOMIC();
   // Clear status register
   int_status = sdio->IFCR;
   sdio->IFCR = int_status;
+  CORE_EXIT_ATOMIC();
 
   uint32_t transfer_mode = (  (cmd->respType << _SDIO_TFRMODE_RESPTYPESEL_SHIFT)
                             | ((!!cmd->checkCrc) << _SDIO_TFRMODE_CMDCRCCHKEN_SHIFT)

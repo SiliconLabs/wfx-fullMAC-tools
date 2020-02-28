@@ -20,6 +20,7 @@
  *****************************************************************************/
 #include <stdio.h>
 #include "em_device.h"
+#include "em_core.h"
 #include "em_gpio.h"
 #include "sdiodrv.h"
 
@@ -838,11 +839,16 @@ void SDIO_IRQHandler (void)
 {
   uint32_t ifcr_value;
   uint32_t pending;
+  CORE_DECLARE_IRQ_STATE;
 
+
+  CORE_ENTER_ATOMIC();
   // Get all enabled interrupts
   ifcr_value  = SDIO->IFCR;
   // Clear the interrupts
   SDIO->IFCR = ifcr_value;
+  CORE_EXIT_ATOMIC();
+
   pending = ifcr_value & SDIO->IEN;
 
   if ((pending & SDIO_IFCR_ERRINT) == SDIO_IFCR_ERRINT) {
@@ -882,7 +888,7 @@ void SDIO_IRQHandler (void)
   }
 
   if ((pending & SDIO_IFCR_CARDINT) == SDIO_IFCR_CARDINT) {
-    // Disable the interrupt to prevent it fireing in loop
+    // Disable the interrupt to prevent it firing in loop
     SDIO->IFENC &= ~SDIO_IFENC_CARDINTEN;
     if (sdiodrv_callbacks.cardInterruptCb) {
       sdiodrv_callbacks.cardInterruptCb(NULL);

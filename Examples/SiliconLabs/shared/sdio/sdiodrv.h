@@ -42,15 +42,16 @@ extern "C" {
  ******************************************************************************/
 
 #define SDIODRV_ERROR_NONE                (0x00000000)
-#define SDIODRV_ERROR_PARAM               (0x00000001)
-#define SDIODRV_ERROR_CMDRESP             (0x00000002)
-#define SDIODRV_ERROR_RESP_OUT_OF_RANGE   (0x00000004)
-#define SDIODRV_ERROR_RESP_FUNC_NB        (0x00000008)
-#define SDIODRV_ERROR_RESP_UNKNOWN        (0x00000010)
-#define SDIODRV_ERROR_RESP_WRONG_STATE    (0x00000020)
-#define SDIODRV_ERROR_RESP_ILLEGAL_CMD    (0x00000040)
-#define SDIODRV_ERROR_RESP_CRC            (0x00000080)
-#define SDIODRV_ERROR_RCA                 (0x00000100)
+#define SDIODRV_ERROR_NOT_INIT            (0x00000001)
+#define SDIODRV_ERROR_PARAM               (0x00000002)
+#define SDIODRV_ERROR_CMDRESP             (0x00000004)
+#define SDIODRV_ERROR_RESP_OUT_OF_RANGE   (0x00000008)
+#define SDIODRV_ERROR_RESP_FUNC_NB        (0x00000010)
+#define SDIODRV_ERROR_RESP_UNKNOWN        (0x00000020)
+#define SDIODRV_ERROR_RESP_WRONG_STATE    (0x00000040)
+#define SDIODRV_ERROR_RESP_ILLEGAL_CMD    (0x00000080)
+#define SDIODRV_ERROR_RESP_CRC            (0x00000100)
+#define SDIODRV_ERROR_RCA                 (0x00000200)
 
 /*******************************************************************************
  ********************************   ENUMS   ************************************
@@ -156,6 +157,7 @@ typedef struct SDIODRV_Callbacks_s {
 
 uint32_t SDIODRV_Init(SDIODRV_Handle_t *handle, SDIODRV_Init_t *init);
 uint32_t SDIODRV_DeInit(SDIODRV_Handle_t *handle);
+uint32_t SDIODRV_Enable(SDIODRV_Handle_t *handle, bool state);
 uint32_t SDIODRV_DeviceInitAndIdent(SDIODRV_Handle_t *handle, uint16_t *rca);
 uint32_t SDIODRV_SelectCard(SDIODRV_Handle_t *handle, uint16_t rca);
 uint32_t SDIODRV_IOReadWriteDirect(SDIODRV_Handle_t *handle,

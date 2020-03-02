@@ -59,6 +59,7 @@
 #define RESP_FLAG_ILLEGAL_CMD_MASK            0x40
 #define RESP_FLAG_COM_CRC_ERROR_MASK          0x80
 
+static bool sdiodrv_initialized = false;
 static SDIODRV_Handle_t *sdiodrv_handle = NULL;
 static SDIODRV_Callbacks_t sdiodrv_callbacks;
 
@@ -202,7 +203,7 @@ static uint32_t send_cmd8_send_if_conf (SDIODRV_Handle_t *handle)
 {
   SDIO_Cmd_t cmd8 = {
     .index = 8,
-    .args = 0x00000100, //Host supply voltage range 2.7 - 3.6V, Check pattern 0xAA
+    .args = 0x00000100, //Host supply voltage range 2.7 - 3.6V, Check pattern 0x00
     .dataDirection = SDIO_DATA_DIRECTION_NODATA,
     .respType = SDIO_RESP_TYPE_RESP48,
     .checkCrc = true,
@@ -322,7 +323,7 @@ uint32_t SDIODRV_Init (SDIODRV_Handle_t *handle, SDIODRV_Init_t *init)
 {
   SDIO_Init_TypeDef_t sdio_init;
 
-  if (init == NULL) {
+  if ((handle == NULL) || (init == NULL)) {
     return SDIODRV_ERROR_PARAM;
   }
 
@@ -400,6 +401,8 @@ uint32_t SDIODRV_Init (SDIODRV_Handle_t *handle, SDIODRV_Init_t *init)
   sdio_init.transferWidth = init->transferWidth;
   SDIO_Init(init->instance, &sdio_init);
 
+  sdiodrv_initialized = true;
+
   return SDIODRV_ERROR_NONE;
 }
 
@@ -415,10 +418,61 @@ uint32_t SDIODRV_Init (SDIODRV_Handle_t *handle, SDIODRV_Init_t *init)
  ******************************************************************************/
 uint32_t SDIODRV_DeInit (SDIODRV_Handle_t *handle)
 {
+  if (handle == NULL) {
+    return SDIODRV_ERROR_PARAM;
+  }
+
   // Deinitialize the peripheral
   SDIO_DeInit(handle->init.instance);
   // Stop the peripheral clock
   CMU_ClockEnable(cmuClock_SDIOREF, false);
+
+  sdiodrv_initialized = false;
+  return SDIODRV_ERROR_NONE;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Enable or disable a SDIO peripheral.
+ *
+ * @note
+ *   The driver must be initialized before calling this function.
+ *
+ * @param[in] handle
+ *   A pointer to the SDIODRV Handle.
+ *
+ * @param[in] state
+ *   Enable or disable state indicator.
+ *
+ * @return
+ *   @ref SDIODRV_ERROR_NONE on success, SDIODRV_ERROR_NOT_INIT if the
+ *   driver has not yet been initialized.
+ ******************************************************************************/
+uint32_t SDIODRV_Enable (SDIODRV_Handle_t *handle, bool state)
+{
+  if (handle == NULL) {
+    return SDIODRV_ERROR_PARAM;
+  }
+
+  if (!sdiodrv_initialized) {
+    return SDIODRV_ERROR_NOT_INIT;
+  }
+
+  if (state) {
+    // Start the peripheral clock
+    CMU_ClockEnable(cmuClock_SDIOREF, true);
+
+    handle->init.instance->CLOCKCTRL |= SDIO_CLOCKCTRL_INTCLKEN;
+    // Wait for the clock to be stable
+    while (!(handle->init.instance->CLOCKCTRL & _SDIO_CLOCKCTRL_INTCLKSTABLE_MASK));
+    handle->init.instance->CLOCKCTRL |= SDIO_CLOCKCTRL_SDCLKEN;
+  } else {
+    handle->init.instance->CLOCKCTRL &= ~( SDIO_CLOCKCTRL_SDCLKEN
+                                         | SDIO_CLOCKCTRL_INTCLKEN);
+
+    // Stop the peripheral clock
+    CMU_ClockEnable(cmuClock_SDIOREF, false);
+  }
   return SDIODRV_ERROR_NONE;
 }
 
@@ -445,6 +499,10 @@ uint32_t SDIODRV_DeviceInitAndIdent (SDIODRV_Handle_t *handle, uint16_t *rca)
   uint32_t res;
   uint32_t ref_freq;
   uint16_t rca_tmp;
+
+  if (handle == NULL) {
+    return SDIODRV_ERROR_PARAM;
+  }
 
   // GO_IDLE_STATE (CMD0)
   res = send_cmd0_go_idle_state(handle);
@@ -507,6 +565,10 @@ uint32_t SDIODRV_SelectCard (SDIODRV_Handle_t *handle, uint16_t rca)
     .multiblocks = false
   };
 
+  if (handle == NULL) {
+    return SDIODRV_ERROR_PARAM;
+  }
+
   SDIO_TxCmdB(handle->init.instance, &cmd7);
   // Check the command completion  (response not checked)
   return check_command_completion(handle);
@@ -558,8 +620,7 @@ uint32_t SDIODRV_IOReadWriteDirect (SDIODRV_Handle_t *handle,
     .multiblocks = false
   };
 
-  if ((handle == NULL)
-      || ((data == NULL) && (op == SDIODRV_IO_OP_WRITE))) {
+  if ((handle == NULL) || (data == NULL)) {
     return SDIODRV_ERROR_PARAM;
   }
 
@@ -636,8 +697,7 @@ uint32_t SDIODRV_IOReadWriteExtendedBytes (SDIODRV_Handle_t *handle,
     .multiblocks = false
   };
 
-  if ((handle == NULL)
-      || ((data == NULL) && (op == SDIODRV_IO_OP_WRITE))) {
+  if ((handle == NULL) || (data == NULL)) {
     return SDIODRV_ERROR_PARAM;
   }
 
@@ -718,8 +778,7 @@ uint32_t SDIODRV_IOReadWriteExtendedBlocks (SDIODRV_Handle_t *handle,
     .multiblocks = true
   };
 
-  if ((handle == NULL)
-      || ((data == NULL) && (op == SDIODRV_IO_OP_WRITE))) {
+  if ((handle == NULL) || (data == NULL)) {
     return SDIODRV_ERROR_PARAM;
   }
 
@@ -824,12 +883,14 @@ uint32_t SDIODRV_EnableInterrupts (SDIODRV_Handle_t *handle,
  ******************************************************************************/
 void SDIODRV_RegisterCallbacks (SDIODRV_Callbacks_t *callbacks)
 {
-  sdiodrv_callbacks.comEvtCb              = callbacks->comEvtCb;
-  sdiodrv_callbacks.cardInsertionCb       = callbacks->cardInsertionCb;
-  sdiodrv_callbacks.cardRemovalCb         = callbacks->cardRemovalCb;
-  sdiodrv_callbacks.cardInterruptCb       = callbacks->cardInterruptCb;
-  sdiodrv_callbacks.bootAckRcvCb          = callbacks->bootAckRcvCb;
-  sdiodrv_callbacks.bootTerminateCb       = callbacks->bootTerminateCb;
+  if (callbacks != NULL) {
+    sdiodrv_callbacks.comEvtCb              = callbacks->comEvtCb;
+    sdiodrv_callbacks.cardInsertionCb       = callbacks->cardInsertionCb;
+    sdiodrv_callbacks.cardRemovalCb         = callbacks->cardRemovalCb;
+    sdiodrv_callbacks.cardInterruptCb       = callbacks->cardInterruptCb;
+    sdiodrv_callbacks.bootAckRcvCb          = callbacks->bootAckRcvCb;
+    sdiodrv_callbacks.bootTerminateCb       = callbacks->bootTerminateCb;
+  }
 }
 
 /** SDIO Handler. */

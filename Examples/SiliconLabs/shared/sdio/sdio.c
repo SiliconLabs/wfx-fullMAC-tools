@@ -183,6 +183,13 @@ void SDIO_SetClockFrequency (SDIO_TypeDef *sdio,
   sdio->CLOCKCTRL |=      SDIO_CLOCKCTRL_SDCLKEN;
 }
 
+/***************************************************************************//**
+ * @brief
+ *   Denitialize a SDIO peripheral.
+ *
+ * @param[in] sdio
+ *   A pointer to the SDIO peripheral instance.
+ ******************************************************************************/
 void SDIO_DeInit (SDIO_TypeDef *sdio)
 {
   // Make sure the module exists on the selected chip.
@@ -191,8 +198,8 @@ void SDIO_DeInit (SDIO_TypeDef *sdio)
   NVIC_DisableIRQ(SDIO_IRQn);
   sdio->IEN  = 0;
   sdio->IFENC  = 0;
-  sdio->CLOCKCTRL &= ~(SDIO_CLOCKCTRL_SDCLKEN);
-  sdio->CLOCKCTRL &= ~(SDIO_CLOCKCTRL_INTCLKEN);
+  sdio->CLOCKCTRL &= ~( SDIO_CLOCKCTRL_SDCLKEN
+                      | SDIO_CLOCKCTRL_INTCLKEN);
 }
 
 /***************************************************************************//**

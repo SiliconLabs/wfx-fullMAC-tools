@@ -11,7 +11,6 @@
 #include "em_bus.h"
 #include "sdiodrv.h"
 #include "sdio.h"
-#include "sleep.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -264,32 +263,6 @@ sl_status_t sl_wfx_host_switch_to_wirq(void)
   value32 |= (1 << 15);
   sl_wfx_reg_write_32(SL_WFX_CONFIG_REG_ID, value32);
   useWIRQ = true;
-  return SL_STATUS_OK;
-}
-
-sl_status_t sl_wfx_host_enable_sdio(void)
-{
-  if (sdio_enabled == false) {
-    SLEEP_SleepBlockBegin(sleepEM2);
-    CMU_OscillatorEnable(cmuOsc_AUXHFRCO, true, true);
-
-    // Re-enable the SDIO peripheral clocks
-    SDIODRV_Enable(&sdiodrv_handle, true);
-    sdio_enabled = true;
-  }
-  return SL_STATUS_OK;
-}
-
-sl_status_t sl_wfx_host_disable_sdio(void)
-{
-  if (sdio_enabled == true) {
-    // Disable the SDIO peripheral clocks
-    SDIODRV_Enable(&sdiodrv_handle, false);
-
-    CMU_OscillatorEnable(cmuOsc_AUXHFRCO, false, true);
-    SLEEP_SleepBlockEnd(sleepEM2);
-    sdio_enabled = false;
-  }
   return SL_STATUS_OK;
 }
 #endif

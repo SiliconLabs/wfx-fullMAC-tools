@@ -80,20 +80,8 @@ struct {
   uint8_t posted_event_id;
 } host_context;
 
-#define BUFFER_SIZE 1024
-#define TX_RX_BUFFER_SIZE 1550
-
 #ifdef SLEEP_ENABLED
 extern sl_wfx_context_t wifi;
-
-#ifdef SL_WFX_USE_SDIO
-sl_status_t sl_wfx_host_enable_sdio (void);
-sl_status_t sl_wfx_host_disable_sdio (void);
-#endif
-#ifdef SL_WFX_USE_SPI
-sl_status_t sl_wfx_host_enable_spi (void);
-sl_status_t sl_wfx_host_disable_spi (void);
-#endif
 #endif
 
 /* WF200 host callbacks */
@@ -216,31 +204,11 @@ sl_status_t sl_wfx_host_hold_in_reset(void)
  *****************************************************************************/
 sl_status_t sl_wfx_host_set_wake_up_pin(uint8_t state)
 {
-  CORE_DECLARE_IRQ_STATE;
-
-  CORE_ENTER_ATOMIC();
-  if ( state > 0 ) {
-#ifdef SLEEP_ENABLED
-#ifdef SL_WFX_USE_SDIO
-    sl_wfx_host_enable_sdio();
-#endif
-#ifdef SL_WFX_USE_SPI
-    sl_wfx_host_enable_spi();
-#endif
-#endif
+  if (state > 0) {
     GPIO_PinOutSet(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN);
   } else {
     GPIO_PinOutClear(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN);
-#ifdef SLEEP_ENABLED
-#ifdef SL_WFX_USE_SDIO
-    sl_wfx_host_disable_sdio();
-#endif
-#ifdef SL_WFX_USE_SPI
-    sl_wfx_host_disable_spi();
-#endif
-#endif
   }
-  CORE_EXIT_ATOMIC();
   return SL_STATUS_OK;
 }
 
@@ -260,7 +228,6 @@ sl_status_t sl_wfx_host_reset_chip(void)
 
 sl_status_t sl_wfx_host_wait_for_wake_up(void)
 {
-
   delay_ms(2);
   return SL_STATUS_OK;
 }
@@ -310,7 +277,6 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id,
 
 void sl_wfx_process(void)
 {
-
   if(wf200_interrupt_event == 1)
   {
     wf200_interrupt_event = 0;

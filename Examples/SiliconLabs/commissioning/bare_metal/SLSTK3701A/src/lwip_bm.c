@@ -24,7 +24,6 @@
 
 #include "sl_wfx.h"
 #include "string.h"
-#include "sleep.h"
 
 // LwIP includes.
 #include "ethernetif.h"

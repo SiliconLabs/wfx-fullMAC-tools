@@ -96,16 +96,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver</locationURI>
 		</link>
 		<link>
-			<name>emdrv/dmadrv</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/platform/emdrv/dmadrv</locationURI>
-		</link>
-		<link>
-			<name>emdrv/sleep</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/platform/emdrv/sleep</locationURI>
-		</link>
-		<link>
 			<name>emlib/em_assert.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_assert.c</locationURI>
@@ -159,11 +149,6 @@
 			<name>emlib/em_usart.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_usart.c</locationURI>
-		</link>
-		<link>
-			<name>service/sleeptimer</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/platform/service/sleeptimer</locationURI>
 		</link>
 		<link>
 			<name>CMSIS/EFM32GG11B/startup_gcc_efm32gg11b.s</name>

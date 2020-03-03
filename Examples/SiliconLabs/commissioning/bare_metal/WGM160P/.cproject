@@ -68,14 +68,9 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emlib/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/bsp&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/Device/SiliconLabs/EFM32GG11B/Include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/dmadrv/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/dmadrv/config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/common/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/lwip/lwip/src/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/drivers&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/service/sleeptimer/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/service/sleeptimer/config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/fsdata&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/system&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/include&quot;"/>
@@ -195,14 +190,9 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emlib/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/bsp&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/Device/SiliconLabs/EFM32GG11B/Include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/dmadrv/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/dmadrv/config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/common/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/lwip/lwip/src/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/drivers&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/service/sleeptimer/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/service/sleeptimer/config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/fsdata&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/system&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/include&quot;"/>

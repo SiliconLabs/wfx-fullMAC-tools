@@ -31,12 +31,9 @@
 #include "em_ldma.h"
 #include "em_bus.h"
 
-#include "dmadrv.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sleep.h"
 
 
 #define USART           WFX_HOST_CFG_SPI_USART
@@ -57,9 +54,6 @@ sl_status_t sl_wfx_host_init_bus(void)
   // Initialize and enable the USART
   USART_InitSync_TypeDef usartInit = USART_INITSYNC_DEFAULT;
 
-#ifdef SLEEP_ENABLED
-  SLEEP_SleepBlockBegin(sleepEM2);
-#endif
   spi_enabled = true;
   usartInit.baudrate = 36000000u;
   usartInit.msbf = true;
@@ -177,23 +171,5 @@ sl_status_t sl_wfx_host_disable_platform_interrupt(void)
   GPIO_IntDisable(1 << WFX_HOST_CFG_SPI_IRQ);
   return SL_STATUS_OK;
 }
-sl_status_t sl_wfx_host_enable_spi(void)
-{
-  if (spi_enabled == false) {
-    SLEEP_SleepBlockBegin(sleepEM2);
-    spi_enabled = true;
-  }
-  return SL_STATUS_OK;
-}
-
-sl_status_t sl_wfx_host_disable_spi(void)
-{
-  if (spi_enabled == true) {
-    spi_enabled = false;
-    SLEEP_SleepBlockEnd(sleepEM2);
-  }
-  return SL_STATUS_OK;
-}
-
 
 #endif

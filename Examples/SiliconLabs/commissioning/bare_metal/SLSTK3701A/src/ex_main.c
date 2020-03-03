@@ -27,50 +27,12 @@
 #ifdef SL_WFX_USE_SECURE_LINK
 #include  <mbedtls/threading.h>
 #endif
-#include "sleep.h"
-#define  EX_MAIN_START_TASK_PRIO              30u
-#define  EX_MAIN_START_TASK_STK_SIZE         512u
 
 static void gpio_setup(void);
 
 static volatile uint32_t ms_ticks = 0;
 
 extern volatile uint8_t wf200_interrupt_event;
-
-#ifdef SLEEP_ENABLED
-
-static bool sleepCallback(SLEEP_EnergyMode_t emode)
-{
-#ifdef SL_WFX_USE_SPI
-  if (GPIO_PinInGet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN))//wf200 messages pending
-#else
-  if (GPIO_PinInGet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN)) //wf200 messages pending
-#endif
-  {
-    return false;
-  }
-
-  return true;
-}
-
-static void wakeupCallback(SLEEP_EnergyMode_t emode)
-{
-
-}
-
-/***************************************************************************//**
- * @brief
- *   This is the idle hook.
- *
- * @detail
- *   This will be called by the Micrium OS idle task when there is no other
- *   task ready to run. We just enter the lowest possible energy mode.
- ******************************************************************************/
-void OSIdleEnterHook(void)
-{
-  SLEEP_Sleep();
-}
-#endif
 
 void SysTick_Handler (void)
 {
@@ -104,6 +66,7 @@ int  main(void)
 
   // Set the HFRCO frequency.
   CMU_HFRCOFreqSet(cmuHFRCOFreq_72M0Hz);
+
 #ifdef SL_WFX_USE_SPI
   CMU_ClockPrescSet(cmuClock_HFPER, 0);
 #endif
@@ -122,23 +85,10 @@ int  main(void)
 
   RETARGET_SerialInit();
   RETARGET_SerialCrLf(1);
-#ifdef SLEEP_ENABLED
-  const SLEEP_Init_t sleepInit =
-  {
-    .sleepCallback = sleepCallback,
-    .wakeupCallback = wakeupCallback,
-    .restoreCallback = 0
-  };
-  SLEEP_InitEx(&sleepInit);
-#endif
+
   // Clear the console and buffer
   printf("\033\143");
   printf("\033[3J");
-
-#ifdef SLEEP_ENABLED
-  // Don't allow EM3, since we use LF clocks.
-  SLEEP_SleepBlockBegin(sleepEM3);
-#endif
 
   gpio_setup();
 

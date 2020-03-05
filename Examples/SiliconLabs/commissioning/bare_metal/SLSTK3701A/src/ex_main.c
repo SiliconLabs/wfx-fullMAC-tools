@@ -61,11 +61,17 @@ uint32_t sys_now(void)
  *****************************************************************************/
 int  main(void)
 {
+  EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_STK_DEFAULT;
+
   // Chip errata
   CHIP_Init();
 
   // Set the HFRCO frequency.
   CMU_HFRCOFreqSet(cmuHFRCOFreq_72M0Hz);
+
+  // Initialize DCDC regulator
+  dcdcInit.dcdcMode = emuDcdcMode_LowNoise;
+  EMU_DCDCInit(&dcdcInit);
 
 #ifdef SL_WFX_USE_SPI
   CMU_ClockPrescSet(cmuClock_HFPER, 0);

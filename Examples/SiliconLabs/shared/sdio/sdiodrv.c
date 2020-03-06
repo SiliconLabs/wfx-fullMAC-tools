@@ -461,6 +461,7 @@ uint32_t SDIODRV_Enable (SDIODRV_Handle_t *handle, bool state)
   if (state) {
     // Start the peripheral clock
     CMU_ClockEnable(cmuClock_SDIOREF, true);
+    while ((CMU->STATUS & CMU_STATUS_SDIOCLKENS) == 0);
 
     handle->init.instance->CLOCKCTRL |= SDIO_CLOCKCTRL_INTCLKEN;
     // Wait for the clock to be stable
@@ -472,6 +473,7 @@ uint32_t SDIODRV_Enable (SDIODRV_Handle_t *handle, bool state)
 
     // Stop the peripheral clock
     CMU_ClockEnable(cmuClock_SDIOREF, false);
+    while ((CMU->STATUS & CMU_STATUS_SDIOCLKENS) != 0);
   }
   return SDIODRV_ERROR_NONE;
 }

@@ -57,6 +57,7 @@
 #endif
 
 #include "lwip_bm.h"
+#include "lwip/sys.h"
 #include "dhcp_server.h"
 #include "wfx_host.h"
 
@@ -249,42 +250,52 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id,
                                               uint32_t timeout_ms,
                                               void** event_payload_out)
 {
+  uint64_t tmo = sys_now() + timeout_ms;
+  sl_status_t status = SL_STATUS_TIMEOUT;
+
   // Reset the control register value
   control_register = 0;
 
-  for(uint32_t i = 0; i < timeout_ms; i++)
-  {
-    do{
-      sl_wfx_receive_frame(&control_register);
-      // Make sure the waited event has not been overwritten
-      sl_wfx_host_setup_waited_event(confirmation_id);
-    }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 );
-    if (confirmation_id == host_context.posted_event_id)
-    {
+  do {
+    // Treat frame received
+    sl_wfx_receive_frame(&control_register);
+    // Make sure the waited event has not been overwritten
+    sl_wfx_host_setup_waited_event(confirmation_id);
+
+    if (confirmation_id == host_context.posted_event_id) {
+      // The waited frame has been received,
+      // update structure and stop waiting
+
       host_context.posted_event_id = 0;
-      if (event_payload_out != NULL)
-      {
+      if (event_payload_out != NULL) {
         *event_payload_out = sl_wfx_context->event_payload_buffer;
       }
-      return SL_STATUS_OK;
-    }else{
+      status = SL_STATUS_OK;
+      break;
+
+    } else {
+      // Waited frame not yet received, wait a while
+      // before treating new received frame
+
       sl_wfx_host_wait(1);
     }
-  }
 
-  return SL_STATUS_TIMEOUT;
+    // FIXME overlap after running almost 50days
+  } while (sys_now() < tmo);
+
+  return status;
 }
 
 void sl_wfx_process(void)
 {
   if(wf200_interrupt_event == 1)
   {
-    wf200_interrupt_event = 0;
     // Reset the control register value
     control_register = 0;
 
     do
     {
+      wf200_interrupt_event = 0;
       sl_wfx_receive_frame(&control_register);
     }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 );
 

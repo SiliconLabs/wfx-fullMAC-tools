@@ -630,12 +630,16 @@ uint32_t SDIODRV_IOReadWriteDirect (SDIODRV_Handle_t *handle,
   handle->cmd_idx = cmd52.index;
   handle->op = op;
   handle->dataAddr = data;
-  handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
-  sdiodrv_handle = handle;
 
-  // Overload temporarily the application callback to perform
-  // additional treatments before calling the real callback.
-  sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
+  if (sdiodrv_callbacks.comEvtCb != read_write_checking_callback) {
+    handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
+
+    // Overload temporarily the application callback to perform
+    // additional treatments before calling the real callback.
+    sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
+  }
+
+  sdiodrv_handle = handle;
 
   if (op == SDIODRV_IO_OP_WRITE) {
     cmd52.args |= (uint32_t)(  (!!op << CMD52_RW_FLAG_SHIFT)
@@ -707,15 +711,17 @@ uint32_t SDIODRV_IOReadWriteExtendedBytes (SDIODRV_Handle_t *handle,
   handle->cmd_idx = cmd53.index;
   handle->op = op;
   handle->dataAddr = data;
-  if (data != NULL) {
-    handle->init.instance->SDMASYSADDR = (uint32_t)data;
-  }
-  handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
-  sdiodrv_handle = handle;
+  handle->init.instance->SDMASYSADDR = (uint32_t)data;
 
-  // Overload temporarily the application callback to perform
-  // additional treatments before calling the real callback.
-  sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
+  if (sdiodrv_callbacks.comEvtCb != read_write_checking_callback) {
+    handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
+
+    // Overload temporarily the application callback to perform
+    // additional treatments before calling the real callback.
+    sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
+  }
+
+  sdiodrv_handle = handle;
 
   if (op == SDIODRV_IO_OP_WRITE) {
     cmd53.args |= (uint32_t)(!!op << CMD53_RW_FLAG_SHIFT);
@@ -788,15 +794,17 @@ uint32_t SDIODRV_IOReadWriteExtendedBlocks (SDIODRV_Handle_t *handle,
   handle->cmd_idx = cmd53.index;
   handle->op = op;
   handle->dataAddr = NULL;
-  if (data != NULL) {
-    handle->init.instance->SDMASYSADDR = (uint32_t)data;
-  }
-  handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
-  sdiodrv_handle = handle;
+  handle->init.instance->SDMASYSADDR = (uint32_t)data;
 
-  // Overload temporarily the application callback to perform
-  // additional treatments before calling the real callback.
-  sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
+  if (sdiodrv_callbacks.comEvtCb != read_write_checking_callback) {
+    handle->appComEvtCb = sdiodrv_callbacks.comEvtCb;
+
+    // Overload temporarily the application callback to perform
+    // additional treatments before calling the real callback.
+    sdiodrv_callbacks.comEvtCb = read_write_checking_callback;
+  }
+
+  sdiodrv_handle = handle;
 
   if (op == SDIODRV_IO_OP_WRITE) {
     cmd53.args |= (uint32_t)(!!op << CMD53_RW_FLAG_SHIFT);

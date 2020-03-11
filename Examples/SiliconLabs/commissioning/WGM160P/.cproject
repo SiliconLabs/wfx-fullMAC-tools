@@ -57,8 +57,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.4.1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
@@ -192,8 +192,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.4.1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware/3.3.1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/wfx_host}&quot;"/>
@@ -285,8 +285,6 @@
 		</configuration>
 		<configuration configurationName="WGM160P GNU ARM v7.2.1 - Debug">
 			<resource resourceType="PROJECT" workspacePath="/WGM160P_commissioning"/>
-		</configuration>
-		<configuration configurationName="WGM160P GNU ARM v7.2.1 - Debug">
 			<resource resourceType="PROJECT" workspacePath="/WGM160P_micriumos_lwip_wfx200"/>
 		</configuration>
 		<configuration configurationName="GNU ARM v7.2.1 - Debug">

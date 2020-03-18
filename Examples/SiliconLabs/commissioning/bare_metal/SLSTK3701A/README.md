@@ -1,5 +1,5 @@
-# EFM32GG11 (SLSTK3701A) Commissioning Example
+# Commissioning Bare Metal Example on EFM32GG11 (SLSTK3701A)
 
-To use the example, follow the [**demonstration quick start guide**](https://docs.silabs.com/wifi/wf200/content-source/getting-started/silabs/gg11/getting-started).
-
-> This example is based on the **SLSTK3701A micriumos lwip wfx** example provided by the SDK except it provides more features as the *Power Save Mode*.
+This example is based on the [**Commissioning MicriumOS Example on EFM32GG11 (SLSTK3701A)**](../../micrium_os/SLSTK3701A/README.md) but without an Operating System.
+The interface is very similar between the examples but consider executing the MicriumOS example and reading the associated documentation
+as a first step before executing the Bare Metal example.

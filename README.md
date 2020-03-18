@@ -12,8 +12,10 @@ It can also be ran in the [WGM160P Wi-Fi Module Starter Kit](https://www.silabs.
 * Examples: contains applications using the FMAC driver on different platforms
   * Silicon Labs MCU (**Gecko SDK v2.7.0 and MicriumOS Kernel v5.8.0 or newer required**)
     * commissioning: Commissioning examples using LwIP and the combo mode running
-	on the EFM32 Giant Gecko GG11 Starter Kit (more information about the Micrium OS example [here](./Examples/SiliconLabs/commissioning/micrium_os/SLSTK3701A/README.md))
-	and on the WGM160P Wi-Fi Module Radio Board (more information about the Micrium OS example [here](./Examples/SiliconLabs/commissioning/micrium_os/WGM160P/README.md))
+	on the EFM32 Giant Gecko GG11 Starter Kit either with MicriumOS (more information about the example [here](./Examples/SiliconLabs/commissioning/micrium_os/SLSTK3701A/README.md))
+	or on bare metal (more information about the example [here](./Examples/SiliconLabs/commissioning/bare_metal/SLSTK3701A/README.md))
+	and on the WGM160P Wi-Fi Module Radio Board either with MicriumOS (more information about the example [here](./Examples/SiliconLabs/commissioning/micrium_os/WGM160P/README.md))
+	or on bare metal (more information about the example [here](./Examples/SiliconLabs/commissioning/bare_metal/WGM160P/README.md))
     * secure_mqtt: MQTT over TLS example using Micrium OS, LwIP (MQTT, DHCP, DNS clients), Mbed TLS running
 	on the EFM32 Giant Gecko GG11 Starter Kit and WGM160P (more information about the example [here](./Examples/SiliconLabs/secure_mqtt/README.md))
   * STM32

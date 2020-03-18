@@ -177,6 +177,7 @@ uint32_t SDIODRV_IOReadWriteExtendedBlocks(SDIODRV_Handle_t *handle,
                                            uint32_t address,
                                            uint16_t blocksCnt,
                                            uint8_t *data);
+uint32_t SDIODRV_Abort(SDIODRV_Handle_t *handle, uint8_t function_to_abort);
 uint32_t SDIODRV_EnableHighSpeed(SDIODRV_Handle_t *handle, bool state);
 uint32_t SDIODRV_EnableInterrupts(SDIODRV_Handle_t *handle,
                                   uint32_t interrupts,

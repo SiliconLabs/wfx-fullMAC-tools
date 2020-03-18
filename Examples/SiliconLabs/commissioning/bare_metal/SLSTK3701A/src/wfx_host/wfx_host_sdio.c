@@ -151,7 +151,11 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd52(sl_wfx_host_bus_transfer_type_t type
   }
 
   // Wait for the operation completion
-  return wait_action_completion(SDIODRV_EVENT_CMD_COMPLETE, SDIO_ACTION_COMPLETION_TIMEOUT_MS);
+  sl_status_t status = wait_action_completion(SDIODRV_EVENT_CMD_COMPLETE, SDIO_ACTION_COMPLETION_TIMEOUT_MS);
+  if (status != SL_STATUS_OK) {
+    SDIODRV_Abort(&sdiodrv_handle, function);
+  }
+  return status;
 }
 
 sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_transfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length)
@@ -191,7 +195,11 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_transfer_type_t type
   }
 
   // Wait for the operation completion
-  return wait_action_completion(SDIODRV_EVENT_TRANS_COMPLETE, SDIO_ACTION_COMPLETION_TIMEOUT_MS);
+  sl_status_t status = wait_action_completion(SDIODRV_EVENT_TRANS_COMPLETE, SDIO_ACTION_COMPLETION_TIMEOUT_MS);
+  if (status != SL_STATUS_OK) {
+    SDIODRV_Abort(&sdiodrv_handle, function);
+  }
+  return status;
 }
 
 sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)

@@ -818,6 +818,42 @@ uint32_t SDIODRV_IOReadWriteExtendedBlocks (SDIODRV_Handle_t *handle,
 
 /***************************************************************************//**
  * @brief
+ *   Abort a command or transfer ongoing.
+ *
+ * @param[in] handle
+ *   A pointer to the SDIODRV Handle.
+ *
+ * @param[in] function_to_abort
+ *   Function to abort.
+ *
+ * @return
+ *   @ref SDIODRV_ERROR_NONE on success.
+ *   On failure, an appropriate error is returned.
+ ******************************************************************************/
+uint32_t SDIODRV_Abort (SDIODRV_Handle_t *handle, uint8_t function_to_abort)
+{
+  uint32_t res;
+
+  if (handle == NULL) {
+    return SDIODRV_ERROR_PARAM;
+  }
+
+  // Start by resetting the CMD and DAT lines
+  handle->init.instance->CLOCKCTRL |= ( SDIO_CLOCKCTRL_SFTRSTDAT
+                                      | SDIO_CLOCKCTRL_SFTRSTCMD);
+  while ((handle->init.instance->CLOCKCTRL
+         & (SDIO_CLOCKCTRL_SFTRSTDAT | SDIO_CLOCKCTRL_SFTRSTCMD)) != 0);
+
+  res = SDIODRV_IOReadWriteDirect(handle,
+                                  SDIODRV_IO_OP_WRITE,
+                                  0,
+                                  0x06 /* I/O Function Abort */,
+                                  &function_to_abort);
+  return res;
+}
+
+/***************************************************************************//**
+ * @brief
  *   Enable or disable the High Speed mode on the host side.
  *
  * @param[in] handle

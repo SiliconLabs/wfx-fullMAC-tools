@@ -23,7 +23,7 @@
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
 #include "sl_wfx_bus.h"
-#include "wfx_host_cfg.h"
+#include "sl_wfx_host_cfg.h"
 
 #include "em_gpio.h"
 #include "em_usart.h"
@@ -58,17 +58,17 @@
 #else
 #error Must define either WF200_ALPHA_KEY/WF200_BETA_KEY/WF200_PROD_KEY/WF200_DEV_KEY
 #endif
-#include "wfx_task.h"
+#include "sl_wfx_task.h"
 #include "udelay.h"
 #include "lwip_micriumos.h"
 #include "dhcp_server.h"
-#include "wfx_host.h"
+#include "sl_wfx_host_events.h"
+#include "sl_wfx_host.h"
 
 extern char event_log[];
 
 OS_SEM    wf200_confirmation;
-/// WiFi event flags
-OS_FLAG_GRP  sl_wfx_event_group;
+
 static OS_MUTEX wfx_mutex;
 
 #define SL_WFX_EVENT_MAX_SIZE  512
@@ -121,7 +121,7 @@ void sl_wfx_ap_client_disconnected_callback(uint32_t status, uint8_t* mac);
 /**************************************************************************//**
  * Set up memory pools for WFX host interface
  *****************************************************************************/
-sl_status_t wfx_host_setup_memory_pools(void)
+sl_status_t sl_wfx_host_setup_memory_pools(void)
 {
   RTOS_ERR err;
   Mem_DynPoolCreate("WFX Buffers",
@@ -156,7 +156,6 @@ sl_status_t sl_wfx_host_init(void)
 {
   RTOS_ERR err;
   UDELAY_Calibrate();
-  OSFlagCreate(&sl_wfx_event_group, "wifi events", 0, &err);
   host_context.wf200_firmware_download_progress = 0;
   host_context.wf200_initialized = 0;
   OSSemCreate(&wf200_confirmation, "wf200 confirmation", 0, &err);
@@ -296,7 +295,7 @@ sl_status_t sl_wfx_host_free_buffer(void* buffer, sl_wfx_buffer_type_t type)
  *****************************************************************************/
 sl_status_t sl_wfx_host_hold_in_reset(void)
 {
-  GPIO_PinOutClear(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
+  GPIO_PinOutClear(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
   host_context.wf200_initialized = 0;
   return SL_STATUS_OK;
 }
@@ -318,9 +317,9 @@ sl_status_t sl_wfx_host_set_wake_up_pin(uint8_t state)
     sl_wfx_host_enable_spi();
 #endif
 #endif
-    GPIO_PinOutSet(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN);
+    GPIO_PinOutSet(SL_WFX_HOST_CFG_WUP_PORT, SL_WFX_HOST_CFG_WUP_PIN);
   } else {
-    GPIO_PinOutClear(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN);
+    GPIO_PinOutClear(SL_WFX_HOST_CFG_WUP_PORT, SL_WFX_HOST_CFG_WUP_PIN);
 #ifdef SLEEP_ENABLED
 #ifdef SL_WFX_USE_SDIO
     sl_wfx_host_disable_sdio();
@@ -338,12 +337,12 @@ sl_status_t sl_wfx_host_reset_chip(void)
 {
   RTOS_ERR err;
   // Pull it low for at least 1 ms to issue a reset sequence
-  GPIO_PinOutClear(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
+  GPIO_PinOutClear(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
   // Delay for 10ms
   OSTimeDly(10, OS_OPT_TIME_DLY, &err);
 
   // Hold pin high to get chip out of reset
-  GPIO_PinOutSet(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
+  GPIO_PinOutSet(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
   // Delay for 3ms
   OSTimeDly(3, OS_OPT_TIME_DLY, &err);
   host_context.wf200_initialized = 0;
@@ -355,7 +354,7 @@ sl_status_t sl_wfx_host_wait_for_wake_up(void)
   RTOS_ERR err;
   UDELAY_Delay(1000);
   UDELAY_Delay(1000);
-  OSFlagPost(&wfxtask_evts, WFX_EVENT_WAKE, OS_OPT_POST_FLAG_SET, &err);
+  OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_WAKE, OS_OPT_POST_FLAG_SET, &err);
   return SL_STATUS_OK;
 }
 
@@ -584,7 +583,7 @@ void sl_wfx_scan_complete_callback(uint32_t status)
   (void)(status);
   scan_count_web = scan_count;
   scan_count = 0;
-  OSFlagPost(&sl_wfx_event_group, SL_WFX_SCAN_COMPLETE, OS_OPT_POST_FLAG_SET, &err);
+  OSFlagPost(&wifi_events, SL_WFX_EVENT_SCAN_COMPLETE, OS_OPT_POST_FLAG_SET, &err);
 }
 
 /**************************************************************************//**
@@ -599,7 +598,7 @@ void sl_wfx_connect_callback(uint8_t* mac, uint32_t status)
     {
       printf("Connected\r\n");
       sl_wfx_context->state |= SL_WFX_STA_INTERFACE_CONNECTED;
-      OSFlagPost(&sl_wfx_event_group, SL_WFX_CONNECT, OS_OPT_POST_FLAG_SET, &err);
+      OSFlagPost(&wifi_events, SL_WFX_EVENT_CONNECT, OS_OPT_POST_FLAG_SET, &err);
       break;
     }
     case WFM_STATUS_NO_MATCHING_AP:
@@ -649,7 +648,7 @@ void sl_wfx_disconnect_callback(uint8_t* mac, uint16_t reason)
   (void)(mac);
   printf("Disconnected %d\r\n", reason);
   sl_wfx_context->state &= ~SL_WFX_STA_INTERFACE_CONNECTED;
-  OSFlagPost(&sl_wfx_event_group, SL_WFX_DISCONNECT, OS_OPT_POST_FLAG_SET, &err);
+  OSFlagPost(&wifi_events, SL_WFX_EVENT_DISCONNECT, OS_OPT_POST_FLAG_SET, &err);
 }
 
 /**************************************************************************//**
@@ -662,7 +661,7 @@ void sl_wfx_start_ap_callback(uint32_t status)
     printf("AP started\r\n");
     printf("Join the AP with SSID: %s\r\n", softap_ssid);
     sl_wfx_context->state |= SL_WFX_AP_INTERFACE_UP;
-    OSFlagPost(&sl_wfx_event_group, SL_WFX_START_AP, OS_OPT_POST_FLAG_SET, &err);
+    OSFlagPost(&wifi_events, SL_WFX_EVENT_START_AP, OS_OPT_POST_FLAG_SET, &err);
   } else {
     printf("AP start failed\r\n");
     strcpy(event_log, "AP start failed");
@@ -678,7 +677,7 @@ void sl_wfx_stop_ap_callback(void)
   dhcpserver_clear_stored_mac ();
   printf("SoftAP stopped\r\n");
   sl_wfx_context->state &= ~SL_WFX_AP_INTERFACE_UP;
-  OSFlagPost(&sl_wfx_event_group, SL_WFX_STOP_AP, OS_OPT_POST_FLAG_SET, &err);
+  OSFlagPost(&wifi_events, SL_WFX_EVENT_STOP_AP, OS_OPT_POST_FLAG_SET, &err);
 }
 
 /**************************************************************************//**

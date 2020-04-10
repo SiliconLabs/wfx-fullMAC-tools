@@ -55,7 +55,7 @@
 
 #include  <sl_wfx_constants.h>
 
-#include  "wfx_host_sdio_fnct.h"
+#include  "sl_wfx_host_sdio_fnct.h"
 
 /*
  *********************************************************************************************************

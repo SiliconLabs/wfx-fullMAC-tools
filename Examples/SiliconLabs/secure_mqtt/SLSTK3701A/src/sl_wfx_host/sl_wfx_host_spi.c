@@ -24,7 +24,7 @@
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
 #include "sl_wfx_bus.h"
-#include "wfx_host_cfg.h"
+#include "sl_wfx_host_cfg.h"
 
 #include "em_gpio.h"
 #include "em_usart.h"
@@ -43,15 +43,15 @@
 #include "sleep.h"
 
 
-#define USART WFX_HOST_CFG_SPI_USART
-#define USART_CLK WFX_HOST_CFG_SPI_USART_CLK
-#define RX_DMA_SIGNAL WFX_HOST_CFG_SPI_RX_DMA_SIGNAL
-#define TX_DMA_SIGNAL WFX_HOST_CFG_SPI_TX_DMA_SIGNAL
-#define USART_PORT WFX_HOST_CFG_SPI_USART_PORT
-#define USART_CS_PIN WFX_HOST_CFG_SPI_USART_CS_PIN
-#define USART_TX_PIN WFX_HOST_CFG_SPI_USART_TX_PIN
-#define USART_RX_PIN WFX_HOST_CFG_SPI_USART_RX_PIN
-#define USART_CLK_PIN WFX_HOST_CFG_SPI_USART_CLK_PIN
+#define USART           SL_WFX_HOST_CFG_SPI_USART
+#define USART_CLK       SL_WFX_HOST_CFG_SPI_USART_CLK
+#define RX_DMA_SIGNAL   SL_WFX_HOST_CFG_SPI_RX_DMA_SIGNAL
+#define TX_DMA_SIGNAL   SL_WFX_HOST_CFG_SPI_TX_DMA_SIGNAL
+#define USART_PORT      SL_WFX_HOST_CFG_SPI_USART_PORT
+#define USART_CS_PIN    SL_WFX_HOST_CFG_SPI_USART_CS_PIN
+#define USART_TX_PIN    SL_WFX_HOST_CFG_SPI_USART_TX_PIN
+#define USART_RX_PIN    SL_WFX_HOST_CFG_SPI_USART_RX_PIN
+#define USART_CLK_PIN   SL_WFX_HOST_CFG_SPI_USART_CLK_PIN
 
 static OS_SEM spi_sem;
 static unsigned int        tx_dma_channel;
@@ -86,9 +86,9 @@ sl_status_t sl_wfx_host_init_bus(void)
                       & ~(_USART_ROUTELOC0_TXLOC_MASK
                           | _USART_ROUTELOC0_RXLOC_MASK
                           | _USART_ROUTELOC0_CLKLOC_MASK))
-                     | (WFX_HOST_CFG_SPI_TX_LOC_NBR  << _USART_ROUTELOC0_TXLOC_SHIFT)
-                     | (WFX_HOST_CFG_SPI_RX_LOC_NBR  << _USART_ROUTELOC0_RXLOC_SHIFT)
-                     | (WFX_HOST_CFG_SPI_CLK_LOC_NBR << _USART_ROUTELOC0_CLKLOC_SHIFT);
+                     | (SL_WFX_HOST_CFG_SPI_TX_LOC_NBR  << _USART_ROUTELOC0_TXLOC_SHIFT)
+                     | (SL_WFX_HOST_CFG_SPI_RX_LOC_NBR  << _USART_ROUTELOC0_RXLOC_SHIFT)
+                     | (SL_WFX_HOST_CFG_SPI_CLK_LOC_NBR << _USART_ROUTELOC0_CLKLOC_SHIFT);
 
   USART->ROUTEPEN = USART_ROUTEPEN_TXPEN
                     | USART_ROUTEPEN_RXPEN
@@ -147,6 +147,9 @@ static bool rx_dma_complete(unsigned int channel,
                           unsigned int sequenceNo,
                           void *userParam)
 {
+  (void)channel;
+  (void)sequenceNo;
+  (void)userParam;
   RTOS_ERR err;
   OSSemPost(&spi_sem, OS_OPT_POST_1, &err);
   return true;
@@ -252,7 +255,12 @@ sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_transfer_type_
  *****************************************************************************/
 sl_status_t sl_wfx_host_enable_platform_interrupt(void)
 {
-  GPIO_ExtIntConfig(WFX_HOST_CFG_SPI_WIRQPORT, WFX_HOST_CFG_SPI_WIRQPIN, WFX_HOST_CFG_SPI_IRQ, true, false, true);
+  GPIO_ExtIntConfig(SL_WFX_HOST_CFG_SPI_WIRQPORT,
+                    SL_WFX_HOST_CFG_SPI_WIRQPIN,
+                    SL_WFX_HOST_CFG_SPI_IRQ,
+                    true,
+                    false,
+                    true);
   return SL_STATUS_OK;
 }
 
@@ -261,28 +269,24 @@ sl_status_t sl_wfx_host_enable_platform_interrupt(void)
  *****************************************************************************/
 sl_status_t sl_wfx_host_disable_platform_interrupt(void)
 {
-  GPIO_IntDisable(1 << WFX_HOST_CFG_SPI_IRQ);
+  GPIO_IntDisable(1 << SL_WFX_HOST_CFG_SPI_IRQ);
   return SL_STATUS_OK;
 }
 sl_status_t sl_wfx_host_enable_spi(void)
 {
-#ifdef SLEEP_ENABLED
   if (spi_enabled == false) {
     SLEEP_SleepBlockBegin(sleepEM2);
     spi_enabled = true;
   }
-#endif
   return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_disable_spi(void)
 {
-#ifdef SLEEP_ENABLED
   if (spi_enabled == true) {
     spi_enabled = false;
     SLEEP_SleepBlockEnd(sleepEM2);
   }
-#endif
   return SL_STATUS_OK;
 }
 

@@ -55,7 +55,7 @@
 
 #include  <sl_wfx_constants.h>
 
-#include  "wfx_host_sdio_fnct.h"
+#include  "sl_wfx_host_sdio_fnct.h"
 
 /*
  *********************************************************************************************************
@@ -115,7 +115,7 @@ static CPU_INT08U      sdio_fnct_blk_buf[SDIO_FNCT_BLK_LEN * SDIO_FNCT_BLK_QTY];
 
 typedef void (*sdio_fnct_card_int_callback_t)(void);
 
-static  sdio_fnct_card_int_callback_t sdio_fnct_card_int_callback;
+static sdio_fnct_card_int_callback_t sdio_fnct_card_int_callback;
 
 static  CPU_BOOLEAN  sdio_fnct_probe  (SD_BUS_HANDLE     bus_handle,
                                              SD_FNCT_HANDLE    fnct_handle,
@@ -185,7 +185,7 @@ void  sdio_fnct_init(RTOS_ERR  *p_err)
  *********************************************************************************************************
  *********************************************************************************************************
  */
-void sdio_fnct_int_reg(void *callback)
+void sdio_fnct_int_reg(void* callback)
 {
   sdio_fnct_card_int_callback = (sdio_fnct_card_int_callback_t) callback;
 }

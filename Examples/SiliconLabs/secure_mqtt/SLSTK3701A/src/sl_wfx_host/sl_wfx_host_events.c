@@ -34,9 +34,9 @@
 #include <common/include/rtos_err.h>
 #include <common/include/rtos_err.h>
 
-#include "wfx_host_events.h"
-#include "wfx_host.h"
-#include "wfx_task.h"
+#include "sl_wfx_host_events.h"
+#include "sl_wfx_host.h"
+#include "sl_wfx_task.h"
 #include "sl_wfx.h"
 
 // Event Task Configurations
@@ -48,7 +48,8 @@ static CPU_STK wfx_events_task_stk[WFX_EVENTS_TASK_STK_SIZE];
 /// wfx event task TCB
 static OS_TCB wfx_events_task_tcb;
 
-
+/// WiFi event flags
+OS_FLAG_GRP wifi_events;
 
 /***************************************************************************//**
  * WFX events processing task.
@@ -57,20 +58,18 @@ static void wfx_events_task(void *p_arg)
 {
   RTOS_ERR err;
   OS_FLAGS  flags = 0;
-  while (1)
-  {
-    if (sl_wfx_event_group.Type == OS_OBJ_TYPE_FLAG){
-      flags = OSFlagPend(&sl_wfx_event_group,
-                         SL_WFX_CONNECT | SL_WFX_STOP_AP | SL_WFX_DISCONNECT | SL_WFX_START_AP,
-                         0,
-                         OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
-                         0,
-                         &err);
-    }
-    else {
-      OSTimeDly(100, OS_OPT_TIME_DLY,&err);
-    }
-    if (flags & SL_WFX_CONNECT) {
+
+  (void)p_arg;
+
+  while (1) {
+    flags = OSFlagPend(&wifi_events,
+                       SL_WFX_EVENT_CONNECT | SL_WFX_EVENT_STOP_AP | SL_WFX_EVENT_DISCONNECT | SL_WFX_EVENT_START_AP,
+                       0,
+                       OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
+                       0,
+                       &err);
+
+    if (flags & SL_WFX_EVENT_CONNECT) {
       lwip_set_sta_link_up();
 
 #ifdef SLEEP_ENABLED
@@ -81,10 +80,10 @@ static void wfx_events_task(void *p_arg)
       }
 #endif
     }
-    if (flags & SL_WFX_DISCONNECT){
+    if (flags & SL_WFX_EVENT_DISCONNECT) {
       lwip_set_sta_link_down();
     }
-    if (flags & SL_WFX_START_AP){
+    if (flags & SL_WFX_EVENT_START_AP) {
       lwip_set_ap_link_up();
 
 #ifdef SLEEP_ENABLED
@@ -93,7 +92,7 @@ static void wfx_events_task(void *p_arg)
       sl_wfx_disable_device_power_save();
 #endif
     }
-    if (flags & SL_WFX_STOP_AP){
+    if (flags & SL_WFX_EVENT_STOP_AP) {
       lwip_set_ap_link_down();
 
 #ifdef SLEEP_ENABLED
@@ -104,7 +103,7 @@ static void wfx_events_task(void *p_arg)
       }
 #endif
     }
-    if (flags & SL_WFX_SCAN_COMPLETE){
+    if (flags & SL_WFX_EVENT_SCAN_COMPLETE) {
       //we don't process this here (see scan cgi handler)
     }
   }
@@ -113,9 +112,14 @@ static void wfx_events_task(void *p_arg)
 /***************************************************************************//**
  * Creates WFX events processing task.
  ******************************************************************************/
-void wfx_events_task_start()
+void wifi_start()
 {
   RTOS_ERR err;
+
+  OSFlagCreate(&wifi_events, "wifi events", 0, &err);
+  // Check error code.
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
   OSTaskCreate(&wfx_events_task_tcb,
                "WFX events task",
                wfx_events_task,
@@ -129,6 +133,6 @@ void wfx_events_task_start()
                DEF_NULL,
                (OS_OPT_TASK_STK_CLR),
                &err);
-  //   Check error code.
+  // Check error code.
   APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }

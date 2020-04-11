@@ -1,6 +1,6 @@
 #include "secure_link/sl_wfx_secure_link.h"
 #include "demo_config.h"
-#include "wfx_host_cfg.h"
+#include "sl_wfx_host_cfg.h"
 
 #include "em_gpio.h"
 #include "em_usart.h"

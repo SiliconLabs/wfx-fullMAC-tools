@@ -32,11 +32,11 @@
 #include "em_cmu.h"
 #include "em_emu.h"
 #include "em_chip.h"
-#include "wfx_host_cfg.h"
-#include "wfx_host_events.h"
+#include "sl_wfx_host_cfg.h"
+#include "sl_wfx_host_events.h"
 #include "io.h"
-#include "wfx_task.h"
-#include "wfx_host.h"
+#include "sl_wfx_task.h"
+#include "sl_wfx_host.h"
 #include "lwipopts.h"
 #include <mbedtls/threading.h>
 #include MBEDTLS_CONFIG_FILE
@@ -58,9 +58,9 @@ static  void     main_start_task (void  *p_arg);
 static bool sleepCallback(SLEEP_EnergyMode_t emode)
 {
 #ifdef SL_WFX_USE_SPI
-  if (GPIO_PinInGet(WFX_HOST_CFG_SPI_WIRQPORT,  WFX_HOST_CFG_SPI_WIRQPIN))//wf200 messages pending
+  if (GPIO_PinInGet(SL_WFX_HOST_CFG_SPI_WIRQPORT, SL_WFX_HOST_CFG_SPI_WIRQPIN))//wf200 messages pending
 #else
-  if (GPIO_PinInGet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN)) //wf200 messages pending
+  if (GPIO_PinInGet(SL_WFX_HOST_CFG_WIRQPORT, SL_WFX_HOST_CFG_WIRQPIN)) //wf200 messages pending
 #endif
   {
     return false;
@@ -166,11 +166,11 @@ static void GPIO_Unified_IRQ(void)
   // Act on interrupts
   if (interrupt_mask & 0x400) {
 #ifdef SL_WFX_USE_SPI
-    OSFlagPost(&wfxtask_evts, WFX_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
+    OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
 #endif
 #ifdef SL_WFX_USE_SDIO
 #ifdef SLEEP_ENABLED
-    OSFlagPost(&wfxtask_evts, WFX_EVENT_FLAG_RX,OS_OPT_POST_FLAG_SET,&err);
+    OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_FLAG_RX,OS_OPT_POST_FLAG_SET,&err);
 #endif
 #endif
   }
@@ -215,17 +215,17 @@ static void gpio_setup(void)
   GPIO_IntConfig(BSP_GPIO_PB1_PORT, BSP_GPIO_PB1_PIN, false, true, true);
 
   // Configure WF200 reset pin.
-  GPIO_PinModeSet(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN, gpioModePushPull, 0);
+  GPIO_PinModeSet(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN, gpioModePushPull, 0);
   // Configure WF200 WUP pin.
-  GPIO_PinModeSet(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN, gpioModePushPull, 0);
+  GPIO_PinModeSet(SL_WFX_HOST_CFG_WUP_PORT, SL_WFX_HOST_CFG_WUP_PIN, gpioModePushPull, 0);
 #ifdef  SL_WFX_USE_SPI
   // GPIO used as IRQ.
-  GPIO_PinModeSet(WFX_HOST_CFG_SPI_WIRQPORT, WFX_HOST_CFG_SPI_WIRQPIN, gpioModeInputPull, 0);
+  GPIO_PinModeSet(SL_WFX_HOST_CFG_SPI_WIRQPORT, SL_WFX_HOST_CFG_SPI_WIRQPIN, gpioModeInputPull, 0);
 #endif
   CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
 #ifdef EFM32GG11B820F2048GM64 //WGM160PX22KGA2
   // GPIO used as IRQ
-  GPIO_PinModeSet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN,  gpioModeInputPull,  0);
+  GPIO_PinModeSet(SL_WFX_HOST_CFG_WIRQPORT,  SL_WFX_HOST_CFG_WIRQPIN,  gpioModeInputPull,  0);
   // SDIO Pull-ups
   GPIO_PinModeSet(gpioPortD,  0,  gpioModeDisabled,  1);
   GPIO_PinModeSet(gpioPortD,  1,  gpioModeDisabled,  1);
@@ -298,12 +298,12 @@ static  void  main_start_task(void  *p_arg)
   printf("WFX Secure MQTT Example\n");
 
   //start wfx bus communication task.
-  wfxtask_start();
+  wfx_bus_start();
 #ifdef SL_WFX_USE_SECURE_LINK
   wfx_securelink_task_start(); // start securelink key renegotiation task
 #endif //WFX_USE_SECURE_LINK
 
-  wfx_events_task_start();
+  wifi_start();
   lwip_start();
 
   // Delete the init thread.

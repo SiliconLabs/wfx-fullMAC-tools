@@ -1,13 +1,5 @@
 #include  <rtos_description.h>
 
-#include <cpu/include/cpu.h>
-#include <kernel/include/os.h>
-#include <kernel/include/os_trace.h>
-#include <common/include/common.h>
-#include <common/include/lib_def.h>
-#include <common/include/rtos_utils.h>
-#include <common/include/toolchains.h>
-
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
 

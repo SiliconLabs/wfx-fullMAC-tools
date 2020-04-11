@@ -33,7 +33,7 @@
 #include <common/include/rtos_err.h>
 #include <common/source/kal/kal_priv.h>
 #include <common/include/rtos_err.h>
-#include "wfx_task.h"
+#include "sl_wfx_task.h"
 
 #define STATION_NETIF0 's'
 #define STATION_NETIF1 't'
@@ -136,13 +136,13 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
     } else {
       interface = SL_WFX_STA_INTERFACE;
     }
-    wfxtask_tx_frame.data_length = framelength + padding;
-    wfxtask_tx_frame.frame = tx_buffer;
-    wfxtask_tx_frame.interface = interface;
-    wfxtask_tx_frame.priority = 0;
+    wfx_bus_tx_frame.data_length = framelength + padding;
+    wfx_bus_tx_frame.frame = tx_buffer;
+    wfx_bus_tx_frame.interface = interface;
+    wfx_bus_tx_frame.priority = 0;
 
-    OSFlagPost(&wfxtask_evts, WFX_EVENT_FLAG_TX, OS_OPT_POST_FLAG_SET, &err);
-    OSSemPend(&wfxtask_tx_complete, 0, OS_OPT_PEND_BLOCKING, 0, &err);
+    OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_FLAG_TX, OS_OPT_POST_FLAG_SET, &err);
+    OSSemPend(&wfx_bus_tx_complete, 0, OS_OPT_PEND_BLOCKING, 0, &err);
     result = SL_STATUS_OK;
 
     sl_wfx_host_free_buffer(tx_buffer, SL_WFX_TX_FRAME_BUFFER);

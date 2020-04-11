@@ -57,9 +57,10 @@
 #include "console.h"
 #include "dhcp_client.h"
 #include "ethernetif.h"
-#include "wfx_host.h"
-#include "wfx_task.h"
-#include "wfx_host.h"
+#include "sl_wfx_host.h"
+#include "sl_wfx_task.h"
+#include "sl_wfx_host.h"
+#include "sl_wfx_host_events.h"
 
 static int netif_config(void);
 static int lwip_app_mqtt_connection(void);
@@ -373,8 +374,8 @@ static void lwip_app_wifi_connection (void)
                            0);
 
   // Wait for the connection establishment
-  OSFlagPend(&sl_wfx_event_group,
-             SL_WFX_CONNECT,
+  OSFlagPend(&wifi_events,
+             SL_WFX_EVENT_CONNECT,
              0,
              OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
              0,

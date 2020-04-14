@@ -16,16 +16,16 @@
  ******************************************************************************/
 
 #include "lwip_bm.h"
-#include  "bsp.h"
-#include  "retargetserial.h"
-#include  "em_cmu.h"
-#include  "em_emu.h"
-#include  "em_chip.h"
-#include  "wfx_host_cfg.h"
-#include "wfx_host.h"
+#include "bsp.h"
+#include "retargetserial.h"
+#include "em_cmu.h"
+#include "em_emu.h"
+#include "em_chip.h"
+#include "sl_wfx_host_cfg.h"
+#include "sl_wfx_host.h"
 #include <stdio.h>
 #ifdef SL_WFX_USE_SECURE_LINK
-#include  <mbedtls/threading.h>
+#include <mbedtls/threading.h>
 #endif
 
 static void gpio_setup(void);
@@ -173,17 +173,17 @@ static void gpio_setup(void)
   GPIO_IntConfig(BSP_GPIO_PB1_PORT, BSP_GPIO_PB1_PIN, false, true, true);
 
   // Configure WF200 reset pin.
-  GPIO_PinModeSet(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN, gpioModePushPull, 0);
+  GPIO_PinModeSet(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN, gpioModePushPull, 0);
   // Configure WF200 WUP pin.
-  GPIO_PinModeSet(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN, gpioModePushPull, 0);
+  GPIO_PinModeSet(SL_WFX_HOST_CFG_WUP_PORT, SL_WFX_HOST_CFG_WUP_PIN, gpioModePushPull, 0);
 #ifdef  SL_WFX_USE_SPI
   // GPIO used as IRQ.
-  GPIO_PinModeSet(WFX_HOST_CFG_SPI_WIRQPORT, WFX_HOST_CFG_SPI_WIRQPIN, gpioModeInputPull, 0);
+  GPIO_PinModeSet(SL_WFX_HOST_CFG_SPI_WIRQPORT, SL_WFX_HOST_CFG_SPI_WIRQPIN, gpioModeInputPull, 0);
 #endif
   CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
 #ifdef EFM32GG11B820F2048GM64 //WGM160PX22KGA2
   // GPIO used as IRQ
-  GPIO_PinModeSet(WFX_HOST_CFG_WIRQPORT,  WFX_HOST_CFG_WIRQPIN,  gpioModeInputPull,  0);
+  GPIO_PinModeSet(SL_WFX_HOST_CFG_WIRQPORT,  SL_WFX_HOST_CFG_WIRQPIN,  gpioModeInputPull,  0);
   // SDIO Pull-ups
   GPIO_PinModeSet(gpioPortD,  0,  gpioModeDisabled,  1);
   GPIO_PinModeSet(gpioPortD,  1,  gpioModeDisabled,  1);

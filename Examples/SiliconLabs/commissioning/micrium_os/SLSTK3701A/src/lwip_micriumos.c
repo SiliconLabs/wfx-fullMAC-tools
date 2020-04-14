@@ -46,14 +46,15 @@
 #include "dhcp_client.h"
 #include "dhcp_server.h"
 #include "ethernetif.h"
-#include "wfx_host.h"
+#include "sl_wfx_host.h"
+#include "sl_wfx_task.h"
+#include "dhcp_server.h"
+#include "sl_wfx_host.h"
+#include "sl_wfx_host_events.h"
+
 #ifdef LWIP_IPERF_SERVER
-#include "lwip/ip_addr.h"
 #include "lwip/apps/lwiperf.h"
 #endif
-#include "wfx_task.h"
-#include "dhcp_server.h"
-#include "wfx_host.h"
 
 extern scan_result_list_t scan_list[];
 extern uint8_t scan_count_web;
@@ -388,15 +389,15 @@ static const char *start_scan_cgi_handler(int index, int num_params,
   // Reset scan list
   scan_count_web = 0;
   memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
-  OSFlagPost (&sl_wfx_event_group, SL_WFX_SCAN_COMPLETE, OS_OPT_POST_FLAG_CLR, &err);
+  OSFlagPost (&wifi_events, SL_WFX_EVENT_SCAN_COMPLETE, OS_OPT_POST_FLAG_CLR, &err);
   // perform a scan on every Wi-Fi channel in active mode
   result = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0, NULL,0,NULL,0,NULL);
   if ((result == SL_STATUS_OK) || (result == SL_STATUS_WIFI_WARNING))
   {
-	OSFlagPend(&sl_wfx_event_group, SL_WFX_SCAN_COMPLETE, 5000,
-	                   OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
-	                   0, &err);
-	if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE)
+    OSFlagPend(&wifi_events, SL_WFX_EVENT_SCAN_COMPLETE, 5000,
+               OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
+               0, &err);
+    if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE)
     {
       printf("Scan command timeout\r\n");
     }

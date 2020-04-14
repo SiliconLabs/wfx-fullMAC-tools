@@ -18,13 +18,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
+#include  <rtos_description.h>
 
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
 #include "sl_wfx_bus.h"
-#include "wfx_host_cfg.h"
+#include "sl_wfx_host_cfg.h"
 
-#include "em_core.h"
 #include "em_gpio.h"
 #include "em_usart.h"
 #include "em_cmu.h"
@@ -43,6 +43,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <kernel/include/os.h>
+#include <common/include/rtos_utils.h>
+#include <common/include/rtos_err.h>
 
 #if   defined(WF200_ALPHA_KEY)
 #include "sl_wfx_wf200_A0.h"
@@ -55,13 +58,18 @@
 #else
 #error Must define either WF200_ALPHA_KEY/WF200_BETA_KEY/WF200_PROD_KEY/WF200_DEV_KEY
 #endif
-
-#include "lwip_bm.h"
-#include "lwip/sys.h"
+#include "sl_wfx_task.h"
+#include "udelay.h"
+#include "lwip_micriumos.h"
 #include "dhcp_server.h"
-#include "wfx_host.h"
+#include "sl_wfx_host_events.h"
+#include "sl_wfx_host.h"
 
 extern char event_log[];
+
+OS_SEM    wf200_confirmation;
+
+static OS_MUTEX wfx_mutex;
 
 #define SL_WFX_EVENT_MAX_SIZE  512
 #define SL_WFX_EVENT_LIST_SIZE 1
@@ -69,20 +77,33 @@ extern char event_log[];
 #define SL_WFX_MAX_SCAN_RESULTS 50
 
 scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];
-uint8_t scan_count = 0;
+static uint8_t scan_count = 0;
 uint8_t scan_count_web = 0;
-volatile uint8_t wf200_interrupt_event = 0;
-
-static uint16_t control_register = 0;
 
 struct {
   uint32_t wf200_firmware_download_progress;
+  MEM_DYN_POOL buf_pool;
+  MEM_DYN_POOL buf_pool_rx_tx;
+  int wf200_initialized;
   uint8_t waited_event_id;
   uint8_t posted_event_id;
 } host_context;
 
+#define BUFFER_SIZE 1024
+#define TX_RX_BUFFER_SIZE 1550
+
+#ifdef SL_WFX_USE_SDIO
 #ifdef SLEEP_ENABLED
-extern sl_wfx_context_t wifi;
+sl_status_t sl_wfx_host_enable_sdio (void);
+sl_status_t sl_wfx_host_disable_sdio (void);
+#endif
+#endif
+
+#ifdef SL_WFX_USE_SPI
+#ifdef SLEEP_ENABLED
+sl_status_t sl_wfx_host_enable_spi (void);
+sl_status_t sl_wfx_host_disable_spi (void);
+#endif
 #endif
 
 /* WF200 host callbacks */
@@ -98,11 +119,53 @@ void sl_wfx_client_connected_callback(uint8_t* mac);
 void sl_wfx_ap_client_disconnected_callback(uint32_t status, uint8_t* mac);
 
 /**************************************************************************//**
+ * Set up memory pools for WFX host interface
+ *****************************************************************************/
+sl_status_t sl_wfx_host_setup_memory_pools(void)
+{
+  RTOS_ERR err;
+  Mem_DynPoolCreate("WFX Buffers",
+                    &host_context.buf_pool,
+                    DEF_NULL,
+                    BUFFER_SIZE,
+                    sizeof(CPU_INT32U),
+                    0,
+                    LIB_MEM_BLK_QTY_UNLIMITED,
+                    &err);
+  Mem_DynPoolCreate("WFX RX TX Buffers",
+                    &host_context.buf_pool_rx_tx,
+                    DEF_NULL,
+                    TX_RX_BUFFER_SIZE,
+                    sizeof(CPU_INT32U),
+                    0,
+                    LIB_MEM_BLK_QTY_UNLIMITED,
+                    &err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+#ifdef DEBUG
+    printf("wfx_host_setup_memory_pools: unable to set up memory pools for wfx\n");
+#endif
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+  return SL_STATUS_OK;
+}
+
+/**************************************************************************//**
  * WFX FMAC driver host interface initialization
  *****************************************************************************/
 sl_status_t sl_wfx_host_init(void)
 {
+  RTOS_ERR err;
+  UDELAY_Calibrate();
   host_context.wf200_firmware_download_progress = 0;
+  host_context.wf200_initialized = 0;
+  OSSemCreate(&wf200_confirmation, "wf200 confirmation", 0, &err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    printf("OS error: sl_wfx_host_init");
+  }
+  OSMutexCreate(&wfx_mutex, "wfx host mutex",&err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+      printf("OS error: sl_wfx_host_init");
+  }
   return SL_STATUS_OK;
 }
 
@@ -176,8 +239,37 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
                                         sl_wfx_buffer_type_t type,
                                         uint32_t buffer_size)
 {
-  SL_WFX_UNUSED_PARAMETER(type);
-  *buffer = malloc(buffer_size);
+  RTOS_ERR err;
+  if (type == SL_WFX_RX_FRAME_BUFFER || type == SL_WFX_TX_FRAME_BUFFER) {
+    if (buffer_size > host_context.buf_pool_rx_tx.BlkSize) {
+#ifdef DEBUG
+      printf("Unable to allocate frame buffer\n");
+      if (type == SL_WFX_RX_FRAME_BUFFER) {
+        printf("RX ");
+      } else {
+        printf("TX ");
+      }
+      printf("type = %d, buffer_size requested = %d, mem pool blksize = %d\n", (int)type, (int)buffer_size, (int)host_context.buf_pool_rx_tx.BlkSize);
+#endif
+      return SL_STATUS_ALLOCATION_FAILED;
+    }
+    *buffer = Mem_DynPoolBlkGet(&host_context.buf_pool_rx_tx, &err);
+    if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+      printf("Mem_DynPoolBlkGet error\r\n");
+    }
+  } else {
+    if (buffer_size > host_context.buf_pool.BlkSize) {
+#ifdef DEBUG
+      printf("Unable to allocate wf200 buffer\n");
+      printf("type = %d, buffer_size requested = %d, mem pool blksize = %d\n", (int)type, (int)buffer_size, (int)host_context.buf_pool.BlkSize);
+#endif
+      return SL_STATUS_ALLOCATION_FAILED;
+    }
+    *buffer = Mem_DynPoolBlkGet(&host_context.buf_pool, &err);
+    if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+      printf("Mem_DynPoolBlkGet error control buffer\r\n");
+    }
+  }
   return SL_STATUS_OK;
 }
 
@@ -186,8 +278,15 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
  *****************************************************************************/
 sl_status_t sl_wfx_host_free_buffer(void* buffer, sl_wfx_buffer_type_t type)
 {
-  SL_WFX_UNUSED_PARAMETER(type);
-  free(buffer);
+  RTOS_ERR err;
+  if (type == SL_WFX_RX_FRAME_BUFFER || type == SL_WFX_TX_FRAME_BUFFER) {
+    Mem_DynPoolBlkFree(&host_context.buf_pool_rx_tx, buffer, &err);
+  } else {
+    Mem_DynPoolBlkFree(&host_context.buf_pool, buffer, &err);
+  }
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    printf("Mem_DynPoolBlkFree error \r\n");
+  }
   return SL_STATUS_OK;
 }
 
@@ -196,7 +295,8 @@ sl_status_t sl_wfx_host_free_buffer(void* buffer, sl_wfx_buffer_type_t type)
  *****************************************************************************/
 sl_status_t sl_wfx_host_hold_in_reset(void)
 {
-  GPIO_PinOutClear(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
+  GPIO_PinOutClear(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
+  host_context.wf200_initialized = 0;
   return SL_STATUS_OK;
 }
 
@@ -205,104 +305,94 @@ sl_status_t sl_wfx_host_hold_in_reset(void)
  *****************************************************************************/
 sl_status_t sl_wfx_host_set_wake_up_pin(uint8_t state)
 {
-  if (state > 0) {
-    GPIO_PinOutSet(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN);
+  CORE_DECLARE_IRQ_STATE;
+
+  CORE_ENTER_ATOMIC();
+  if ( state > 0 ) {
+#ifdef SLEEP_ENABLED
+#ifdef SL_WFX_USE_SDIO
+    sl_wfx_host_enable_sdio();
+#endif
+#ifdef SL_WFX_USE_SPI
+    sl_wfx_host_enable_spi();
+#endif
+#endif
+    GPIO_PinOutSet(SL_WFX_HOST_CFG_WUP_PORT, SL_WFX_HOST_CFG_WUP_PIN);
   } else {
-    GPIO_PinOutClear(WFX_HOST_CFG_WUP_PORT, WFX_HOST_CFG_WUP_PIN);
+    GPIO_PinOutClear(SL_WFX_HOST_CFG_WUP_PORT, SL_WFX_HOST_CFG_WUP_PIN);
+#ifdef SLEEP_ENABLED
+#ifdef SL_WFX_USE_SDIO
+    sl_wfx_host_disable_sdio();
+#endif
+#ifdef SL_WFX_USE_SPI
+    sl_wfx_host_disable_spi();
+#endif
+#endif
   }
+  CORE_EXIT_ATOMIC();
   return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_reset_chip(void)
 {
+  RTOS_ERR err;
   // Pull it low for at least 1 ms to issue a reset sequence
-  GPIO_PinOutClear(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
+  GPIO_PinOutClear(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
   // Delay for 10ms
-  delay_ms(10);
+  OSTimeDly(10, OS_OPT_TIME_DLY, &err);
 
   // Hold pin high to get chip out of reset
-  GPIO_PinOutSet(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
+  GPIO_PinOutSet(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
   // Delay for 3ms
-  delay_ms(3);
+  OSTimeDly(3, OS_OPT_TIME_DLY, &err);
+  host_context.wf200_initialized = 0;
   return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_wait_for_wake_up(void)
 {
-  delay_ms(3);
+  RTOS_ERR err;
+  UDELAY_Delay(1000);
+  UDELAY_Delay(1000);
+  OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_WAKE, OS_OPT_POST_FLAG_SET, &err);
   return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_wait(uint32_t wait_time)
 {
-  delay_ms(wait_time);
+  RTOS_ERR err;
+  OSTimeDly(wait_time, OS_OPT_TIME_DLY, &err);
   return SL_STATUS_OK;
 }
 
 sl_status_t sl_wfx_host_setup_waited_event(uint8_t event_id)
 {
   host_context.waited_event_id = event_id;
+  host_context.posted_event_id = 0;
 
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id,
-                                              uint32_t timeout_ms,
-                                              void** event_payload_out)
+sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id, uint32_t timeout, void** event_payload_out)
 {
-  uint64_t tmo = sys_now() + timeout_ms;
-  sl_status_t status = SL_STATUS_TIMEOUT;
+  RTOS_ERR err;
+  while (timeout > 0u) {
+    timeout--;
+    OSSemPend(&wf200_confirmation, 1, OS_OPT_PEND_BLOCKING, 0, &err);
+    if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
+      if (confirmation_id == host_context.posted_event_id) {
+        if ( event_payload_out != NULL ) {
+          *event_payload_out = sl_wfx_context->event_payload_buffer;
+        }
 
-  // Reset the control register value
-  control_register = 0;
-
-  do {
-    // Treat frame received
-    sl_wfx_receive_frame(&control_register);
-    // Make sure the waited event has not been overwritten
-    sl_wfx_host_setup_waited_event(confirmation_id);
-
-    if (confirmation_id == host_context.posted_event_id) {
-      // The waited frame has been received,
-      // update structure and stop waiting
-
-      host_context.posted_event_id = 0;
-      if (event_payload_out != NULL) {
-        *event_payload_out = sl_wfx_context->event_payload_buffer;
+        return SL_STATUS_OK;
       }
-      status = SL_STATUS_OK;
-      break;
-
-    } else {
-      // Waited frame not yet received, wait a while
-      // before treating new received frame
-
-      sl_wfx_host_wait(1);
+    } else if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_TIMEOUT) {
+      printf("OS error: sl_wfx_host_wait_for_confirmation\r\n");
     }
-
-    // FIXME overlap after running almost 50days
-  } while (sys_now() < tmo);
-
-  return status;
-}
-
-void sl_wfx_process(void)
-{
-  if(wf200_interrupt_event == 1)
-  {
-    // Reset the control register value
-    control_register = 0;
-
-    do
-    {
-      wf200_interrupt_event = 0;
-      sl_wfx_receive_frame(&control_register);
-    }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 );
-
-#ifdef SL_WFX_USE_SDIO
-    sl_wfx_host_enable_platform_interrupt();
-#endif
   }
+
+  return SL_STATUS_TIMEOUT;
 }
 
 /**************************************************************************//**
@@ -312,7 +402,12 @@ void sl_wfx_process(void)
  *****************************************************************************/
 sl_status_t sl_wfx_host_lock(void)
 {
-  // Not used in bare metal context
+  RTOS_ERR err;
+  OSMutexPend(&wfx_mutex, 0, OS_OPT_PEND_BLOCKING, 0, &err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE)
+  {
+    return SL_STATUS_FAIL;
+  }
   return SL_STATUS_OK;
 }
 
@@ -323,7 +418,12 @@ sl_status_t sl_wfx_host_lock(void)
  *****************************************************************************/
 sl_status_t sl_wfx_host_unlock(void)
 {
-  // Not used in bare metal context
+  RTOS_ERR err;
+  OSMutexPost(&wfx_mutex, OS_OPT_POST_NONE, &err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE)
+  {
+    return SL_STATUS_FAIL;
+  }
   return SL_STATUS_OK;
 }
 
@@ -334,8 +434,8 @@ sl_status_t sl_wfx_host_unlock(void)
  *****************************************************************************/
 sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
 {
+  RTOS_ERR err;
   int i;
-
   switch (network_rx_buffer->header.id ) {
     /******** INDICATION ********/
     case SL_WFX_CONNECT_IND_ID:
@@ -430,10 +530,9 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
 
   if ( host_context.waited_event_id == network_rx_buffer->header.id ) {
     /* Post the event in the queue */
-    memcpy(sl_wfx_context->event_payload_buffer,
-           (void*)network_rx_buffer,
-           network_rx_buffer->header.length);
+    memcpy(sl_wfx_context->event_payload_buffer, (void*)network_rx_buffer, network_rx_buffer->header.length);
     host_context.posted_event_id = network_rx_buffer->header.id;
+    OSSemPost(&wf200_confirmation, OS_OPT_POST_1, &err);
   }
 
   return SL_STATUS_OK;
@@ -468,10 +567,10 @@ void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_body_t* scan_result)
   printf("\r\n");
   if (scan_count <= SL_WFX_MAX_SCAN_RESULTS) {
     scan_list[scan_count - 1].ssid_def = scan_result->ssid_def;
-    scan_list[scan_count - 1].channel = scan_result->channel;
-    scan_list[scan_count - 1].security_mode = scan_result->security_mode;
-    scan_list[scan_count - 1].rcpi = scan_result->rcpi;
-    memcpy(scan_list[scan_count - 1].mac, scan_result->mac, 6);
+	scan_list[scan_count - 1].channel = scan_result->channel;
+	scan_list[scan_count - 1].security_mode = scan_result->security_mode;
+	scan_list[scan_count - 1].rcpi = scan_result->rcpi;
+	memcpy(scan_list[scan_count - 1].mac, scan_result->mac, 6);
   }
 }
 
@@ -480,9 +579,11 @@ void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_body_t* scan_result)
  *****************************************************************************/
 void sl_wfx_scan_complete_callback(uint32_t status)
 {
+  RTOS_ERR err;
   (void)(status);
   scan_count_web = scan_count;
   scan_count = 0;
+  OSFlagPost(&wifi_events, SL_WFX_EVENT_SCAN_COMPLETE, OS_OPT_POST_FLAG_SET, &err);
 }
 
 /**************************************************************************//**
@@ -490,20 +591,14 @@ void sl_wfx_scan_complete_callback(uint32_t status)
  *****************************************************************************/
 void sl_wfx_connect_callback(uint8_t* mac, uint32_t status)
 {
+  RTOS_ERR err;
+
   switch(status){
     case WFM_STATUS_SUCCESS:
     {
       printf("Connected\r\n");
       sl_wfx_context->state |= SL_WFX_STA_INTERFACE_CONNECTED;
-      lwip_set_sta_link_up();
-
-#ifdef SLEEP_ENABLED
-      if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
-        // Enable the power save
-        sl_wfx_set_power_mode(WFM_PM_MODE_PS, 0);
-        sl_wfx_enable_device_power_save();
-      }
-#endif
+      OSFlagPost(&wifi_events, SL_WFX_EVENT_CONNECT, OS_OPT_POST_FLAG_SET, &err);
       break;
     }
     case WFM_STATUS_NO_MATCHING_AP:
@@ -549,10 +644,11 @@ void sl_wfx_connect_callback(uint8_t* mac, uint32_t status)
  *****************************************************************************/
 void sl_wfx_disconnect_callback(uint8_t* mac, uint16_t reason)
 {
+  RTOS_ERR err;
   (void)(mac);
   printf("Disconnected %d\r\n", reason);
   sl_wfx_context->state &= ~SL_WFX_STA_INTERFACE_CONNECTED;
-  lwip_set_sta_link_down();
+  OSFlagPost(&wifi_events, SL_WFX_EVENT_DISCONNECT, OS_OPT_POST_FLAG_SET, &err);
 }
 
 /**************************************************************************//**
@@ -560,17 +656,12 @@ void sl_wfx_disconnect_callback(uint8_t* mac, uint16_t reason)
  *****************************************************************************/
 void sl_wfx_start_ap_callback(uint32_t status)
 {
+  RTOS_ERR err;
   if (status == 0) {
     printf("AP started\r\n");
     printf("Join the AP with SSID: %s\r\n", softap_ssid);
     sl_wfx_context->state |= SL_WFX_AP_INTERFACE_UP;
-    lwip_set_ap_link_up();
-
-#ifdef SLEEP_ENABLED
-    // Power save always disabled when SoftAP mode enabled
-    sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
-    sl_wfx_disable_device_power_save();
-#endif
+    OSFlagPost(&wifi_events, SL_WFX_EVENT_START_AP, OS_OPT_POST_FLAG_SET, &err);
   } else {
     printf("AP start failed\r\n");
     strcpy(event_log, "AP start failed");
@@ -582,18 +673,11 @@ void sl_wfx_start_ap_callback(uint32_t status)
  *****************************************************************************/
 void sl_wfx_stop_ap_callback(void)
 {
+  RTOS_ERR err;
   dhcpserver_clear_stored_mac ();
   printf("SoftAP stopped\r\n");
   sl_wfx_context->state &= ~SL_WFX_AP_INTERFACE_UP;
-  lwip_set_ap_link_down();
-
-#ifdef SLEEP_ENABLED
-  if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
-    // Enable the power save
-    sl_wfx_set_power_mode(WFM_PM_MODE_PS, 0);
-    sl_wfx_enable_device_power_save();
-  }
-#endif
+  OSFlagPost(&wifi_events, SL_WFX_EVENT_STOP_AP, OS_OPT_POST_FLAG_SET, &err);
 }
 
 /**************************************************************************//**

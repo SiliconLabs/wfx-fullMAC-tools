@@ -18,8 +18,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-#ifndef DEMO_CONFIG_H
-#define DEMO_CONFIG_H
+#ifndef LWIP_BM_H
+#define LWIP_BM_H
 
 #include "sl_wfx_cmd_api.h"
 #include "sl_status.h"

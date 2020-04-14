@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-#ifndef WFX_HOST_H
-#define WFX_HOST_H
+#ifndef SL_WFX_HOST_H
+#define SL_WFX_HOST_H
 #ifdef __cplusplus
 extern "C" {
 #endif
-sl_status_t wfx_host_setup_memory_pools(void);
+sl_status_t sl_wfx_host_setup_memory_pools(void);
 
 #ifdef SLEEP_ENABLED
 sl_status_t sl_wfx_host_switch_to_wirq (void);
@@ -26,14 +26,6 @@ sl_status_t sl_wfx_host_switch_to_wirq (void);
 #ifdef __cplusplus
 }
 #endif
-
-extern OS_FLAG_GRP sl_wfx_event_group;
-/* Wi-Fi events*/
-#define SL_WFX_CONNECT	         ( 1 << 1 )
-#define SL_WFX_DISCONNECT	     ( 1 << 2 )
-#define SL_WFX_START_AP	         ( 1 << 3 )
-#define SL_WFX_STOP_AP	         ( 1 << 4 )
-#define SL_WFX_SCAN_COMPLETE     ( 1 << 5 )
 
 #define SL_WFX_MAX_STATIONS    8
 #define SL_WFX_MAX_SCAN_RESULTS 50

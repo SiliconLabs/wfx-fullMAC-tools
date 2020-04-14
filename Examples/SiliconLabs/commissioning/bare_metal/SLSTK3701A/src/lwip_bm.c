@@ -20,7 +20,7 @@
  *****************************************************************************/
 
 
-#include  "bsp.h"
+#include "bsp.h"
 
 #include "sl_wfx.h"
 #include "string.h"
@@ -35,7 +35,7 @@
 #include "netif/ethernet.h"
 #include "lwip_bm.h"
 #include "dhcp_server.h"
-#include "wfx_host.h"
+#include "sl_wfx_host.h"
 #ifdef LWIP_IPERF_SERVER
 #include "lwip/ip_addr.h"
 #include "lwip/apps/lwiperf.h"

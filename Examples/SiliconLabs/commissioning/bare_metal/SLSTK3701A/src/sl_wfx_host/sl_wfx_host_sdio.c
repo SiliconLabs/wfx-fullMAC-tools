@@ -19,7 +19,7 @@
 #include "lwip/sys.h"
 #include "lwip_bm.h"
 
-#include "wfx_host_cfg.h"
+#include "sl_wfx_host_cfg.h"
 
 #define SDIO_ACTION_COMPLETION_TIMEOUT_MS     5000
 
@@ -248,7 +248,7 @@ sl_status_t sl_wfx_host_disable_platform_interrupt(void)
 {
 #ifdef SLEEP_ENABLED
   if (useWIRQ) {
-    GPIO_IntDisable(WFX_HOST_CFG_IRQ);
+    GPIO_IntDisable(SL_WFX_HOST_CFG_IRQ);
     return SL_STATUS_OK;
   }
   else
@@ -266,7 +266,13 @@ sl_status_t sl_wfx_host_switch_to_wirq(void)
 {
   uint32_t value32;
 
-  GPIO_ExtIntConfig(WFX_HOST_CFG_WIRQPORT, WFX_HOST_CFG_WIRQPIN, WFX_HOST_CFG_IRQ, true, false, true);
+  GPIO_ExtIntConfig(SL_WFX_HOST_CFG_WIRQPORT,
+                    SL_WFX_HOST_CFG_WIRQPIN,
+                    SL_WFX_HOST_CFG_IRQ,
+                    true,
+                    false,
+                    true);
+
   sl_wfx_reg_read_32(SL_WFX_CONFIG_REG_ID, &value32);
   value32 |= (1 << 15);
   sl_wfx_reg_write_32(SL_WFX_CONFIG_REG_ID, value32);

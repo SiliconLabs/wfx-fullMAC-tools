@@ -23,10 +23,10 @@
 #include <io/include/sd.h>
 #include <io/include/sd_card.h>
 
-#include "wfx_host_sdio_fnct.h"
-#include "wfx_host_cfg.h"
+#include "sl_wfx_host_sdio_fnct.h"
+#include "sl_wfx_host_cfg.h"
 
-#include "wfx_task.h"
+#include "sl_wfx_task.h"
 #include "sleep.h"
 
 #ifndef SL_WIFI_CFG_SD_CONTROLLER_NAME
@@ -49,7 +49,7 @@ sl_status_t sl_wfx_host_init_bus(void)
 {
   RTOS_ERR err;
 
-  GPIO_PinOutSet(WFX_HOST_CFG_RESET_PORT, WFX_HOST_CFG_RESET_PIN);
+  GPIO_PinOutSet(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockBegin(sleepEM2);
 #endif
@@ -235,7 +235,7 @@ sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)
 static void sdio_irq_callback(void* arg)
 {
   RTOS_ERR err;
-  OSFlagPost(&wfxtask_evts, WFX_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
+  OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
 }
 
 /****************************************************************************************************//**
@@ -280,7 +280,7 @@ sl_status_t sl_wfx_host_disable_platform_interrupt(void)
 {
 #ifdef SLEEP_ENABLED
   if (useWIRQ) {
-    GPIO_IntDisable(WFX_HOST_CFG_IRQ);
+    GPIO_IntDisable(SL_WFX_HOST_CFG_IRQ);
     return SL_STATUS_OK;
   }
   else
@@ -303,7 +303,7 @@ sl_status_t sl_wfx_host_switch_to_wirq(void)
 {
   uint32_t value32;
 
-  GPIO_ExtIntConfig(WFX_HOST_CFG_WIRQPORT, WFX_HOST_CFG_WIRQPIN, WFX_HOST_CFG_IRQ, true, false, true);
+  GPIO_ExtIntConfig(SL_WFX_HOST_CFG_WIRQPORT, SL_WFX_HOST_CFG_WIRQPIN, SL_WFX_HOST_CFG_IRQ, true, false, true);
   sl_wfx_reg_read_32(SL_WFX_CONFIG_REG_ID, &value32);
   value32 |= (1 << 15);
   sl_wfx_reg_write_32(SL_WFX_CONFIG_REG_ID, value32);

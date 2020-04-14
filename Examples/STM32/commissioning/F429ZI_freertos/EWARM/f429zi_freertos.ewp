@@ -328,7 +328,7 @@
           <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Include</state>
           <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware\3.4.1</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware</state>
           <state>$PROJ_DIR$\..\..\..\..\..\PDS</state>
         </option>
         <option>
@@ -1307,7 +1307,7 @@
           <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Include</state>
           <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware\3.4.1</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware</state>
           <state>$PROJ_DIR$\..\..\..\..\..\PDS</state>
         </option>
         <option>
@@ -2286,7 +2286,7 @@
           <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Include</state>
           <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware\3.4.1</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware</state>
           <state>$PROJ_DIR$\..\..\..\..\..\PDS</state>
         </option>
         <option>
@@ -3266,7 +3266,7 @@
           <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Device\ST\STM32F4xx\Include</state>
           <state>$PROJ_DIR$\..\..\..\shared\Drivers\CMSIS\Include</state>
           <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware\3.4.1</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\wfx-fullMAC-driver\wfx_fmac_driver\firmware</state>
           <state>$PROJ_DIR$\..\..\..\..\..\PDS</state>
         </option>
         <option>

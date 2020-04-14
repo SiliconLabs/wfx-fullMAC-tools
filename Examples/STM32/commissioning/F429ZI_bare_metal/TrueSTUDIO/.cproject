@@ -46,7 +46,7 @@
 									<listOptionValue builtIn="false" value="../../../../shared/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../../../../shared/Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver"/>
-									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver/firmware/3.4.1"/>
+									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver/firmware"/>
 									<listOptionValue builtIn="false" value="../../../../../../PDS"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.1670122205" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" valueType="definedSymbols">
@@ -195,7 +195,7 @@
 									<listOptionValue builtIn="false" value="../../../../shared/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../../../../shared/Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver"/>
-									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver/firmware/3.4.1"/>
+									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver/firmware"/>
 									<listOptionValue builtIn="false" value="../../../../../../PDS"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.1158498083" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" valueType="definedSymbols">

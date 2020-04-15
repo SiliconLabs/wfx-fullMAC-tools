@@ -6,16 +6,27 @@ This repository contains tools and examples to use **Silicon Labs Wi-Fi FMAC dri
 
 ## Repository content
 
-* Examples: contains applications using the FMAC driver on different platforms
-  * Silicon Labs MCU (**Gecko SDK v2.7.0 or newer required**)
-    * commissioning: Commissioning example using Micrium OS, LwIP and the combo mode running on the EFM32 Giant Gecko GG11 Starter Kit (more information about the example [here](./Examples/SiliconLabs/commissioning/SLSTK3701A/README.md)) and on the WGM160P Wi-Fi Module Radio Board (more information about the example [here](./Examples/SiliconLabs/commissioning/WGM160P/README.md))
-    * secure_mqtt: MQTT over TLS example using Micrium OS, LwIP (MQTT, DHCP, DNS clients), Mbed TLS running on the EFM32 Giant Gecko GG11 Starter Kit and WGM160P (more information about the example [here](./Examples/SiliconLabs/secure_mqtt/README.md))
-  * STM32
-    * commissioning: Commissioning example using LwIP and the combo mode running on the NUCLEO-F429ZI board (more information about the bare metal example [here](./Examples/STM32/commissioning/F429ZI_bare_metal/README.md) and the FreeRTOS example [here](./Examples/STM32/commissioning/F429ZI_freertos/README.md))
-* Tools: contains generic tools
-  * pds_compress: Python script to compress Platform Data Set files
-  * RF test agent: Bare metal application running on SLSTK3701A and NUCLEO-F429ZI platforms and allowing the execution of basic RF tests (more information about the tool [here](./Tools/RF_test_agent/README.md))
+#### Examples
 
+It contains applications using the FMAC driver on different platforms.
+
+  * **Silicon Labs MCU Examples** (**Gecko SDK v2.7.0 or newer required**)
+    * EFM32GG11 + WF200
+      * *commissioning*: Commissioning example using Micrium OS, LwIP and the combo mode (more information about the example [here](./Examples/SiliconLabs/commissioning/SLSTK3701A/README.md))
+      * *secure_mqtt*: MQTT over TLS example using Micrium OS, LwIP (MQTT, DHCP, DNS clients), Mbed TLS (more information about the example [here](./Examples/SiliconLabs/secure_mqtt/README.md))
+    * WGM160P
+      * *commissioning*: Commissioning example using Micrium OS, LwIP and the combo mode (more information about the example [here](./Examples/SiliconLabs/commissioning/WGM160P/README.md))
+      * *secure_mqtt*: MQTT over TLS example using Micrium OS, LwIP (MQTT, DHCP, DNS clients), Mbed TLS (more information about the example [here](./Examples/SiliconLabs/secure_mqtt/README.md))
+  * **Third-Party MCU Examples**
+    * STM32F4
+      * *commissioning*: Commissioning example using LwIP and the combo mode running on the NUCLEO-F429ZI board (more information about the bare metal example [here](./Examples/STM32/commissioning/F429ZI_bare_metal/README.md) and the FreeRTOS example [here](./Examples/STM32/commissioning/F429ZI_freertos/README.md))
+
+#### Tools:
+
+It contains generic tools to help development around the Wi-Fi FMAC driver.
+
+  * *pds_compress*: Python script to compress Platform Data Set files
+  * *RF test agent*: Bare metal application running on SLSTK3701A and NUCLEO-F429ZI platforms and allowing the execution of basic RF tests (more information about the tool [here](./Tools/RF_test_agent/README.md))
 
 ## FMAC driver source code
 

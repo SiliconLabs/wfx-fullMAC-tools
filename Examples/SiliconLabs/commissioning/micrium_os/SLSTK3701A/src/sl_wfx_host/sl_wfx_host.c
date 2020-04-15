@@ -505,20 +505,34 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_EXCEPTION_IND_ID:
     {
-      printf("Firmware Exception\r\n");
-      sl_wfx_exception_ind_body_t *firmware_exception = (sl_wfx_exception_ind_body_t*)network_rx_buffer;
-      printf("Exception data = \n");
-      for (i = 0; i < SL_WFX_EXCEPTION_DATA_SIZE; i++) {
-        printf("%X, ", firmware_exception->data[i]);
+      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*)network_rx_buffer;
+      uint32_t data_length = firmware_exception->header.length - sizeof(sl_wfx_header_t);
+      uint8_t *exception_body = (uint8_t *)&firmware_exception->body;
+      printf("firmware exception %lu\r\n", firmware_exception->body.reason);
+      for (uint16_t i = 0; i < data_length; i += 16) {
+        printf("dump: %.8x:", i);
+        for (uint8_t j = 0; (j < 16) && ((i + j) < data_length); j ++) {
+            printf(" %.2x", *exception_body);
+            exception_body++;
+        }
+        printf("\r\n");
       }
-      printf("\n");
       break;
     }
     case SL_WFX_ERROR_IND_ID:
     {
-      printf("Firmware Error\r\n");
-      sl_wfx_error_ind_body_t *firmware_error = (sl_wfx_error_ind_body_t*)network_rx_buffer;
-      printf("Error type = %lu\r\n", firmware_error->type);
+      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*)network_rx_buffer;
+      uint32_t data_length = firmware_error->header.length - sizeof(sl_wfx_header_t);
+      uint8_t *error_body = (uint8_t *)&firmware_error->body;
+      printf("firmware error %lu\r\n", firmware_error->body.type);
+      for (uint16_t i = 0; i < data_length; i += 16) {
+        printf("dump: %.8x:", i);
+        for (uint8_t j = 0; (j < 16) && ((i + j) < data_length); j ++) {
+          printf(" %.2x", *error_body);
+          error_body++;
+        }
+        printf("\r\n");
+      }
       break;
     }
     /******** CONFIRMATION ********/

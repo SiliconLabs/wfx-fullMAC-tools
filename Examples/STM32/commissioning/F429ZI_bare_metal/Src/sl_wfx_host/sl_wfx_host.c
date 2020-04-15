@@ -27,6 +27,7 @@
 #include "sl_wfx_host.h"
 #include "sl_wfx_host_pin.h"
 #include "lwip_app.h"
+#include "lwip/sys.h"
 #include "demo_config.h"
 #include "dhcp_server.h"
 
@@ -46,6 +47,8 @@ uint8_t scan_count_web = 0;
 uint8_t wf200_interrupt_event = 0;
 uint8_t button_push_event = 0;
 uint8_t scan_ongoing = 0;
+
+static uint16_t control_register = 0;
 
 struct
 {
@@ -155,26 +158,40 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id,
                                               uint32_t timeout_ms,
                                               void **event_payload_out)
 {
-  uint16_t control_register = 0;
-  
-  for(uint32_t i = 0; i < timeout_ms; i++)
-  {     
-    do{
-      sl_wfx_receive_frame(&control_register);
-    }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 );   
-    if (confirmation_id == host_context.posted_event_id)
-    {
+  uint64_t tmo = sys_now() + timeout_ms;
+  sl_status_t status = SL_STATUS_TIMEOUT;
+
+  // Reset the control register value
+  control_register = 0;
+
+  do {
+    // Treat frame received
+    sl_wfx_receive_frame(&control_register);
+    // Make sure the waited event has not been overwritten
+    sl_wfx_host_setup_waited_event(confirmation_id);
+
+    if (confirmation_id == host_context.posted_event_id) {
+      // The waited frame has been received,
+      // update structure and stop waiting
+
       host_context.posted_event_id = 0;
-      if (event_payload_out != NULL)
-      {
+      if (event_payload_out != NULL) {
         *event_payload_out = sl_wfx_context->event_payload_buffer;
       }
-      return SL_STATUS_OK;
-    }else{
+      status = SL_STATUS_OK;
+      break;
+
+    } else {
+      // Waited frame not yet received, wait a while
+      // before treating new received frame
+
       sl_wfx_host_wait(1);
     }
-  }
-  return SL_STATUS_TIMEOUT;
+
+    // FIXME overlap after running almost 50days
+  } while (sys_now() < tmo);
+
+  return status;
 }
 
 sl_status_t sl_wfx_host_wait(uint32_t wait_time)
@@ -359,12 +376,14 @@ sl_status_t sl_wfx_host_unlock(void)
 
 void sl_wfx_process(void)
 {
-  uint16_t control_register = 0;
   if(wf200_interrupt_event == 1)
   {
-    wf200_interrupt_event = 0;
+    // Reset the control register value
+    control_register = 0;
+    
     do
     {
+      wf200_interrupt_event = 0;
       sl_wfx_receive_frame(&control_register);
     }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 ); 
   }

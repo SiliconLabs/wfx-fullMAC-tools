@@ -89,7 +89,7 @@ struct {
 } host_context;
 
 #define BUFFER_SIZE 1024
-#define TX_RX_BUFFER_SIZE 1550
+#define TX_RX_BUFFER_SIZE 1616
 
 #ifdef SL_WFX_USE_SDIO
 #ifdef SLEEP_ENABLED

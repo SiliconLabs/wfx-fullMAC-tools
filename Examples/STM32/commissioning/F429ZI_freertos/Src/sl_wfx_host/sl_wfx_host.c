@@ -39,8 +39,8 @@ extern osSemaphoreId s_xDriverSemaphore;
 extern char event_log[];
 
 scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];
-uint8_t scan_count = 0; 
-uint8_t scan_count_web = 0; 
+uint8_t scan_count = 0;
+uint8_t scan_count_web = 0;
 QueueHandle_t eventQueue;
 
 struct
@@ -104,7 +104,7 @@ sl_status_t sl_wfx_host_reset_chip(void)
   HAL_Delay(10);
   HAL_GPIO_WritePin(SL_WFX_RESET_PORT, SL_WFX_RESET_GPIO, GPIO_PIN_SET);
   HAL_Delay(10);
-  
+
   return SL_STATUS_OK;
 }
 
@@ -131,7 +131,7 @@ sl_status_t sl_wfx_host_wait_for_wake_up(void)
 {
   xEventGroupClearBits(sl_wfx_event_group, SL_WFX_INTERRUPT);
   xEventGroupWaitBits(sl_wfx_event_group, SL_WFX_INTERRUPT, pdTRUE, pdTRUE, 3/portTICK_PERIOD_MS);
-  
+
   return SL_STATUS_OK;
 }
 
@@ -254,14 +254,13 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
   case SL_WFX_EXCEPTION_IND_ID:
     {
       sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*)event_payload;
-      uint32_t data_length = firmware_exception->header.length - sizeof(sl_wfx_header_t);
-      uint8_t *exception_body = (uint8_t *)&firmware_exception->body;
+      uint8_t *exception_tmp = (uint8_t *) firmware_exception;
       printf("firmware exception %lu\r\n", firmware_exception->body.reason);
-      for (uint16_t i = 0; i < data_length; i += 16) {
-        printf("dump: %.8x:", i);
-        for (uint8_t j = 0; (j < 16) && ((i + j) < data_length); j ++) {
-            printf(" %.2x", *exception_body);
-            exception_body++;
+      for (uint16_t i = 0; i < firmware_exception->header.length; i += 16) {
+        printf("hif: %.8x:", i);
+        for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_exception->header.length); j ++) {
+            printf(" %.2x", *exception_tmp);
+            exception_tmp++;
         }
         printf("\r\n");
       }
@@ -270,14 +269,13 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
   case SL_WFX_ERROR_IND_ID:
     {
       sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*)event_payload;
-      uint32_t data_length = firmware_error->header.length - sizeof(sl_wfx_header_t);
-      uint8_t *error_body = (uint8_t *)&firmware_error->body;
+      uint8_t *error_tmp = (uint8_t *) firmware_error;
       printf("firmware error %lu\r\n", firmware_error->body.type);
-      for (uint16_t i = 0; i < data_length; i += 16) {
-        printf("dump: %.8x:", i);
-        for (uint8_t j = 0; (j < 16) && ((i + j) < data_length); j ++) {
-            printf(" %.2x", *error_body);
-            error_body++;
+      for (uint16_t i = 0; i < firmware_error->header.length; i += 16) {
+        printf("hif: %.8x:", i);
+        for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_error->header.length); j ++) {
+            printf(" %.2x", *error_tmp);
+            error_tmp++;
         }
         printf("\r\n");
       }
@@ -334,7 +332,7 @@ void sl_wfx_host_log(const char *string, ...)
 sl_status_t sl_wfx_host_lock(void)
 {
   sl_status_t status;
-  
+
   if(xSemaphoreTake(s_xDriverSemaphore, 500) == pdTRUE)
   {
     status = SL_STATUS_OK;
@@ -342,14 +340,14 @@ sl_status_t sl_wfx_host_lock(void)
     printf("Wi-Fi driver mutex timeout\r\n");
     status = SL_STATUS_TIMEOUT;
   }
-  
+
   return status;
 }
 
 sl_status_t sl_wfx_host_unlock(void)
 {
   xSemaphoreGive(s_xDriverSemaphore);
-  
+
   return SL_STATUS_OK;
 }
 

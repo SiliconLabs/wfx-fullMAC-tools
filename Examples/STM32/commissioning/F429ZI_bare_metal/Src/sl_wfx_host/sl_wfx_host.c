@@ -43,7 +43,7 @@ extern char event_log[];
 
 scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];
 uint8_t scan_count = 0;
-uint8_t scan_count_web = 0; 
+uint8_t scan_count_web = 0;
 uint8_t wf200_interrupt_event = 0;
 uint8_t button_push_event = 0;
 uint8_t scan_ongoing = 0;
@@ -112,7 +112,7 @@ sl_status_t sl_wfx_host_reset_chip(void)
   HAL_Delay(10);
   HAL_GPIO_WritePin(SL_WFX_RESET_PORT, SL_WFX_RESET_GPIO, GPIO_PIN_SET);
   HAL_Delay(10);
-  
+
   return SL_STATUS_OK;
 }
 
@@ -274,14 +274,13 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
   case SL_WFX_EXCEPTION_IND_ID:
     {
       sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*)event_payload;
-      uint32_t data_length = firmware_exception->header.length - sizeof(sl_wfx_header_t);
-      uint8_t *exception_body = (uint8_t *)&firmware_exception->body;
+      uint8_t *exception_tmp = (uint8_t *) firmware_exception;
       printf("firmware exception %lu\r\n", firmware_exception->body.reason);
-      for (uint16_t i = 0; i < data_length; i += 16) {
-        printf("dump: %.8x:", i);
-        for (uint8_t j = 0; (j < 16) && ((i + j) < data_length); j ++) {
-            printf(" %.2x", *exception_body);
-            exception_body++;
+      for (uint16_t i = 0; i < firmware_exception->header.length; i += 16) {
+        printf("hif: %.8x:", i);
+        for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_exception->header.length); j ++) {
+            printf(" %.2x", *exception_tmp);
+            exception_tmp++;
         }
         printf("\r\n");
       }
@@ -290,14 +289,13 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
   case SL_WFX_ERROR_IND_ID:
     {
       sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*)event_payload;
-      uint32_t data_length = firmware_error->header.length - sizeof(sl_wfx_header_t);
-      uint8_t *error_body = (uint8_t *)&firmware_error->body;
+      uint8_t *error_tmp = (uint8_t *) firmware_error;
       printf("firmware error %lu\r\n", firmware_error->body.type);
-      for (uint16_t i = 0; i < data_length; i += 16) {
-        printf("dump: %.8x:", i);
-        for (uint8_t j = 0; (j < 16) && ((i + j) < data_length); j ++) {
-            printf(" %.2x", *error_body);
-            error_body++;
+      for (uint16_t i = 0; i < firmware_error->header.length; i += 16) {
+        printf("hif: %.8x:", i);
+        for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_error->header.length); j ++) {
+            printf(" %.2x", *error_tmp);
+            error_tmp++;
         }
         printf("\r\n");
       }
@@ -315,7 +313,7 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
              event_payload->header.length );
       host_context.posted_event_id = event_payload->header.id;
     }
-    
+
   }
   return SL_STATUS_OK;
 }
@@ -380,12 +378,12 @@ void sl_wfx_process(void)
   {
     // Reset the control register value
     control_register = 0;
-    
+
     do
     {
       wf200_interrupt_event = 0;
       sl_wfx_receive_frame(&control_register);
-    }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 ); 
+    }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 );
   }
   if(button_push_event == 1)
   {
@@ -445,14 +443,14 @@ void sl_wfx_connect_callback(uint8_t* mac, uint32_t status)
       printf("Connected\r\n");
       sl_wfx_context->state |= SL_WFX_STA_INTERFACE_CONNECTED;
       lwip_set_sta_link_up();
-      
+
 #ifdef SLEEP_ENABLED
       if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
         // Enable the power save
         sl_wfx_set_power_mode(WFM_PM_MODE_PS, 0);
         sl_wfx_enable_device_power_save();
       }
-#endif   
+#endif
       break;
     }
   case WFM_STATUS_NO_MATCHING_AP:
@@ -519,7 +517,7 @@ void sl_wfx_start_ap_callback(uint32_t status)
     printf("Join the AP with SSID: %s\r\n", softap_ssid);
     sl_wfx_context->state |= SL_WFX_AP_INTERFACE_UP;
     lwip_set_ap_link_up();
-    
+
 #ifdef SLEEP_ENABLED
     // Power save always disabled when SoftAP mode enabled
     sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
@@ -540,7 +538,7 @@ void sl_wfx_stop_ap_callback(void)
   printf("SoftAP stopped\r\n");
   sl_wfx_context->state &= ~SL_WFX_AP_INTERFACE_UP;
   lwip_set_ap_link_down();
-  
+
 #ifdef SLEEP_ENABLED
   if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
     // Enable the power save

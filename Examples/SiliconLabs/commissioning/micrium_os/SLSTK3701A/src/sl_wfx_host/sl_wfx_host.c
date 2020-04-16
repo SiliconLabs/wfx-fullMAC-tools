@@ -504,15 +504,14 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_EXCEPTION_IND_ID:
     {
-      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*) network_rx_buffer;
-      uint32_t data_length = firmware_exception->header.length - sizeof(sl_wfx_header_t);
-      uint8_t *exception_body = (uint8_t *)&firmware_exception->body;
+      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*)event_payload;
+      uint8_t *exception_tmp = (uint8_t *) firmware_exception;
       printf("firmware exception %lu\r\n", firmware_exception->body.reason);
-      for (uint16_t i = 0; i < data_length; i += 16) {
-        printf("dump: %.8x:", i);
-        for (uint8_t j = 0; (j < 16) && ((i + j) < data_length); j ++) {
-            printf(" %.2x", *exception_body);
-            exception_body++;
+      for (uint16_t i = 0; i < firmware_exception->header.length; i += 16) {
+        printf("hif: %.8x:", i);
+        for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_exception->header.length); j ++) {
+            printf(" %.2x", *exception_tmp);
+            exception_tmp++;
         }
         printf("\r\n");
       }
@@ -520,15 +519,14 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_ERROR_IND_ID:
     {
-      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*) network_rx_buffer;
-      uint32_t data_length = firmware_error->header.length - sizeof(sl_wfx_header_t);
-      uint8_t *error_body = (uint8_t *)&firmware_error->body;
+      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*)event_payload;
+      uint8_t *error_tmp = (uint8_t *) firmware_error;
       printf("firmware error %lu\r\n", firmware_error->body.type);
-      for (uint16_t i = 0; i < data_length; i += 16) {
-        printf("dump: %.8x:", i);
-        for (uint8_t j = 0; (j < 16) && ((i + j) < data_length); j ++) {
-          printf(" %.2x", *error_body);
-          error_body++;
+      for (uint16_t i = 0; i < firmware_error->header.length; i += 16) {
+        printf("hif: %.8x:", i);
+        for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_error->header.length); j ++) {
+            printf(" %.2x", *error_tmp);
+            error_tmp++;
         }
         printf("\r\n");
       }

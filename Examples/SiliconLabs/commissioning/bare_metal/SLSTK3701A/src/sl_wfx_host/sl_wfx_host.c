@@ -176,12 +176,6 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
                                         uint32_t buffer_size)
 {
   SL_WFX_UNUSED_PARAMETER(type);
-
-#ifdef SL_WFX_USE_SECURE_LINK
-  //FIXME Temporary workaround
-  buffer_size += 2;
-#endif
-
   *buffer = malloc(buffer_size);
   return SL_STATUS_OK;
 }

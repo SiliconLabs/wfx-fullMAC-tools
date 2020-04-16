@@ -2,7 +2,6 @@
 #include  <rtos_description.h>
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
-#include "sl_wfx_bus.h"
 
 #include "em_gpio.h"
 #include "em_usart.h"

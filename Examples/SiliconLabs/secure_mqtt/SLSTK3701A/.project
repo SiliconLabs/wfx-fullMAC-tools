@@ -31,6 +31,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/PDS</locationURI>
 		</link>
 		<link>
+			<name>console</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/shared/uOS_shell/console</locationURI>
+		</link>
+		<link>
 			<name>lwip</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/util/third_party/lwip/lwip</locationURI>
@@ -44,11 +49,6 @@
 			<name>micrium_os</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/platform/micrium_os</locationURI>
-		</link>
-		<link>
-			<name>shared</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/shared</locationURI>
 		</link>
 		<link>
 			<name>systemview</name>

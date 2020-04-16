@@ -1,7 +1,6 @@
 #ifdef  SL_WFX_USE_SDIO
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
-#include "sl_wfx_bus.h"
 
 #include "em_device.h"
 #include "em_gpio.h"

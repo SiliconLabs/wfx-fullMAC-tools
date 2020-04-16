@@ -41,6 +41,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A/cfg</locationURI>
 		</link>
 		<link>
+			<name>console</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/shared/uOS_shell/console</locationURI>
+		</link>
+		<link>
 			<name>lwip</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/util/third_party/lwip/lwip</locationURI>
@@ -56,11 +61,6 @@
 			<locationURI>STUDIO_SDK_LOC/platform/micrium_os</locationURI>
 		</link>
 		<link>
-			<name>shared</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/shared</locationURI>
-		</link>
-		<link>
 			<name>src</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A/src</locationURI>
@@ -69,6 +69,11 @@
 			<name>systemview</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/util/third_party/segger/systemview</locationURI>
+		</link>
+		<link>
+			<name>wgm160p</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/shared/wgm160p</locationURI>
 		</link>
 		<link>
 			<name>BSP/bsp_bcc.c</name>

@@ -22,7 +22,6 @@
 
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
-#include "sl_wfx_bus.h"
 #include "sl_wfx_host_cfg.h"
 
 #include "em_gpio.h"
@@ -435,7 +434,7 @@ sl_status_t sl_wfx_host_unlock(void)
 sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
 {
   RTOS_ERR err;
-  int i;
+
   switch (network_rx_buffer->header.id ) {
     /******** INDICATION ********/
     case SL_WFX_CONNECT_IND_ID:
@@ -505,7 +504,7 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_EXCEPTION_IND_ID:
     {
-      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*)network_rx_buffer;
+      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*) network_rx_buffer;
       uint32_t data_length = firmware_exception->header.length - sizeof(sl_wfx_header_t);
       uint8_t *exception_body = (uint8_t *)&firmware_exception->body;
       printf("firmware exception %lu\r\n", firmware_exception->body.reason);
@@ -521,7 +520,7 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_ERROR_IND_ID:
     {
-      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*)network_rx_buffer;
+      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*) network_rx_buffer;
       uint32_t data_length = firmware_error->header.length - sizeof(sl_wfx_header_t);
       uint8_t *error_body = (uint8_t *)&firmware_error->body;
       printf("firmware error %lu\r\n", firmware_error->body.type);

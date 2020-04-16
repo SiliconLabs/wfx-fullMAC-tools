@@ -23,7 +23,6 @@
 
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
-#include "sl_wfx_bus.h"
 #include "sl_wfx_host_cfg.h"
 
 #include "em_gpio.h"

@@ -431,27 +431,27 @@ sl_status_t sl_wfx_host_unlock(void)
  *
  * @returns Returns SL_STATUS_OK if successful, SL_STATUS_FAIL otherwise
  *****************************************************************************/
-sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
+sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
 {
   RTOS_ERR err;
 
-  switch (network_rx_buffer->header.id ) {
+  switch (event_payload->header.id ) {
     /******** INDICATION ********/
     case SL_WFX_CONNECT_IND_ID:
     {
-      sl_wfx_connect_ind_t* connect_indication = (sl_wfx_connect_ind_t*) network_rx_buffer;
+      sl_wfx_connect_ind_t* connect_indication = (sl_wfx_connect_ind_t*) event_payload;
       sl_wfx_connect_callback(connect_indication->body.mac, connect_indication->body.status);
       break;
     }
     case SL_WFX_DISCONNECT_IND_ID:
     {
-      sl_wfx_disconnect_ind_t* disconnect_indication = (sl_wfx_disconnect_ind_t*) network_rx_buffer;
+      sl_wfx_disconnect_ind_t* disconnect_indication = (sl_wfx_disconnect_ind_t*) event_payload;
       sl_wfx_disconnect_callback(disconnect_indication->body.mac, disconnect_indication->body.reason);
       break;
     }
     case SL_WFX_START_AP_IND_ID:
     {
-      sl_wfx_start_ap_ind_t* start_ap_indication = (sl_wfx_start_ap_ind_t*) network_rx_buffer;
+      sl_wfx_start_ap_ind_t* start_ap_indication = (sl_wfx_start_ap_ind_t*) event_payload;
       sl_wfx_start_ap_callback(start_ap_indication->body.status);
       break;
     }
@@ -462,7 +462,7 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_RECEIVED_IND_ID:
     {
-      sl_wfx_received_ind_t* ethernet_frame = (sl_wfx_received_ind_t*) network_rx_buffer;
+      sl_wfx_received_ind_t* ethernet_frame = (sl_wfx_received_ind_t*) event_payload;
       if ( ethernet_frame->body.frame_type == 0 ) {
         sl_wfx_host_received_frame_callback(ethernet_frame);
       }
@@ -470,19 +470,19 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_SCAN_RESULT_IND_ID:
     {
-      sl_wfx_scan_result_ind_t* scan_result = (sl_wfx_scan_result_ind_t*)network_rx_buffer;
+      sl_wfx_scan_result_ind_t* scan_result = (sl_wfx_scan_result_ind_t*) event_payload;
       sl_wfx_scan_result_callback(&scan_result->body);
       break;
     }
     case SL_WFX_SCAN_COMPLETE_IND_ID:
     {
-      sl_wfx_scan_complete_ind_t* scan_complete = (sl_wfx_scan_complete_ind_t*)network_rx_buffer;
+      sl_wfx_scan_complete_ind_t* scan_complete = (sl_wfx_scan_complete_ind_t*) event_payload;
       sl_wfx_scan_complete_callback(scan_complete->body.status);
       break;
     }
     case SL_WFX_AP_CLIENT_CONNECTED_IND_ID:
     {
-      sl_wfx_ap_client_connected_ind_t* client_connected_indication = (sl_wfx_ap_client_connected_ind_t*) network_rx_buffer;
+      sl_wfx_ap_client_connected_ind_t* client_connected_indication = (sl_wfx_ap_client_connected_ind_t*) event_payload;
       sl_wfx_client_connected_callback(client_connected_indication->body.mac);
       break;
     }
@@ -492,19 +492,19 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_AP_CLIENT_DISCONNECTED_IND_ID:
     {
-      sl_wfx_ap_client_disconnected_ind_t* ap_client_disconnected_indication = (sl_wfx_ap_client_disconnected_ind_t*) network_rx_buffer;
+      sl_wfx_ap_client_disconnected_ind_t* ap_client_disconnected_indication = (sl_wfx_ap_client_disconnected_ind_t*) event_payload;
       sl_wfx_ap_client_disconnected_callback(ap_client_disconnected_indication->body.reason, ap_client_disconnected_indication->body.mac);
       break;
     }
     case SL_WFX_GENERIC_IND_ID:
     {
-      sl_wfx_generic_ind_t* generic_status = (sl_wfx_generic_ind_t*) network_rx_buffer;
+      sl_wfx_generic_ind_t* generic_status = (sl_wfx_generic_ind_t*) event_payload;
       sl_wfx_generic_status_callback(generic_status);
       break;
     }
     case SL_WFX_EXCEPTION_IND_ID:
     {
-      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*)event_payload;
+      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*) event_payload;
       uint8_t *exception_tmp = (uint8_t *) firmware_exception;
       printf("firmware exception %lu\r\n", firmware_exception->body.reason);
       for (uint16_t i = 0; i < firmware_exception->header.length; i += 16) {
@@ -519,7 +519,7 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_ERROR_IND_ID:
     {
-      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*)event_payload;
+      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*) event_payload;
       uint8_t *error_tmp = (uint8_t *) firmware_error;
       printf("firmware error %lu\r\n", firmware_error->body.type);
       for (uint16_t i = 0; i < firmware_error->header.length; i += 16) {
@@ -539,10 +539,12 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
   }
 
-  if ( host_context.waited_event_id == network_rx_buffer->header.id ) {
+  if ( host_context.waited_event_id == event_payload->header.id ) {
     /* Post the event in the queue */
-    memcpy(sl_wfx_context->event_payload_buffer, (void*)network_rx_buffer, network_rx_buffer->header.length);
-    host_context.posted_event_id = network_rx_buffer->header.id;
+    memcpy(sl_wfx_context->event_payload_buffer,
+           (void*) event_payload,
+           event_payload->header.length);
+    host_context.posted_event_id = event_payload->header.id;
     OSSemPost(&wf200_confirmation, OS_OPT_POST_1, &err);
   }
 

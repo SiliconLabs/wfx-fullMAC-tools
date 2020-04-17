@@ -46,17 +46,9 @@
 #include <common/include/rtos_utils.h>
 #include <common/include/rtos_err.h>
 
-#if   defined(WF200_ALPHA_KEY)
-#include "sl_wfx_wf200_A0.h"
-#elif defined(WF200_BETA_KEY)
-#include "sl_wfx_wf200_B0.h"
-#elif defined(WF200_PROD_KEY)
+/* Firmware include */
 #include "sl_wfx_wf200_C0.h"
-#elif defined(WF200_DEV_KEY)
-#include "sl_wfx_wf200.h"
-#else
-#error Must define either WF200_ALPHA_KEY/WF200_BETA_KEY/WF200_PROD_KEY/WF200_DEV_KEY
-#endif
+
 #include "sl_wfx_task.h"
 #include "udelay.h"
 #include "demo_config.h"

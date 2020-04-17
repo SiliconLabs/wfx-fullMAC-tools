@@ -44,9 +44,7 @@
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GM64=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SLK_CURVE25519=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
-									<listOptionValue builtIn="false" value="SLEXP8022A=1"/>
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
-									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.265957821" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
@@ -162,9 +160,7 @@
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GM64=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SLK_CURVE25519=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
-									<listOptionValue builtIn="false" value="SLEXP8022A=1"/>
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
-									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
 									<listOptionValue builtIn="false" value="SLEEP_ENABLED=1"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.1474793192" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">

@@ -44,11 +44,9 @@
 									<listOptionValue builtIn="false" value="SL_WFX_SLK_CURVE25519=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
-									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
-									<listOptionValue builtIn="false" value="SLEXP8022A=1"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.265957821" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
@@ -174,11 +172,9 @@
 									<listOptionValue builtIn="false" value="SL_WFX_SLK_CURVE25519=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
-									<listOptionValue builtIn="false" value="WF200_PROD_KEY=1"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_MPI_MAX_SIZE=512"/>
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
-									<listOptionValue builtIn="false" value="SLEXP8022A=1"/>
 									<listOptionValue builtIn="false" value="SLEEP_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 								</option>

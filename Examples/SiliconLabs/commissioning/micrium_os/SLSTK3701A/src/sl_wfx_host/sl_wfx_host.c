@@ -80,8 +80,7 @@ struct {
   uint8_t posted_event_id;
 } host_context;
 
-#define BUFFER_SIZE 1024
-#define TX_RX_BUFFER_SIZE 1616
+#define SL_WFX_HOST_BUFFER_SIZE 1616
 
 #ifdef SL_WFX_USE_SDIO
 #ifdef SLEEP_ENABLED
@@ -115,18 +114,10 @@ void sl_wfx_ap_client_disconnected_callback(uint32_t status, uint8_t* mac);
 sl_status_t sl_wfx_host_setup_memory_pools(void)
 {
   RTOS_ERR err;
-  Mem_DynPoolCreate("WFX Buffers",
+  Mem_DynPoolCreate("SL WFX Host Buffers",
                     &host_context.buf_pool,
                     DEF_NULL,
-                    BUFFER_SIZE,
-                    sizeof(CPU_INT32U),
-                    0,
-                    LIB_MEM_BLK_QTY_UNLIMITED,
-                    &err);
-  Mem_DynPoolCreate("WFX RX TX Buffers",
-                    &host_context.buf_pool_rx_tx,
-                    DEF_NULL,
-                    TX_RX_BUFFER_SIZE,
+					SL_WFX_HOST_BUFFER_SIZE,
                     sizeof(CPU_INT32U),
                     0,
                     LIB_MEM_BLK_QTY_UNLIMITED,
@@ -231,36 +222,19 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
                                         uint32_t buffer_size)
 {
   RTOS_ERR err;
-  if (type == SL_WFX_RX_FRAME_BUFFER || type == SL_WFX_TX_FRAME_BUFFER) {
-    if (buffer_size > host_context.buf_pool_rx_tx.BlkSize) {
+
+  if (buffer_size > host_context.buf_pool.BlkSize) {
 #ifdef DEBUG
-      printf("Unable to allocate frame buffer\n");
-      if (type == SL_WFX_RX_FRAME_BUFFER) {
-        printf("RX ");
-      } else {
-        printf("TX ");
-      }
-      printf("type = %d, buffer_size requested = %d, mem pool blksize = %d\n", (int)type, (int)buffer_size, (int)host_context.buf_pool_rx_tx.BlkSize);
-#endif
-      return SL_STATUS_ALLOCATION_FAILED;
-    }
-    *buffer = Mem_DynPoolBlkGet(&host_context.buf_pool_rx_tx, &err);
-    if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-      printf("Mem_DynPoolBlkGet error\r\n");
-    }
-  } else {
-    if (buffer_size > host_context.buf_pool.BlkSize) {
-#ifdef DEBUG
-      printf("Unable to allocate wf200 buffer\n");
+      printf("Unable to allocate wfx buffer\n");
       printf("type = %d, buffer_size requested = %d, mem pool blksize = %d\n", (int)type, (int)buffer_size, (int)host_context.buf_pool.BlkSize);
 #endif
-      return SL_STATUS_ALLOCATION_FAILED;
-    }
-    *buffer = Mem_DynPoolBlkGet(&host_context.buf_pool, &err);
-    if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-      printf("Mem_DynPoolBlkGet error control buffer\r\n");
-    }
+    return SL_STATUS_ALLOCATION_FAILED;
   }
+  *buffer = Mem_DynPoolBlkGet(&host_context.buf_pool, &err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    printf("Mem_DynPoolBlkGet error control buffer\r\n");
+  }
+
   return SL_STATUS_OK;
 }
 
@@ -270,11 +244,9 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
 sl_status_t sl_wfx_host_free_buffer(void* buffer, sl_wfx_buffer_type_t type)
 {
   RTOS_ERR err;
-  if (type == SL_WFX_RX_FRAME_BUFFER || type == SL_WFX_TX_FRAME_BUFFER) {
-    Mem_DynPoolBlkFree(&host_context.buf_pool_rx_tx, buffer, &err);
-  } else {
-    Mem_DynPoolBlkFree(&host_context.buf_pool, buffer, &err);
-  }
+
+  Mem_DynPoolBlkFree(&host_context.buf_pool, buffer, &err);
+
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
     printf("Mem_DynPoolBlkFree error \r\n");
   }

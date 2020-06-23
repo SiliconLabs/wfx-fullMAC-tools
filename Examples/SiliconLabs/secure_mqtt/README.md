@@ -31,8 +31,8 @@ Additionally, a PC is required to configure the board and it can also be used to
 
 Please follow the instructions related to the platform suiting your case:
 
-* [**EFM32 Giant Gecko GG11 Starter Kit setup**](SLSTK3701A/slstk3701a-setup.md)
-* [**WGM160P Wi-Fi® Module Starter Kit setup**](WGM160P/wgm160p-setup.md)
+* [**EFM32 Giant Gecko GG11 Starter Kit setup**](../shared/doc/slstk3701a/slstk3701a-setup.md)
+* [**WGM160P Wi-Fi® Module Starter Kit setup**](../shared/doc/wgm160p/wgm160p-setup.md)
 
 ## Start the Example
 
@@ -50,7 +50,7 @@ Please follow the instructions related to the platform suiting your case:
 7. Enter the name of the topic you want to publish (It may be imposed by the service).
 8. Enter the name of the topic you want to subscribe (It may be imposed by the service).
 9. **[Optional]** Set a username and password if required by the MQTT broker.
-10. **[Optional]** Set or update the TLS certificates and device private key (Please refer to [**TLS Security**](tls-security) section for more information).
+10. **[Optional]** Set or update the TLS certificates and device private key (Please refer to **TLS Security** section for more information).
 
 	* Copy/Paste each certificate/key (x509 PEM format) in the terminal.
 	* Validate each item by pressing Enter.
@@ -80,6 +80,7 @@ These information can either be:
 * Retrieved from this repository (**only for a local test and debug**)
 
 <br>
+
 ## Azure IoT Hub
 
 > To test this example with an Azure IoT Hub server, an Azure IoT Hub account is required. First create an account if you don't already have one.
@@ -152,6 +153,7 @@ the [**OpenSSL Toolkit**](https://www.openssl.org/) provides the means to genera
 | Subscribe Topic  | devices/_DeviceId_/messages/devicebound/#  | Imposed, e.g. devices/efm32gg11/messages/devicebound/# |
 
 <br>
+
 ## AWS IoT Core Service
 
 > To test this example with an AWS server, an AWS account is required. First create an account if you don't already have one.
@@ -239,9 +241,10 @@ This certificate can be retrieve at [**https://www.amazontrust.com/repository/**
 | Subscribe Topic  | Depends on the policies attached to the thing                               | e.g. efm32gg11/rx                                      |
 
 <br>
+
 ## Local Mosquitto Broker
 
-As mentioned in the [**TLS Security**](tls-security) section, certificates and keys examples are provided in this repository to ease the first steps of starting this example in a local environment,
+As mentioned in the **TLS Security** section, certificates and keys examples are provided in this repository to ease the first steps of starting this example in a local environment,
 meaning running a MQTT broker on your PC. This section describes how to start a local MQTT broker.
 
 > **The certificates and keys provided by this repository are only to use during tests and debug sessions on a local environment, and should not be used in production or outside of this example.**
@@ -280,7 +283,7 @@ A MQTT client, subscribed to all topics, can be launched for a monitoring purpos
 
 ### Test the MQTT Broker
 
-Complementarily to the [**Traffic Monitoring**](#traffic-monitoring), a new MQTT client can be executed to send a message on a topic and ensure that the MQTT broker dispatches the topic the other clients subscribed
+Complementarily to the **Traffic Monitoring**, a new MQTT client can be executed to send a message on a topic and ensure that the MQTT broker dispatches the topic the other clients subscribed
 to this topic, in this case the MQTT client monitoring the traffic.
 
 1. Open a new shell at the **security_files** folder location.

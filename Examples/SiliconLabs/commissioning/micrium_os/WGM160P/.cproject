@@ -34,7 +34,7 @@
 							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.289307902" name="GNU ARM C Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog.1257460236" name="Generate debugger-friendly prologs (-mno-sched-prolog)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog" value="true" valueType="boolean"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2000513713" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
-								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.1080565494" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
+								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.1080565494" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols.1195057932" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SECURE_LINK=1"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
@@ -56,6 +56,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/sl_wfx_host}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p/config}&quot;"/>
@@ -79,7 +80,6 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/apps&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/fsdata&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/system&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/configs&quot;"/>
@@ -163,7 +163,7 @@
 							<tool id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base.1002542441" name="GNU ARM C Compiler" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog.1003753735" name="Generate debugger-friendly prologs (-mno-sched-prolog)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog" value="true" valueType="boolean"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.1739759954" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
-								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.832535037" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
+								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.832535037" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols.1306900033" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SECURE_LINK=1"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
@@ -186,6 +186,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/PDS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/sl_wfx_host}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p/config}&quot;"/>
@@ -209,7 +210,6 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/apps&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/fsdata&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/system&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/mbedtls/configs&quot;"/>

@@ -26,6 +26,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>EFM32GG11_secure_mqtt+nvm3.ld</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A/EFM32GG11_secure_mqtt+nvm3.ld</locationURI>
+		</link>
+		<link>
 			<name>PDS</name>
 			<type>2</type>
 			<locationURI>PARENT-4-PROJECT_LOC/PDS</locationURI>
@@ -131,9 +136,9 @@
 			<locationURI>STUDIO_SDK_LOC/platform/emdrv/dmadrv</locationURI>
 		</link>
 		<link>
-			<name>emdrv/nvm</name>
+			<name>emdrv/nvm3</name>
 			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/platform/emdrv/nvm</locationURI>
+			<locationURI>STUDIO_SDK_LOC/platform/emdrv/nvm3</locationURI>
 		</link>
 		<link>
 			<name>emdrv/sleep</name>

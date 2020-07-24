@@ -328,18 +328,17 @@ static const char *disconnect_client_cgi_handler(int index, int num_params,
                                                  char *pc_param[], char *pc_value[])
 {
   sl_wfx_mac_address_t mac_address;
-  const char separator[1] = ":";
+  const char separator[] = ":";
   char *mac_byte = NULL;
 
   for (uint16_t i = 0; i < num_params; i++) {
     if (strcmp(pc_param[i], "mac") == 0)
     {
       mac_byte = strtok(pc_value[i], separator);
-      mac_address.octet[0] = (uint8_t)strtoul(mac_byte, NULL, 16);
-      for(uint8_t i = 1; i < 6; i++)
+      for(uint8_t j = 0; j < 6; j++)
       {
+        mac_address.octet[j] = (uint8_t)strtoul(mac_byte, NULL, 16);
         mac_byte = strtok(NULL, separator);
-        mac_address.octet[i] = (uint8_t)strtoul(mac_byte, NULL, 16);
       }
       sl_wfx_disconnect_ap_client_command(&mac_address);
     }

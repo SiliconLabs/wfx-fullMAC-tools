@@ -23,6 +23,7 @@
 
 #include "sl_wfx_cmd_api.h"
 #include "sl_status.h"
+#include "nvm3.h"
 
 #define USE_DHCP_CLIENT_DEFAULT    1   ///< If defined, DHCP is enabled, otherwise static address below is used
 
@@ -161,5 +162,27 @@ extern uint8_t ap_gw_addr3;
 
 extern struct netif ap_netif;
 extern struct netif sta_netif;
+
+extern nvm3_Handle_t nvm3_handle;
+
+typedef enum {
+  NVM3_KEY_AP_SSID                  = 1,
+  NVM3_KEY_AP_SECURITY_MODE         = 2,
+  NVM3_KEY_AP_PASSKEY               = 3,
+  NVM3_KEY_MQTT_BROKER              = 4,
+  NVM3_KEY_MQTT_PORT                = 5,
+  NVM3_KEY_MQTT_CLIENT_ID           = 6,
+  NVM3_KEY_MQTT_PUBLISH_TOPIC       = 7,
+  NVM3_KEY_MQTT_SUBSCRIBE_TOPIC     = 8,
+  NVM3_KEY_MQTT_CA_CERTIFICATE      = 9,
+  NVM3_KEY_MQTT_DEVICE_CERTIFICATE  = 10,
+  NVM3_KEY_MQTT_DEVICE_KEY          = 11,
+  NVM3_KEY_MQTT_USERNAME            = 12,
+  NVM3_KEY_MQTT_PASSWORD            = 13,
+} nvm3_keys_t;
+
+#define NVM3_NB_MANDATORY_KEYS_WIFI   (NVM3_KEY_AP_PASSKEY - NVM3_KEY_AP_SSID + 1)
+#define NVM3_NB_MANDATORY_KEYS_MQTT   (NVM3_KEY_MQTT_SUBSCRIBE_TOPIC - NVM3_KEY_MQTT_BROKER + 1)
+#define NVM3_NB_TOTAL_KEYS_MQTT       (NVM3_KEY_MQTT_PASSWORD - NVM3_KEY_MQTT_BROKER + 1)
 
 #endif

@@ -111,9 +111,9 @@
 			<locationURI>STUDIO_SDK_LOC/platform/emdrv/dmadrv</locationURI>
 		</link>
 		<link>
-			<name>emdrv/nvm</name>
+			<name>emdrv/nvm3</name>
 			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/platform/emdrv/nvm</locationURI>
+			<locationURI>STUDIO_SDK_LOC/platform/emdrv/nvm3</locationURI>
 		</link>
 		<link>
 			<name>emdrv/sleep</name>

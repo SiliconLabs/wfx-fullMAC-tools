@@ -251,11 +251,6 @@
 			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/ethernetif.h</locationURI>
 		</link>
 		<link>
-			<name>src/lwip_host/fsdata</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/fsdata</locationURI>
-		</link>
-		<link>
 			<name>src/lwip_host/lwipopts.h</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/lwipopts.h</locationURI>

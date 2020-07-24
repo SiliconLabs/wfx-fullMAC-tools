@@ -22,8 +22,9 @@
 #define __LWIPOPTS_H__
 
 #define LWIP_DEBUG LWIP_DBG_OFF
-#define TCP_DEBUG LWIP_DBG_OFF
+#define TCP_DEBUG  LWIP_DBG_OFF
 #define DHCP_DEBUG LWIP_DBG_OFF
+#define MQTT_DEBUG LWIP_DBG_OFF
 
 #define NO_SYS                  0
 

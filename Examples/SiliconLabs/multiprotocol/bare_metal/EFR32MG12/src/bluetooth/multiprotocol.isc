@@ -1,0 +1,616 @@
+#ISD afv6
+# Simplicity Studio version: 5.18.5.202006060116-38
+
+# Application configuration
+stackId: com.silabs.sdk.stack.super
+stackRoot: C:\SiliconLabs\SimplicityStudio\v4\developer\sdks\gecko_sdk_suite\v2.7
+appId: ble
+frameworkRoot: app\bluetooth\appbuilder\fwk
+architecture: efr32~family[M]~series[1]~device_configuration[2]~performance[P]~radio[432]~flash[1024K]~temp[G]~package[L]~pins[125]~!module+BRD4161A+gcc
+exactArchitectureToolchain: com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:7.2.1.20170904
+deviceName: multiprotocol
+sourceSampleAppId: soc-light-rail-dmp
+generationDirectory: PATH(ISC_RELATIVE):.
+
+# Devices
+
+# UI customization
+hiddenLayoutElements: plugins,callbacks,other
+
+# Plugin configuration
+appPlugin: mpsi=false
+appPlugin: mpsi-ipc=false
+appPlugin: mpsi-storage=false
+appPlugin: psstore=false
+appPlugin: slot-manager=false
+appPlugin: stack_bridge=false
+
+# Setup configurations
+{setupId:additionalFiles
+}
+{setupId:bleGattConfigurator
+<?xml version="1.0" encoding="UTF-8"?><gatt gatt_caching="true" generic_attribute_service="true" header="gatt_db.h" name="Custom BLE GATT" out="gatt_db.c" prefix="gattdb_">
+  <service advertise="false" id="device_information" name="Device Information" requirement="mandatory" sourceId="org.bluetooth.service.device_information" type="primary" uuid="180A">
+    <informativeText>Abstract: The Device Information Service exposes manufacturer and/or vendor information about a device. Summary: This service exposes manufacturer information about a device. The Device Information Service is instantiated as a Primary Service. Only one instance of the Device Information Service is exposed on a device. </informativeText>
+    <characteristic id="manufacturer_name_string" name="Manufacturer Name String" sourceId="org.bluetooth.characteristic.manufacturer_name_string" uuid="2A29">
+      <informativeText>Abstract: The value of this characteristic is a UTF-8 string representing the name of the manufacturer of the device. </informativeText>
+      <value length="12" type="utf-8" variable_length="true">Silicon Labs</value>
+      <properties indicate="false" indicate_requirement="excluded" notify="false" notify_requirement="excluded" read="true" read_requirement="mandatory" reliable_write="false" reliable_write_requirement="excluded" write="false" write_no_response="false" write_no_response_requirement="excluded" write_requirement="excluded"/>
+    </characteristic>
+    <characteristic id="model_number_string" name="Model Number String" sourceId="org.bluetooth.characteristic.model_number_string" uuid="2A24">
+      <informativeText>Abstract: The value of this characteristic is a UTF-8 string representing the model number of the device. </informativeText>
+      <value length="8" type="utf-8" variable_length="false">DMP-001A</value>
+      <properties indicate="false" indicate_requirement="excluded" notify="false" notify_requirement="excluded" read="true" read_requirement="mandatory" reliable_write="false" reliable_write_requirement="optional" write="false" write_no_response="false" write_no_response_requirement="excluded" write_requirement="excluded"/>
+    </characteristic>
+    <characteristic id="serial_number_string" name="Serial Number String" sourceId="org.bluetooth.characteristic.serial_number_string" uuid="2A25">
+      <informativeText>Abstract: The value of this characteristic is a UTF-8 string representing the serial number of the device. </informativeText>
+      <value length="3" type="utf-8" variable_length="false">001</value>
+      <properties indicate="false" indicate_requirement="excluded" notify="false" notify_requirement="excluded" read="true" read_requirement="mandatory" reliable_write="false" reliable_write_requirement="excluded" write="false" write_no_response="false" write_no_response_requirement="excluded" write_requirement="excluded"/>
+    </characteristic>
+    <characteristic id="firmware_revision_string" name="Firmware Revision String" sourceId="org.bluetooth.characteristic.firmware_revision_string" uuid="2A26">
+      <informativeText>Abstract: The value of this characteristic is a UTF-8 string representing the firmware version of the device. </informativeText>
+      <value length="5" type="utf-8" variable_length="false">0.0.1</value>
+      <properties indicate="false" indicate_requirement="excluded" notify="false" notify_requirement="excluded" read="true" read_requirement="mandatory" reliable_write="false" reliable_write_requirement="excluded" write="false" write_no_response="false" write_no_response_requirement="excluded" write_requirement="excluded"/>
+    </characteristic>
+  </service>
+  <service advertise="false" id="device_information" name="Generic Access" requirement="mandatory" sourceId="org.bluetooth.service.generic_access" type="primary" uuid="1800">
+    <informativeText>Abstract: The generic_access service contains generic information about the device. All available Characteristics are readonly. </informativeText>
+    <characteristic id="device_name" name="Device Name" sourceId="org.bluetooth.characteristic.gap.device_name" uuid="2A00">
+      <informativeText/>
+      <value length="8" type="utf-8" variable_length="true">MP Demo </value>
+      <properties indicate="false" indicate_requirement="excluded" notify="false" notify_requirement="excluded" read="true" read_requirement="mandatory" reliable_write="false" reliable_write_requirement="excluded" write="false" write_no_response="false" write_no_response_requirement="excluded" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="appearance" name="Appearance" sourceId="org.bluetooth.characteristic.gap.appearance" uuid="2A01">
+      <informativeText/>
+      <value length="2" type="hex" variable_length="false"/>
+      <properties indicate="false" indicate_requirement="excluded" notify="false" notify_requirement="excluded" read="true" read_requirement="mandatory" reliable_write="false" reliable_write_requirement="excluded" write="false" write_no_response="false" write_no_response_requirement="excluded" write_requirement="excluded"/>
+    </characteristic>
+  </service>
+  <service advertise="false" name="Silabs MP Light" requirement="mandatory" sourceId="" type="primary" uuid="63f596e4-b583-4078-bfc3-b04225378713">
+    <informativeText/>
+    <characteristic id="light_state" name="Light" sourceId="custom.type" uuid="76e137ac-b15f-49d7-9c4c-e278e6492ad9">
+      <informativeText/>
+      <value length="1" type="user" variable_length="false">0x00</value>
+      <properties indicate="true" indicate_requirement="optional" read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="trigger_source" name="Trigger Source" sourceId="custom.type" uuid="2f16ee52-0bfd-4597-85d4-a5141fdbae15">
+      <informativeText/>
+      <value length="1" type="user" variable_length="false">0x00</value>
+      <properties indicate="true" indicate_requirement="optional" read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="source_address" name="Source Address" sourceId="custom.type" uuid="82a1cb54-3921-4c9c-ba34-34f78bab9a1b">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="8" type="user" variable_length="false">0x00</value>
+      <properties indicate="true" indicate_requirement="optional" read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+  </service>
+</gatt>
+}
+{setupId:callbackConfiguration
+}
+{setupId:hwConfig
+featureLevel=1
+active=true
+}
+{setupId:macros
+}
+{setupId:multiPhyRadioConfigurator
+<?xml version="1.0" encoding="UTF-8"?>
+<multi_phy_configuration part_family="jumbo" part_revision="A0" rail_adapter_version="rail_api_2.x" status_code="0" xsd_version="0.0.20">
+  <base_channel_configurations>
+    <base_channel_configuration name="2450M_1Mbps" profile="serializableObject:Efr32RadioConfiguratorProfile:JUMBO:Base">
+      <profile_inputs>
+        <input>
+          <key>AFC_PERIOD</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>AFC_STEP_SCALE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>AGC_HYSTERESIS</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>AGC_PERIOD</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>AGC_POWER_TARGET</key>
+          <value>int:-8</value>
+        </input>
+        <input>
+          <key>AGC_SCHEME</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>AGC_SETTLING_DELAY</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>AGC_SPEED</key>
+          <value>serializableObject:EnumDataItem:1</value>
+        </input>
+        <input>
+          <key>ANTDIVMODE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>ANTDIVREPEATDIS</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>ASYNCHRONOUS_RX_ENABLE</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>BANDWIDTH_HZ</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>BASE_FREQUENCY_HZ</key>
+          <value>long:2450000000</value>
+        </input>
+        <input>
+          <key>BAUDRATE_TOL_PPM</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>BITRATE</key>
+          <value>int:1000000</value>
+        </input>
+        <input>
+          <key>CHANNEL_SPACING_HZ</key>
+          <value>int:1000000</value>
+        </input>
+        <input>
+          <key>CRC_BIT_ENDIAN</key>
+          <value>serializableObject:EnumDataItem:1</value>
+        </input>
+        <input>
+          <key>CRC_BYTE_ENDIAN</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>CRC_INPUT_ORDER</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>CRC_INVERT</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>CRC_PAD_INPUT</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>CRC_POLY</key>
+          <value>serializableObject:EnumDataItem:2</value>
+        </input>
+        <input>
+          <key>CRC_SEED</key>
+          <value>long:0</value>
+        </input>
+        <input>
+          <key>DEVIATION</key>
+          <value>int:500000</value>
+        </input>
+        <input>
+          <key>DIFF_ENCODING_MODE</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>DSA_ENABLE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>DSSS_CHIPPING_CODE</key>
+          <value>long:0</value>
+        </input>
+        <input>
+          <key>DSSS_LEN</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>DSSS_SPREADING_FACTOR</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>ERRORS_IN_TIMING_WINDOW</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>ETSI_CAT1_COMPATIBLE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>FEC_EN</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>FIRSTFRAME_BITSPERWORD</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>FIXED_LENGTH_SIZE</key>
+          <value>int:16</value>
+        </input>
+        <input>
+          <key>FRAME_BITENDIAN</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>FRAME_CODING</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>FRAME_LENGTH_TYPE</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_0_FILTER</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_0_LENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_0_VALID</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_1_FILTER</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_1_LENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_1_VALID</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_2_FILTER</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_2_LENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_2_VALID</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_3_FILTER</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_3_LENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_3_VALID</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_4_FILTER</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_4_LENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_4_VALID</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_5_FILTER</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_5_LENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_5_VALID</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_6_FILTER</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_6_LENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_6_VALID</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_7_FILTER</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_7_LENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_7_VALID</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_BITS</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_LOC</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FRAME_TYPE_LSBIT</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>FREQUENCY_COMP_MODE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>FREQUENCY_OFFSET_PERIOD</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>FREQ_OFFSET_HZ</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>FSK_SYMBOL_MAP</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>HEADER_ADDTRAILTXDATA_EN</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>HEADER_CALC_CRC</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>HEADER_EN</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>HEADER_SIZE</key>
+          <value>int:1</value>
+        </input>
+        <input>
+          <key>HEADER_WHITE_EN</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>IF_FREQUENCY_HZ</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>IN_2FSK_OPT_SCOPE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>IRCAL_POWER_LEVEL</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>IRCAL_RXTX_PATH_COMMON</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>LO_INJECTION_SIDE</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>MANCHESTER_MAPPING</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>MODULATION_TYPE</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>NUMBER_OF_TIMING_WINDOWS</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>OOK_SLICER_LEVEL</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>PAYLOAD_ADDTRAILTXDATA_EN</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>PAYLOAD_CRC_EN</key>
+          <value>bool:true</value>
+        </input>
+        <input>
+          <key>PAYLOAD_WHITE_EN</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>PLL_BANDWIDTH_MIRACLE_MODE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>PLL_BANDWIDTH_RX</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>PLL_BANDWIDTH_TX</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>PREAMBLE_LENGTH</key>
+          <value>int:40</value>
+        </input>
+        <input>
+          <key>PREAMBLE_PATTERN</key>
+          <value>int:1</value>
+        </input>
+        <input>
+          <key>PREAMBLE_PATTERN_LEN</key>
+          <value>int:2</value>
+        </input>
+        <input>
+          <key>RSSI_PERIOD</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>RX_BITRATE_OFFSET_HZ</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>RX_XTAL_ERROR_PPM</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>SHAPING_FILTER</key>
+          <value>serializableObject:EnumDataItem:1</value>
+        </input>
+        <input>
+          <key>SHAPING_FILTER_PARAM</key>
+          <value>float:0.5</value>
+        </input>
+        <input>
+          <key>SQI_THRESHOLD</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>SRC_DISABLE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>SYMBOLS_IN_TIMING_WINDOW</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>SYMBOL_ENCODING</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>SYNCWORD_0</key>
+          <value>long:63117</value>
+        </input>
+        <input>
+          <key>SYNCWORD_1</key>
+          <value>long:0</value>
+        </input>
+        <input>
+          <key>SYNCWORD_LENGTH</key>
+          <value>int:16</value>
+        </input>
+        <input>
+          <key>SYNCWORD_TX_SKIP</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>TARGET_OSR</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>TEST_BER</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>TIMING_DETECTION_THRESHOLD</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>TIMING_RESYNC_PERIOD</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>TIMING_SAMPLE_THRESHOLD</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>TX_XTAL_ERROR_PPM</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_ADJUST</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_BITENDIAN</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_BYTEENDIAN</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_INCLUDECRC</key>
+          <value>bool:false</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_LOC</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_MAXLENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_MINLENGTH</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_NUMBITS</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>VAR_LENGTH_SHIFT</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>VITERBI_ENABLE</key>
+          <value>null</value>
+        </input>
+        <input>
+          <key>WHITE_OUTPUT_BIT</key>
+          <value>int:0</value>
+        </input>
+        <input>
+          <key>WHITE_POLY</key>
+          <value>serializableObject:EnumDataItem:0</value>
+        </input>
+        <input>
+          <key>WHITE_SEED</key>
+          <value>int:65535</value>
+        </input>
+        <input>
+          <key>XTAL_FREQUENCY_HZ</key>
+          <value>int:38400000</value>
+        </input>
+      </profile_inputs>
+      <phy name="serializableObject:Efr32RadioConfiguratorPhy:JUMBO:Base:PHY_Datasheet_2450M_2GFSK_1Mbps_500K"/>
+      <channel_config_entries>
+        <channel_config_entry name="Channel Group 0">
+          <physical_channel_offset>SAME_AS_FIRST_CHANNEL</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>20</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+  </base_channel_configurations>
+</multi_phy_configuration>
+}
+{setupId:quizz
+}
+
+# Plugin options

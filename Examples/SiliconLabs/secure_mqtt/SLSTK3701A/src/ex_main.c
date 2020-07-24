@@ -41,18 +41,28 @@
 #include <mbedtls/threading.h>
 #include MBEDTLS_CONFIG_FILE
 #include "sleep.h"
-#define  EX_MAIN_START_TASK_PRIO              30u
-#define  EX_MAIN_START_TASK_STK_SIZE         512u
+#include "nvm3.h"
+#include "nvm3_hal_flash.h"
+
+#define NVM3_PAGE_NUM                     6u
+#define NVM3_CACHE_SIZE                  20u
+
+#define EX_MAIN_START_TASK_PRIO          30u
+#define EX_MAIN_START_TASK_STK_SIZE     512u
 
 #ifdef SL_WFX_USE_SECURE_LINK
 extern void wfx_securelink_task_start(void);
 #endif
 
 /// Start task stack.
-static  CPU_STK  main_start_task_stk[EX_MAIN_START_TASK_STK_SIZE];
+static CPU_STK  main_start_task_stk[EX_MAIN_START_TASK_STK_SIZE];
 /// Start task TCB.
-static  OS_TCB   main_start_task_tcb;
-static  void     main_start_task (void  *p_arg);
+static OS_TCB   main_start_task_tcb;
+static void     main_start_task (void  *p_arg);
+
+/// Create a NVM area across x Flash pages. Create a cache of y entries.
+NVM3_DEFINE_SECTION_STATIC_DATA(nvm3Data, NVM3_PAGE_NUM * FLASH_PAGE_SIZE, NVM3_CACHE_SIZE);
+nvm3_Handle_t nvm3_handle;
 
 #ifdef SLEEP_ENABLED
 static bool sleepCallback(SLEEP_EnergyMode_t emode)
@@ -257,9 +267,8 @@ static void gpio_setup(void)
 static  void  main_start_task(void  *p_arg)
 {
   RTOS_ERR  err;
+  int res;
   PP_UNUSED_PARAM(p_arg); // Prevent compiler warning.
-
-
 
 #ifdef SL_WFX_USE_SDIO
 #ifdef RTOS_MODULE_IO_AVAIL
@@ -294,6 +303,12 @@ static  void  main_start_task(void  *p_arg)
   // Initialize the BSP.
   BSP_OS_Init();
   BSP_LedsInit();
+
+  // Initialize the structure managing the NVM3 area and open it
+  NVM3_DEFINE_SECTION_INIT_DATA(nvm3Data, &nvm3_halFlashHandle);
+  nvm3Data.maxObjectSize = NVM3_MAX_OBJECT_SIZE;
+  res = nvm3_open(&nvm3_handle, &nvm3Data);
+  APP_RTOS_ASSERT_CRITICAL(res == 0,; );
 
   printf("WFX Secure MQTT Example\n");
 

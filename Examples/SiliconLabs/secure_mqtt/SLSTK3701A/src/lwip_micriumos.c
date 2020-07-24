@@ -24,7 +24,8 @@
 #include "bsp.h"
 #include "ecode.h"
 #include "dmadrv.h"
-#include "em_msc.h"
+#include "nvm3.h"
+#include "nvm3_hal_flash.h"
 
 #include <cpu/include/cpu.h>
 #include <kernel/include/os.h>
@@ -134,6 +135,18 @@ uint8_t ap_gw_addr2 = AP_GW_ADDR2_DEFAULT;
 /// AP gateway IP octet 3.
 uint8_t ap_gw_addr3 = AP_GW_ADDR3_DEFAULT;
 
+typedef struct {
+  char *label;
+  sl_wfx_security_mode_t mode;
+} wifi_security_mode_t;
+
+static const wifi_security_mode_t wlan_security_modes[] = {
+  {"OPEN",          WFM_SECURITY_MODE_OPEN},
+  {"WEP",           WFM_SECURITY_MODE_WEP},
+  {"WPA1/WPA2/PSK", WFM_SECURITY_MODE_WPA2_WPA1_PSK},
+  {"WPA2/PSK",      WFM_SECURITY_MODE_WPA2_PSK}
+};
+
 
 /// LwIP task stack
 static CPU_STK lwip_task_stk[LWIP_TASK_STK_SIZE];
@@ -143,6 +156,7 @@ static OS_TCB lwip_task_tcb;
 char event_log[50];
 
 /// MQTT
+static char mqtt_broker_address[128];
 static ip_addr_t mqtt_broker_ip;
 static uint16_t mqtt_broker_port;
 static char mqtt_username[256];
@@ -174,15 +188,9 @@ static console_config_t console_config = {
 static const char led_json_object[] = "{\"name\":\"LED%u\",\"state\":\"%s\"}";
 
 /// TLS
-#define CA_CERTIFICATE_ADDR       (FLASH_BASE + FLASH_SIZE - 3*FLASH_PAGE_SIZE)
-#define DEVICE_CERTIFICATE_ADDR   (CA_CERTIFICATE_ADDR + FLASH_PAGE_SIZE)
-#define DEVICE_KEY_ADDR           (DEVICE_CERTIFICATE_ADDR + FLASH_PAGE_SIZE)
-
-static const char *ca_certificate = (char *)CA_CERTIFICATE_ADDR;
-static const char *device_certificate = (char *)DEVICE_CERTIFICATE_ADDR;
-static const char *device_key = (char *)DEVICE_KEY_ADDR;
-
-static char input_buf[2048]; // Buffer with sufficient size to contain 2048bits certificates/keys
+static char ca_certificate[2048] = {0};
+static char device_certificate[2048] = {0};
+static char device_key[2048] = {0};
 
 #ifdef LWIP_IPERF_SERVER
 /***************************************************************************//**
@@ -301,48 +309,97 @@ static void mqtt_connection_cb (mqtt_client_t *client,
 static void lwip_app_wifi_config_prompt (void)
 {
   char buf[4];
-  int res;
+  int res, val;
   bool error;
+  bool reconfigure = true;
 
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockBegin(sleepEM2);
 #endif
 
-  do {
+  // Look for an old Wi-Fi configuration
+  res = nvm3_enumObjects(&nvm3_handle,
+                         NULL, 0,
+                         NVM3_KEY_AP_SSID, NVM3_KEY_AP_PASSKEY);
+  if (res == NVM3_NB_MANDATORY_KEYS_WIFI) {
+    // A configuration is stored, retrieve it
+    nvm3_readData(&nvm3_handle, NVM3_KEY_AP_SSID, (void *)wlan_ssid, sizeof(wlan_ssid));
+    nvm3_readData(&nvm3_handle, NVM3_KEY_AP_SECURITY_MODE, (void *)&wlan_security, sizeof(wlan_security));
+    nvm3_readData(&nvm3_handle, NVM3_KEY_AP_PASSKEY, (void *)wlan_passkey, sizeof(wlan_passkey));
+
+    // Display non critical information
+    printf("\nWi-Fi configuration stored:\n");
+    printf("\tSSID: %s\n", wlan_ssid);
+
+    for (uint8_t i=0; i<(sizeof(wlan_security_modes)/sizeof(wifi_security_mode_t)); i++) {
+      if (wlan_security_modes[i].mode == wlan_security) {
+        printf("\tMode: %s\n", wlan_security_modes[i].label);
+        break;
+      }
+    }
+
+    printf("\nDo you want to change it ? [y/n]\n");
+    console_get_line(buf, sizeof(buf));
+
+    if ((buf[0] != 'y') && (buf[0] != 'Y')) {
+      reconfigure = false;
+    }
+  }
+
+  if (reconfigure) {
+    // User needs or asked for a new configuration
+    do {
       printf("\nEnter the SSID of the AP you want to connect:\n");
       res = console_get_line(wlan_ssid, sizeof(wlan_ssid));
-  } while (res < 0);
+    } while (res < 0);
 
-  do {
-    error = false;
-    printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\nEnter 1,2,3 or 4:\n");
-    res = console_get_line(buf, sizeof(buf));
-
-    if (res <= 0) {
-      // Invalid input
-      error = true;
-      continue;
-    }
-
-    if (!strncmp(buf, "1", 1)) {
-      wlan_security = WFM_SECURITY_MODE_OPEN;
-    } else if (!strncmp(buf, "2", 1)) {
-      wlan_security = WFM_SECURITY_MODE_WEP;
-    } else if (!strncmp(buf, "3", 1)) {
-      wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
-    } else if (!strncmp(buf, "4", 1)) {
-      wlan_security = WFM_SECURITY_MODE_WPA2_PSK;
-    } else {
-      printf("Unknown value\n");
-      error = true;
-    }
-  } while (error);
-
-  if (wlan_security != WFM_SECURITY_MODE_OPEN) {
     do {
-      printf("Enter the Passkey of the AP you want to connect (8-chars min):\n");
-      res = console_get_line(wlan_passkey, sizeof(wlan_passkey));
-    } while (res < 8);
+      error = false;
+      printf("Security modes:\n");
+      for (uint8_t i=0; i<(sizeof(wlan_security_modes)/sizeof(wifi_security_mode_t)); i++) {
+        printf("%d. %s\n", i+1, wlan_security_modes[i].label);
+      }
+
+      printf("Enter the number of the mode to select:\n");
+      res = console_get_line(buf, sizeof(buf));
+
+      if (res <= 0) {
+        // Invalid input
+        error = true;
+        continue;
+      }
+
+      buf[2] = '\0';
+      val = atoi(buf);
+      switch (val) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+          wlan_security = wlan_security_modes[val-1].mode;
+          break;
+
+        default:
+          printf("Unknown value\n");
+          error = true;
+          break;
+      }
+    } while (error);
+
+    if (wlan_security != WFM_SECURITY_MODE_OPEN) {
+      do {
+        printf("Enter the Passkey of the AP you want to connect (8-chars min):\n");
+        res = console_get_line(wlan_passkey, sizeof(wlan_passkey));
+      } while (res < 8);
+    } else {
+      // Stop storing an old password
+      memset(wlan_passkey, '\0', sizeof(wlan_passkey));
+    }
+
+    // Update the NVM fields with the new configuration
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_AP_SSID, (void *)wlan_ssid, sizeof(wlan_ssid));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_AP_SECURITY_MODE, (void *)&wlan_security, sizeof(wlan_security));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_AP_PASSKEY, (void *)wlan_passkey, sizeof(wlan_passkey));
   }
 
   printf("\n");
@@ -409,11 +466,60 @@ static void dns_found_cb (const char *name,
 }
 
 /**************************************************************************//**
+ * Send a DNS request.
+ * @return -1: error
+ *          0: success
+ *****************************************************************************/
+static int lwip_app_send_dns_request (char *domain_address, ip_addr_t *ipaddr)
+{
+  RTOS_ERR err;
+  int res, ret = -1;
+  ip_addr_t *addr;
+  uint16_t len;
+
+  // Execute a DNS request
+  res = dns_gethostbyname(domain_address, ipaddr, dns_found_cb, NULL);
+  switch (res) {
+    case ERR_OK:
+      // Resolution success (already in IP format)
+      ret = 0;
+      break;
+
+    case ERR_INPROGRESS:
+      // Wait for the DNS resolution
+      addr = (ip_addr_t *)OSTaskQPend(0,
+                                      OS_OPT_PEND_BLOCKING,
+                                      &len,
+                                      NULL,
+                                      &err);
+
+      if (addr != NULL) {
+        // Resolution success
+        *ipaddr = *addr;
+        ret = 0;
+      }
+      break;
+
+    case ERR_ARG:
+      // Error, wrong hostname
+      break;
+  }
+
+  if (ret == 0) {
+    printf("DNS result: %s -> %s\n", domain_address, ipaddr_ntoa(ipaddr));
+  } else {
+    printf("DNS request error (%s)\n", domain_address);
+  }
+
+  return ret;
+}
+
+/**************************************************************************//**
  * Convert a TLS certificate/key end of lines to suit MBEDTLS parsing.
  *****************************************************************************/
-static void lwip_app_convert_keys_eol (void)
+static void lwip_app_convert_keys_eol (char *key_buf)
 {
-  char *ptr_buf = input_buf;
+  char *ptr_buf = key_buf;
   char *ptr_eol;
 
   // Iterate through the key buffer to replace potential '\r'
@@ -445,58 +551,17 @@ static bool lwip_app_is_complete_key_received_cb (char *buffer_pos)
  * @return -1: error
  *         0 <=: the key size
  *****************************************************************************/
-static int lwip_app_get_keys (void)
+static int lwip_app_get_keys (char *key_buf, uint16_t key_buf_size)
 {
   int res;
 
-  res = console_get_lines(input_buf,
-                          sizeof(input_buf),
+  res = console_get_lines(key_buf,
+                          key_buf_size,
                           lwip_app_is_complete_key_received_cb);
 
   if (res > 0) {
     // Convert the end of line characters if needed to suit the mbedtls parsing
-    lwip_app_convert_keys_eol();
-  }
-
-  return res;
-}
-
-/**************************************************************************//**
- * Retrieve a TLS certificate/key and store it.
- *
- * @param flash_address Flash address where to store the certificate/key.
- *
- * @return 0 on success, 0> otherwise
- *****************************************************************************/
-static int lwip_app_retrieve_and_store_key (uint32_t flash_address)
-{
-  uint32_t value;
-  int res = -1;
-  int len;
-  uint8_t align;
-
-  // Retrieve the key
-  len = lwip_app_get_keys();
-
-  // Erase the page where the key is going to be stored
-  res = MSC_ErasePage((uint32_t *)flash_address);
-  if (res == 0) {
-    // Ensure the data is a multiple of 4 and write it in the flash
-    align = len % 4;
-    res = MSC_WriteWord((uint32_t *)flash_address, input_buf, len - align);
-    if ((res == 0) && align) {
-      // Write the remaining bytes
-      memcpy(&value, &input_buf[len - align], align);
-      res = MSC_WriteWord((uint32_t *)flash_address + (len-align)/4,
-                          &value,
-                          sizeof(value));
-    }
-
-    if (res != 0) {
-      printf("Key: write error\r\n");
-    }
-  } else {
-    printf("Key: erase error\r\n");
+    lwip_app_convert_keys_eol(key_buf);
   }
 
   return res;
@@ -508,172 +573,212 @@ static int lwip_app_retrieve_and_store_key (uint32_t flash_address)
 static void lwip_app_mqtt_config_prompt (void)
 {
   long long port;
-  ip_addr_t *ipaddr;
   char *ptr_end;
-  RTOS_ERR err;
-  uint16_t len;
+  char buf[256] = {0};
+  Ecode_t ecode;
   int res;
   bool error;
+  bool reconfigure = true;
 
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockBegin(sleepEM2);
 #endif
 
-  printf("\n");
+  // Look for an old MQTT configuration
+  res = nvm3_enumObjects(&nvm3_handle,
+                         NULL, 0,
+                         NVM3_KEY_MQTT_BROKER, NVM3_KEY_MQTT_PASSWORD);
+  if (res >= NVM3_NB_MANDATORY_KEYS_MQTT) {
+    // A configuration is troed, retrieve it
+    nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_BROKER, (void *)mqtt_broker_address, sizeof(mqtt_broker_address));
+    nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_PORT, (void *)&mqtt_broker_port, sizeof(mqtt_broker_port));
+    nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_CLIENT_ID, (void *)mqtt_client_id, sizeof(mqtt_client_id));
+    nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_PUBLISH_TOPIC, (void *)mqtt_publish_topic, sizeof(mqtt_publish_topic));
+    nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_SUBSCRIBE_TOPIC, (void *)mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic));
 
-  do {
-    error = false;
-    printf("Enter the MQTT broker address:\n");
-    res = console_get_line(input_buf, sizeof(input_buf));
-    if (res <= 0) {
-      // Input invalid
-      error = true;
-      continue;
-    }
+    // Display non-critical information
+    printf("\nMQTT configuration stored:\n");
+    printf("\tBroker: %s, port %u\n", mqtt_broker_address, mqtt_broker_port);
+    printf("\tClient Id: %s\n", mqtt_client_id);
+    printf("\tPublish topic: %s\n", mqtt_publish_topic);
+    printf("\tSubscribe topic: %s\n", mqtt_subscribe_topic);
 
-    // Execute a DNS request
-    res = dns_gethostbyname(input_buf, &mqtt_broker_ip, dns_found_cb, NULL);
-    switch (res) {
-      case ERR_OK:
-        printf("\n");
-        break;
-
-      case ERR_INPROGRESS:
-        // Wait for the DNS resolution
-        ipaddr = (ip_addr_t*)OSTaskQPend(0,
-                                         OS_OPT_PEND_BLOCKING,
-                                         &len,
-                                         NULL,
-                                         &err);
-
-        if (ipaddr != NULL) {
-          printf("\nHostname %s resolved\n", input_buf);
-          mqtt_broker_ip = *ipaddr;
-        } else {
-          printf("\nHostname %s resolution error\n", input_buf);
-          error = true;
-        }
-        break;
-
-      case ERR_ARG:
-        printf("Wrong hostname\n");
-        error = true;
-        break;
-    }
-  } while (error);
-
-  do {
-    error = false;
-    printf("Enter the MQTT port:\n");
-    res = console_get_line(input_buf, sizeof(input_buf));
-    if (res <= 0) {
-      // Input invalid
-      error = true;
-      continue;
-    }
-
-    port = strtoll(input_buf, &ptr_end, 0);
-    if (((ptr_end != NULL) && (*ptr_end != '\0'))
-        || (port > USHRT_MAX)){
-      error = true;
-    } else {
-      mqtt_broker_port = port;
-    }
-  } while (error);
-
-  do {
-    error = false;
-    printf("Enter the MQTT client Id (%d-chars max):\n",
-           sizeof(mqtt_client_id)-1);
-    res = console_get_line(mqtt_client_id, sizeof(mqtt_client_id));
-    if (res <= 0) {
-      // Input invalid
-      error = true;
-      continue;
-    }
-  } while (error);
-
-  do {
-    error = false;
-    printf("Enter the MQTT publish topic (%d-chars max):\n",
-           sizeof(mqtt_publish_topic)-1);
-    res = console_get_line(mqtt_publish_topic, sizeof(mqtt_publish_topic));
-    if (res <= 0) {
-      // Input invalid
-      error = true;
-      continue;
-    }
-  } while (error);
-
-  do {
-    error = false;
-    printf("Enter the MQTT subscribe topic (%d-chars max):\n",
-           sizeof(mqtt_subscribe_topic)-1);
-    res = console_get_line(mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic));
-    if (res <= 0) {
-      // Input invalid
-      error = true;
-      continue;
-    }
-  } while (error);
-
-  printf("Do you need to configure a user/password ? [y/n]\n");
-  console_get_line(input_buf, sizeof(input_buf));
-
-  if ((input_buf[0] == 'y') || (input_buf[0] == 'Y')) {
-    mqtt_is_session_protected = true;
-
-    do {
-      error = false;
-      printf("Enter the MQTT session username (%d-chars max):\n",
-             sizeof(mqtt_username)-1);
-
-      res = console_get_line(input_buf, sizeof(input_buf));
-      if ((res < 0)
-          || (res >= sizeof(mqtt_username)-1)) {
-        // Input invalid
-        error = true;
-      } else {
-        strcpy(mqtt_username, input_buf);
+    if (res <= NVM3_NB_TOTAL_KEYS_MQTT) {
+      ecode = nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_USERNAME, (void *)mqtt_username, sizeof(mqtt_username));
+      if (ecode == ECODE_NVM3_OK) {
+        nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_PASSWORD, (void *)mqtt_password, sizeof(mqtt_password));
+        mqtt_is_session_protected = true;
       }
-    } while (error);
 
-    do {
-      error = false;
-      printf("Enter the MQTT session password (%d-chars max):\n",
-             sizeof(mqtt_password)-1);
-
-      res = console_get_line(input_buf, sizeof(input_buf));
-      if ((res < 0)
-          || (res >= sizeof(mqtt_password)-1)) {
-        // Input invalid
-        error = true;
-      } else {
-        strcpy(mqtt_password, input_buf);
+      ecode = nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_CA_CERTIFICATE, (void *)ca_certificate, sizeof(ca_certificate));
+      if (ecode == ECODE_NVM3_OK) {
+        nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_DEVICE_CERTIFICATE, (void *)device_certificate, sizeof(device_certificate));
+        nvm3_readData(&nvm3_handle, NVM3_KEY_MQTT_DEVICE_KEY, (void *)device_key, sizeof(device_key));
+        mqtt_is_session_encrypted = true;
       }
-    } while (error);
+
+      printf("\tSession: %sencrypted, %sprotected by a credentials\n",
+             mqtt_is_session_encrypted ? "" : "not ",
+             mqtt_is_session_protected ? "" : "not ");
+    }
+
+    printf("\nDo you want to change it ? [y/n]\n");
+    console_get_line(buf, sizeof(buf));
+
+    if ((buf[0] != 'y') && (buf[0] != 'Y')) {
+      reconfigure = false;
+      // Broker address not stored directly, execute the DNS request to retrieve it
+      lwip_app_send_dns_request(mqtt_broker_address, &mqtt_broker_ip);
+    }
   }
 
-  printf("Is this an encrypted MQTT session ? [y/n]\n");
-  console_get_line(input_buf, sizeof(input_buf));
+  if (reconfigure) {
+    // User needs or asked for a new configuration
+    do {
+      error = false;
+      printf("\nEnter the MQTT broker address:\n");
+      res = console_get_line(mqtt_broker_address, sizeof(mqtt_broker_address));
+      if (res <= 0) {
+        // Input invalid
+        error = true;
+        continue;
+      }
 
-  if ((input_buf[0] == 'y') || (input_buf[0] == 'Y')) {
-    mqtt_is_session_encrypted = true;
+      // Ensure the address validity
+      res = lwip_app_send_dns_request(mqtt_broker_address, &mqtt_broker_ip);
+      if (res != 0) {
+        error = true;
+      }
+    } while (error);
 
-    printf("\nPress <Enter> within 5 seconds to load the TLS keys:\n");
-    res = console_get_line_tmo(input_buf, sizeof(input_buf), 5);
+    do {
+      error = false;
+      printf("Enter the MQTT port:\n");
+      res = console_get_line(buf, sizeof(buf));
+      if (res <= 0) {
+        // Input invalid
+        error = true;
+        continue;
+      }
 
-    if (res == 0 /*Empty input*/) {
-      printf("Enter the root CA authenticating the server:\n");
-      lwip_app_retrieve_and_store_key(CA_CERTIFICATE_ADDR);
+      port = strtoll(buf, &ptr_end, 0);
+      if (((ptr_end != NULL) && (*ptr_end != '\0'))
+          || (port > USHRT_MAX)){
+        error = true;
+      } else {
+        mqtt_broker_port = port;
+      }
+    } while (error);
 
-      printf("\nEnter the device certificate:\n");
-      lwip_app_retrieve_and_store_key(DEVICE_CERTIFICATE_ADDR);
+    do {
+      error = false;
+      printf("Enter the MQTT client Id (%d-chars max):\n",
+             sizeof(mqtt_client_id)-1);
+      res = console_get_line(mqtt_client_id, sizeof(mqtt_client_id));
+      if (res <= 0) {
+        // Input invalid
+        error = true;
+        continue;
+      }
+    } while (error);
 
-      printf("\nEnter the device key:\n");
-      lwip_app_retrieve_and_store_key(DEVICE_KEY_ADDR);
+    do {
+      error = false;
+      printf("Enter the MQTT publish topic (%d-chars max):\n",
+             sizeof(mqtt_publish_topic)-1);
+      res = console_get_line(mqtt_publish_topic, sizeof(mqtt_publish_topic));
+      if (res <= 0) {
+        // Input invalid
+        error = true;
+        continue;
+      }
+    } while (error);
+
+    do {
+      error = false;
+      printf("Enter the MQTT subscribe topic (%d-chars max):\n",
+             sizeof(mqtt_subscribe_topic)-1);
+      res = console_get_line(mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic));
+      if (res <= 0) {
+        // Input invalid
+        error = true;
+        continue;
+      }
+    } while (error);
+
+    printf("Do you need to configure a user/password ? [y/n]\n");
+    console_get_line(buf, sizeof(buf));
+
+    if ((buf[0] == 'y') || (buf[0] == 'Y')) {
+      mqtt_is_session_protected = true;
+
+      do {
+        error = false;
+        printf("Enter the MQTT session username (%d-chars max):\n",
+               sizeof(mqtt_username)-1);
+
+        res = console_get_line(buf, sizeof(buf));
+        if ((res < 0)
+            || (res >= sizeof(mqtt_username)-1)) {
+          // Input invalid
+          error = true;
+        } else {
+          strcpy(mqtt_username, buf);
+        }
+      } while (error);
+
+      do {
+        error = false;
+        printf("Enter the MQTT session password (%d-chars max):\n",
+               sizeof(mqtt_password)-1);
+
+        res = console_get_line(buf, sizeof(buf));
+        if ((res < 0)
+            || (res >= sizeof(mqtt_password)-1)) {
+          // Input invalid
+          error = true;
+        } else {
+          strcpy(mqtt_password, buf);
+        }
+      } while (error);
+    } else {
+      // Stop storing an old username/password
+      memset(mqtt_username, '\0', sizeof(mqtt_username));
+      memset(mqtt_password, '\0', sizeof(mqtt_password));
     }
 
+    printf("Is this an encrypted MQTT session ? [y/n]\n");
+    console_get_line(buf, sizeof(buf));
+
+    if ((buf[0] == 'y') || (buf[0] == 'Y')) {
+      mqtt_is_session_encrypted = true;
+
+      printf("Enter the root CA authenticating the server:\n");
+      lwip_app_get_keys(ca_certificate, sizeof(ca_certificate));
+
+      printf("\nEnter the device certificate:\n");
+      lwip_app_get_keys(device_certificate, sizeof(device_certificate));
+
+      printf("\nEnter the device key:\n");
+      lwip_app_get_keys(device_key, sizeof(device_key));
+    } else {
+      // Stop storing an old certificates/keys
+      memset(ca_certificate, '\0', sizeof(ca_certificate));
+      memset(device_certificate, '\0', sizeof(device_certificate));
+      memset(device_key, '\0', sizeof(device_key));
+    }
+
+    // Update the NVM fields with the new configuration
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_BROKER, (void *)mqtt_broker_address, sizeof(mqtt_broker_address));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_PORT, (void *)&mqtt_broker_port, sizeof(mqtt_broker_port));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_CLIENT_ID, (void *)mqtt_client_id, sizeof(mqtt_client_id));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_PUBLISH_TOPIC, (void *)mqtt_publish_topic, sizeof(mqtt_publish_topic));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_SUBSCRIBE_TOPIC, (void *)mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_USERNAME, (void *)mqtt_username, sizeof(mqtt_username));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_PASSWORD, (void *)mqtt_password, sizeof(mqtt_password));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_CA_CERTIFICATE, (void *)ca_certificate, sizeof(ca_certificate));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_DEVICE_CERTIFICATE, (void *)device_certificate, sizeof(device_certificate));
+    nvm3_writeData(&nvm3_handle, NVM3_KEY_MQTT_DEVICE_KEY, (void *)device_key, sizeof(device_key));
   }
 
   printf("\n");
@@ -743,13 +848,11 @@ static int lwip_app_mqtt_initialization (void)
  *****************************************************************************/
 static int lwip_app_mqtt_connection (void)
 {
-  uint8_t *ptr_ip = (uint8_t *)&mqtt_broker_ip.addr;
   int ret = -1;
   RTOS_ERR err;
 
   if (mqtt_client != NULL) {
-    printf("Connecting to MQTT broker (%u.%u.%u.%u)...\r\n",
-           ptr_ip[0], ptr_ip[1], ptr_ip[2], ptr_ip[3]);
+    printf("Connecting to MQTT broker (%s)...\r\n", ipaddr_ntoa(&mqtt_broker_ip));
 
     OSTaskSemSet(NULL, 0, &err);
 
@@ -867,6 +970,7 @@ void lwip_button_handler (uint32_t button_id)
  ******************************************************************************/
 static void lwip_task(void *p_arg)
 {
+  // Use Google servers as primary and secondary DNS server
   ip_addr_t prim_dns_addr = IPADDR4_INIT_BYTES(8, 8, 8, 8);
   ip_addr_t sec_dns_addr = IPADDR4_INIT_BYTES(8, 8, 4, 4);
   void *evt_data = NULL;
@@ -880,7 +984,7 @@ static void lwip_task(void *p_arg)
   tcpip_init(NULL, NULL);
 
   if (use_dhcp_client) {
-    /* Start DHCP Client */
+    // Start DHCP Client
     dhcpclient_start();
   }
 

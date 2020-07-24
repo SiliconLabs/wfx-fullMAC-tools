@@ -42,7 +42,7 @@ SemaphoreHandle_t sdioDMASemaphore;
 sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)
 {
   SDIO_InitTypeDef Init;
-  Init.ClockEdge           = SDIO_CLOCK_EDGE_FALLING;
+  Init.ClockEdge           = SDIO_CLOCK_EDGE_RISING;  //STM32F429 Errata
   Init.ClockBypass         = SDIO_CLOCK_BYPASS_DISABLE;
   Init.ClockPowerSave      = SDIO_CLOCK_POWER_SAVE_DISABLE;
   Init.BusWide             = SDIO_BUS_WIDE_4B;

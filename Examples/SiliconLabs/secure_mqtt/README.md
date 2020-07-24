@@ -3,7 +3,8 @@
 The purpose of this application is to provide an example of secure MQTT client implementation using a WFx chip and the FMAC driver.
 The lwIP stack and Mbed TLS libraries being already used by WFx projects, the natural choice has been to use the MQTT client implementation
 provided by the lwIP stack and the TLS layer implementation provided by Mbed TLS. A comforting reason is that Mbed TLS is intended to be easily 
-integrated to the lwIP stack.
+integrated to the lwIP stack. Additionally the Non-Volatile Memory driver, NVM3, provided in the SDK, is used in order to keep the configuration
+between reboots and thus simplify the example use.
 
 ## Requirements
 
@@ -36,7 +37,7 @@ Please follow the instructions related to the platform suiting your case:
 
 ## Start the Example
 
-1. Once the binary file transferred, you should be prompted on the serial terminal. 
+1. Once the binary file transferred, you should be prompted on the serial terminal to provide information.
 2. Enter the SSID and Passkey of the Wi-Fi Access Point you want your product to connect.
 3. Wait for the Wi-Fi connection establishment.
 4. Enter the MQTT broker address, both IP and Domain address are supported.
@@ -55,17 +56,22 @@ Please follow the instructions related to the platform suiting your case:
 	* Copy/Paste each certificate/key (x509 PEM format) in the terminal.
 	* Validate each item by pressing Enter.
 
-	> The certificates/keys are then stored at the end of the internal Flash memory, allowing you to skip this step between reboots.
-
 11. Once the example correctly started, a message containing the LED states is sent every second on the publish topic selected previously.
-
-Additionally:
-
-* Pressing the push buttons also sends a message, containing the name of the button pushed, on the publish topic. And the associated LED is toggled allowing to control the application state.
-* The state of LEDs can also be changed remotely by sending a JSON message on the subscribe topic. The message must contain the name of LED to change the state (i.e. `LED0` or `LED1`) and
-the wanted state (i.e. `On` or `Off`). Here is an example of message accepted by the application `{"name":"LED0","state":"On"}`.
+12. Play with the pushbuttons on the board, on each pressure a message, containing the name of the button pushed, is sent on the publish topic.
+And the associated LED is toggled allowing to control the application state.
+13. Send a message on the subscribe topic, either from the cloud interface or from another MQTT client, to remotely change the LED state.
+The message must follow this format `{"name":"LED0","state":"On"}` to by accepted by the application, where the field _name_ contains the name of LED to change the state (i.e. `LED0` or `LED1`)
+and the field _state_ contains the requested state (i.e. `On` or `Off`).
 
 	> Keep in mind to escape the quotes in the message to send if you use a Shell, making the real message to send: `{\"name\":\"LED0\",\"state\":\"On\"}`.
+	
+14. Execute a reboot, either by pressing the reset button of the board or by unplugging then plugging it again.
+The result of this action let you see that all the information regarding the Wi-Fi and MQTT connections have been kept in memory.
+The MQTT message sending can restart as before, i.e. with the same configuration, or a new configuration can be applied.
+Notice that the Wi-Fi information are independent from the MQTT information, meaning that a new Wi-Fi configuration or a new MQTT configuration can be applied without needing to reconfigure the other one.
+
+	> If the **Page Erage** option is selected in the **advanced settings...** menu of the Simplicity Flash Commander tool, the information stored in the NVM will stay intact during a firmware download,
+    as long as the new firmware doesn't overlap.	
 
 ## TLS Security
 
@@ -292,4 +298,10 @@ to this topic, in this case the MQTT client monitoring the traffic.
 **Windows:** `& 'C:\Program Files\mosquitto\mosquitto_pub.exe' -h localhost -t "test/broker" -m "Hello World!" --cafile .\ca.crt --cert .\mosquitto_client.crt --key .\mosquitto_client.key`
 
 **Linux:** `mosquitto_pub -h localhost -t "test/broker" -m "Hello World!" --cafile .\ca.crt --cert .\mosquitto_client.crt --key .\mosquitto_client.key`
+
+
+## NVM3
+
+NVM3 is the name of the driver provided in the SDK and used in this example to keep the configurations between reboots, for more information about NVM3
+please refer to [AN1135 Using Third Generation NonVolatile Memory (NVM3) Data Storage](https://www.silabs.com/documents/public/application-notes/an1135-using-third-generation-nonvolatile-memory.pdf).
  

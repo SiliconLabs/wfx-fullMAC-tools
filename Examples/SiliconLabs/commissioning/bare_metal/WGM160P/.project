@@ -165,10 +165,5 @@
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/SLSTK3701A/src/lwip_host/apps</locationURI>
 		</link>
-		<link>
-			<name>src/lwip_host/fsdata</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/fsdata</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>

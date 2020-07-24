@@ -14,7 +14,7 @@ SL WFX Common CLI is a library with the purpose to provide a Command Line Interf
 
 The SL WFX Common CLI is composed of three layers listed below from top to bottom:
 
-* **Module layer**: this layer is composed of software modules and each module regroups commands related to a feature. This allows to control with a fine granulartiy which modules to add to an application.
+* **Module layer**: this layer is composed of software modules and each module regroups commands related to a feature. This allows to control with a fine granularity which modules to add to an application.
 * **Shell Generic layer**: this layer provides generic shell functions, allowing the modules to register commands, interact with the input/output and wait for events with an abstraction of the OS and the target on which the application is running.
 * **Shell Specific layer**: this layer implements the functions required by the Shell Generic layer with the specificies related to the OS and the target on which the application is running.
 

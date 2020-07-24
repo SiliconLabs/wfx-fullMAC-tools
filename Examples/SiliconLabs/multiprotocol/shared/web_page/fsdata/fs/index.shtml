@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="icon" href="silabs/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="silabs/bootstrap.min.specific.css">
+    <link rel="stylesheet" href="silabs/silabs_theme.min.specific.css">
+    <link rel="stylesheet" href="silabs/jquery.mobile.icons_1.4.5.min.css">
+    <link rel="stylesheet" href="silabs/jquery.mobile.structure_1.4.5.min.specific.css" />
+    <script src="silabs/jquery_2.2.4.min.js"></script>
+    <script src="silabs/jquery.mobile_1.4.5.min.js"></script>
+    <title>Silicon Labs BLE/Wi-Fi Demo</title>
+  </head>
+
+  <body>
+    <div data-role="header" data-theme="a">
+      <div class="dropdown" id="dropdown">
+        <button class="dropbtn" data-icon="bars" data-iconpos="notext" style="margin:5px;"></button>
+        <div class="dropdown-content">
+          <a href="https://www.silabs.com/products/wireless/wi-fi" target="_blank">Wi-Fi Product Page</a>
+          <a href="https://docs.silabs.com/wifi/" target="_blank">Wi-Fi Documentation</a>
+          <a href="https://www.silabs.com/community/wireless/wi-fi/forum" target="_blank">Wi-Fi Community Forum</a>
+        </div>
+      </div>
+      <h1>Silicon Labs BLE / Wi-Fi</h1>
+    </div>
+    <div class="flex-container" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+      <div class="clients" id="master_ble">
+        <div class="ent" id="master" name="Master" style="display: none;">
+          <button data-icon="delete" data-iconpos="notext" onclick="openValidationBox('Disconnect Master BLE', disconnectMaster);" style="right:2px;top:0px;position:absolute;"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>Name</th>
+                <th id="master_name"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="master_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+      </div>
+      <div class="device" style="max-width:300px;">
+        <div class="ent" name="EFR32" id="efr32">
+          <ul class="pk">
+            <div class="flex-container" style="width:100%;display:flex;flex-wrap:wrap;overflow: hidden;">
+              <div class="border_box" id="efr32_img_box" style="flex: 100%;" align="center">
+                <img src="silabs/images/efr32mg.jpg">
+              </div>
+              <div class="border_box" style="flex: 100%;">
+                <h3 style="text-align:center;margin-top: 10px;">Light</h3>
+                <div align="center">
+                  <select name="btn_leds" id="btn_leds" data-theme="c" data-track-theme="d" data-role="slider" style="display: block;" onchange="toggleLeds();">
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                  </select>
+                </div>
+              </div>
+              <div class="border_box" id="ble_box" style="flex: 100%;padding-left: 5px;">
+                <h3 style="margin-top: 10px;">BLE</h3>
+                <table class="tg">
+                  <tr>
+                    <th>Name</th>
+                    <th id="ble_name"></th>
+                  </tr>
+                  <tr>
+                    <th>MAC</th>
+                    <th id="ble_mac"></th>
+                  </tr>
+                </table>
+                <table class="tg">
+                  <tr>
+                    <td>
+                      <h3 style="padding-left: 2px;">Advertisement</h3>
+                    </td>
+                    <td style="padding-left:10px;">
+                      <select name="btn_ble_adv" id="btn_ble_adv" data-theme="c" data-track-theme="d" data-role="slider" style="display: block;" onchange="toggleBleAdvertisement();">
+                        <option value="off">Off</option>
+                        <option value="on">On</option>
+                      </select>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <div class="ap" style="max-width: 200px;">
+        <div class="ent" name="Wi-Fi Access Point" id="ap" style="display: none;">
+          <button data-icon="delete" data-iconpos="notext" onclick="openValidationBox('Disconnect from ' + $('#ap_ssid').text(), stopStation);" style="right:2px;top:0px;position:absolute;"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>SSID</th>
+                <th id="ap_ssid"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="ap_mac"></th>
+              </tr>
+              <tr>
+                <th>Security</th>
+                <th id="ap_secu"></th>
+              </tr>
+              <tr>
+                <th>Channel</th>
+                <th id="ap_channel"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+      </div>
+      <div class="device" style="max-width:300px;">
+        <div class="ent" name="WF200" id="wf200">
+          <ul class="pk">
+            <div class="flex-container" style="width:100%;display:flex;flex-wrap:wrap;overflow: hidden;">
+              <div class="border_box" id="wf200_img_box" style="flex: 100%;" align="center">
+                <img src="silabs/images/wf200.jpg">
+              </div>
+              <div class="border_box" style="flex: 100%;">
+              </div>
+              <div class="border_box" id="softap_box" style="flex: 100%;padding-left: 5px;">
+                <table>
+                  <tr>
+                    <td style="padding-right:5px;">
+                      <h3>SoftAP</h3>
+                    </td>
+                    <td style="padding-right:5px;">
+                      <button id="softap_state" data-icon="power" data-iconpos="notext" onclick="openValidationBox('Turn the SoftAP interface ' + station_prev_state, toggleSoftapState);"></button>
+                    </td>
+                  </tr>
+                </table>
+                <table class="tg">
+                  <tr>
+                    <th>SSID</th>
+                    <th id="softap_ssid"></th>
+                  </tr>
+                  <tr>
+                    <th>IP</th>
+                    <th id="softap_ip"></th>
+                  </tr>
+                  <tr>
+                    <th>MAC</th>
+                    <th id="softap_mac"></th>
+                  </tr>
+                  <tr>
+                    <th>Security</th>
+                    <th id="softap_secu"></th>
+                  </tr>
+                  <tr>
+                    <th>Channel</th>
+                    <th id="softap_channel"></th>
+                  </tr>
+                </table>
+              </div>
+              <div class="border_box" id="station_box" style="flex: 100%;padding-left: 5px;">
+                <h3 style="display: inline-block;margin-top: 10px;">Station</h3>
+                <table class="tg">
+                  <tr>
+                    <th>IP</th>
+                    <th id="station_ip" style="padding-left: 20px;"></th>
+                  </tr>
+                  <tr>
+                    <th>MAC</th>
+                    <th id="station_mac" style="padding-left: 20px;"></th>
+                  </tr>
+                </table>
+                <div class="flex-container" style="display:flex;justify-content: center;max-width:inherit;">
+                  <div class="ent" name="Scan List" id="scan" style="flex: 100%;">
+                    <button data-icon="refresh" data-iconpos="notext" onclick="startScan()" style="z-index : 3;left: 3px;top: 0px;position : absolute;"></button>
+                    <ul class="pk">
+                      <div class="list-group list-group-flush" id="scan_list" style="max-height:500px;overflow-y:auto;-webkit-overflow-scrolling: touch;min-height:10px">
+                      </div>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <div class="clients" id="clients">
+        <div class="ent" id="client1" name="Client 1">
+          <button data-icon="delete" data-iconpos="notext" style="top:0px" onclick="openValidationBox('Disconnect ' + $('#client1').attr('name'), disconnectClient.bind(null, ($('#client1_mac').text())));"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>IP</th>
+                <th id="client1_ip"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="client1_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+        <div class="ent" id="client2" name="Client 2">
+          <button data-icon="delete" data-iconpos="notext" style="top:0px" onclick="openValidationBox('Disconnect ' + $('#client2').attr('name'), disconnectClient.bind(null, ($('#client2_mac').text())));"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>IP</th>
+                <th id="client2_ip"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="client2_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+        <div class="ent" id="client3" name="Client 3">
+          <button data-icon="delete" data-iconpos="notext" style="top:0px" onclick="openValidationBox('Disconnect ' + $('#client3').attr('name'), disconnectClient.bind(null, ($('#client3_mac').text())));"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>IP</th>
+                <th id="client3_ip"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="client3_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+        <div class="ent" id="client4" name="Client 4">
+          <button data-icon="delete" data-iconpos="notext" style="top:0px" onclick="openValidationBox('Disconnect ' + $('#client4').attr('name'), disconnectClient.bind(null, ($('#client4_mac').text())));"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>IP</th>
+                <th id="client4_ip"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="client4_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+        <div class="ent" id="client5" name="Client 5">
+          <button data-icon="delete" data-iconpos="notext" style="top:0px" onclick="openValidationBox('Disconnect ' + $('#client5').attr('name'), disconnectClient.bind(null, ($('#client5_mac').text())));"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>IP</th>
+                <th id="client5_ip"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="client5_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+        <div class="ent" id="client6" name="Client 6">
+          <button data-icon="delete" data-iconpos="notext" style="top:0px" onclick="openValidationBox('Disconnect ' + $('#client6').attr('name'), disconnectClient.bind(null, ($('#client6_mac').text())));"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>IP</th>
+                <th id="client6_ip"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="client6_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+        <div class="ent" id="client7" name="Client 7">
+          <button data-icon="delete" data-iconpos="notext" style="top:0px" onclick="openValidationBox('Disconnect ' + $('#client7').attr('name'), disconnectClient.bind(null, ($('#client7_mac').text())));"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>IP</th>
+                <th id="client7_ip"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="client7_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+        <div class="ent" id="client8" name="Client 8">
+          <button data-icon="delete" data-iconpos="notext" style="top:0px" onclick="openValidationBox('Disconnect ' + $('#client8').attr('name'), disconnectClient.bind(null, ($('#client8_mac').text())));"></button>
+          <ul class="pk">
+            <table class="tg">
+              <tr>
+                <th>IP</th>
+                <th id="client8_ip"></th>
+              </tr>
+              <tr>
+                <th>MAC</th>
+                <th id="client8_mac"></th>
+              </tr>
+            </table>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div id="connection_modal" class="modal">
+      <span onclick="document.getElementById('connection_modal').style.display='none'" class="close" title="Close">&times;</span>
+      <iframe name="dummy" style="display:none;"></iframe>
+      <form class="modal-content" action="/start_station.cgi" method="get" target="dummy" style="padding:20px;">
+        <div class="container">
+          <label for="ssid">SSID</label>
+          <input type="text" id="ssid" name="ssid" readonly required>
+          <label for="pwd">Password</label>
+          <input type="password" placeholder="Enter Password" id="pwd" name="pwd" required>
+          <label for="secu">Security</label>
+          <input type="text" id="secu" name="secu" readonly required>
+          <button type="submit" id="connect_btn" onclick="connection_modal.style.display = 'none';">Connect</button>
+        </div>
+      </form>
+    </div>
+    <div class="box_link" id="relefrwfx" prnt="efr32_img_box" chld="wf200_img_box" color="mediumblue" style="display:block">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relble" prnt="ble_box" chld="master">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relap" prnt="station_box" chld="ap">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relclient1" prnt="client1" chld="softap_box">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relclient2" prnt="client2" chld="softap_box">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relclient3" prnt="client3" chld="softap_box">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relclient4" prnt="client4" chld="softap_box">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relclient5" prnt="client5" chld="softap_box">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relclient6" prnt="client6" chld="softap_box">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relclient7" prnt="client7" chld="softap_box">
+      <div class="relT"></div>
+    </div>
+    <div class="box_link" id="relclient8" prnt="client8" chld="softap_box">
+      <div class="relT"></div>
+    </div>
+
+    <script>
+      var leds_state = 3;
+      var events_en = true;
+      var station_prev_state = "on";
+      var ble_adv_prev_state = "on";
+  
+      function calculateLinkPosition() {
+  
+        $(".box_link").each(function() {
+          var link = $(this);
+  
+          if (link.css("display")) {
+            var prnt = $("#" + $(this).attr("prnt"));
+            var chld = $("#" + $(this).attr("chld"));
+            var color = $(this).attr("color");
+
+            var pl = prnt.offset().left;
+            var cl = chld.offset().left;
+
+            var sx = pl + prnt.outerWidth();
+            var sy = prnt.offset().top + Math.round(prnt.outerHeight() / 2);
+            var ex = cl + chld.outerWidth();
+            var ey = chld.offset().top + Math.round(chld.outerHeight() / 2);
+
+            var t = sy > ey ? ey : sy;
+            var l = sx > ex ? ex : sx;
+            var cx = sx - ex;
+            var cy = sy - ey;
+            var height = Math.abs(cy);
+            var width;
+            var wc;
+            var relt_hght;
+            var use_class;
+            var offset = 0;
+
+            link.toggleClass("relLB relRB relLT relRT", false);
+            if ((cl >= pl) && (cl <= sx)) {
+              use_class = sy > ey ? "relLT" : "relLB";
+              l = pl;
+              relt_hght = height;
+              width = cl - l;
+              wc = 0;
+            } else if ((pl >= cl) && (pl <= ex)) {
+              use_class = sy > ey ? "relLB" : "relLT";
+              l = cl;
+              relt_hght = height;
+              width = pl - l;
+              wc = 0;
+            } else if ((cx >= 0) && (cy >= 0)) {
+              use_class = "relRT";
+              relt_hght = height;
+              offset = 5;
+              width = Math.round((pl - l) / 2);
+              wc = width;
+            } else if ((cx > 0) && (cy < 0)) {
+              use_class= "relRB";
+              relt_hght = 0;
+              offset = 5;
+              width = Math.round((pl - l) / 2);
+              wc = width;
+            } else if ((cx < 0) && (cy > 0)) {
+              use_class= "relRB";
+              relt_hght = 0;
+              width = Math.round((cl - l) / 2);
+              wc = width;
+            } else if ((cx < 0) && (cy < 0)) {
+              use_class = "relRT";
+              relt_hght = height;
+              width = Math.round((cl - l) / 2);
+              wc = width;
+            }
+            link.toggleClass(use_class, true);
+
+            link.offset({
+              top: t,
+              left: l
+            });
+            link.height(height);
+            link.width(width-offset);
+  
+            link.children(".relT").offset({
+              top: t + relt_hght,
+              left: l + width-offset
+            });
+            link.children(".relT").width(wc+offset);
+
+            if (color != undefined) {
+              link.css("border-color", color);
+              link.children(".relT").css("border-color", color);
+            }
+          }
+        });
+      }
+  
+      function toggleLeds() {
+        if (events_en == true) {
+          events_en = false;
+  
+          $.ajax({
+            type: 'GET',
+            url: '/toggle_leds.cgi?&buster=' + new Date().getTime(),
+            processData: false,
+            success: function(info) {
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          setTimeout(function() {
+            toggleLeds();
+          }, 400);
+        }
+      }
+
+      function toggleBleAdvertisement() {
+        if (events_en == true) {
+          events_en = false;
+  
+          if (ble_adv_prev_state == "off") {
+            var action = '/stop_ble_beacon.cgi?&buster=';
+          } else {
+            var action = '/start_ble_beacon.cgi?&buster=';
+          }
+  
+          $.ajax({
+            type: 'GET',
+            url: action + new Date().getTime(),
+            processData: false,
+            success: function(info) {
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          setTimeout(toggleBleAdvertisement, 400);
+        }
+      }
+
+      function disconnectMaster() {
+        if (events_en == true) {
+          events_en = false;
+  
+          $.ajax({
+            type: 'GET',
+            url: '/disconnect_master.cgi?&buster=' + new Date().getTime(),
+            processData: false,
+            success: function(info) {
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          setTimeout(disconnectMaster, 400);
+        }
+      }
+  
+      function stopStation() {
+        if (events_en == true) {
+          events_en = false;
+  
+          $.ajax({
+            type: 'GET',
+            url: '/stop_station.cgi?&buster=' + new Date().getTime(),
+            processData: false,
+            success: function(info) {
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          setTimeout(stopStation, 400);
+        }
+      }
+  
+      function toggleSoftapState() {
+        if (events_en == true) {
+          events_en = false;
+  
+          if (station_prev_state == "off") {
+            var action = '/stop_softap.cgi?&buster=';
+          } else {
+            var action = '/start_softap.cgi?&buster=';
+          }
+  
+          $.ajax({
+            type: 'GET',
+            url: action + new Date().getTime(),
+            processData: false,
+            success: function(info) {
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          setTimeout(toggleSoftapState, 400);
+        }
+      }
+  
+      function disconnectClient(mac_addr) {
+        if (events_en == true) {
+          events_en = false;
+  
+          $.ajax({
+            type: 'GET',
+            url: '/disconnect_client.cgi?&buster=' + new Date().getTime(),
+            data: "mac=" + mac_addr,
+            processData: false,
+            success: function(info) {
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          setTimeout(disconnectClient, 400);
+        }
+      }
+  
+      function startScan() {
+        if (events_en == true) {
+          events_en = false;
+  
+          $.ajax({
+            type: 'GET',
+            url: '/start_scan.cgi?&buster=' + new Date().getTime(),
+            dataType: 'json',
+            success: function(scan_results) {
+              $("#scan_list").html("");
+              $.each(scan_results, function(i, list) {
+                $("#scan_list").append("<li onclick='openConnectionTab(\"" +
+                  list.ssid + "\", \"" + list.secu + "\");' class='list-group-item list-group-item-action'>" +
+                  list.ssid + "<div class='float-right' style='white-space:nowrap;''><span class='badge badge-secondary mx-1'>" +
+                  list.rssi + " dBm</span><span class='badge badge-secondary'>" + list.secu + "</span></div></li>");
+              });
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              calculateLinkPosition();
+              console.log(errorThrown);
+            }
+          });
+        } else {
+          setTimeout(startScan, 400);
+        }
+      }
+  
+      function getLedsState() {
+        if (events_en == true) {
+          events_en = false;
+  
+          $.ajax({
+            type: 'GET',
+            url: '/get_leds_state.cgi?&buster=' + new Date().getTime(),
+            dataType: 'json',
+            success: function(info) {
+              if (leds_state != info.state) {
+                leds_state = info.state;
+                $("#btn_leds").slider('disable');
+                if (info.state == 1) {
+                  $("#btn_leds").val('on');
+                } else {
+                  $("#btn_leds").val('off');
+                }
+                $("#btn_leds").slider('refresh');
+                $("#btn_leds").slider('enable');
+              }
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(errorThrown);
+            }
+          });
+        }
+      }
+  
+      function getInterfaceStates() {
+        if (events_en == true) {
+          events_en = false;
+  
+          $.ajax({
+            type: 'GET',
+            url: '/get_interface_states.cgi?&buster=' + new Date().getTime(),
+            dataType: 'json',
+            success: function(info) {
+              if(info.event != ""){
+                alert(info.event);
+              }
+              $("#btn_ble_adv").slider('disable');
+              if (info.ble.state & 0x1) {
+                ble_adv_prev_state = "off";
+                $("#btn_ble_adv").val('on');
+              } else {
+                ble_adv_prev_state = "on";
+                $("#btn_ble_adv").val('off');
+              }
+              $("#btn_ble_adv").slider('refresh');
+              $("#btn_ble_adv").slider('enable');
+              $("#ble_name").text(info.ble.name);
+              $("#ble_mac").text(info.ble.mac);
+              $("#master_ble").children(".ent").css("display", "none");
+              $("#relble").css("display", "none");
+              $.each(info.ble.master, function(i, m) {
+                $("#master").css("display", "block");
+                $("#master_name").text(m.name)
+                $("#master_mac").text(m.mac)
+                $("#relble").css("display", "block");
+              });
+
+              if (info.softap.state == 1) {
+                station_prev_state = "off";
+                $("#softap_state").removeClass("ui-btn-c");
+                $("#softap_state").addClass("ui-btn-a");
+              } else {
+                station_prev_state = "on";
+                $("#softap_state").removeClass("ui-btn-a");
+                $("#softap_state").addClass("ui-btn-c");
+              }
+              $("#softap_ssid").text(info.softap.ssid);
+              $("#softap_ip").text(info.softap.ip);
+              $("#softap_mac").text(info.softap.mac);
+              $("#softap_secu").text(info.softap.secu);
+              $("#softap_channel").text(info.softap.channel);
+              $("#clients").children(".ent").css("display", "none");
+              $("#relclient1").css("display", "none");
+              $("#relclient2").css("display", "none");
+              $("#relclient3").css("display", "none");
+              $("#relclient4").css("display", "none");
+              $("#relclient5").css("display", "none");
+              $("#relclient6").css("display", "none");
+              $("#relclient7").css("display", "none");
+              $("#relclient8").css("display", "none");
+              $.each(info.softap.clients, function(i, client) {
+                var id = i + 1;
+                var client_name = $("#client" + id);
+                var client_ip = $("#client" + id + "_ip");
+                var client_mac = $("#client" + id + "_mac");
+                var client_link = $("#relclient" + id);
+                client_name.css("display", "block");
+                client_name.attr("name", client.name);
+                client_ip.text(client.ip);
+                client_mac.text(client.mac);
+                client_link.css("display", "block");
+              });
+              if (info.station.state == 1) {
+                $("#ap").show();
+                $("#relap").css("display", "block");
+                $("#connect_btn").prop("disabled", true);
+              } else {
+                $("#ap").hide();
+                $("#relap").css("display", "none");
+                $("#connect_btn").prop("disabled", false);
+              }
+              $("#station_ip").text(info.station.ip);
+              $("#station_mac").text(info.station.mac);
+              $("#ap_ssid").text(info.station.ap.ssid);
+              $("#ap_mac").text(info.station.ap.mac);
+              $("#ap_secu").text(info.station.ap.secu);
+              $("#ap_channel").text(info.station.ap.channel);
+              calculateLinkPosition();
+              events_en = true;
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              events_en = true;
+              console.log(jqXhr);
+              console.log(errorThrown);
+            }
+          });
+        }
+      }
+  
+      function openConnectionTab(ssid, secu) {
+        $("#connection_modal").show();
+        $("#ssid").val(ssid);
+        $("#secu").val(secu);
+        $("#pwd").val("");
+        if (secu == "OPEN") {
+          $("#pwd").hide();
+          $("#pwd").prop('required', false);
+        } else {
+          $("#pwd").show();
+          $("#pwd").prop('required', true);
+        }
+      }
+  
+      function openValidationBox(text, action) {
+        if (confirm(text)) {
+          action();
+        }
+      }
+  
+      function initFunction() {
+        getInterfaceStates();
+        setInterval(getLedsState, 500);
+        setInterval(getInterfaceStates, 1900);
+        var i = new Image();
+        i.onload = function() {
+          $("#dropdown").show();
+        };
+        i.onerror = function() {
+          $("#dropdown").hide();
+        };
+        i.src = 'http://www.google-analytics.com/__utm.gif';
+      }
+  
+      if (document.readyState === "complete" ||
+        (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+        initFunction();
+      } else {
+        document.addEventListener("DOMContentLoaded", function() {
+          initFunction();
+        });
+      }
+  
+      window.onclick = function(event) {
+        if (event.target == connection_modal) {
+          $("#connection_modal").hide();
+        }
+      }
+  
+      window.addEventListener("resize", calculateLinkPosition);
+    </script>
+
+  </body>
+
+</html>

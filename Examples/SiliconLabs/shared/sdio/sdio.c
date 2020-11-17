@@ -141,6 +141,7 @@ void SDIO_Init (SDIO_TypeDef *sdio, const SDIO_Init_TypeDef_t *init)
   sdio->HOSTCTRL1 |=      SDIO_HOSTCTRL1_SDBUSPOWER;
 
   NVIC_ClearPendingIRQ(SDIO_IRQn);
+  NVIC_SetPriority(SDIO_IRQn,1);
   NVIC_EnableIRQ(SDIO_IRQn);
 }
 

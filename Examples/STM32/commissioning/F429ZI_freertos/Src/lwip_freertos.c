@@ -29,6 +29,7 @@
 #include "sl_wfx.h"
 #include "sl_wfx_host.h"
 #include "sl_wfx_host_pin.h"
+#include "sl_wfx_sae.h"
 #include "dhcp_server.h"
 #include "dhcp_client.h"
 #include "demo_config.h"
@@ -36,7 +37,8 @@
 
 extern sl_wfx_context_t wifi;
 extern scan_result_list_t scan_list[];
-extern uint8_t scan_count_web; 
+extern uint8_t scan_count_web;
+extern SemaphoreHandle_t scan_sem;
 
 /* station and softAP network interface structures */
 struct netif sta_netif, ap_netif;
@@ -182,28 +184,41 @@ static const char *toggle_led_cgi_handler(int index, int num_params,
 static const char *start_station_cgi_handler(int index, int num_params,
                                              char *pc_param[], char *pc_value[])
 {
-  sl_status_t status;
-  int ssid_length, passkey_length;
-  
+  sl_status_t status = SL_STATUS_OK;
+  int ssid_length = 0, passkey_length = 0;
+  int ap_index = -1;
+
   if (num_params == 3) {
-    if (strcmp(pc_param[0], "ssid") == 0) 
+    if (strcmp(pc_param[0], "ssid") == 0)
     {
       url_decode(pc_value[0]);
-      ssid_length = strlen(pc_value[0]);
-      memset(wlan_ssid, 0, 32);
-      strncpy(wlan_ssid, pc_value[0], ssid_length);
+      memset(wlan_ssid, 0, sizeof(wlan_ssid));
+      strncpy(wlan_ssid, pc_value[0], sizeof(wlan_ssid)-1);
+      ssid_length = strlen(wlan_ssid);
+      // Retrieve the AP information from the scan list, presuming that the
+      // first matching SSID is the one (not necessarily true).
+      for (uint16_t i = 0; i < scan_count_web; i++) {
+        if (strcmp((char *) scan_list[i].ssid_def.ssid, wlan_ssid) == 0) {
+          ap_index = i;
+          memcpy(&wlan_bssid, scan_list[i].mac, SL_WFX_BSSID_SIZE);
+          break;
+        }
+      }
     }
-    if (strcmp(pc_param[1], "pwd") == 0) 
+    if (strcmp(pc_param[1], "pwd") == 0)
     {
       url_decode(pc_value[1]);
-      passkey_length = strlen(pc_value[1]);
-      memset(wlan_passkey, 0, 64);
-      strncpy(wlan_passkey, pc_value[1], passkey_length);
+      memset(wlan_passkey, 0, sizeof(wlan_passkey));
+      strncpy(wlan_passkey, pc_value[1], sizeof(wlan_passkey)-1);
+      passkey_length = strlen(wlan_passkey);
     }
     if (strcmp(pc_param[2], "secu") == 0)
     {
       url_decode(pc_value[2]);
-      if ((strcmp(pc_value[2], "WPA2") == 0) || (strcmp(pc_value[2], "WPA") == 0))
+      if (strcmp(pc_value[2], "WPA3") == 0)
+      {
+        wlan_security = WFM_SECURITY_MODE_WPA3_SAE;
+      }else if ((strcmp(pc_value[2], "WPA2") == 0) || (strcmp(pc_value[2], "WPA") == 0))
       {
         wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
       }else if (strcmp(pc_value[2], "WEP") == 0)
@@ -216,20 +231,31 @@ static const char *start_station_cgi_handler(int index, int num_params,
     }
     if (!(wifi.state & SL_WFX_STA_INTERFACE_CONNECTED))
     {
-      status = sl_wfx_send_join_command((uint8_t*) wlan_ssid, ssid_length,
-                                        NULL, 0, wlan_security, 0, 0,
-                                        (uint8_t*) wlan_passkey, passkey_length,
-                                        NULL, 0);
-      if(status != SL_STATUS_OK)
-      {
-        printf("Connection command error\r\n");
-        strcpy(event_log, "Connection command error");
-      } else {
-        /*if connected, latch the MAC address and the channel from the scan list*/
-        for (uint16_t i = 0; i < SL_WFX_MAX_SCAN_RESULTS; i++) {
-          if (strcmp((char *) scan_list[i].ssid_def.ssid, wlan_ssid) == 0) {
-            ap_channel = scan_list[i].channel;
-            memcpy(&ap_mac, scan_list[i].mac, SL_WFX_BSSID_SIZE);
+      if (wlan_security == WFM_SECURITY_MODE_WPA3_SAE) {
+        status = sl_wfx_sae_prepare(&wifi.mac_addr_0,
+                                    (sl_wfx_mac_address_t *)wlan_bssid,
+                                    (uint8_t *)wlan_passkey,
+                                    strlen(wlan_passkey));
+        if (status != SL_STATUS_OK) {
+          printf("SAE prepare failure\r\n");
+          strcpy(event_log, "SAE prepare failure");
+        }
+      }
+
+      if(status == SL_STATUS_OK) {
+        status = sl_wfx_send_join_command((uint8_t*) wlan_ssid, ssid_length,
+                                          NULL, 0, wlan_security, 0, 0,
+                                          (uint8_t*) wlan_passkey, passkey_length,
+                                          NULL, 0);
+        if(status != SL_STATUS_OK)
+        {
+          printf("Connection command error\r\n");
+          strcpy(event_log, "Connection command error");
+        } else {
+          // Update the local AP information with the scan information
+          if (ap_index >= 0) {
+            ap_channel = scan_list[ap_index].channel;
+            memcpy(&ap_mac, scan_list[ap_index].mac, SL_WFX_BSSID_SIZE);
           }
         }
       }
@@ -315,13 +341,12 @@ static const char *start_scan_cgi_handler(int index, int num_params,
   scan_count_web = 0;
   memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
   
-  xEventGroupClearBits(sl_wfx_event_group, SL_WFX_SCAN_COMPLETE);
+  xSemaphoreTake(scan_sem, 0);
   /* perform a scan on every Wi-Fi channel in active mode */
   result = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0, NULL,0,NULL,0,NULL);
   if ((result == SL_STATUS_OK) || (result == SL_STATUS_WIFI_WARNING))
   {
-    if(xEventGroupWaitBits(sl_wfx_event_group, SL_WFX_SCAN_COMPLETE,
-                           pdTRUE, pdTRUE, 5000/portTICK_PERIOD_MS) == 0)
+    if (xSemaphoreTake(scan_sem, 5000/portTICK_PERIOD_MS) != pdTRUE)
     {
       printf("Scan command timeout\r\n");
     }
@@ -374,9 +399,10 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
       snprintf(string_field, 100, "{\"ssid\":\"%s\", \"rssi\":\"%d\", \"secu\":\"%s\"}",
                (strlen((char *) scan_list[i].ssid_def.ssid) != 0) ? scan_list[i].ssid_def.ssid : "Hidden",
                ((int16_t)(scan_list[i].rcpi - 220)/2),
-               (scan_list[i].security_mode.wpa2) ? "WPA2" : \
-                 ((scan_list[i].security_mode.wpa) ? "WPA" : \
-                   ((scan_list[i].security_mode.wep) ? "WEP": "OPEN")));
+               (scan_list[i].security_mode.wpa3)     ? "WPA3" : \
+                ((scan_list[i].security_mode.wpa2)   ? "WPA2" : \
+                 ((scan_list[i].security_mode.wpa)   ? "WPA"  : \
+                   ((scan_list[i].security_mode.wep) ? "WEP" : "OPEN"))));
       strcat(string_list, string_field);
       if(i != (scan_count_web - 1)) strcat(string_list, ",");
     }
@@ -416,6 +442,7 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
     else if(softap_security == WFM_SECURITY_MODE_WEP)            result = sprintf(pc_insert, "WEP");
     else if(softap_security == WFM_SECURITY_MODE_WPA2_WPA1_PSK)  result = sprintf(pc_insert, "WPA1/WPA2");
     else if(softap_security == WFM_SECURITY_MODE_WPA2_PSK)       result = sprintf(pc_insert, "WPA2");
+    else if(softap_security == WFM_SECURITY_MODE_WPA3_SAE)       result = sprintf(pc_insert, "WPA3");
     break;
   case 8: /* <!--#softap_channel--> */
     result = sprintf(pc_insert, "%d", softap_channel);
@@ -495,6 +522,7 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
     else if(wlan_security == WFM_SECURITY_MODE_WEP)            result = sprintf(pc_insert, "WEP");
     else if(wlan_security == WFM_SECURITY_MODE_WPA2_WPA1_PSK)  result = sprintf(pc_insert, "WPA1/WPA2");
     else if(wlan_security == WFM_SECURITY_MODE_WPA2_PSK)       result = sprintf(pc_insert, "WPA2");
+    else if(wlan_security == WFM_SECURITY_MODE_WPA3_SAE)       result = sprintf(pc_insert, "WPA3");
     break;
   case 16: /* <!--#ap_channel--> */
     result = sprintf(pc_insert, "%d", ap_channel);
@@ -733,7 +761,8 @@ static void Netif_Config(void)
  *****************************************************************************/
 sl_status_t lwip_start(void)
 {
-  osThreadDef(Start, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
+  scan_sem = xSemaphoreCreateBinary();
+  osThreadDef(Start, StartThread, osPriorityNormal, 0, 1024);
   osThreadCreate (osThread(Start), NULL);
   return SL_STATUS_OK;
 }

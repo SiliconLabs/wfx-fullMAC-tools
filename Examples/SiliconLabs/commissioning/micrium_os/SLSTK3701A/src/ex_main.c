@@ -37,10 +37,9 @@
 #include <stdio.h>
 #include <common/include/auth.h>
 #include <common/include/shell.h>
-#ifdef SL_WFX_USE_SECURE_LINK
-#include  <mbedtls/threading.h>
-#endif
+#include <mbedtls/threading.h>
 #include "sleep.h"
+
 #define  EX_MAIN_START_TASK_PRIO              30u
 #define  EX_MAIN_START_TASK_STK_SIZE         512u
 
@@ -119,13 +118,12 @@ int  main(void)
 
   OS_TRACE_INIT(); // Initialize trace if enabled
   OSInit(&err);    // Initialize the Kernel.
-#ifdef SL_WFX_USE_SECURE_LINK
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
   // Enable mbedtls Micrium OS support
 #if defined ( MBEDTLS_THREADING_C )
   THREADING_setup();
 #endif
-#endif
-  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 #ifdef SLEEP_ENABLED
   // Don't allow EM3, since we use LF clocks.
@@ -168,6 +166,7 @@ static void GPIO_Unified_IRQ(void)
 
   // Act on interrupts
   if (interrupt_mask & 0x400) {
+    OSSemPost(&wfx_wakeup_sem, OS_OPT_POST_ALL, &err);
 #ifdef SL_WFX_USE_SPI
     OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
 #endif
@@ -300,13 +299,12 @@ static  void  main_start_task(void  *p_arg)
 
   printf("WF200 Micrium OS LwIP Example\n");
 
-  //start wfx bus communication task.
+  wfx_events_start();
   wfx_bus_start();
 #ifdef SL_WFX_USE_SECURE_LINK
   wfx_securelink_task_start(); // start securelink key renegotiation task
 #endif //SL_WFX_USE_SECURE_LINK
 
-  wifi_start();
   lwip_start();
 
   // Delete the init thread.

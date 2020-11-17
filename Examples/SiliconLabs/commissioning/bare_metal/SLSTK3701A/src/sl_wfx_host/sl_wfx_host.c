@@ -243,33 +243,36 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id,
   uint64_t tmo = sys_now() + timeout_ms;
   sl_status_t status = SL_STATUS_TIMEOUT;
 
-  // Reset the control register value
-  control_register = 0;
-
   do {
-    // Treat frame received
-    sl_wfx_receive_frame(&control_register);
-    // Make sure the waited event has not been overwritten
-    sl_wfx_host_setup_waited_event(confirmation_id);
+    // Make sure that frames have been received
+    if ((wf200_interrupt_event == 1)
+        || ((control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0)) {
 
-    if (confirmation_id == host_context.posted_event_id) {
-      // The waited frame has been received,
-      // update structure and stop waiting
+      // Reset the interrupt flag
+      wf200_interrupt_event = 0;
+      // Treat frame received
+      sl_wfx_receive_frame(&control_register);
 
-      host_context.posted_event_id = 0;
-      if (event_payload_out != NULL) {
-        *event_payload_out = sl_wfx_context->event_payload_buffer;
+#ifdef SL_WFX_USE_SDIO
+      sl_wfx_host_enable_platform_interrupt();
+#endif
+
+      // Make sure the waited event has not been overwritten
+      sl_wfx_host_setup_waited_event(confirmation_id);
+
+      if (confirmation_id == host_context.posted_event_id) {
+        // The waited frame has been received,
+        // update structure and stop waiting
+
+        host_context.posted_event_id = 0;
+        if (event_payload_out != NULL) {
+          *event_payload_out = sl_wfx_context->event_payload_buffer;
+        }
+        status = SL_STATUS_OK;
+        break;
+
       }
-      status = SL_STATUS_OK;
-      break;
-
-    } else {
-      // Waited frame not yet received, wait a while
-      // before treating new received frame
-
-      sl_wfx_host_wait(1);
     }
-
     // FIXME overlap after running almost 50days
   } while (sys_now() < tmo);
 
@@ -278,14 +281,15 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id,
 
 void sl_wfx_process(void)
 {
-  if(wf200_interrupt_event == 1)
-  {
-    // Reset the control register value
-    control_register = 0;
+  // Make sure that frames have been received
+  if ((wf200_interrupt_event == 1)
+      || ((control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0)) {
+
+    // Reset the interrupt flag
+    wf200_interrupt_event = 0;
 
     do
     {
-      wf200_interrupt_event = 0;
       sl_wfx_receive_frame(&control_register);
     }while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 );
 
@@ -385,6 +389,15 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
       sl_wfx_ap_client_disconnected_callback(ap_client_disconnected_indication->body.reason, ap_client_disconnected_indication->body.mac);
       break;
     }
+#ifdef SL_WFX_USE_SECURE_LINK
+    case SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID:
+    {
+      if(host_context.waited_event_id != SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID) {
+        memcpy((void*)&sl_wfx_context->secure_link_exchange_ind,(void*)event_payload, event_payload->header.length);
+      }
+      break;
+    }
+#endif
     case SL_WFX_GENERIC_IND_ID:
     {
       sl_wfx_generic_ind_t* generic_status = (sl_wfx_generic_ind_t*) event_payload;

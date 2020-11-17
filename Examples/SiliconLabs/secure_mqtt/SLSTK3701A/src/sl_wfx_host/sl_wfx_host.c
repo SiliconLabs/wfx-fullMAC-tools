@@ -50,14 +50,14 @@
 #include "sl_wfx_wf200_C0.h"
 
 #include "sl_wfx_task.h"
-#include "udelay.h"
 #include "demo_config.h"
 #include "sl_wfx_host_events.h"
 #include "sl_wfx_host.h"
 
 extern char event_log[];
 
-OS_SEM    wf200_confirmation;
+OS_SEM wfx_confirmation;
+OS_SEM wfx_wakeup_sem;
 
 static OS_MUTEX wfx_mutex;
 
@@ -116,7 +116,7 @@ sl_status_t sl_wfx_host_setup_memory_pools(void)
   Mem_DynPoolCreate("SL WFX Host Buffers",
                     &host_context.buf_pool,
                     DEF_NULL,
-					SL_WFX_HOST_BUFFER_SIZE,
+                    SL_WFX_HOST_BUFFER_SIZE,
                     sizeof(CPU_INT32U),
                     0,
                     LIB_MEM_BLK_QTY_UNLIMITED,
@@ -135,19 +135,31 @@ sl_status_t sl_wfx_host_setup_memory_pools(void)
  *****************************************************************************/
 sl_status_t sl_wfx_host_init(void)
 {
+  sl_status_t status = SL_STATUS_OK;
   RTOS_ERR err;
-  UDELAY_Calibrate();
+  bool error = false;
+
   host_context.wf200_firmware_download_progress = 0;
   host_context.wf200_initialized = 0;
-  OSSemCreate(&wf200_confirmation, "wf200 confirmation", 0, &err);
+  OSSemCreate(&wfx_confirmation, "wfx confirmation", 0, &err);
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-    printf("OS error: sl_wfx_host_init");
+    error = true;
+  }
+  OSSemCreate(&wfx_wakeup_sem, "wfx wakeup", 0, &err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    error = true;
   }
   OSMutexCreate(&wfx_mutex, "wfx host mutex",&err);
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-      printf("OS error: sl_wfx_host_init");
+    error = true;
   }
-  return SL_STATUS_OK;
+
+  if (error) {
+    printf("OS error: sl_wfx_host_init");
+    status = SL_STATUS_FAIL;
+  }
+
+  return status;
 }
 
 /**************************************************************************//**
@@ -224,8 +236,8 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
 
   if (buffer_size > host_context.buf_pool.BlkSize) {
 #ifdef DEBUG
-      printf("Unable to allocate wfx buffer\n");
-      printf("type = %d, buffer_size requested = %d, mem pool blksize = %d\n", (int)type, (int)buffer_size, (int)host_context.buf_pool.BlkSize);
+    printf("Unable to allocate wfx buffer\n");
+    printf("type = %d, buffer_size requested = %d, mem pool blksize = %d\n", (int)type, (int)buffer_size, (int)host_context.buf_pool.BlkSize);
 #endif
     return SL_STATUS_ALLOCATION_FAILED;
   }
@@ -314,9 +326,8 @@ sl_status_t sl_wfx_host_reset_chip(void)
 sl_status_t sl_wfx_host_wait_for_wake_up(void)
 {
   RTOS_ERR err;
-  UDELAY_Delay(1000);
-  UDELAY_Delay(1000);
-  OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_WAKE, OS_OPT_POST_FLAG_SET, &err);
+  OSSemSet(&wfx_wakeup_sem, 0, &err);
+  OSSemPend(&wfx_wakeup_sem, 3, OS_OPT_PEND_BLOCKING, 0, &err);
   return SL_STATUS_OK;
 }
 
@@ -340,7 +351,7 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id, uint32_t 
   RTOS_ERR err;
   while (timeout > 0u) {
     timeout--;
-    OSSemPend(&wf200_confirmation, 1, OS_OPT_PEND_BLOCKING, 0, &err);
+    OSSemPend(&wfx_confirmation, 1, OS_OPT_PEND_BLOCKING, 0, &err);
     if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
       if (confirmation_id == host_context.posted_event_id) {
         if ( event_payload_out != NULL ) {
@@ -459,6 +470,15 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
       sl_wfx_ap_client_disconnected_callback(ap_client_disconnected_indication->body.reason, ap_client_disconnected_indication->body.mac);
       break;
     }
+#ifdef SL_WFX_USE_SECURE_LINK
+    case SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID:
+    {
+      if(host_context.waited_event_id != SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID) {
+        memcpy((void*)&sl_wfx_context->secure_link_exchange_ind,(void*)event_payload, event_payload->header.length);
+      }
+      break;
+    }
+#endif
     case SL_WFX_GENERIC_IND_ID:
     {
       sl_wfx_generic_ind_t* generic_status = (sl_wfx_generic_ind_t*) event_payload;
@@ -473,8 +493,8 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
       for (uint16_t i = 0; i < firmware_exception->header.length; i += 16) {
         printf("hif: %.8x:", i);
         for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_exception->header.length); j ++) {
-            printf(" %.2x", *exception_tmp);
-            exception_tmp++;
+          printf(" %.2x", *exception_tmp);
+          exception_tmp++;
         }
         printf("\r\n");
       }
@@ -488,8 +508,8 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
       for (uint16_t i = 0; i < firmware_error->header.length; i += 16) {
         printf("hif: %.8x:", i);
         for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_error->header.length); j ++) {
-            printf(" %.2x", *error_tmp);
-            error_tmp++;
+          printf(" %.2x", *error_tmp);
+          error_tmp++;
         }
         printf("\r\n");
       }
@@ -508,7 +528,7 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
            (void*) event_payload,
            event_payload->header.length);
     host_context.posted_event_id = event_payload->header.id;
-    OSSemPost(&wf200_confirmation, OS_OPT_POST_1, &err);
+    OSSemPost(&wfx_confirmation, OS_OPT_POST_1, &err);
   }
 
   return SL_STATUS_OK;
@@ -543,10 +563,10 @@ void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_body_t* scan_result)
   printf("\r\n");
   if (scan_count <= SL_WFX_MAX_SCAN_RESULTS) {
     scan_list[scan_count - 1].ssid_def = scan_result->ssid_def;
-	scan_list[scan_count - 1].channel = scan_result->channel;
-	scan_list[scan_count - 1].security_mode = scan_result->security_mode;
-	scan_list[scan_count - 1].rcpi = scan_result->rcpi;
-	memcpy(scan_list[scan_count - 1].mac, scan_result->mac, 6);
+    scan_list[scan_count - 1].channel = scan_result->channel;
+    scan_list[scan_count - 1].security_mode = scan_result->security_mode;
+    scan_list[scan_count - 1].rcpi = scan_result->rcpi;
+    memcpy(scan_list[scan_count - 1].mac, scan_result->mac, 6);
   }
 }
 

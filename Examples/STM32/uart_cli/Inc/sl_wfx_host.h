@@ -47,4 +47,6 @@ typedef struct __attribute__((__packed__)) scan_result_list_s {
   uint16_t rcpi;
 } scan_result_list_t;
 
+extern osSemaphoreId wfx_wakeup_sem;
+
 #endif /* SL_WFX_HOST_H */

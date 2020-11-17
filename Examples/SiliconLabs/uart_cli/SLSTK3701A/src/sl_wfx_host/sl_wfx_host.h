@@ -35,5 +35,6 @@ typedef struct __attribute__((__packed__)) scan_result_list_s {
   uint16_t rcpi;
 } scan_result_list_t;
 
+extern OS_SEM wfx_wakeup_sem;
 
 #endif

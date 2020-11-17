@@ -37,19 +37,25 @@
 #include "sl_wfx_host_events.h"
 #include "sl_wfx_host.h"
 #include "sl_wfx_task.h"
+#include "sl_wfx_sae.h"
 #include "sl_wfx.h"
 
 // Event Task Configurations
 #define WFX_EVENTS_TASK_PRIO              21u
-#define WFX_EVENTS_TASK_STK_SIZE         512u
+#define WFX_EVENTS_TASK_STK_SIZE        1024u
+
+#define WFX_EVENTS_NB_MAX                 10u
+
+
+extern OS_SEM scan_sem;
 
 /// wfx event task stack
 static CPU_STK wfx_events_task_stk[WFX_EVENTS_TASK_STK_SIZE];
 /// wfx event task TCB
 static OS_TCB wfx_events_task_tcb;
 
-/// WiFi event flags
-OS_FLAG_GRP wifi_events;
+/// WiFi event queue
+OS_Q wifi_events;
 
 /***************************************************************************//**
  * WFX events processing task.
@@ -57,54 +63,76 @@ OS_FLAG_GRP wifi_events;
 static void wfx_events_task(void *p_arg)
 {
   RTOS_ERR err;
-  OS_FLAGS  flags = 0;
+  OS_MSG_SIZE msg_size;
+  sl_wfx_generic_message_t *msg;
 
   (void)p_arg;
 
   while (1) {
-    flags = OSFlagPend(&wifi_events,
-                       SL_WFX_EVENT_CONNECT | SL_WFX_EVENT_STOP_AP | SL_WFX_EVENT_DISCONNECT | SL_WFX_EVENT_START_AP,
-                       0,
-                       OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
-                       0,
-                       &err);
+    msg = (sl_wfx_generic_message_t *)OSQPend(&wifi_events,
+                                              0,
+                                              OS_OPT_PEND_BLOCKING,
+                                              &msg_size,
+                                              NULL,
+                                              &err);
 
-    if (flags & SL_WFX_EVENT_CONNECT) {
-      lwip_set_sta_link_up();
+    if (msg != NULL) {
+      switch (msg->header.id) {
+        case SL_WFX_CONNECT_IND_ID:
+        {
+          lwip_set_sta_link_up();
 
 #ifdef SLEEP_ENABLED
-      if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
-        // Enable the power save
-        sl_wfx_set_power_mode(WFM_PM_MODE_PS, 1);
-        sl_wfx_enable_device_power_save();
+          if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
+            // Enable the power save
+            sl_wfx_set_power_mode(WFM_PM_MODE_PS, 1);
+            sl_wfx_enable_device_power_save();
+          }
+#endif
+          break;
+        }
+        case SL_WFX_DISCONNECT_IND_ID:
+        {
+          lwip_set_sta_link_down();
+          break;
+        }
+        case SL_WFX_START_AP_IND_ID:
+        {
+          lwip_set_ap_link_up();
+
+#ifdef SLEEP_ENABLED
+          // Power save always disabled when SoftAP mode enabled
+          sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
+          sl_wfx_disable_device_power_save();
+#endif
+          break;
+        }
+        case SL_WFX_STOP_AP_IND_ID:
+        {
+          lwip_set_ap_link_down();
+
+#ifdef SLEEP_ENABLED
+          if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
+            // Enable the power save
+            sl_wfx_set_power_mode(WFM_PM_MODE_PS, 1);
+            sl_wfx_enable_device_power_save();
+          }
+#endif
+          break;
+        }
+        case SL_WFX_SCAN_COMPLETE_IND_ID:
+        {
+          OSSemPost(&scan_sem, OS_OPT_POST_ALL, &err);
+          break;
+        }
+        case SL_WFX_EXT_AUTH_IND_ID:
+        {
+          sl_wfx_sae_exchange((sl_wfx_ext_auth_ind_t *)msg);
+          break;
+        }
       }
-#endif
-    }
-    if (flags & SL_WFX_EVENT_DISCONNECT) {
-      lwip_set_sta_link_down();
-    }
-    if (flags & SL_WFX_EVENT_START_AP) {
-      lwip_set_ap_link_up();
 
-#ifdef SLEEP_ENABLED
-      // Power save always disabled when SoftAP mode enabled
-      sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
-      sl_wfx_disable_device_power_save();
-#endif
-    }
-    if (flags & SL_WFX_EVENT_STOP_AP) {
-      lwip_set_ap_link_down();
-
-#ifdef SLEEP_ENABLED
-      if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
-        // Enable the power save
-        sl_wfx_set_power_mode(WFM_PM_MODE_PS, 1);
-        sl_wfx_enable_device_power_save();
-      }
-#endif
-    }
-    if (flags & SL_WFX_EVENT_SCAN_COMPLETE) {
-      //we don't process this here (see scan cgi handler)
+      sl_wfx_host_free_buffer(msg, SL_WFX_RX_FRAME_BUFFER);
     }
   }
 }
@@ -112,11 +140,11 @@ static void wfx_events_task(void *p_arg)
 /***************************************************************************//**
  * Creates WFX events processing task.
  ******************************************************************************/
-void wifi_start()
+void wfx_events_start()
 {
   RTOS_ERR err;
 
-  OSFlagCreate(&wifi_events, "wifi events", 0, &err);
+  OSQCreate(&wifi_events, "wifi events", WFX_EVENTS_NB_MAX, &err);
   // Check error code.
   APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 

@@ -41,11 +41,6 @@
 			<locationURI>STUDIO_SDK_LOC/util/third_party/mbedtls</locationURI>
 		</link>
 		<link>
-			<name>sdio</name>
-			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/shared/sdio</locationURI>
-		</link>
-		<link>
 			<name>BSP/bsp_bcc.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/bsp/bsp_bcc.c</locationURI>
@@ -79,6 +74,11 @@
 			<name>Drivers/retargetserial.h</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/drivers/retargetserial.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/sdio</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/sdio</locationURI>
 		</link>
 		<link>
 			<name>Drivers/wfx_fmac_driver</name>
@@ -144,6 +144,11 @@
 			<name>CMSIS/EFM32GG11B/system_efm32gg11b.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/Device/SiliconLabs/EFM32GG11B/Source/system_efm32gg11b.c</locationURI>
+		</link>
+		<link>
+			<name>src/lwip_host/webpage</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/webpage</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

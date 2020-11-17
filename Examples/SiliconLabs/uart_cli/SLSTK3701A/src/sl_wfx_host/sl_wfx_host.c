@@ -22,7 +22,7 @@
 
 #include "sl_wfx.h"
 #include "sl_wfx_host_api.h"
-#include "sl_wfx_bus.h"
+#include "bus/sl_wfx_bus.h"
 #include "sl_wfx_host_cfg.h"
 
 #include "em_gpio.h"
@@ -57,7 +57,8 @@
 #include "sl_wfx_host.h"
 #include "sl_wfx_cli_common.h"
 
-OS_SEM    wf200_confirmation;
+OS_SEM wfx_confirmation;
+OS_SEM wfx_wakeup_sem;
 static OS_MUTEX wfx_mutex;
 
 #define SL_WFX_EVENT_MAX_SIZE  512
@@ -103,7 +104,7 @@ sl_status_t sl_wfx_host_setup_memory_pools(void)
   Mem_DynPoolCreate("SL WFX Host Buffers",
                     &host_context.buf_pool,
                     DEF_NULL,
-					SL_WFX_HOST_BUFFER_SIZE,
+                    SL_WFX_HOST_BUFFER_SIZE,
                     sizeof(CPU_INT32U),
                     0,
                     LIB_MEM_BLK_QTY_UNLIMITED,
@@ -122,20 +123,31 @@ sl_status_t sl_wfx_host_setup_memory_pools(void)
  *****************************************************************************/
 sl_status_t sl_wfx_host_init(void)
 {
+  sl_status_t status = SL_STATUS_OK;
   RTOS_ERR err;
-  UDELAY_Calibrate();
+  bool error = false;
 
   host_context.wf200_firmware_download_progress = 0;
   host_context.wf200_initialized = 0;
-  OSSemCreate(&wf200_confirmation, "wf200 confirmation", 0, &err);
+  OSSemCreate(&wfx_confirmation, "wfx confirmation", 0, &err);
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-    printf("OS error: sl_wfx_host_init");
+    error = true;
+  }
+  OSSemCreate(&wfx_wakeup_sem, "wfx wakeup", 0, &err);
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    error = true;
   }
   OSMutexCreate(&wfx_mutex, "wfx host mutex",&err);
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-      printf("OS error: sl_wfx_host_init");
+    error = true;
   }
-  return SL_STATUS_OK;
+
+  if (error) {
+    printf("OS error: sl_wfx_host_init");
+    status = SL_STATUS_FAIL;
+  }
+
+  return status;
 }
 
 /**************************************************************************//**
@@ -212,8 +224,8 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
 
   if (buffer_size > host_context.buf_pool.BlkSize) {
 #ifdef DEBUG
-      printf("Unable to allocate wfx buffer\n");
-      printf("type = %d, buffer_size requested = %d, mem pool blksize = %d\n", (int)type, (int)buffer_size, (int)host_context.buf_pool.BlkSize);
+    printf("Unable to allocate wfx buffer\n");
+    printf("type = %d, buffer_size requested = %d, mem pool blksize = %d\n", (int)type, (int)buffer_size, (int)host_context.buf_pool.BlkSize);
 #endif
     return SL_STATUS_ALLOCATION_FAILED;
   }
@@ -286,9 +298,8 @@ sl_status_t sl_wfx_host_reset_chip(void)
 sl_status_t sl_wfx_host_wait_for_wake_up(void)
 {
   RTOS_ERR err;
-  UDELAY_Delay(1000);
-  UDELAY_Delay(1000);
-  OSFlagPost(&bus_events, SL_WFX_BUS_EVENT_WAKE, OS_OPT_POST_FLAG_SET, &err);
+  OSSemSet(&wfx_wakeup_sem, 0, &err);
+  OSSemPend(&wfx_wakeup_sem, 3, OS_OPT_PEND_BLOCKING, 0, &err);
   return SL_STATUS_OK;
 }
 
@@ -312,7 +323,7 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id, uint32_t 
   RTOS_ERR err;
   while (timeout > 0u) {
     timeout--;
-    OSSemPend(&wf200_confirmation, 1, OS_OPT_PEND_BLOCKING, 0, &err);
+    OSSemPend(&wfx_confirmation, 1, OS_OPT_PEND_BLOCKING, 0, &err);
     if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
       if (confirmation_id == host_context.posted_event_id) {
         if ( event_payload_out != NULL ) {
@@ -340,7 +351,7 @@ sl_status_t sl_wfx_host_lock(void)
   OSMutexPend(&wfx_mutex, 0, OS_OPT_PEND_BLOCKING, 0, &err);
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE)
   {
-    return SL_STATUS_NO_MORE_RESOURCE;
+    return SL_STATUS_FAIL;
   }
   return SL_STATUS_OK;
 }
@@ -366,27 +377,27 @@ sl_status_t sl_wfx_host_unlock(void)
  *
  * @returns Returns SL_STATUS_OK if successful, SL_STATUS_FAIL otherwise
  *****************************************************************************/
-sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
+sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
 {
   RTOS_ERR err;
 
-  switch (network_rx_buffer->header.id ) {
+  switch (event_payload->header.id ) {
     /******** INDICATION ********/
     case SL_WFX_CONNECT_IND_ID:
     {
-      sl_wfx_connect_ind_t* connect_indication = (sl_wfx_connect_ind_t*) network_rx_buffer;
+      sl_wfx_connect_ind_t* connect_indication = (sl_wfx_connect_ind_t*) event_payload;
       sl_wfx_connect_callback(connect_indication->body.mac, connect_indication->body.status);
       break;
     }
     case SL_WFX_DISCONNECT_IND_ID:
     {
-      sl_wfx_disconnect_ind_t* disconnect_indication = (sl_wfx_disconnect_ind_t*) network_rx_buffer;
+      sl_wfx_disconnect_ind_t* disconnect_indication = (sl_wfx_disconnect_ind_t*) event_payload;
       sl_wfx_disconnect_callback(disconnect_indication->body.mac, disconnect_indication->body.reason);
       break;
     }
     case SL_WFX_START_AP_IND_ID:
     {
-      sl_wfx_start_ap_ind_t* start_ap_indication = (sl_wfx_start_ap_ind_t*) network_rx_buffer;
+      sl_wfx_start_ap_ind_t* start_ap_indication = (sl_wfx_start_ap_ind_t*) event_payload;
       sl_wfx_start_ap_callback(start_ap_indication->body.status);
       break;
     }
@@ -397,7 +408,7 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_RECEIVED_IND_ID:
     {
-      sl_wfx_received_ind_t* ethernet_frame = (sl_wfx_received_ind_t*) network_rx_buffer;
+      sl_wfx_received_ind_t* ethernet_frame = (sl_wfx_received_ind_t*) event_payload;
       if ( ethernet_frame->body.frame_type == 0 ) {
         sl_wfx_host_received_frame_callback(ethernet_frame);
       }
@@ -405,50 +416,59 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_SCAN_RESULT_IND_ID:
     {
-      sl_wfx_scan_result_ind_t* scan_result = (sl_wfx_scan_result_ind_t*)network_rx_buffer;
+      sl_wfx_scan_result_ind_t* scan_result = (sl_wfx_scan_result_ind_t*)event_payload;
       sl_wfx_scan_result_callback(&scan_result->body);
       break;
     }
     case SL_WFX_SCAN_COMPLETE_IND_ID:
     {
-      sl_wfx_scan_complete_ind_t* scan_complete = (sl_wfx_scan_complete_ind_t*)network_rx_buffer;
+      sl_wfx_scan_complete_ind_t* scan_complete = (sl_wfx_scan_complete_ind_t*)event_payload;
       sl_wfx_scan_complete_callback(scan_complete->body.status);
       break;
     }
     case SL_WFX_AP_CLIENT_CONNECTED_IND_ID:
     {
-      sl_wfx_ap_client_connected_ind_t* client_connected_indication = (sl_wfx_ap_client_connected_ind_t*) network_rx_buffer;
+      sl_wfx_ap_client_connected_ind_t* client_connected_indication = (sl_wfx_ap_client_connected_ind_t*) event_payload;
       sl_wfx_client_connected_callback(client_connected_indication->body.mac);
       break;
     }
     case SL_WFX_AP_CLIENT_REJECTED_IND_ID:
     {
-      sl_wfx_ap_client_rejected_ind_t* client_rejected_indication = (sl_wfx_ap_client_rejected_ind_t*) network_rx_buffer;
+      sl_wfx_ap_client_rejected_ind_t* client_rejected_indication = (sl_wfx_ap_client_rejected_ind_t*) event_payload;
       sl_wfx_ap_client_rejected_callback(client_rejected_indication->body.reason, client_rejected_indication->body.mac);
       break;
     }
     case SL_WFX_AP_CLIENT_DISCONNECTED_IND_ID:
     {
-      sl_wfx_ap_client_disconnected_ind_t* ap_client_disconnected_indication = (sl_wfx_ap_client_disconnected_ind_t*) network_rx_buffer;
+      sl_wfx_ap_client_disconnected_ind_t* ap_client_disconnected_indication = (sl_wfx_ap_client_disconnected_ind_t*) event_payload;
       sl_wfx_ap_client_disconnected_callback(ap_client_disconnected_indication->body.reason, ap_client_disconnected_indication->body.mac);
       break;
     }
+#ifdef SL_WFX_USE_SECURE_LINK
+    case SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID:
+      {
+        if(host_context.waited_event_id != SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID) {
+          memcpy((void*)&sl_wfx_context->secure_link_exchange_ind,(void*)event_payload, event_payload->header.length);
+        }
+        break;
+      }
+#endif
     case SL_WFX_GENERIC_IND_ID:
     {
-      sl_wfx_generic_ind_t* generic_status = (sl_wfx_generic_ind_t*) network_rx_buffer;
+      sl_wfx_generic_ind_t* generic_status = (sl_wfx_generic_ind_t*) event_payload;
       sl_wfx_generic_status_callback(generic_status);
       break;
     }
     case SL_WFX_EXCEPTION_IND_ID:
     {
-      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*) network_rx_buffer;
+      sl_wfx_exception_ind_t *firmware_exception = (sl_wfx_exception_ind_t*) event_payload;
       uint8_t *exception_tmp = (uint8_t *) firmware_exception;
       printf("firmware exception %lu\r\n", firmware_exception->body.reason);
       for (uint16_t i = 0; i < firmware_exception->header.length; i += 16) {
         printf("hif: %.8x:", i);
         for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_exception->header.length); j ++) {
-            printf(" %.2x", *exception_tmp);
-            exception_tmp++;
+          printf(" %.2x", *exception_tmp);
+          exception_tmp++;
         }
         printf("\r\n");
       }
@@ -456,14 +476,14 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
     case SL_WFX_ERROR_IND_ID:
     {
-      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*) network_rx_buffer;
+      sl_wfx_error_ind_t *firmware_error = (sl_wfx_error_ind_t*) event_payload;
       uint8_t *error_tmp = (uint8_t *) firmware_error;
       printf("firmware error %lu\r\n", firmware_error->body.type);
       for (uint16_t i = 0; i < firmware_error->header.length; i += 16) {
         printf("hif: %.8x:", i);
         for (uint8_t j = 0; (j < 16) && ((i + j) < firmware_error->header.length); j ++) {
-            printf(" %.2x", *error_tmp);
-            error_tmp++;
+          printf(" %.2x", *error_tmp);
+          error_tmp++;
         }
         printf("\r\n");
       }
@@ -476,11 +496,13 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *network_rx_buffer)
     }
   }
 
-  if ( host_context.waited_event_id == network_rx_buffer->header.id ) {
+  if ( host_context.waited_event_id == event_payload->header.id ) {
     /* Post the event in the queue */
-    memcpy(sl_wfx_context->event_payload_buffer, (void*)network_rx_buffer, network_rx_buffer->header.length);
-    host_context.posted_event_id = network_rx_buffer->header.id;
-    OSSemPost(&wf200_confirmation, OS_OPT_POST_1, &err);
+    memcpy(sl_wfx_context->event_payload_buffer,
+           (void*)event_payload,
+           event_payload->header.length);
+    host_context.posted_event_id = event_payload->header.id;
+    OSSemPost(&wfx_confirmation, OS_OPT_POST_1, &err);
   }
 
   return SL_STATUS_OK;
@@ -515,10 +537,10 @@ void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_body_t* scan_result)
   printf("\r\n");
   if (scan_count <= SL_WFX_MAX_SCAN_RESULTS) {
     scan_list[scan_count - 1].ssid_def = scan_result->ssid_def;
-	scan_list[scan_count - 1].channel = scan_result->channel;
-	scan_list[scan_count - 1].security_mode = scan_result->security_mode;
-	scan_list[scan_count - 1].rcpi = scan_result->rcpi;
-	memcpy(scan_list[scan_count - 1].mac, scan_result->mac, 6);
+    scan_list[scan_count - 1].channel = scan_result->channel;
+    scan_list[scan_count - 1].security_mode = scan_result->security_mode;
+    scan_list[scan_count - 1].rcpi = scan_result->rcpi;
+    memcpy(scan_list[scan_count - 1].mac, scan_result->mac, 6);
   }
 }
 
@@ -623,8 +645,8 @@ void sl_wfx_stop_ap_callback(void)
  *****************************************************************************/
 void sl_wfx_client_connected_callback(uint8_t* mac)
 {
-//  printf("Client connected, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-//         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  //  printf("Client connected, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+  //         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   sl_wfx_cli_wifi_add_client(mac);
 }
 
@@ -633,8 +655,8 @@ void sl_wfx_client_connected_callback(uint8_t* mac)
  *****************************************************************************/
 void sl_wfx_ap_client_rejected_callback(uint32_t status, uint8_t* mac)
 {
-//  printf("Client rejected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-//         (int)status, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  //  printf("Client rejected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+  //         (int)status, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
 /**************************************************************************//**
@@ -642,8 +664,8 @@ void sl_wfx_ap_client_rejected_callback(uint32_t status, uint8_t* mac)
  *****************************************************************************/
 void sl_wfx_ap_client_disconnected_callback(uint32_t status, uint8_t* mac)
 {
-//  printf("Client disconnected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-//         (int)status, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  //  printf("Client disconnected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+  //         (int)status, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   sl_wfx_cli_wifi_remove_client(mac);
 }
 

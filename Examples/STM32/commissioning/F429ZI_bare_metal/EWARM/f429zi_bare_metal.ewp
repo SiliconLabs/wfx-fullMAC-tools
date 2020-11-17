@@ -617,7 +617,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>WF200_driver_F429ZI_BM-LwIP_SPI.bin</state>
+          <state>F429ZI_bare_metal_spi.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -1593,7 +1593,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>WF200_driver_F429ZI_BM-LwIP_SDIO.bin</state>
+          <state>F429ZI_bare_metal_sdio.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -2568,7 +2568,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>WF200_driver_F429ZI_BM-LwIP_SPI_Powersave.bin</state>
+          <state>F429ZI_bare_metal_spi_power_save.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -3545,7 +3545,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>WF200_driver_F429ZI_BM-LwIP_SDIO_Powersave.bin</state>
+          <state>F429ZI_bare_metal_sdio_power_save.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>

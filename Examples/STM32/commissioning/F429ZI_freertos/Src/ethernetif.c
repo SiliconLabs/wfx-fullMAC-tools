@@ -174,7 +174,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
  ******************************************************************************/
 static struct pbuf *low_level_input(struct netif *netif, sl_wfx_received_ind_t* rx_buffer)
 {
-  struct pbuf *p, *q;
+  struct pbuf *p = NULL, *q;
   uint8_t *buffer;
   
   /* Obtain the packet by removing the padding. */

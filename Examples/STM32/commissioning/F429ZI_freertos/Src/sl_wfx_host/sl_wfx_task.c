@@ -24,13 +24,14 @@ EventGroupHandle_t sl_wfx_event_group;
 
 /* Default parameters */
 sl_wfx_context_t wifi;
-char wlan_ssid[32]                        = WLAN_SSID_DEFAULT;
-char wlan_passkey[64]                     = WLAN_PASSKEY_DEFAULT;
-sl_wfx_security_mode_t wlan_security      = WLAN_SECURITY_DEFAULT;
-char softap_ssid[32]                      = SOFTAP_SSID_DEFAULT;
-char softap_passkey[64]                   = SOFTAP_PASSKEY_DEFAULT;
-sl_wfx_security_mode_t softap_security    = SOFTAP_SECURITY_DEFAULT;
-uint8_t softap_channel                    = SOFTAP_CHANNEL_DEFAULT;
+char wlan_ssid[32+1]                   = WLAN_SSID_DEFAULT;
+char wlan_passkey[64+1]                = WLAN_PASSKEY_DEFAULT;
+uint8_t wlan_bssid[SL_WFX_BSSID_SIZE];
+sl_wfx_security_mode_t wlan_security   = WLAN_SECURITY_DEFAULT;
+char softap_ssid[32+1]                 = SOFTAP_SSID_DEFAULT;
+char softap_passkey[64+1]              = SOFTAP_PASSKEY_DEFAULT;
+sl_wfx_security_mode_t softap_security = SOFTAP_SECURITY_DEFAULT;
+uint8_t softap_channel                 = SOFTAP_CHANNEL_DEFAULT;
 /* Default parameters */
 
 /*
@@ -63,17 +64,21 @@ static void prvBusCommTask(void const * pvParameters)
 {
   /* create a mutex used for making driver accesses atomic */
   s_xDriverSemaphore = xSemaphoreCreateMutex();
-
-  /* create an event group to track Wi-Fi events */
-  sl_wfx_event_group = xEventGroupCreate();
   
   for(;;)
   {
     /*Wait for an interrupt from WF200*/
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     
+    /*Disable the interrupt while treating frames received to avoid
+     *the case where the interrupt is set but there is no frmae left to treat.*/
+    sl_wfx_host_disable_platform_interrupt();
+    
     /*Receive the frame(s) pending in WF200*/
     receive_frames();
+    
+    /*Re-enable the interrupt*/
+    sl_wfx_host_enable_platform_interrupt();
   }
 }
 

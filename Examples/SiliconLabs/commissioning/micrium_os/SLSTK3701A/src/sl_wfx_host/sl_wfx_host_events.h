@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-#ifndef SL_WFX_EVENTS_TASK_H
-#define SL_WFX_EVENTS_TASK_H
+#ifndef SL_WFX_HOST_EVENTS_H
+#define SL_WFX_HOST_EVENTS_H
 
-/* Wi-Fi events*/
-#define SL_WFX_EVENT_CONNECT          ( 1 << 1 )
-#define SL_WFX_EVENT_DISCONNECT       ( 1 << 2 )
-#define SL_WFX_EVENT_START_AP         ( 1 << 3 )
-#define SL_WFX_EVENT_STOP_AP          ( 1 << 4 )
-#define SL_WFX_EVENT_SCAN_COMPLETE    ( 1 << 5 )
-
-extern OS_FLAG_GRP wifi_events;
+extern OS_Q wifi_events;
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +24,7 @@ extern "C" {
 /***************************************************************************//**
  * Creates WFX events processing task.
  ******************************************************************************/
-void wifi_start(void);
+void wfx_events_start(void);
 
 #ifdef __cplusplus
 }

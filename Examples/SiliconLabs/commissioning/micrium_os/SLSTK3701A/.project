@@ -31,14 +31,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/PDS</locationURI>
 		</link>
 		<link>
-			<name>cfg</name>
-			<type>2</type>
-			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg</locationURI>
-		</link>
-		<link>
 			<name>console</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/shared/uOS_shell/console</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/console</locationURI>
 		</link>
 		<link>
 			<name>lwip</name>
@@ -54,6 +49,11 @@
 			<name>micrium_os</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/platform/micrium_os</locationURI>
+		</link>
+		<link>
+			<name>wpa_supplicant-2.7</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Tools/wpa_supplicant-2.7</locationURI>
 		</link>
 		<link>
 			<name>BSP/bsp_bcc.c</name>
@@ -91,19 +91,59 @@
 			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/drivers/retargetserial.h</locationURI>
 		</link>
 		<link>
-			<name>Drivers/udelay.c</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/drivers/udelay.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/udelay.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/drivers/udelay.h</locationURI>
-		</link>
-		<link>
 			<name>Drivers/wfx_fmac_driver</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/wfx-fullMAC-driver/wfx_fmac_driver</locationURI>
+		</link>
+		<link>
+			<name>cfg/SEGGER_RTT_Conf.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/SEGGER_RTT_Conf.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/SEGGER_SYSVIEW_Conf.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/SEGGER_SYSVIEW_Conf.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/bsp_cfg.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/bsp_cfg.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/common_cfg.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/common_cfg.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/cpu_cfg.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/cpu_cfg.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/os_cfg.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/os_cfg.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/os_cfg_trace.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/os_cfg_trace.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/rtos_cfg.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/rtos_cfg.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/rtos_description.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/rtos_description.h</locationURI>
+		</link>
+		<link>
+			<name>cfg/rtos_err_cfg.h</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/cfg/rtos_err_cfg.h</locationURI>
 		</link>
 		<link>
 			<name>emdrv/dmadrv</name>
@@ -129,6 +169,11 @@
 			<name>emlib/em_core.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_core.c</locationURI>
+		</link>
+		<link>
+			<name>emlib/em_crypto.c</name>
+			<type>1</type>
+			<locationURI>STUDIO_SDK_LOC/platform/emlib/src/em_crypto.c</locationURI>
 		</link>
 		<link>
 			<name>emlib/em_emu.c</name>
@@ -199,6 +244,11 @@
 			<name>src/lwip_host/system</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/app/mcu_example/SLSTK3701A_EFM32GG11/micriumos_lwip_wfx/lwip_host/system</locationURI>
+		</link>
+		<link>
+			<name>src/lwip_host/webpage</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/webpage</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

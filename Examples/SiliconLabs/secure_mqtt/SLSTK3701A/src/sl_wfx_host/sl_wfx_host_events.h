@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-#ifndef SL_WFX_EVENTS_TASK_H
-#define SL_WFX_EVENTS_TASK_H
+#ifndef SL_WFX_HOST_EVENTS_H
+#define SL_WFX_HOST_EVENTS_H
 
 /* Wi-Fi events*/
 #define SL_WFX_EVENT_CONNECT          ( 1 << 1 )

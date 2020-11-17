@@ -117,11 +117,12 @@ void lwip_disable_dhcp_client(void);
 #define SOFTAP_SECURITY_DEFAULT WFM_SECURITY_MODE_WPA2_PSK        ///< wifi security for soft ap mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_WPA1_PSK
 #define SOFTAP_CHANNEL_DEFAULT  6                                 ///< wifi channel for soft ap
 
-extern char wlan_ssid[32];
-extern char wlan_passkey[64];
+extern char wlan_ssid[32+1];
+extern char wlan_passkey[64+1];
 extern sl_wfx_security_mode_t wlan_security;
-extern char softap_ssid[32];
-extern char softap_passkey[64];
+extern uint8_t wlan_bssid[SL_WFX_BSSID_SIZE];
+extern char softap_ssid[32+1];
+extern char softap_passkey[64+1];
 extern sl_wfx_security_mode_t softap_security;
 extern uint8_t softap_channel;
 

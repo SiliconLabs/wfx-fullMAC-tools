@@ -1,4 +1,4 @@
-#include "secure_link/sl_wfx_secure_link.h"
+#include "sl_wfx_secure_link.h"
 #include "lwip_micriumos.h"
 #include "sl_wfx_host_cfg.h"
 

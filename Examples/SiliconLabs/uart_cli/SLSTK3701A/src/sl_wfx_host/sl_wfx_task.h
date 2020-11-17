@@ -18,11 +18,12 @@
 
 #include <kernel/include/os.h>
 #include "sl_wfx_constants.h"
-extern OS_FLAG_GRP bus_events;
+
 #define SL_WFX_BUS_EVENT_FLAG_RX      1
 #define SL_WFX_BUS_EVENT_FLAG_TX      2
 #define SL_WFX_BUS_EVENT_WAKE         4
 #define SL_WFX_BUS_QUEUE_SIZE        10
+
 typedef struct {
   sl_wfx_send_frame_req_t *frame;
   uint32_t data_length;
@@ -32,7 +33,9 @@ typedef struct {
 
 extern sl_wfx_frame_q_item bus_tx_frame;
 extern OS_SEM bus_tx_complete_sem;
+extern OS_FLAG_GRP bus_events;
 extern sl_wfx_context_t wifi;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

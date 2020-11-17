@@ -26,6 +26,9 @@
 
 extern sl_wfx_context_t wifi;
 
+#ifdef SL_WFX_USE_SECURE_LINK
+extern uint8_t secure_link_mac_key[SL_WFX_SECURE_LINK_MAC_KEY_LENGTH];
+#endif
 
 #ifdef EFM32GG11B820F2048GM64
 static char target_name[] = "wgm160p";
@@ -327,20 +330,26 @@ static int get_station_pmk (char *param_name,
 {
   uint32_t password_length;
   sl_status_t status;
+  int ret = -1;
 
   (void)param_name;
   (void)param_addr;
 
-  status = sl_wfx_get_pmk((uint8_t *)wlan_pmk, &password_length, SL_WFX_STA_INTERFACE);
+  status = sl_wfx_get_pmk(&wlan_pmk, &password_length, SL_WFX_STA_INTERFACE);
 
-  if (status != SL_STATUS_OK) {
-    // Error, output an empty line
-    wlan_pmk[0] = '\0';
+  if (status == SL_STATUS_OK) {
+    if (output_buf_len > (password_length + 2/*EOF*/)) {
+      memcpy((uint8_t *)output_buf, wlan_pmk.password, password_length);
+      sprintf(&output_buf[password_length], "\r\n");
+      ret = 0;
+    } else {
+      printf("Output buffer too small (%ld/%ld)\r\n", password_length, output_buf_len);
+    }
+  } else {
+    printf("Interface down\r\n");
   }
 
-  snprintf(output_buf, output_buf_len, "%s\r\n", wlan_pmk);
-
-  return 0;
+  return ret;
 }
 
 static int get_softap_pmk (char *param_name,
@@ -348,22 +357,28 @@ static int get_softap_pmk (char *param_name,
                            char *output_buf,
                            uint32_t output_buf_len)
 {
-  uint32_t password_length;
+  uint32_t password_length = 0;
   sl_status_t status;
+  int ret = -1;
 
   (void)param_name;
   (void)param_addr;
 
-  status = sl_wfx_get_pmk((uint8_t *)softap_pmk, &password_length, SL_WFX_SOFTAP_INTERFACE);
+  status = sl_wfx_get_pmk(&softap_pmk, &password_length, SL_WFX_SOFTAP_INTERFACE);
 
-  if (status != SL_STATUS_OK) {
-    // Error, output an empty line
-    softap_pmk[0] = '\0';
+  if (status == SL_STATUS_OK) {
+    if (output_buf_len > (password_length + 2/*EOF*/)) {
+      memcpy((uint8_t *)output_buf, softap_pmk.password, password_length);
+      sprintf(&output_buf[password_length], "\r\n");
+      ret = 0;
+    } else {
+      printf("Output buffer too small (%ld/%ld)\r\n", password_length, output_buf_len);
+    }
+  } else {
+    printf("Interface down\r\n");
   }
 
-  snprintf(output_buf, output_buf_len, "%s\r\n", softap_pmk);
-
-  return 0;
+  return ret;
 }
 
 static int set_mac_addr (char *param_name,
@@ -771,6 +786,17 @@ int lwip_param_register (void)
                                    "SoftAP DHCP server state [0 (OFF), 1 (ON)]",
                                    get_dhcp_server_state,
                                    set_dhcp_server_state);
+
+#ifdef SL_WFX_USE_SECURE_LINK
+  ret |= sl_wfx_cli_param_register("slk.mac_key",
+                                   (void *)&secure_link_mac_key,
+                                   sizeof(secure_link_mac_key),
+                                   SL_WFX_CLI_PARAM_SET_RIGHT,
+                                   SL_WFX_CLI_PARAM_TYPE_ARRAY_HEXADECIMAL,
+                                   "Secure Link MAC key (32 bytes hex array format)",
+                                   NULL,
+                                   NULL);
+#endif
 
   return ret;
 }

@@ -18,7 +18,7 @@
 #include "sl_wfx_cli_generic.h"
 
 #ifdef SL_WFX_USE_SECURE_LINK
-#include "secure_link/sl_wfx_secure_link.h"
+#include "sl_wfx_secure_link.h"
 
 // X.x.x: Major version of the Secure Link CLI
 #define SL_WFX_CLI_SECURE_LINK_VERSION_MAJOR      1

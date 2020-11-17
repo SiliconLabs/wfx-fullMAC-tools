@@ -849,6 +849,7 @@ uint32_t SDIODRV_Abort (SDIODRV_Handle_t *handle, uint8_t function_to_abort)
                                   0,
                                   0x06 /* I/O Function Abort */,
                                   &function_to_abort);
+
   return res;
 }
 
@@ -995,6 +996,7 @@ void SDIO_IRQHandler (void)
 
   if ((pending & SDIO_IFCR_CARDINT) == SDIO_IFCR_CARDINT) {
     // Disable the interrupt to prevent it firing in loop
+    // Let the responsibility to the application to re-enable it
     SDIO->IFENC &= ~SDIO_IFENC_CARDINTEN;
     if (sdiodrv_callbacks.cardInterruptCb) {
       sdiodrv_callbacks.cardInterruptCb();
@@ -1011,6 +1013,10 @@ void SDIO_IRQHandler (void)
     if (sdiodrv_callbacks.bootTerminateCb) {
       sdiodrv_callbacks.bootTerminateCb();
     }
+  }
+
+  if (sdiodrv_handle->init.yield_fn != NULL) {
+    sdiodrv_handle->init.yield_fn();
   }
 }
 

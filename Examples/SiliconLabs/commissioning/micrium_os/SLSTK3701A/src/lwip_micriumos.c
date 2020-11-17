@@ -51,13 +51,16 @@
 #include "dhcp_server.h"
 #include "sl_wfx_host.h"
 #include "sl_wfx_host_events.h"
+#include "sl_wfx_sae.h"
 
 #ifdef LWIP_IPERF_SERVER
 #include "lwip/apps/lwiperf.h"
 #endif
 
+extern OS_SEM scan_sem;
 extern scan_result_list_t scan_list[];
 extern uint8_t scan_count_web;
+extern bool scan_verbose;
 
 static void netif_config(void);
 
@@ -256,28 +259,41 @@ static const char * toggle_led_cgi_handler(int index, int num_params,
 static const char *start_station_cgi_handler(int index, int num_params,
                                              char *pc_param[], char *pc_value[])
 {
-  sl_status_t status;
+  sl_status_t status = SL_STATUS_OK;
   int ssid_length = 0, passkey_length = 0;
+  int ap_index = -1;
 
   if (num_params == 3) {
     if (strcmp(pc_param[0], "ssid") == 0)
     {
       url_decode(pc_value[0]);
-      ssid_length = strlen(pc_value[0]);
-      memset(wlan_ssid, 0, 32);
-      strncpy(wlan_ssid, pc_value[0], ssid_length);
+      memset(wlan_ssid, 0, sizeof(wlan_ssid));
+      strncpy(wlan_ssid, pc_value[0], sizeof(wlan_ssid)-1);
+      ssid_length = strlen(wlan_ssid);
+      // Retrieve the AP information from the scan list, presuming that the
+      // first matching SSID is the one (not necessarily true).
+      for (uint16_t i = 0; i < scan_count_web; i++) {
+        if (strcmp((char *) scan_list[i].ssid_def.ssid, wlan_ssid) == 0) {
+          ap_index = i;
+          memcpy(&wlan_bssid, scan_list[i].mac, SL_WFX_BSSID_SIZE);
+          break;
+        }
+      }
     }
     if (strcmp(pc_param[1], "pwd") == 0)
     {
       url_decode(pc_value[1]);
-      passkey_length = strlen(pc_value[1]);
-      memset(wlan_passkey, 0, 64);
-      strncpy(wlan_passkey, pc_value[1], passkey_length);
+      memset(wlan_passkey, 0, sizeof(wlan_passkey));
+      strncpy(wlan_passkey, pc_value[1], sizeof(wlan_passkey)-1);
+      passkey_length = strlen(wlan_passkey);
     }
     if (strcmp(pc_param[2], "secu") == 0)
     {
       url_decode(pc_value[2]);
-      if ((strcmp(pc_value[2], "WPA2") == 0) || (strcmp(pc_value[2], "WPA") == 0))
+      if (strcmp(pc_value[2], "WPA3") == 0)
+      {
+        wlan_security = WFM_SECURITY_MODE_WPA3_SAE;
+      }else if ((strcmp(pc_value[2], "WPA2") == 0) || (strcmp(pc_value[2], "WPA") == 0))
       {
         wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
       }else if (strcmp(pc_value[2], "WEP") == 0)
@@ -290,20 +306,32 @@ static const char *start_station_cgi_handler(int index, int num_params,
     }
     if (!(wifi.state & SL_WFX_STA_INTERFACE_CONNECTED))
     {
-      status = sl_wfx_send_join_command((uint8_t*) wlan_ssid, ssid_length,
-                                        NULL, 0, wlan_security, 0, 0,
-                                        (uint8_t*) wlan_passkey, passkey_length,
-                                        NULL, 0);
-      if(status != SL_STATUS_OK)
-      {
-        printf("Connection command error\r\n");
-        strcpy(event_log, "Connection command error");
-      } else {
-        //if connected, latch the MAC address and the channel from the scan list
-        for (uint16_t i = 0; i < SL_WFX_MAX_SCAN_RESULTS; i++) {
-          if (strcmp((char *) scan_list[i].ssid_def.ssid, wlan_ssid) == 0) {
-           ap_channel = scan_list[i].channel;
-            memcpy(&ap_mac, scan_list[i].mac, SL_WFX_BSSID_SIZE);
+      if (wlan_security == WFM_SECURITY_MODE_WPA3_SAE) {
+        // Initiate the SAE exchange
+        status = sl_wfx_sae_prepare(&wifi.mac_addr_0,
+                                    (sl_wfx_mac_address_t *)wlan_bssid,
+                                    (uint8_t *)wlan_passkey,
+                                    strlen(wlan_passkey));
+        if (status != SL_STATUS_OK) {
+          printf("SAE prepare failure\r\n");
+          strcpy(event_log, "SAE prepare failure");
+        }
+      }
+
+      if(status == SL_STATUS_OK) {
+        status = sl_wfx_send_join_command((uint8_t*) wlan_ssid, ssid_length,
+                                          NULL, 0, wlan_security, 0, 0,
+                                          (uint8_t*) wlan_passkey, passkey_length,
+                                          NULL, 0);
+        if(status != SL_STATUS_OK)
+        {
+          printf("Connection command error\r\n");
+          strcpy(event_log, "Connection command error");
+        } else {
+          // Update the local AP information with the scan information
+          if (ap_index >= 0) {
+            ap_channel = scan_list[ap_index].channel;
+            memcpy(&ap_mac, scan_list[ap_index].mac, SL_WFX_BSSID_SIZE);
           }
         }
       }
@@ -388,14 +416,12 @@ static const char *start_scan_cgi_handler(int index, int num_params,
   // Reset scan list
   scan_count_web = 0;
   memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
-  OSFlagPost (&wifi_events, SL_WFX_EVENT_SCAN_COMPLETE, OS_OPT_POST_FLAG_CLR, &err);
+  OSSemSet(&scan_sem, 0, &err);
   // perform a scan on every Wi-Fi channel in active mode
   result = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0, NULL,0,NULL,0,NULL);
   if ((result == SL_STATUS_OK) || (result == SL_STATUS_WIFI_WARNING))
   {
-    OSFlagPend(&wifi_events, SL_WFX_EVENT_SCAN_COMPLETE, 5000,
-               OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
-               0, &err);
+    OSSemPend(&scan_sem, 5000, OS_OPT_PEND_BLOCKING, NULL, &err);
     if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE)
     {
       printf("Scan command timeout\r\n");
@@ -459,9 +485,10 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
                (char *)((strlen((char *) scan_list[i].ssid_def.ssid) != 0) ? \
                   (char*)scan_list[i].ssid_def.ssid : "Hidden"),
                ((int16_t)(scan_list[i].rcpi - 220)/2),
-               (scan_list[i].security_mode.wpa2) ? "WPA2" : \
-                 ((scan_list[i].security_mode.wpa) ? "WPA" : \
-                   ((scan_list[i].security_mode.wep) ? "WEP": "OPEN")));
+               (scan_list[i].security_mode.wpa3)    ? "WPA3" : \
+                ((scan_list[i].security_mode.wpa2)  ? "WPA2" : \
+                 ((scan_list[i].security_mode.wpa)  ? "WPA"  : \
+                  ((scan_list[i].security_mode.wep) ? "WEP"  : "OPEN"))));
       strcat(string_list, string_field);
       if(i != (scan_count_web - 1)) strcat(string_list, ",");
     }
@@ -501,6 +528,7 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
     else if(softap_security == WFM_SECURITY_MODE_WEP)            result = sprintf(pc_insert, "WEP");
     else if(softap_security == WFM_SECURITY_MODE_WPA2_WPA1_PSK)  result = sprintf(pc_insert, "WPA1/WPA2");
     else if(softap_security == WFM_SECURITY_MODE_WPA2_PSK)       result = sprintf(pc_insert, "WPA2");
+    else if(softap_security == WFM_SECURITY_MODE_WPA3_SAE)       result = sprintf(pc_insert, "WPA3");
     break;
   case 8: // <!--#softap_channel-->
     result = sprintf(pc_insert, "%d", softap_channel);
@@ -513,7 +541,7 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
          mac.addr[2] == 0 && mac.addr[3] == 0 &&
            mac.addr[4] == 0 && mac.addr[5] == 0))
       {
-    	ip_addr_t ip_addr = dhcpserver_get_ip(&mac);
+        ip_addr_t ip_addr = dhcpserver_get_ip(&mac);
         if(add_separator) strcat(string_list, ",");
         client_name[7] = i + 49;
         snprintf(string_field, 100,
@@ -579,6 +607,7 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
     else if(wlan_security == WFM_SECURITY_MODE_WEP)            result = sprintf(pc_insert, "WEP");
     else if(wlan_security == WFM_SECURITY_MODE_WPA2_WPA1_PSK)  result = sprintf(pc_insert, "WPA1/WPA2");
     else if(wlan_security == WFM_SECURITY_MODE_WPA2_PSK)       result = sprintf(pc_insert, "WPA2");
+    else if(wlan_security == WFM_SECURITY_MODE_WPA3_SAE)       result = sprintf(pc_insert, "WPA3");
     break;
   case 16: // <!--#ap_channel-->
     result = sprintf(pc_insert, "%d", ap_channel);
@@ -660,9 +689,11 @@ static void lwip_iperf_results(void *arg, enum lwiperf_report_type report_type,
  *****************************************************************************/
 static void lwip_app_wifi_config_prompt (void)
 {
+  sl_status_t status;
   char buf[4];
   int res;
   bool error;
+  bool ap_found = false;
 
 #ifdef SLEEP_ENABLED
   SLEEP_SleepBlockBegin(sleepEM2);
@@ -688,10 +719,58 @@ static void lwip_app_wifi_config_prompt (void)
 
     lwip_enable_dhcp_client();
     if (res == 1) {
+
       do {
+        error = false;
         printf("\nEnter the SSID of the AP you want to connect:\n");
         res = console_get_line(wlan_ssid, sizeof(wlan_ssid));
-      } while (res < 0);
+
+        if (res > 0) {
+          //Retrieve the AP BSSID (required during WPA3 authentication) with a scan
+          RTOS_ERR err;
+          sl_wfx_ssid_def_t ssid;
+          uint8_t retry = 0;
+
+          memcpy(ssid.ssid, wlan_ssid, strlen(wlan_ssid));
+          ssid.ssid_length = strlen(wlan_ssid);
+
+          do {
+            // Reset scan list
+            scan_count_web = 0;
+            memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
+            scan_verbose = false;
+            OSSemSet(&scan_sem, 0, &err);
+            // perform a scan on every Wi-Fi channel in active mode
+            status = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0,&ssid,1,NULL,0,NULL);
+            if ((status == SL_STATUS_OK) || (status == SL_STATUS_WIFI_WARNING))
+            {
+              OSSemPend(&scan_sem, 5000, OS_OPT_PEND_BLOCKING, NULL, &err);
+              if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE)
+              {
+                // Retrieve the AP information from the scan list, presuming that the
+                // first matching SSID is the one (not necessarily true).
+                for (uint16_t i = 0; i < scan_count_web; i++) {
+                  if (strcmp((char *) scan_list[i].ssid_def.ssid, wlan_ssid) == 0) {
+                    memcpy(&wlan_bssid, scan_list[i].mac, SL_WFX_BSSID_SIZE);
+                    ap_found = true;
+                    break;
+                  }
+                }
+              }
+            }
+          } while (!ap_found && retry++ < 3);
+
+          if (!ap_found) {
+            printf("AP %s not found\r\n", wlan_ssid);
+            error = true;
+          }
+        } else {
+          printf("Wrong SSID format\r\n");
+          error = true;
+        }
+      } while (error);
+
+      scan_verbose = true;
 
       do {
         printf("Enter the Passkey of the AP you want to connect (8-chars min):\n");
@@ -700,7 +779,7 @@ static void lwip_app_wifi_config_prompt (void)
 
       do {
         error = false;
-        printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\nEnter 1,2,3 or 4:\n");
+        printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\n5. WPA3\nEnter 1,2,3,4 or 5:\n");
         res = console_get_line(buf, sizeof(buf));
 
         if (res <= 0) {
@@ -709,17 +788,39 @@ static void lwip_app_wifi_config_prompt (void)
           continue;
         }
 
-        if (!strncmp(buf, "1", 1)) {
-          wlan_security = WFM_SECURITY_MODE_OPEN;
-        } else if (!strncmp(buf, "2", 1)) {
-          wlan_security = WFM_SECURITY_MODE_WEP;
-        } else if (!strncmp(buf, "3", 1)) {
-          wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
-        } else if (!strncmp(buf, "4", 1)) {
-          wlan_security = WFM_SECURITY_MODE_WPA2_PSK;
-        } else {
-          printf("Unknown value\n");
-          error = true;
+        buf[2] = '\0';
+        switch (atoi(buf)) {
+          case 1:
+            wlan_security = WFM_SECURITY_MODE_OPEN;
+            break;
+          case 2:
+            wlan_security = WFM_SECURITY_MODE_WEP;
+            break;
+          case 3:
+            wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
+            break;
+          case 4:
+            wlan_security = WFM_SECURITY_MODE_WPA2_PSK;
+            break;
+          case 5:
+          {
+            wlan_security = WFM_SECURITY_MODE_WPA3_SAE;
+
+            // Initiate the SAE exchange
+            status = sl_wfx_sae_prepare(&wifi.mac_addr_0,
+                                        (sl_wfx_mac_address_t *)wlan_bssid,
+                                        (uint8_t *)wlan_passkey,
+                                        strlen(wlan_passkey));
+            if (status != SL_STATUS_OK) {
+              printf("SAE prepare failure\r\n");
+              error = true;
+            }
+            break;
+          }
+          default:
+            printf("Unknown value\n");
+            error = true;
+            break;
         }
       } while (error);
 
@@ -748,7 +849,7 @@ static void lwip_app_wifi_config_prompt (void)
 
       do {
         error = false;
-        printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\nEnter 1,2,3 or 4:\n");
+        printf("Select a security mode:\n1. Open\n2. WEP\n3. WPA1 or WPA2\n4. WPA2\n5. WPA3\nEnter 1,2,3,4 or 5:\n");
         res = console_get_line(buf, sizeof(buf));
 
         if (res <= 0) {
@@ -757,17 +858,27 @@ static void lwip_app_wifi_config_prompt (void)
           continue;
         }
 
-        if (!strncmp(buf, "1", 1)) {
-          softap_security = WFM_SECURITY_MODE_OPEN;
-        } else if (!strncmp(buf, "2", 1)) {
-          softap_security = WFM_SECURITY_MODE_WEP;
-        } else if (!strncmp(buf, "3", 1)) {
-          softap_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
-        } else if (!strncmp(buf, "4", 1)) {
-          softap_security = WFM_SECURITY_MODE_WPA2_PSK;
-        } else {
-          printf("Unknown value\n");
-          error = true;
+        buf[2] = '\0';
+        switch (atoi(buf)) {
+          case 1:
+            softap_security = WFM_SECURITY_MODE_OPEN;
+            break;
+          case 2:
+            softap_security = WFM_SECURITY_MODE_WEP;
+            break;
+          case 3:
+            softap_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
+            break;
+          case 4:
+            softap_security = WFM_SECURITY_MODE_WPA2_PSK;
+            break;
+          case 5:
+            softap_security = WFM_SECURITY_MODE_WPA3_SAE;
+            break;
+          default:
+            printf("Unknown value\n");
+            error = true;
+            break;
         }
       } while (error);
 
@@ -970,14 +1081,7 @@ static void netif_config(void)
   //  Registers the default network interface.
   netif_set_default(&sta_netif);
 #ifndef DISABLE_CFG_MENU
-#ifdef SLEEP_ENABLED
-  SLEEP_SleepBlockBegin(sleepEM2);
-#endif
   lwip_app_wifi_config_prompt(); // Prompt the user for a chance to override the configuration
-#ifdef SLEEP_ENABLED
-  SLEEP_SleepBlockEnd(sleepEM2);
-#endif
-
 #else
   sl_wfx_generic_confirmation_t* reply = NULL;
   sl_wfx_start_ap_command(softap_channel, (uint8_t*) softap_ssid, strlen(softap_ssid), 0, 0, softap_security, 0, (uint8_t*) softap_passkey, strlen(softap_passkey), NULL, 0, NULL, 0);
@@ -990,6 +1094,10 @@ static void netif_config(void)
 sl_status_t lwip_start(void)
 {
   RTOS_ERR err;
+
+  OSSemCreate(&scan_sem, "wifi_scan_sem", 0, &err);
+  /*   Check error code.                                  */
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
   OSTaskCreate(&lwip_task_tcb,
                "LWIP Task",

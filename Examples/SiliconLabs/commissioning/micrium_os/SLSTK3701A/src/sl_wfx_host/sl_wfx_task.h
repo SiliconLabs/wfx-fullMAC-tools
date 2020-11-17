@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-#ifndef WFX_TASK_H
-#define WFX_TASK_H
+#ifndef SL_WFX_TASK_H
+#define SL_WFX_TASK_H
 
 #include <kernel/include/os.h>
 #include "sl_wfx_constants.h"
-extern OS_FLAG_GRP wfx_bus_evts;
+
 #define SL_WFX_BUS_EVENT_FLAG_RX      1
 #define SL_WFX_BUS_EVENT_FLAG_TX      2
 #define SL_WFX_BUS_EVENT_WAKE         4
 #define SL_WFX_BUS_QUEUE_SIZE        10
+
 typedef struct {
   sl_wfx_send_frame_req_t *frame;
   uint32_t data_length;
@@ -32,7 +33,9 @@ typedef struct {
 
 extern wfx_frame_q_item wfx_bus_tx_frame;
 extern OS_SEM wfx_bus_tx_complete;
+extern OS_FLAG_GRP wfx_bus_evts;
 extern sl_wfx_context_t wifi;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

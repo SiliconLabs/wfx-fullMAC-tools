@@ -17,6 +17,8 @@
 #ifndef SL_WFX_HOST_EVENTS_H
 #define SL_WFX_HOST_EVENTS_H
 
+extern QueueHandle_t wifi_events_queue;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

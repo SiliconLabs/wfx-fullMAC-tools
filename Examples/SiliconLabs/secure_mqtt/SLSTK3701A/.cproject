@@ -43,8 +43,8 @@
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-secure-mqtt.h&quot;"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
-									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 									<listOptionValue builtIn="false" value="NVM3_MAX_OBJECT_SIZE=2048"/>
+									<listOptionValue builtIn="false" value="MICRIUMOS=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2026396169" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.1091880051" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
@@ -81,7 +81,6 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/common/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/io/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/nvm3/config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/nvm3/inc&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.261519505" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -181,8 +180,8 @@
 									<listOptionValue builtIn="false" value="SLEEP_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
-									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 									<listOptionValue builtIn="false" value="NVM3_MAX_OBJECT_SIZE=2048"/>
+									<listOptionValue builtIn="false" value="MICRIUMOS=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.960391177" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.13917865" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
@@ -220,7 +219,6 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/util/third_party/segger/systemview/Sample/MicriumOSKernel&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/io/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/nvm3/config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/nvm3/inc&quot;"/>
 								</option>
 								<inputType id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input.1014462801" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -337,7 +335,6 @@
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/common/inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os/io/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/sleep/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/nvm3/config&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/emdrv/nvm3/inc&quot;"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols.641573430" name="Defined symbols (-D)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.def.symbols" valueType="definedSymbols">
@@ -353,6 +350,7 @@
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 									<listOptionValue builtIn="false" value="NVM3_MAX_OBJECT_SIZE=2048"/>
+									<listOptionValue builtIn="false" value="MICRIUMOS=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.604808963" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog.632203523" name="Generate debugger-friendly prologs (-mno-sched-prolog)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog" value="true" valueType="boolean"/>

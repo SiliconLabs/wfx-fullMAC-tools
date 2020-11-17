@@ -61,11 +61,12 @@ static bool wfx_bus_rx_in_process = false;
 sl_wfx_context_t wifi;
 
 // Connection parameters
-char wlan_ssid[32]                     = WLAN_SSID_DEFAULT;
-char wlan_passkey[64]                  = WLAN_PASSKEY_DEFAULT;
+char wlan_ssid[32+1]                   = WLAN_SSID_DEFAULT;
+char wlan_passkey[64+1]                = WLAN_PASSKEY_DEFAULT;
+uint8_t wlan_bssid[SL_WFX_BSSID_SIZE];
 sl_wfx_security_mode_t wlan_security   = WLAN_SECURITY_DEFAULT;
-char softap_ssid[32]                   = SOFTAP_SSID_DEFAULT;
-char softap_passkey[64]                = SOFTAP_PASSKEY_DEFAULT;
+char softap_ssid[32+1]                 = SOFTAP_SSID_DEFAULT;
+char softap_passkey[64+1]              = SOFTAP_PASSKEY_DEFAULT;
 sl_wfx_security_mode_t softap_security = SOFTAP_SECURITY_DEFAULT;
 uint8_t softap_channel                 = SOFTAP_CHANNEL_DEFAULT;
 
@@ -122,53 +123,35 @@ static void wfx_bus_task(void *p_arg)
     flags = OSFlagPend(&wfx_bus_evts, 0xF, WFX_BUS_EVENT_TIMEOUT_MS,
                        OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
                        0, &err);
-    if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_TIMEOUT) {
-    }
-    /*Receive the frame(s) pending in WF200*/
-    /* See if we can obtain the mutex.  If is not
-       available wait to see if it becomes free. */
-    if (flags & SL_WFX_BUS_EVENT_FLAG_RX) {
 
-      if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
-        result = receive_frames();
-        if (result != SL_STATUS_OK) {
-          if (result != 1039) {
-            printf("receive_frames() error\n");
-          }
-        }
-        if ((sl_wfx_context->state & SL_WFX_POWER_SAVE_ACTIVE)
-            && !sl_wfx_context->used_buffers && !(flags & SL_WFX_BUS_EVENT_FLAG_TX)) {
-          sl_wfx_context->state |= SL_WFX_SLEEPING;
-          result = sl_wfx_host_set_wake_up_pin(0);
-        }
+    if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
 
-        if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-          printf("ERROR: wf200_mutex. unable to post.\n");
-        }
-      } else {
-        //unable to receive
-        printf("ERROR: wf200_mutex. unable to receive data.\n");
-      }
+      if (flags & SL_WFX_BUS_EVENT_FLAG_RX) {
+        // Treat received frames
+        receive_frames();
 
-      //reenable interrupt (req for sdio)
 #ifdef SL_WFX_USE_SDIO
-      sl_wfx_host_enable_platform_interrupt();
+        // Reenable interrupt (req for sdio)
+        sl_wfx_host_enable_platform_interrupt();
 #endif
-    }
-    if (flags & SL_WFX_BUS_EVENT_FLAG_TX) {
-      int i = 0;
-      result = SL_STATUS_ALLOCATION_FAILED;
-      while ((result == SL_STATUS_ALLOCATION_FAILED) && (i++ < 10)) {
-        result = sl_wfx_send_ethernet_frame(wfx_bus_tx_frame.frame,
-                                            wfx_bus_tx_frame.data_length,
-                                            wfx_bus_tx_frame.interface,
-                                            wfx_bus_tx_frame.priority);
       }
-      if (result != SL_STATUS_ALLOCATION_FAILED) {
+      if (flags & SL_WFX_BUS_EVENT_FLAG_TX) {
+        int i = 0;
+        result = SL_STATUS_FAIL;
+        while ((result != SL_STATUS_OK) && (i++ < 10)) {
+          result = sl_wfx_send_ethernet_frame(wfx_bus_tx_frame.frame,
+                                              wfx_bus_tx_frame.data_length,
+                                              wfx_bus_tx_frame.interface,
+                                              wfx_bus_tx_frame.priority);
+        }
+        if (result != SL_STATUS_OK) {
+          printf("Unable to send ethernet frame\r\n");
+        }
+        // Ensure to unlock the stack
         OSSemPost(&wfx_bus_tx_complete, OS_OPT_POST_ALL, &err);
-      } else {
-        printf("Unable to send ethernet frame\r\n");
       }
+    } else {
+      printf("Bus Task error\r\n");
     }
   }
 }

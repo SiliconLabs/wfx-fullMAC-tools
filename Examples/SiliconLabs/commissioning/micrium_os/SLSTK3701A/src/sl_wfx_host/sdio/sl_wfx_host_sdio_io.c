@@ -24,7 +24,7 @@
 
 #include "sl_wfx_host_sdio_fnct.h"
 #include "sl_wfx_host_cfg.h"
-
+#include "sl_wfx_host.h"
 #include "sl_wfx_task.h"
 #include "sleep.h"
 
@@ -234,6 +234,7 @@ sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)
 static void sdio_irq_callback(void* arg)
 {
   RTOS_ERR err;
+  OSSemPost(&wfx_wakeup_sem, OS_OPT_POST_ALL, &err);
   OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
 }
 

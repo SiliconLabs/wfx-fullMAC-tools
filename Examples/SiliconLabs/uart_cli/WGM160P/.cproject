@@ -44,12 +44,12 @@
 									<listOptionValue builtIn="false" value="SL_WFX_SLK_CURVE25519=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_DEBUG_MASK=0"/>
 									<listOptionValue builtIn="false" value="DEBUG_EFM=1"/>
-									<listOptionValue builtIn="false" value="LWIP_APP_TLS_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;mbedtls/config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 									<listOptionValue builtIn="false" value="MICRIUMOS=1"/>
-									<listOptionValue builtIn="false" value="SL_WFX_CLI_PARAM_NB_MAX_PARAMS=25"/>
+									<listOptionValue builtIn="false" value="SL_WFX_CLI_PARAM_NB_MAX_PARAMS=30"/>
+									<listOptionValue builtIn="false" value="SL_WFX_CLI_GEN_INPUT_BUF_SIZE=256"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.265957821" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>
@@ -61,7 +61,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/wgm160p/config}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/bus}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/firmware}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Drivers/wfx_fmac_driver/secure_link}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/platform/micrium_os&quot;"/>
@@ -127,7 +126,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|readme_files|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|mbedtls/apache-2.0.txt|mbedtls/ChangeLog|mbedtls/CMakeLists.txt|mbedtls/DartConfiguration.tcl|mbedtls/LICENSE|mbedtls/Makefile|mbedtls/README.md|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|src/sl_wfx_host/sl_wfx_host_spi.c|micrium_os/ports/source/gnu/armv6m_cpu_a.S|bl-usart-geckoG1-v2.07.hex|sl_wfx_common_cli/sl_wfx_cli_traffic_agent.c|micrium_os/drivers/net/|lwip/src/apps/lwiperf/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|Drivers/wfx_fmac_driver/bus/sl_wfx_bus_spi.c|readme_files|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING|mbedtls/doxygen|mbedtls/programs|mbedtls/scripts|mbedtls/sl_crypto/src/cryptoacc|mbedtls/tests|mbedtls/visualc|mbedtls/yotta|mbedtls/apache-2.0.txt|mbedtls/ChangeLog|mbedtls/CMakeLists.txt|mbedtls/DartConfiguration.tcl|mbedtls/LICENSE|mbedtls/Makefile|mbedtls/README.md|micrium_os/common/source/logging|micrium_os/common/source/op_lock|micrium_os/common/source/preprocessor|micrium_os/common/source/ring_buf|micrium_os/ports/source/armcc|micrium_os/ports/source/generic/armv7m_cache_generic_l1.c|micrium_os/ports/source/gnu/armv6m_os_cpu_a.S|micrium_os/ports/source/gnu/armv6m_os_cpu_c.c|micrium_os/ports/source/gnu/armv7m_cpu_c.c|micrium_os/ports/source/gnu/armv7m_lib_mem.S|micrium_os/ports/source/gnu/posix_cpu_c.c|micrium_os/ports/source/gnu/posix_os_cpu_c.c|micrium_os/ports/source/iar|micrium_os/ports/source/win32|src/sl_wfx_host/sl_wfx_host_spi.c|micrium_os/ports/source/gnu/armv6m_cpu_a.S|bl-usart-geckoG1-v2.07.hex|sl_wfx_common_cli/sl_wfx_cli_traffic_agent.c|micrium_os/drivers/net/|lwip/src/apps/lwiperf/|sl_wfx_common_cli/sl_wfx_cli_generic/sl_wfx_cli_generic_freertos.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

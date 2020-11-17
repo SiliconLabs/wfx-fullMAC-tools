@@ -17,11 +17,16 @@
 #include "cmsis_os.h"
 #include "sl_wfx_host.h"
 #include "sl_wfx_host_events.h"
+#include "sl_wfx_sae.h"
 #include "demo_config.h"
 
+#define SL_WFX_EVENTS_NB_MAX                 10u
+
 osThreadId wifi_events_task_handle;
-extern EventGroupHandle_t sl_wfx_event_group;
+QueueHandle_t wifi_events_queue;
+
 extern sl_wfx_context_t wifi;
+extern osSemaphoreId scan_sem;
 
 /*
  * The task that implements Wi-Fi events handling.
@@ -30,54 +35,77 @@ static void wifi_events_task(void const * pvParameters);
 
 void wifi_events_start(void)
 {
-  osThreadDef(wifi_events, wifi_events_task, osPriorityBelowNormal, 0, 128);
+  osThreadDef(wifi_events, wifi_events_task, osPriorityBelowNormal, 0, 1024);
   wifi_events_task_handle = osThreadCreate(osThread(wifi_events), NULL);
+  wifi_events_queue = xQueueCreate(SL_WFX_EVENTS_NB_MAX, sizeof(void *));
 }
 
 static void wifi_events_task(void const * pvParameters)
 {
-  EventBits_t flags;
+  sl_wfx_generic_message_t *msg;
+  BaseType_t ret;
   
   for(;;)
   {
-    flags = xEventGroupWaitBits(sl_wfx_event_group,
-                                SL_WFX_CONNECT | SL_WFX_STOP_AP | SL_WFX_DISCONNECT | SL_WFX_START_AP,
-                                pdTRUE,
-                                pdFALSE,
-                                5000/portTICK_PERIOD_MS);
-    if (flags & SL_WFX_CONNECT) {
-      lwip_set_sta_link_up();
+    ret = xQueueReceive(wifi_events_queue, (void *)&msg, portMAX_DELAY);
+     
+    if ((ret == pdTRUE) && (msg != NULL)) {
+      switch (msg->header.id) {
+        case SL_WFX_CONNECT_IND_ID:
+        {
+          lwip_set_sta_link_up();
 
 #ifdef SLEEP_ENABLED
-      if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
-        // Enable the power save
-        sl_wfx_set_power_mode(WFM_PM_MODE_PS, 0);
-        sl_wfx_enable_device_power_save();
+          if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
+            // Enable the power save
+            sl_wfx_set_power_mode(WFM_PM_MODE_PS, 1);
+            sl_wfx_enable_device_power_save();
+          }
+#endif
+          break;
+        }
+        case SL_WFX_DISCONNECT_IND_ID:
+        {
+          lwip_set_sta_link_down();
+          break;
+        }
+        case SL_WFX_START_AP_IND_ID:
+        {
+          lwip_set_ap_link_up();
+
+#ifdef SLEEP_ENABLED
+          // Power save always disabled when SoftAP mode enabled
+          sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
+          sl_wfx_disable_device_power_save();
+#endif
+          break;
+        }
+        case SL_WFX_STOP_AP_IND_ID:
+        {
+          lwip_set_ap_link_down();
+
+#ifdef SLEEP_ENABLED
+          if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
+            // Enable the power save
+            sl_wfx_set_power_mode(WFM_PM_MODE_PS, 1);
+            sl_wfx_enable_device_power_save();
+          }
+#endif
+          break;
+        }
+        case SL_WFX_SCAN_COMPLETE_IND_ID:
+        {
+          xSemaphoreGive(scan_sem);
+          break;
+        }
+        case SL_WFX_EXT_AUTH_IND_ID:
+        {
+          sl_wfx_sae_exchange((sl_wfx_ext_auth_ind_t *)msg);
+          break;
+        }
       }
-#endif
-    }
-    if (flags & SL_WFX_DISCONNECT){
-      lwip_set_sta_link_down();
-    }
-    if (flags & SL_WFX_START_AP){
-      lwip_set_ap_link_up();
 
-#ifdef SLEEP_ENABLED
-      // Power save always disabled when SoftAP mode enabled
-      sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
-      sl_wfx_disable_device_power_save();
-#endif
-    }
-    if (flags & SL_WFX_STOP_AP){
-      lwip_set_ap_link_down();
-
-#ifdef SLEEP_ENABLED
-      if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
-        // Enable the power save
-        sl_wfx_set_power_mode(WFM_PM_MODE_PS, 0);
-        sl_wfx_enable_device_power_save();
-      }
-#endif
+      sl_wfx_host_free_buffer(msg, SL_WFX_RX_FRAME_BUFFER);
     }
   }
 }

@@ -41,7 +41,7 @@
 #include "lwipopts.h"
 #include "sl_wfx_cli_generic.h"
 
-#if LWIP_APP_TLS_ENABLED
+#ifdef SL_WFX_USE_SECURE_LINK
 #include <mbedtls/threading.h>
 #include MBEDTLS_CONFIG_FILE
 #endif
@@ -94,7 +94,7 @@ int  main(void)
   OS_TRACE_INIT(); // Initialize trace if enabled
   OSInit(&err);    // Initialize the Kernel.
 
-#if LWIP_APP_TLS_ENABLED
+#ifdef SL_WFX_USE_SECURE_LINK
   // Enable mbedtls Micrium OS support
   THREADING_setup();
 #endif
@@ -138,6 +138,7 @@ static void GPIO_Unified_IRQ(void)
 
   // Act on interrupts
   if (interrupt_mask & 0x400) {
+    OSSemPost(&wfx_wakeup_sem, OS_OPT_POST_ALL, &err);
 #ifdef SL_WFX_USE_SPI
     OSFlagPost(&bus_events, SL_WFX_BUS_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
 #endif

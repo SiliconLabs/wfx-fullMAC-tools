@@ -1,0 +1,191 @@
+================ Revision history ============================================
+5.7.8:
+  - Updated to mbed TLS library version 2.7.10
+
+5.7.2:
+  - Added support for accelerating J-PAKE in Series 2 devices. Turned on by
+    compiling in the new file sl_crypto/se_jpake.c and defining the alt define
+    'MBEDTLS_ECJPAKE_ALT'.
+  - Bugfix: In mbedtls_ccm_encrypt_and_tag and mbedtls_ccm_auth_decrypt, allow
+    additional data ponter paramater 'add' to be NULL when the 'add_len'
+    parameter is zero.
+  - Added threading support for operations based on SE and RADIOAES interfaces
+    This change also throws an error code when trying to use SEMAILBOX in IRQ
+    context, since this is unsafe behavior. In case the old behavior of allow-
+    ing SEMAILBOX operations in IRQ context is desired, please manually define
+    'USE_SE_IN_IRQ' to a non-zero value.
+    To support this change, source files 'radioaes.c' and 'se_management.c'
+    have been added in the sl_crypto/src directory.
+
+5.7.0:
+  - Updated to mbed TLS library version 2.7.6
+  - Fixed TRNG underflow bug
+
+5.6.0:
+  - No changes.
+
+5.5.0:
+ - Added ADC entropy source.
+ - Added radio (RAIL) entropy source (for EFR32 devices).
+ - Removed TRNG entropy source for EFR32XG13 and EFR32XG14 devices.
+ - Updated upstream mbed TLS library to version 2.7.1 (LTS)
+ - AES setkey functions now return MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE when
+   trying to set a key with unsupported keylength. See upstream library for
+   more information.
+ - Added support for classic AES devices that only supports AES-128.
+ - SHA acceleration API was changed upstream, and as such the internal API had
+   to be changed in parallel.
+ - mbed TLS 2.7.0 enabled the high-level acceleration of CMAC and CCM
+   cryptographic algorithms.
+
+5.4.0:
+ - Updated upstream mbed TLS library to version 2.6.1
+ - Reverted changes to self-test functions that would always skip AES-192-based
+   tests, and replaced it with skipping the test if and only if AES-192 is
+   actually unsupported (setkey returns MBEDTLS_ERR_AES_INVALID_KEY_LENGTH)
+ - Fixed include guards to better match expected behavior from mbed TLS
+ - Removed the option to ignore TRNG alarm conditions. Because of a chip errata
+   the TRNG on all Series 1 devices (both EFR32 and EFM32) will have a higher
+   than expected alarm rate when its input clock is faster than HFCLK/4. This
+   may cause a lower than expected amount of entropy, and the TRNG will only
+   output the parts of the data that pass the AIS-31 test. This data does not
+   necessarily have the full amount of expected entropy for a TRNG, and as such
+   should be used with caution.
+   Therefore, we strongly recommend to reduce the speed of HFPERCLK by setting
+   the respective clock divisor to 2 or higher, if at all possible for your
+   application.
+   Additionally, we highly recommend checking the return value of all your
+   mbed TLS entropy calls and all mbed TLS cryptographic functions relying on
+   random data input, since a noise alarm will cause a failure. The noise alarm
+   error code may or may not bubble up to your application.
+
+5.3.4:
+ - No changes.
+
+5.3.0:
+ - Removed generic device preemption and SL_PAL to optimize for simplicity.
+   The only functions instrumented and allowed to preempt are the Bluetooth helper
+   functions.
+ - Implemented thread-safety using the mbedTLS threading API. For now, this
+   means that when compiling with MBEDTLS_THREADING_C, one should call
+   mbedtls_threading_set_alt(...) with the used OS's functions, and declare
+   mbedtls_threading_mutex_t to be the used OS's mutex primitive. If not
+   instrumenting an RTOS, mbedTLS will be a single-threaded, blocking library.
+ - Added a simple device manager, which will opportunistically allocate the
+   available devices. Therefore, mbedtls_device_init and
+   mbedtls_device_set_instance are no longer provided. All device management
+   now happens internally in the mbed TLS plugins.
+ - Updated upstream mbed TLS library to version 2.5.1 with CMAC HW acceleration
+   support.
+ - CCM HW abstraction is still a fork from mbed TLS upstream, awaiting a patch.
+ - Removed/updated Class 1 and Class 2 plugins in favor of one unified HAL.
+ - Removed asynch extensions to reduce the divergence from mainline mbed TLS.
+ - Removed test module sl_timing from the release.
+
+5.2.2:
+ - Added include of stdint.h in slpal_common.h because of its reliance on
+   uint32_t.
+
+5.2.1:
+ - No changes.
+
+5.1.3:
+ - No changes.
+
+5.1.2:
+ - No changes.
+
+5.1.1:
+ - Removed support for moving data with BUFC to/from CRYPTO registers.
+ - In order for backwards compatibility, mbedtls_device_init and
+   mbedtls_device_set_instance are called internally, by default.
+   The user may define MBEDTLS_DEVICE_INIT_INTERNAL_DISABLE in order to disable
+   mbedtls_device_init and mbedtls_device_set_instance being called internally,
+   which may save some RAM when using less than 2 (max) CRYPTO devices because
+   the device context structures are statically instantiated inside the
+   mbedTLS library.
+
+5.1.0:
+ - Added enhanced support for Series 1 Configuration 2 devices (EFR32MG12,
+   EFR32MG13,etc.) including two CRYPTO hardware intances, CRYPTO preemption
+   yield CPU core when a CRYPTO device is busy (in slcl_ecp.c) and short
+   critical regions (in slcl_ecp.c).
+ - Added OS abstraction layer with support for uC/OS-III from Micrium (a
+   Silicon Labs company), FreeRTOS and bare-metal (OS less runtime
+   environments).
+ - Added support for the True Random Number Generator (TRNG) incorporated from
+   Series 1 Configuration 2 devices (EFR32MG12, etc.). The TRNG module
+   implements an entropy source which can be enabled by compiling with
+   MBEDTLS_TRNG_C, MBEDTLS_ENTROPY_ALT, MBEDTLS_ENTROPY_INIT_ALT and
+   MBEDTLS_ENTROPY_FREE_ALT.
+ - The CMAC data length (specified in bits in APIs in cmac_alt.h) is
+   currently restricted to be a multiple of 8 bits (i.e. corresponding
+   to an integer of bytes).
+-  Removed asynchronous APIs in aes_alt.h, ccm_alt.h and cmac_alt.h.
+
+5.0.0:
+ - Added basic support for Series 1 Configuration 2 devices (EFR32MG12, etc.)
+ - Bugfix: The asynchronous callback of mbedtls_ccm_auth_decrypt and
+   mbedtls_cmac_verify_tag reported incorrect error codes when authentication
+   verification fails.
+ - Bugfix: In asynchronous mode, the output buffer of mbedtls_ccm_auth_decrypt
+   was not properly cleared when authentication verification fails.
+
+4.4.0:
+ - Added CMAC support with a Silicon Labs specific API (slcl_cmac.c).
+   CMAC is not covered by the standard mbedtls interface.
+   The CMAC plugin use the CRYPTO hardware module for acceleration.
+ - Added CCM plugin (slcl_ccm.c) with CRYPTO hardware acceleration and
+   optimized CCM functions for BLE (mbedtls_ccm_encrypt_and_tag_ble and
+   mbedtls_ccm_auth_decrypt_ble).
+ - Added CRYPTO preemption support in the following plugins:
+   slcl_aes.c, slcl_ccm.c, slcl_cmac.c, slcl_ecp.c, slcl_sha1.c and
+   slcl_sha256.c.
+ - Added support for alternative CRYPTO critical region implementations
+   (for the CRYPTO preemption support).
+ - Added support for asynchronous (non-blocking) API calls in the following
+   plugins: slcl_aes.c, slcl_ccm.c and slcl_cmac.c.
+ - Added support for moving data with BUFC and DMA (to/from CRYPTO registers)
+   in the following plugins: slcl_aes.c and slcl_ccm.c.
+ - In order to support error codes in new SIlicon Labs specific APIs
+   extended error code interface of the standard mbedtls by using the full
+   32-bit integer range, see details in mbedtls_ecode.h.
+ - Added support for AES module on EFM32GG (Giant Gecko) in slcl_aes.c.
+   Compile with MBEDTLS_SLCL_PLUGINS in order to enable EFM32GG support.
+
+4.3.1:
+ - No changes.
+
+4.3.0:
+ - Updated to mbedtls-2.2.0 including EC JPAKE support.
+ - sl_aes.c:
+   In mbedtls_aes_setkey_enc and mbedtls_aes_setkey_dec change return value to
+   MBEDTLS_ERR_AES_INVALID_KEY_LENGTH when key length is not 128 or 256 bits.
+   In mbedtls_aes_crypt_cfb128 added support for data lengths not dividable
+   with 16 (AES block size), by using software (no crypto) implementation.
+   In mbedtls_aes_crypt_cfb8 return errors from mbedtls_aes_crypt_ecb.
+ - library/bignum.c:
+   In mbedtls_mpi_sub_abs and mbedtls_mpi_mul_mpi copy to and use local
+   variables only if necessary.
+ - library/ecp.c:
+   In ecp_modp call halResetWatchdog #ifdef MBEDTLS_HAVE_HAL_WATCHDOG_TIMER
+   for Thread stack integration.
+ - library/aes.c:
+   In mbedtls_aes_self_test allow failure when setting 192 bit keys which is
+   not supported by CRYPTO.
+ - library/gcm.c:
+   In mbedtls_gcm_self_test allow failure when setting 192 bit keys which is
+   not supported by CRYPTO.
+ - library/x509.c and x509_crt.c:
+   Excluded code when MBEDTLS_FS_IO is defined which is not supported on
+   Silicon Labs devices.
+ - Added sl_timing.c and timing_alt.h in order to compiler modules depending on
+   MBEDTLS_TIMING_C. The user should #define MBEDTLS_TIMING_ALT in order to
+   compile.
+
+4.2.1:
+ - No changes.
+
+4.2.0:
+ - First version including support for mbedtls 2.0.0 and CRYPTO acceleration of
+   AES (sl_aes.c), ECC (sl_ecp.c), SHA1 (sl_sha1.c) and SHA256 (sl_sha256.c).

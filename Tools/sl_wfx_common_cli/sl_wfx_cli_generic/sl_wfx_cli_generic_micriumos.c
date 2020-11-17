@@ -30,16 +30,16 @@
 #include "sl_wfx_cli_generic.h"
 
 #ifndef SL_WFX_CLI_GEN_TASK_STK_SIZE
-#define SL_WFX_CLI_GEN_TASK_STK_SIZE      2048u
+#define SL_WFX_CLI_GEN_TASK_STK_SIZE        2048u
 #endif
 #ifndef SL_WFX_CLI_GEN_TASK_PRIO
 #define SL_WFX_CLI_GEN_TASK_PRIO            40u
 #endif
 #ifndef SL_WFX_CLI_GEN_INPUT_BUF_SIZE
-#define SL_WFX_CLI_GEN_INPUT_BUF_SIZE      128u
+#define SL_WFX_CLI_GEN_INPUT_BUF_SIZE       128u
 #endif
 #ifndef SL_WFX_CLI_GEN_OUTPUT_BUF_SIZE
-#define SL_WFX_CLI_GEN_OUTPUT_BUF_SIZE     128u
+#define SL_WFX_CLI_GEN_OUTPUT_BUF_SIZE      SL_WFX_CLI_GEN_INPUT_BUF_SIZE
 #endif
 
 static int sl_wfx_cli_generic_micriumos_init(void *config);
@@ -250,10 +250,15 @@ static bool usart_rx_dma_callback (unsigned int channel,
   }
 
   // Check the buffer to avoid an overflow
-  if (ptr_last_char < &sl_wfx_cli_gen_input_buf[SL_WFX_CLI_GEN_INPUT_BUF_SIZE]) {
+  if ((LDMA->CH[usart_rx_dma_channel].DST - (uint32_t)&sl_wfx_cli_gen_input_buf[0]) <=
+       SL_WFX_CLI_GEN_INPUT_BUF_SIZE) {
     // Re-enable the DMA
     LDMA->CHDONE &= ~(1 << usart_rx_dma_channel);
     LDMA->CHEN |= (1 << usart_rx_dma_channel);
+  } else {
+    // Buffer full, substitute the input to ensure an error when unlocking the task
+    strcpy(sl_wfx_cli_gen_input_buf, "error");
+    OSTaskSemPost(&sl_wfx_cli_gen_task_tcb, OS_OPT_POST_NONE, &err);
   }
 
   return false;
@@ -263,9 +268,12 @@ static bool usart_echo_dma_callback (unsigned int channel,
                                      unsigned int sequenceNo,
                                      void *userParam)
 {
-  // Re-enable the DMA
-  LDMA->CHDONE &= ~(1 << usart_echo_dma_channel);
-  LDMA->CHEN |= (1 << usart_echo_dma_channel);
+  if ((LDMA->CH[usart_echo_dma_channel].SRC - (uint32_t)&sl_wfx_cli_gen_input_buf[0]) <=
+      SL_WFX_CLI_GEN_OUTPUT_BUF_SIZE) {
+    // Re-enable the DMA
+    LDMA->CHDONE &= ~(1 << usart_echo_dma_channel);
+    LDMA->CHEN |= (1 << usart_echo_dma_channel);
+  }
 
   return false;
 }

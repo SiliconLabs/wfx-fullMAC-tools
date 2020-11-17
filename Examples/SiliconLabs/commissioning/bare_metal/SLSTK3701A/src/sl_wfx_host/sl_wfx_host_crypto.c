@@ -34,13 +34,12 @@
 #include "mbedtls/ccm.h"
 
 #ifdef SL_WFX_USE_SECURE_LINK
-#include "secure_link/sl_wfx_secure_link.h"
+#include "sl_wfx_secure_link.h"
 
 // Secure link MAC key location for WGM160P (in DI page in flash)
 #define FCCC_BASE_ADDR                  ((void *) 0x0fe08000ul)
 #define FCCC_DI_OFFSET                  0x1B0ul
 #define FCCC_DI_ADDR                    ((void *) (FCCC_BASE_ADDR + FCCC_DI_OFFSET))
-#define SECURE_LINK_MAC_KEY_LENGTH      32
 #define SECURE_LINK_MAC_KEY_LOCATION    ((void *) (FCCC_BASE_ADDR + 0x3D0))
 /******************************************************
 *                      Macros
@@ -72,17 +71,19 @@ static inline void reverse_bytes( uint8_t *src, uint8_t length );
 *               Variable Definitions
 ******************************************************/
 
-mbedtls_ecdh_context mbedtls_host_context;
-mbedtls_entropy_context entropy;
-mbedtls_ctr_drbg_context host_drbg_context;
+#if SL_WFX_SLK_CURVE25519
+static mbedtls_ecdh_context mbedtls_host_context;
+static mbedtls_ctr_drbg_context host_drbg_context;
+#endif
+static mbedtls_entropy_context entropy;
 uint8_t temp_key_location[SL_WFX_HOST_PUB_KEY_MAC_SIZE];
 #ifdef EFM32GG11B820F2048GM64 //WGM160PX22KGA2
 static const uint8_t* const secure_link_mac_key = (uint8_t*) SECURE_LINK_MAC_KEY_LOCATION;
 #else
-static const uint8_t secure_link_mac_key[SECURE_LINK_MAC_KEY_LENGTH] = { 0x2B, 0x49, 0xFD, 0x66, 0xCB, 0x74, 0x6D, 0x6B,
-	                                                                       0x4F, 0xDC, 0xC3, 0x79, 0x4E, 0xC5, 0x9A, 0x86,
-	                                                                       0xE5, 0x48, 0x2A, 0x41, 0x22, 0x87, 0x8B, 0x12,
-	                                                                       0x1A, 0x7C, 0x3E, 0xEF, 0xB7, 0x04, 0x9E, 0xB3 };
+static const uint8_t secure_link_mac_key[SL_WFX_SECURE_LINK_MAC_KEY_LENGTH] = { 0x2B, 0x49, 0xFD, 0x66, 0xCB, 0x74, 0x6D, 0x6B,
+                                                                                0x4F, 0xDC, 0xC3, 0x79, 0x4E, 0xC5, 0x9A, 0x86,
+                                                                                0xE5, 0x48, 0x2A, 0x41, 0x22, 0x87, 0x8B, 0x12,
+                                                                                0x1A, 0x7C, 0x3E, 0xEF, 0xB7, 0x04, 0x9E, 0xB3 };
 #endif
 /******************************************************
 *               Function Definitions
@@ -92,9 +93,9 @@ sl_status_t sl_wfx_host_get_secure_link_mac_key( uint8_t* sl_mac_key )
 {
   sl_status_t result = SL_STATUS_WIFI_SECURE_LINK_MAC_KEY_ERROR;
 
-  memcpy(sl_mac_key, secure_link_mac_key, SECURE_LINK_MAC_KEY_LENGTH);
+  memcpy(sl_mac_key, secure_link_mac_key, SL_WFX_SECURE_LINK_MAC_KEY_LENGTH);
 
-  for ( uint8_t index = 0; index < SECURE_LINK_MAC_KEY_LENGTH; ++index )
+  for ( uint8_t index = 0; index < SL_WFX_SECURE_LINK_MAC_KEY_LENGTH; ++index )
   {
     // Assuming 0xFF... when not written
     if ( sl_mac_key[index] != 0xFF )
@@ -111,7 +112,7 @@ sl_status_t sl_wfx_host_compute_pub_key( sl_wfx_securelink_exchange_pub_keys_req
 {
   sl_status_t status = SL_STATUS_OK;
 
-#ifdef SL_WFX_SLK_CURVE25519
+#if SL_WFX_SLK_CURVE25519
   const char identifier[] = "ecdh";
 
   mbedtls_ecdh_init( &mbedtls_host_context );
@@ -164,7 +165,7 @@ sl_status_t sl_wfx_host_verify_pub_key(sl_wfx_securelink_exchange_pub_keys_ind_t
     goto error_handler;
   }
 
-#ifdef SL_WFX_SLK_CURVE25519
+#if SL_WFX_SLK_CURVE25519
   SL_WFX_UNUSED_PARAMETER(sl_host_pub_key);
 
   mbedtls_mpi_lset( &mbedtls_host_context.Qp.Z, 1 );
@@ -212,8 +213,10 @@ error_handler:
 
 sl_status_t sl_wfx_host_free_crypto_context(void)
 {
+#if SL_WFX_SLK_CURVE25519
   mbedtls_ecdh_free( &mbedtls_host_context );
   mbedtls_ctr_drbg_free( &host_drbg_context );
+#endif
   mbedtls_entropy_free( &entropy );
 
   return SL_STATUS_OK;

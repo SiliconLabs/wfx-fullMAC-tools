@@ -48,7 +48,7 @@
 		<link>
 			<name>console</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/shared/uOS_shell/console</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/shared/console</locationURI>
 		</link>
 		<link>
 			<name>lwip</name>

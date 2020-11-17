@@ -33,7 +33,7 @@
 		<link>
 			<name>console</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/shared/uOS_shell/console</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/shared/console</locationURI>
 		</link>
 		<link>
 			<name>lwip</name>
@@ -89,16 +89,6 @@
 			<name>Drivers/retargetserial.h</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/drivers/retargetserial.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/udelay.c</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/drivers/udelay.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/udelay.h</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/drivers/udelay.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/wfx_fmac_driver</name>

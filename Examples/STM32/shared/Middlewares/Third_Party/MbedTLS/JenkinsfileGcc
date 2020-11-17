@@ -1,0 +1,191 @@
+#!/usr/bin/env groovy
+
+
+pipeline {
+  agent {label 'main'}
+
+  triggers {
+    cron('H 1 * * 0') // Between 01 and 02 o'clock, every Sunday
+  }
+
+  parameters {
+    string(name: 'kits', defaultValue: '', description: 'Kit names separated by commas (no space). Empty field means default kit selection.')
+  }
+
+  options {
+    timestamps()
+    skipDefaultCheckout()
+    disableConcurrentBuilds()
+  }
+
+  environment {
+    SUPER_BRANCH   = "master"  // Default master, may be changed below
+    JLIB_BRANCH    = "master"  // Default master, may be changed below
+    PYTHONPATH     = "${env.WORKSPACE}"
+    JOB_START_HOUR = Calendar.getInstance().get(Calendar.HOUR_OF_DAY).toString()
+    REPO_DIR       = "util/third_party/mbedtls"
+    RUN_DIR        = "tool/runtest"
+  }
+
+
+  stages {
+
+    stage("Checkout") {
+      steps {
+        echo "Branch to be tested: $BRANCH_NAME"
+        echo "Job start hour: $JOB_START_HOUR"
+
+        // Checkout super repo to root level of workspace
+        git branch: "$SUPER_BRANCH",
+          credentialsId: "$STASH_CRED_ID",
+          url:           "$SUPER_URL",
+          changelog:     false,
+          poll:          false
+
+        script {
+          REF_BRANCH = env.CHANGE_TARGET ? CHANGE_TARGET : BRANCH_NAME  // CHANGE_TARGET defined ==> Pull request ==> REF_BRANCH = target branch, else REF_BRANCH = branch name
+          BRANCH_SUFFIX = env.SUBMODULE_BRANCH_SUFFIX ? SUBMODULE_BRANCH_SUFFIX : "" // branch names ending with "_noscan" will not trigger a build from super in Gecko SDK Suite project
+          echo "Reference branch: $REF_BRANCH"
+          sh 'git fetch --prune'
+          // Check if REF_BRANCH exists in super
+          if (sh (returnStatus: true, script: "git branch -a | grep -w remotes/origin/$REF_BRANCH" + BRANCH_SUFFIX) == 0) { // branch found ==> change super branch
+            SUPER_BRANCH = REF_BRANCH + BRANCH_SUFFIX
+            git branch: "$SUPER_BRANCH",
+              credentialsId: "$STASH_CRED_ID",
+              url:           "$SUPER_URL",
+              changelog:     false,
+              poll:          false
+          }
+
+          dir('mcu-jenkins-util') {
+            git branch: "$JLIB_BRANCH",
+              credentialsId: "$STASH_CRED_ID",
+              url:           "$MCU_JLIB_URL",
+              changelog:     false,
+              poll:          false
+            sh 'git fetch --prune'
+            // Check if REF_BRANCH exists in MCU Jenkins library
+            if (sh (returnStatus: true, script: "git branch -a | grep -w remotes/origin/$REF_BRANCH") == 0) {  // branch found ==> change Jenkins library branch
+              JLIB_BRANCH = REF_BRANCH
+            }
+          }
+        }
+
+        sh 'git submodule update --init --recursive --reference "/home/buildengineer/workspace/ref_repo" --remote \
+          hardware/kit              \
+          platform/CMSIS            \
+          platform/common           \
+          platform/Device           \
+          platform/emdrv            \
+          platform/emlib            \
+          platform/halconfig        \
+          platform/micrium_os       \
+          platform/radio/rail_lib   \
+          platform/service          \
+          tool/emtool               \
+          tool/runtest              \
+          tool/script               \
+          util/third_party/freertos \
+          util/third_party/unity    \
+          '
+
+        // Special handling of submodule util/third_party/crypto because it's nested/multilevel (a sub-submodule cannot inherit branch name from a repo that's in a detached state)
+        script {
+          sh 'git submodule update --init --reference "/home/buildengineer/workspace/ref_repo" --remote util/third_party/crypto'
+          CRYPTO_BRANCH = sh(returnStdout: true, script: "git submodule--helper remote-branch util/third_party/crypto")
+          echo "Crypto branch: $CRYPTO_BRANCH"
+          dir('util/third_party/crypto') {
+            sh "git checkout $CRYPTO_BRANCH && git pull"
+            sh 'git submodule update --init --recursive --reference "/home/buildengineer/workspace/ref_repo" --remote'
+          }
+        }
+
+        // meta_util.py for some reason looks for python in a fixed location
+        sh 'sed -i "s#/usr/bin/python#/usr/bin/env python#" meta_util.py'
+        dir(REPO_DIR) {
+          checkout scm
+          sh 'git rev-parse HEAD'
+        }
+        dir(RUN_DIR) {sh 'git reset --hard && git clean -dxff'} // Removing old build files
+
+        // Load Jenkins shared library
+        library "mcu-jenkins-util@$JLIB_BRANCH"
+
+        echo "super branch: $SUPER_BRANCH"
+        echo "Jenkins library branch: $JLIB_BRANCH"
+      }
+    }
+
+
+
+    // ***** PRE-BUILD SCRIPTS *****
+    stage("Pre-Build-GCC") {
+      steps {
+        dir("$REPO_DIR/sl_tests") {
+          sh "make clean"
+          sh "make all EXTRA_DEFINES=MBEDTLS_SLCL_PLUGINS"
+          sh "make speed EXTRA_DEFINES=MBEDTLS_SLCL_PLUGINS"
+        }
+        dir('platform/radio/rail_lib') {
+          sh "make clean"
+          sh "make librail_efr32xg1_gcc_release"
+          sh "make librail_efr32xg12_gcc_release"
+          sh "make librail_efr32xg13_gcc_release"
+          sh "make librail_efr32xg14_gcc_release"
+        }
+      }
+    }
+
+
+
+    // ***** BUILDING WITH GCC *****
+    stage("Build-GCC") {
+      steps {
+        script {
+          def testOp    = 'build'
+          def repo      = REPO_DIR.tokenize('/').last()
+          def compiler  = 'armgcc'
+          def nodeLabel = 'gcc'
+          def coverage  = 'none'
+          runtest(testOp, repo, compiler, nodeLabel, params.kits, coverage)
+        }
+      }
+      post {always {junit allowEmptyResults: true, testResults: "$RUN_DIR/out/*.xml"}}
+    }
+
+
+
+    // ***** RUNNING TESTS (GCC) *****
+    stage("Run-GCC") {
+      steps {
+        script {
+          def testOp    = 'run'
+          def repo      = REPO_DIR.tokenize('/').last()
+          def compiler  = 'armgcc'
+          def nodeLabel = 'runner'
+          def coverage  = 'none'
+          runtest(testOp, repo, compiler, nodeLabel, params.kits, coverage)
+        }
+      }
+      post {always {junit allowEmptyResults: true, testResults: "$RUN_DIR/out/*.xml"}}
+    }
+  }
+
+
+
+  post {
+    always {
+      sh 'hostname'
+      notifySilabsSlack channel: SLACK_NOTIF_CHANNEL, stashUrl: 'https://stash.silabs.com/projects/MCU32_REPOS/repos/s053_mbedtls', showTestReport: false
+    }
+    success {
+      script {
+        if (params.kits == '' || params.kits.contains('EFR32MG21_BRD4171A'))
+          archiveArtifacts artifacts: 'tool/runtest/test_EFR32MG21_BRD4171A-armgcc/*/armgcc/*/Release/exe/*.bin', fingerprint: true
+        else
+          echo "[INFO] Artifacts not archived because EFR32MG21_BRD4171A is not among the tested kits"
+      }
+    }
+  }
+
+}

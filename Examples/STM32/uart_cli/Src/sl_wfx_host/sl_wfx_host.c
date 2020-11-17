@@ -42,6 +42,7 @@ scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];
 uint8_t scan_count = 0; 
 uint8_t scan_count_web = 0; 
 QueueHandle_t eventQueue;
+osSemaphoreId wfx_wakeup_sem;
 
 struct
 {
@@ -54,6 +55,7 @@ sl_status_t sl_wfx_host_init(void)
 {
   host_context.sl_wfx_firmware_download_progress = 0;
   eventQueue = xQueueCreate(SL_WFX_EVENT_LIST_SIZE, sizeof(uint8_t));
+  wfx_wakeup_sem = xSemaphoreCreateBinary();
   return SL_STATUS_OK;
 }
 
@@ -129,7 +131,8 @@ sl_status_t sl_wfx_host_set_wake_up_pin(uint8_t state)
 
 sl_status_t sl_wfx_host_wait_for_wake_up(void)
 {
-  osDelay(3);
+  xSemaphoreTake(wfx_wakeup_sem, 0);
+  xSemaphoreTake(wfx_wakeup_sem, 3/portTICK_PERIOD_MS);
 
   return SL_STATUS_OK;
 }
@@ -246,6 +249,15 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
       sl_wfx_ap_client_disconnected_callback(ap_client_disconnected_indication->body.reason, ap_client_disconnected_indication->body.mac);
       break;
     }
+#ifdef SL_WFX_USE_SECURE_LINK
+    case SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID:
+    {
+      if(host_context.waited_event_id != SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID) {
+        memcpy((void*)&sl_wfx_context->secure_link_exchange_ind,(void*)event_payload, event_payload->header.length);
+      }
+      break;
+    }
+#endif
   case SL_WFX_GENERIC_IND_ID:
     {
       sl_wfx_generic_ind_t* generic_status = (sl_wfx_generic_ind_t*)event_payload;

@@ -17,7 +17,7 @@
 #ifndef LWIP_FREERTOS_H
 #define LWIP_FREERTOS_H
 
-#include "sl_wfx_cmd_api.h"
+#include "sl_wfx_host_api.h"
 
 #define USE_DHCP_CLIENT_DEFAULT 1 ///< If defined, DHCP requests are enabled, otherwise static address below is used
 #define USE_DHCP_SERVER_DEFAULT 1 ///< If defined, DHCP server is enabled, otherwise client must have a static address
@@ -78,11 +78,11 @@ extern struct netif ap_netif;
 
 extern char wlan_ssid[32+1];
 extern char wlan_passkey[64+1];
-extern char wlan_pmk[64+1];
+extern sl_wfx_password_t wlan_pmk;
 extern sl_wfx_security_mode_t wlan_security;
 extern char softap_ssid[32+1];
 extern char softap_passkey[64+1];
-extern char softap_pmk[64+1];
+extern sl_wfx_password_t softap_pmk;
 extern sl_wfx_security_mode_t softap_security;
 extern uint8_t softap_channel;
 extern int use_dhcp_client;

@@ -24,12 +24,21 @@
 #include "lwip_common.h"
 #include "sl_wfx_host_events.h"
 #include "sl_wfx_cli_generic.h"
+   
+#if SL_WFX_USE_SECURE_LINK
+#include <mbedtls/threading.h>
+#include MBEDTLS_CONFIG_FILE
 
+extern void sl_wfx_securelink_start(void);
+#endif
+
+RNG_HandleTypeDef hrng;
 UART_HandleTypeDef huart3;
 SemaphoreHandle_t uart3Semaphore;
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_RNG_Init(void);
 static void MX_USART3_UART_Init(void);
 
 extern void wifi_bus_comm_start( void );
@@ -54,6 +63,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_RNG_Init();
   MX_USART3_UART_Init();
   
   /* Clear the console and buffer */
@@ -67,6 +77,13 @@ int main(void)
   
   /* Create the thread(s) */
   wifi_bus_comm_start();
+  
+#ifdef SL_WFX_USE_SECURE_LINK
+  // Enable mbedtls FreeRTOS support  
+  THREADING_setup();
+  sl_wfx_securelink_start(); // start securelink key renegotiation task
+#endif //SL_WFX_USE_SECURE_LINK
+  
   wifi_events_start();
   lwip_start ();
   
@@ -74,8 +91,6 @@ int main(void)
   if (res != 0) {
     printf("CLI init error (%d)\r\n", res);
   }
-
-  //vAutoReconnectStart(); //Enable to start the auto station reconnect mechanism
 
   /* Start scheduler */
   osKernelStart();
@@ -165,6 +180,28 @@ static void MX_USART3_UART_Init(void)
   uart3Semaphore = xSemaphoreCreateBinary();
 
   xSemaphoreGive(uart3Semaphore);
+}
+
+/* RNG init function */
+static void MX_RNG_Init(void)
+{
+
+  /* USER CODE BEGIN RNG_Init 0 */
+
+  /* USER CODE END RNG_Init 0 */
+
+  /* USER CODE BEGIN RNG_Init 1 */
+
+  /* USER CODE END RNG_Init 1 */
+  hrng.Instance = RNG;
+  if (HAL_RNG_Init(&hrng) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN RNG_Init 2 */
+
+  /* USER CODE END RNG_Init 2 */
+
 }
 
 /** Configure pins as

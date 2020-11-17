@@ -103,6 +103,16 @@ typedef void (*SDIODRV_Com_Callback_t)(SDIODRV_Event_t evt, uint32_t error);
  ******************************************************************************/
 typedef void (*SDIODRV_Evt_Callback_t)(void);
 
+/***************************************************************************//**
+ * @brief
+ *   SDIODRV Yield function.
+ *
+ * @details
+ *   Hook called at the handler's end allowing to yield (required by some OS
+ *   e.g FreeRTOS).
+ ******************************************************************************/
+typedef void (*SDIODRV_Yield_t)(void);
+
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
@@ -122,6 +132,7 @@ typedef struct SDIODRV_Init_s {
   uint8_t               portLocationWp;
   CMU_Select_TypeDef    clockSource;
   SDIO_Transfer_Width_t transferWidth;
+  SDIODRV_Yield_t       yield_fn;
 } SDIODRV_Init_t;
 
 /**

@@ -114,6 +114,7 @@ void EXTI15_10_IRQHandler(void)
   
 #ifdef SL_WFX_USE_SPI
   if (__HAL_GPIO_EXTI_GET_IT(SL_WFX_IRQ_GPIO_SPI) != RESET) {
+    xSemaphoreGiveFromISR(wfx_wakeup_sem, &xHigherPriorityTaskWoken);
     vTaskNotifyGiveFromISR( busCommTaskHandle, &xHigherPriorityTaskWoken );
   }
 #endif /* SL_WFX_USE_SPI */
@@ -194,20 +195,21 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 */
 void SDIO_IRQHandler(void)
 {
-  /* USER CODE BEGIN SDIO_IRQn 0 */
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  if(__SDIO_GET_FLAG(SDIO, SDIO_IT_SDIOIT)){
+  if(((SDIO->MASK & SDIO_IT_SDIOIT) == SDIO_IT_SDIOIT)
+     && (__SDIO_GET_FLAG(SDIO, SDIO_FLAG_SDIOIT))) {
     /*Receive SDIO interrupt on SDIO_DAT1 from Ineo*/
     __SDIO_CLEAR_FLAG(SDIO, SDIO_FLAG_SDIOIT);
+    xSemaphoreGiveFromISR(wfx_wakeup_sem, &xHigherPriorityTaskWoken);
     vTaskNotifyGiveFromISR( busCommTaskHandle, &xHigherPriorityTaskWoken );
   }
-  if(__SDIO_GET_FLAG(SDIO, SDIO_IT_DATAEND)){
+  if(((SDIO->MASK & SDIO_IT_DATAEND) == SDIO_IT_DATAEND)
+     && (__SDIO_GET_FLAG(SDIO, SDIO_FLAG_DATAEND))) {
     /*SDIO transfer over*/
     __SDIO_CLEAR_FLAG(SDIO, SDIO_IT_DATAEND);
     xSemaphoreGiveFromISR( sdioDMASemaphore, &xHigherPriorityTaskWoken );
   }
   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-  /* USER CODE END SDIO_IRQn 1 */
 }
 
 /**

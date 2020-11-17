@@ -24,7 +24,7 @@
 // x.X.x: Minor version of the CLI
 #define SL_WFX_CLI_GEN_VERSION_MINOR      1
 // x.x.X: Revision of the CLI
-#define SL_WFX_CLI_GEN_VERSION_REVISION   5
+#define SL_WFX_CLI_GEN_VERSION_REVISION   6
 
 // Provides the version of the CLI
 #define SL_WFX_CLI_GEN_VERSION   SL_WFX_CLI_GEN_MODULE_VERSION(SL_WFX_CLI_GEN_VERSION_MAJOR, \

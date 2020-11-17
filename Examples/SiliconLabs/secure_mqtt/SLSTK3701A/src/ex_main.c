@@ -175,6 +175,7 @@ static void GPIO_Unified_IRQ(void)
 
   // Act on interrupts
   if (interrupt_mask & 0x400) {
+    OSSemPost(&wfx_wakeup_sem, OS_OPT_POST_ALL, &err);
 #ifdef SL_WFX_USE_SPI
     OSFlagPost(&wfx_bus_evts, SL_WFX_BUS_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
 #endif

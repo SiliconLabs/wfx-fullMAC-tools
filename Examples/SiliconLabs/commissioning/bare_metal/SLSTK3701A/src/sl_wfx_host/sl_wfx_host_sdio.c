@@ -36,7 +36,8 @@ static SDIODRV_Init_t sdiodrv_init = {
   .portLocationWp = 0,
   .portLocationDat = 0,
   .clockSource = cmuSelect_AUXHFRCO,
-  .transferWidth = SDIO_TRANSFER_WIDTH_4BIT
+  .transferWidth = SDIO_TRANSFER_WIDTH_4BIT,
+  .yield_fn = NULL
 };
 
 static SDIODRV_Handle_t sdiodrv_handle;

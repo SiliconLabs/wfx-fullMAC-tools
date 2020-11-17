@@ -26,11 +26,11 @@ EventGroupHandle_t sl_wfx_event_group;
 sl_wfx_context_t wifi;
 char wlan_ssid[32+1]                    = WLAN_SSID_DEFAULT;
 char wlan_passkey[64+1]                 = WLAN_PASSKEY_DEFAULT;
-char wlan_pmk[64+1]                     = "";
+sl_wfx_password_t wlan_pmk              = {0};
 sl_wfx_security_mode_t wlan_security    = WLAN_SECURITY_DEFAULT;
 char softap_ssid[32+1]                  = SOFTAP_SSID_DEFAULT;
 char softap_passkey[64+1]               = SOFTAP_PASSKEY_DEFAULT;
-char softap_pmk[64+1]                   = "";
+sl_wfx_password_t softap_pmk            = {0};
 sl_wfx_security_mode_t softap_security  = SOFTAP_SECURITY_DEFAULT;
 uint8_t softap_channel                  = SOFTAP_CHANNEL_DEFAULT;
 /* Default parameters */
@@ -71,8 +71,15 @@ static void prvBusCommTask(void const * pvParameters)
     /*Wait for an interrupt from WF200*/
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     
+    /*Disable the interrupt while treating frames received to avoid
+     *the case where the interrupt is set but there is no frmae left to treat.*/
+    sl_wfx_host_disable_platform_interrupt();
+    
     /*Receive the frame(s) pending in WF200*/
     receive_frames();
+    
+    /*Re-enable the interrupt*/
+    sl_wfx_host_enable_platform_interrupt();
   }
 }
 

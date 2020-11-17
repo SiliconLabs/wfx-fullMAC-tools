@@ -27,7 +27,7 @@
 // x.X.x: Minor version of the Param CLI
 #define SL_WFX_CLI_PARAM_VERSION_MINOR      0
 // x.x.X: Revision of the Param CLI
-#define SL_WFX_CLI_PARAM_VERSION_REVISION   0
+#define SL_WFX_CLI_PARAM_VERSION_REVISION   1
 
 // Provides the version of the Param CLI
 #define SL_WFX_CLI_PARAM_VERSION   SL_WFX_CLI_GEN_MODULE_VERSION(SL_WFX_CLI_PARAM_VERSION_MAJOR, \
@@ -389,7 +389,7 @@ static int get_cmd_cb (int argc,
                        char *output_buf,
                        uint32_t output_buf_len)
 {
-  char *format_table[] = { "%ld", "%lu", "%#lx", "%d,", "%u,", "%#02x," };
+  char *format_table[] = { "%ld", "%lu", "0x%lx", "%d,", "%u,", "0x%02x," };
   char *msg = NULL;
   int param_index;
   int res = -1;
@@ -458,7 +458,7 @@ static int get_cmd_cb (int argc,
             len += res;
           }
 
-          if (len > 0) {
+          if (res >= 0) {
             // Delete the comma after the last item
             if (output_buf[len-1] == ',') {
               output_buf[len-1] = '\0';
@@ -496,7 +496,7 @@ static int get_cmd_cb (int argc,
             len += res;
           }
 
-          if (len > 0) {
+          if (res >= 0) {
             // Delete the comma after the last item
             if (output_buf[len-1] == ',') {
               output_buf[len-1] = '\0';

@@ -49,7 +49,7 @@ sl_wfx_cli_generic_functions_t sl_wfx_cli_gen_funcs = {
 
 /* Dimensions the buffer into which input characters are placed. */
 #ifndef SL_WFX_CLI_GEN_INPUT_BUF_SIZE
-#define SL_WFX_CLI_GEN_INPUT_BUF_SIZE      512u
+#define SL_WFX_CLI_GEN_INPUT_BUF_SIZE      128u
 #endif
 
 // -----------------------------------------------------------------------------
@@ -338,7 +338,7 @@ static void prvUARTCommandConsoleTask(void const * pvParameters )
   char *output_string, *end_line_pos;
   static char rxed_char[SL_WFX_CLI_GEN_INPUT_BUF_SIZE]; 
   static char input_string[SL_WFX_CLI_GEN_INPUT_BUF_SIZE];
-  static uint32_t input_string_size, rxed_size, rxed_prev_size = 0;
+  static uint32_t input_string_size = 0, rxed_size = 0, rxed_prev_size = 0;
   portBASE_TYPE xReturned;
   
   // Obtain the address of the output buffer.  Note there is no mutual
@@ -366,15 +366,15 @@ static void prvUARTCommandConsoleTask(void const * pvParameters )
     rxed_size = sizeof(rxed_char) - huart3.hdmarx->Instance->NDTR;
     
     if (rxed_size != 0) {
-        if ((rxed_char[rxed_size-1] == '\b' /*BS*/)
-              || (rxed_char[rxed_size-1] == 0x7F /*DEL*/)) {
-          if (strlen(input_string) > 0) {
-            // Handle backspace case  
-            if (xSemaphoreTake( uart3Semaphore, portMAX_DELAY ) == pdTRUE) {
-              HAL_UART_Transmit_DMA(&huart3, "\b \b", 3);
-            }
-            input_string[strlen(input_string)-1] = 0;
+      if ((rxed_char[rxed_size-1] == '\b' /*BS*/) ||
+          (rxed_char[rxed_size-1] == 0x7F /*DEL*/)) {
+        if (strlen(input_string) > 0) {
+          // Handle backspace case  
+          if (xSemaphoreTake( uart3Semaphore, portMAX_DELAY ) == pdTRUE) {
+            HAL_UART_Transmit_DMA(&huart3, "\b \b", 3);
           }
+          input_string[strlen(input_string)-1] = 0;
+        }
       } else {
         // Echo the characters received
         if (xSemaphoreTake( uart3Semaphore, portMAX_DELAY ) == pdTRUE) {
@@ -389,8 +389,15 @@ static void prvUARTCommandConsoleTask(void const * pvParameters )
       
       // Look for an end of line
       end_line_pos = strpbrk(input_string, "\r\n");
-      if (end_line_pos != NULL) {
-        *end_line_pos = '\0';
+      if ((end_line_pos != NULL) ||
+          (rxed_size == SL_WFX_CLI_GEN_INPUT_BUF_SIZE)) {
+        if (end_line_pos != NULL) {
+          *end_line_pos = '\0';
+        } else {
+          // Buffer full, substitute the input to ensure an error when
+          // processing the command
+          strcpy(input_string, "error");
+        }
         printf(newline);
         
         if (strlen(input_string) > 0) {

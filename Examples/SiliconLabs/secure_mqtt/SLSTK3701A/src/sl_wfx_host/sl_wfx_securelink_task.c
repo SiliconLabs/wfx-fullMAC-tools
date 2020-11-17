@@ -1,4 +1,4 @@
-#include "secure_link/sl_wfx_secure_link.h"
+#include "sl_wfx_secure_link.h"
 #include "demo_config.h"
 #include "sl_wfx_host_cfg.h"
 

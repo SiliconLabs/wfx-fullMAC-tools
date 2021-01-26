@@ -55,6 +55,10 @@
 
 #include "sl_wfx_cli_common.h"
 
+
+char event_log[50];
+
+
 static int netif_config(void);
 
 #define LWIP_TASK_PRIO              23u

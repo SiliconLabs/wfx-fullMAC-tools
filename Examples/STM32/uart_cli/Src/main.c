@@ -25,12 +25,11 @@
 #include "sl_wfx_host_events.h"
 #include "sl_wfx_cli_generic.h"
    
-#if SL_WFX_USE_SECURE_LINK
 #include <mbedtls/threading.h>
 #include MBEDTLS_CONFIG_FILE
 
+
 extern void sl_wfx_securelink_start(void);
-#endif
 
 RNG_HandleTypeDef hrng;
 UART_HandleTypeDef huart3;
@@ -77,10 +76,10 @@ int main(void)
   
   /* Create the thread(s) */
   wifi_bus_comm_start();
-  
-#ifdef SL_WFX_USE_SECURE_LINK
   // Enable mbedtls FreeRTOS support  
   THREADING_setup();
+#ifdef SL_WFX_USE_SECURE_LINK
+  
   sl_wfx_securelink_start(); // start securelink key renegotiation task
 #endif //SL_WFX_USE_SECURE_LINK
   

@@ -494,7 +494,7 @@ void sl_wfx_connect_callback(uint8_t* mac, uint32_t status)
 #ifdef SLEEP_ENABLED
       if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
         // Enable the power save
-        sl_wfx_set_power_mode(WFM_PM_MODE_PS, 0);
+        sl_wfx_set_power_mode(WFM_PM_MODE_PS, WFM_PM_POLL_FAST_PS ,0);
         sl_wfx_enable_device_power_save();
       }
 #endif
@@ -562,7 +562,7 @@ void sl_wfx_start_ap_callback(uint32_t status)
 
 #ifdef SLEEP_ENABLED
     // Power save always disabled when SoftAP mode enabled
-    sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
+    sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, WFM_PM_POLL_FAST_PS ,0);
     sl_wfx_disable_device_power_save();
 #endif
   } else {
@@ -584,7 +584,7 @@ void sl_wfx_stop_ap_callback(void)
 #ifdef SLEEP_ENABLED
   if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
     // Enable the power save
-    sl_wfx_set_power_mode(WFM_PM_MODE_PS, 0);
+    sl_wfx_set_power_mode(WFM_PM_MODE_PS, WFM_PM_POLL_FAST_PS ,0);
     sl_wfx_enable_device_power_save();
   }
 #endif

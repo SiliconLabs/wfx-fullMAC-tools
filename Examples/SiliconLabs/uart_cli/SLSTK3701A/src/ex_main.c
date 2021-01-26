@@ -41,10 +41,8 @@
 #include "lwipopts.h"
 #include "sl_wfx_cli_generic.h"
 
-#ifdef SL_WFX_USE_SECURE_LINK
 #include <mbedtls/threading.h>
-#include MBEDTLS_CONFIG_FILE
-#endif
+
 
 #define  EX_MAIN_START_TASK_PRIO              30u
 #define  EX_MAIN_START_TASK_STK_SIZE         512u
@@ -94,12 +92,11 @@ int  main(void)
   OS_TRACE_INIT(); // Initialize trace if enabled
   OSInit(&err);    // Initialize the Kernel.
 
-#ifdef SL_WFX_USE_SECURE_LINK
+  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
   // Enable mbedtls Micrium OS support
   THREADING_setup();
-#endif
 
-  APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
   OSTaskCreate(&main_start_task_tcb, // Create the Start Task.
                "Ex Main Start Task",
@@ -271,12 +268,13 @@ static  void  main_start_task(void  *p_arg)
          WFX_UART_CLI_APP_VERSION_BUILD);
 
   // Start tasks.
+  wfx_events_start();
   bus_comm_start();
 #ifdef SL_WFX_USE_SECURE_LINK
   sl_wfx_securelink_start(); // start securelink key renegotiation task
 #endif //WFX_USE_SECURE_LINK
 
-  wifi_events_start();
+  //wfx_events_start();
   lwip_start();
 
   // Delete the init thread.

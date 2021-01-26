@@ -18,22 +18,24 @@
 
 #include <kernel/include/os.h>
 
-extern OS_FLAG_GRP wifi_events;
+extern OS_Q wifi_events;
 
 /* Wi-Fi events*/
-#define SL_WFX_EVENT_CONNECT            ( 1 << 0 )
-#define SL_WFX_EVENT_DISCONNECT         ( 1 << 1 )
-#define SL_WFX_EVENT_START_AP           ( 1 << 2 )
-#define SL_WFX_EVENT_STOP_AP            ( 1 << 3 )
-#define SL_WFX_EVENT_SCAN_COMPLETE      ( 1 << 4 )
+#define SL_WFX_EVENT_CONNECT                      ( 1 << 0 )
+#define SL_WFX_EVENT_DISCONNECT                   ( 1 << 1 )
+#define SL_WFX_EVENT_START_AP                     ( 1 << 2 )
+#define SL_WFX_EVENT_STOP_AP                      ( 1 << 3 )
+#define SL_WFX_EVENT_SCAN_COMPLETE                ( 1 << 4 )
+#define SL_WFX_EVENT_EXTERNAL_AUTHENTICATION      ( 1 << 5 )
 
 #define SL_WFX_EVENT_ALL_FLAGS          ( SL_WFX_EVENT_CONNECT \
                                         | SL_WFX_EVENT_STOP_AP \
                                         | SL_WFX_EVENT_DISCONNECT \
                                         | SL_WFX_EVENT_START_AP \
-                                        | SL_WFX_EVENT_SCAN_COMPLETE )
+                                        | SL_WFX_EVENT_SCAN_COMPLETE\
+										| SL_WFX_EVENT_EXTERNAL_AUTHENTICATION )
 
-#define SL_WFX_EVENT_COUNT              5
+#define SL_WFX_EVENT_COUNT              6
 
 typedef void (*sl_wfx_host_events_callback_t)(uint32_t event_flag);
 
@@ -43,7 +45,7 @@ extern "C" {
 /***************************************************************************//**
  * Creates WIFI events processing task.
  ******************************************************************************/
-void wifi_events_start(void);
+void wfx_events_start(void);
 
 /***************************************************************************//**
  * Register a notification for one or more specific events.

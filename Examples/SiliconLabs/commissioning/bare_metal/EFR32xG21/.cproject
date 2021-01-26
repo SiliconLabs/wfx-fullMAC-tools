@@ -50,8 +50,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/apps}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/system}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/webpage}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/sl_wfx_host}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/bsp&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/drivers&quot;"/>
@@ -101,7 +101,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|src/lwip_host/fsdata/httpfsdata.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|src/lwip_host/webpage/httpfsdata.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -158,8 +158,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/apps}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/fsdata}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/system}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/lwip_host/webpage}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/sl_wfx_host}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/bsp&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${StudioSdkPath}/hardware/kit/common/drivers&quot;"/>
@@ -208,7 +208,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|src/lwip_host/fsdata/httpfsdata.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/wfx_fmac_driver/bus/sl_wfx_bus_sdio.c|src/lwip_host/webpage/httpfsdata.c|lwip/doc|lwip/src/api/if_api.c|lwip/src/apps/altcp_tls|lwip/src/apps/http/fs|lwip/src/apps/http/makefsdata|lwip/src/apps/http/altcp_proxyconnect.c|lwip/src/apps/http/fsdata.c|lwip/src/apps/http/http_client.c|lwip/src/apps/mdns|lwip/src/core/ipv6|lwip/src/core/altcp.c|lwip/src/core/altcp_alloc.c|lwip/src/core/altcp_tcp.c|lwip/src/netif/ppp|lwip/src/netif/bridgeif.c|lwip/src/netif/bridgeif_fdb.c|lwip/src/netif/lowpan6.c|lwip/src/netif/lowpan6_ble.c|lwip/src/netif/lowpan6_common.c|lwip/src/netif/slipif.c|lwip/src/netif/zepif.c|lwip/src/Filelists.cmake|lwip/src/Filelists.mk|lwip/src/FILES|lwip/test|lwip/CHANGELOG|lwip/CMakeLists.txt|lwip/COPYING|lwip/FEATURES|lwip/FILES|lwip/README|lwip/UPGRADING" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

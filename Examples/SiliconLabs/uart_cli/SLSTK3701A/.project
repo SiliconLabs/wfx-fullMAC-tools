@@ -61,6 +61,11 @@
 			<locationURI>STUDIO_SDK_LOC/util/third_party/segger/systemview</locationURI>
 		</link>
 		<link>
+			<name>wpa_supplicant-2.7</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Tools/wpa_supplicant-2.7</locationURI>
+		</link>
+		<link>
 			<name>BSP/bsp_bcc.c</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/hardware/kit/common/bsp/bsp_bcc.c</locationURI>

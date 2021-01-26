@@ -61,11 +61,6 @@
 			<locationURI>STUDIO_SDK_LOC/platform/micrium_os</locationURI>
 		</link>
 		<link>
-			<name>wgm160p</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/shared/wgm160p</locationURI>
-		</link>
-		<link>
 			<name>sl_wfx_common_cli</name>
 			<type>2</type>
 			<locationURI>PARENT-4-PROJECT_LOC/Tools/sl_wfx_common_cli</locationURI>
@@ -79,6 +74,16 @@
 			<name>systemview</name>
 			<type>2</type>
 			<locationURI>STUDIO_SDK_LOC/util/third_party/segger/systemview</locationURI>
+		</link>
+		<link>
+			<name>wgm160p</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/shared/wgm160p</locationURI>
+		</link>
+		<link>
+			<name>wpa_supplicant-2.7</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC/Tools/wpa_supplicant-2.7</locationURI>
 		</link>
 		<link>
 			<name>BSP/bsp_bcc.c</name>

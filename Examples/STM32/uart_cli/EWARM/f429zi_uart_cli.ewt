@@ -4640,6 +4640,9 @@
         <name>$PROJ_DIR$\..\MbedTLS\config-freertos.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\ecp_curves.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\MbedTLS\hardware_rng.c</name>
       </file>
       <file>
@@ -4692,6 +4695,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_host_spi.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_sae.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_securelink_task.c</name>
@@ -5416,6 +5422,27 @@
           <name>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\library\xtea.c</name>
         </file>
       </group>
+    </group>
+    <group>
+      <name>WPA_Supplicant-2.7</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\utils\common.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\ports\crypto.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\ports\os.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\common\sae.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\crypto\sha256-prf.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\utils\wpabuf.c</name>
+      </file>
     </group>
   </group>
 </project>

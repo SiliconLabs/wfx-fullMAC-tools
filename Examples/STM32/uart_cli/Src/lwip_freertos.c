@@ -19,6 +19,7 @@
 #include "stm32f4xx_hal.h"
 #include "string.h" 
 
+#include "lwip_common.h"
 /* LwIP includes. */
 #include "ethernetif.h"
 #include "lwip/netif.h"
@@ -32,12 +33,12 @@
 #include "sl_wfx_cli_common.h"
 #include "dhcp_server.h"
 #include "dhcp_client.h"
-#include "lwip_common.h"
 
+extern sl_wfx_rx_stats_t rx_stats;
 extern sl_wfx_context_t wifi;
 extern scan_result_list_t scan_list[];
 extern uint8_t scan_count_web; 
-
+char event_log[50];
 /* station and softAP network interface structures */
 struct netif sta_netif, ap_netif;
 char string_list[4096];

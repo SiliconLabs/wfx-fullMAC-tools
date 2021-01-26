@@ -188,9 +188,9 @@
           <state>USE_HAL_DRIVER</state>
           <state>STM32F429xx</state>
           <state>SL_WFX_USE_SPI</state>
-          <state>SL_WFX_PROD_KEY</state>
           <state>FREERTOS</state>
           <state>SL_WFX_CLI_PARAM_NB_MAX_PARAMS=25</state>
+          <state>MBEDTLS_CONFIG_FILE="config-freertos.h"</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -320,6 +320,7 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\Inc</state>
+          <state>$PROJ_DIR$\..\MbedTLS</state>
           <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
           <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\include</state>
           <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
@@ -337,6 +338,12 @@
           <state>$PROJ_DIR$\..\..\..\..\Tools\sl_wfx_common_cli\sl_wfx_cli_generic</state>
           <state>$PROJ_DIR$\..\..\..\..\Tools\sl_wfx_common_cli\sl_wfx_rf_test_agent</state>
           <state>$PROJ_DIR$\..\..\..\..\Tools\iPerf</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\ports</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\utils</state>
+          <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\include</state>
+          <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\configs</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1178,6 +1185,7 @@
           <state>SL_WFX_PROD_KEY</state>
           <state>FREERTOS</state>
           <state>SL_WFX_CLI_PARAM_NB_MAX_PARAMS=25</state>
+          <state>MBEDTLS_CONFIG_FILE="config-freertos.h"</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -1307,6 +1315,7 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\Inc</state>
+          <state>$PROJ_DIR$\..\MbedTLS</state>
           <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F</state>
           <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\include</state>
           <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS</state>
@@ -1324,6 +1333,12 @@
           <state>$PROJ_DIR$\..\..\..\..\Tools\sl_wfx_common_cli\sl_wfx_cli_generic</state>
           <state>$PROJ_DIR$\..\..\..\..\Tools\sl_wfx_common_cli\sl_wfx_rf_test_agent</state>
           <state>$PROJ_DIR$\..\..\..\..\Tools\iPerf</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\ports</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\utils</state>
+          <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\include</state>
+          <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\configs</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -2316,6 +2331,12 @@
           <state>$PROJ_DIR$\..\..\..\..\Tools\sl_wfx_common_cli\sl_wfx_cli_generic</state>
           <state>$PROJ_DIR$\..\..\..\..\Tools\sl_wfx_common_cli\sl_wfx_rf_test_agent</state>
           <state>$PROJ_DIR$\..\..\..\..\Tools\iPerf</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\ports</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\utils</state>
+          <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\include</state>
+          <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\configs</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -3310,6 +3331,12 @@
           <state>$PROJ_DIR$\..\..\..\..\Tools\sl_wfx_common_cli\sl_wfx_cli_generic</state>
           <state>$PROJ_DIR$\..\..\..\..\Tools\sl_wfx_common_cli\sl_wfx_rf_test_agent</state>
           <state>$PROJ_DIR$\..\..\..\..\Tools\iPerf</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\ports</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src</state>
+          <state>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\utils</state>
+          <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\include</state>
+          <state>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\configs</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -3970,12 +3997,11 @@
     </group>
     <group>
       <name>MbedTLS</name>
-      <excluded>
-        <configuration>spi</configuration>
-        <configuration>sdio</configuration>
-      </excluded>
       <file>
         <name>$PROJ_DIR$\..\MbedTLS\config-freertos.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\ecp_curves.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\MbedTLS\hardware_rng.c</name>
@@ -4046,6 +4072,9 @@
           <configuration>sdio</configuration>
           <configuration>sdio_secure_link</configuration>
         </excluded>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_sae.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_securelink_task.c</name>
@@ -4344,10 +4373,6 @@
     </group>
     <group>
       <name>MbedTLS</name>
-      <excluded>
-        <configuration>spi</configuration>
-        <configuration>sdio</configuration>
-      </excluded>
       <group>
         <name>include</name>
         <group>
@@ -4637,6 +4662,12 @@
         </file>
         <file>
           <name>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\library\ecp_curves.c</name>
+          <excluded>
+            <configuration>spi</configuration>
+            <configuration>sdio</configuration>
+            <configuration>spi_secure_link</configuration>
+            <configuration>sdio_secure_link</configuration>
+          </excluded>
         </file>
         <file>
           <name>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\library\entropy.c</name>
@@ -4786,6 +4817,27 @@
           <name>$PROJ_DIR$\..\..\shared\Middlewares\Third_Party\MbedTLS\library\xtea.c</name>
         </file>
       </group>
+    </group>
+    <group>
+      <name>WPA_Supplicant-2.7</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\utils\common.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\ports\crypto.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\ports\os.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\common\sae.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\crypto\sha256-prf.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\Tools\wpa_supplicant-2.7\src\utils\wpabuf.c</name>
+      </file>
     </group>
   </group>
 </project>

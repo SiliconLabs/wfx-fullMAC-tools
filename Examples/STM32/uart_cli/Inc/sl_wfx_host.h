@@ -27,17 +27,19 @@
 #define SL_WFX_MAX_SCAN_RESULTS 50
 
 /* WFX host callbacks */
-void sl_wfx_connect_callback( uint8_t* mac, uint32_t status );
-void sl_wfx_disconnect_callback( uint8_t* mac, uint16_t reason );
-void sl_wfx_start_ap_callback( uint32_t status );
-void sl_wfx_stop_ap_callback( void );
-void sl_wfx_host_received_frame_callback( sl_wfx_received_ind_t* rx_buffer );
-void sl_wfx_scan_result_callback( sl_wfx_scan_result_ind_body_t* scan_result );
-void sl_wfx_scan_complete_callback( uint32_t status );
-void sl_wfx_generic_status_callback( sl_wfx_generic_ind_t* frame );
-void sl_wfx_client_connected_callback( uint8_t* mac );
-void sl_wfx_ap_client_disconnected_callback( uint32_t status, uint8_t* mac );
-void sl_wfx_ap_client_rejected_callback(  uint32_t status, uint8_t* mac );
+void sl_wfx_connect_callback(sl_wfx_connect_ind_t *connect);
+void sl_wfx_disconnect_callback(sl_wfx_disconnect_ind_t *disconnect);
+void sl_wfx_start_ap_callback(sl_wfx_start_ap_ind_t *start_ap);
+void sl_wfx_stop_ap_callback(sl_wfx_stop_ap_ind_t *stop_ap);
+void sl_wfx_host_received_frame_callback(sl_wfx_received_ind_t *rx_buffer);
+void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_t *scan_result);
+void sl_wfx_scan_complete_callback(sl_wfx_scan_complete_ind_t *scan_complete);
+void sl_wfx_generic_status_callback(sl_wfx_generic_ind_t *frame);
+void sl_wfx_ap_client_connected_callback(sl_wfx_ap_client_connected_ind_t *ap_client_connected);
+void sl_wfx_ap_client_rejected_callback(sl_wfx_ap_client_rejected_ind_t *ap_client_rejected);
+void sl_wfx_ap_client_disconnected_callback(sl_wfx_ap_client_disconnected_ind_t *ap_client_disconnected);
+void sl_wfx_ext_auth_callback(sl_wfx_ext_auth_ind_t *ext_auth_indication);
+
 
 typedef struct __attribute__((__packed__)) scan_result_list_s {
   sl_wfx_ssid_def_t ssid_def;

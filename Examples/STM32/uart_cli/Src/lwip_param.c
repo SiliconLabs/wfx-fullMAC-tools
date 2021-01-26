@@ -43,7 +43,9 @@ static const char *security_modes[] = {
   "WEP",
   "WPA1/WPA2",
   NULL,       // Trick to link directly the security mode to its "name".
-  "WPA2"
+  "WPA2",
+  NULL,
+  "WPA3"
 };
 
 static int set_security_mode (char *param_name,
@@ -635,7 +637,7 @@ int lwip_param_register (void)
                                    sizeof(wlan_security),
                                    SL_WFX_CLI_PARAM_GET_RIGHT | SL_WFX_CLI_PARAM_SET_RIGHT,
                                    SL_WFX_CLI_PARAM_TYPE_CUSTOM,
-                                   "WLAN security mode [OPEN, WEP, WPA1/WPA2, WPA2]",
+                                   "WLAN security mode [OPEN, WEP, WPA1/WPA2, WPA2,WPA3]",
                                    get_security_mode,
                                    set_security_mode);
 

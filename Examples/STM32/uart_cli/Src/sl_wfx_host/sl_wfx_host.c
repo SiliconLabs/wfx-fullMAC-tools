@@ -26,6 +26,7 @@
 #include "sl_wfx_host_events.h"
 #include "sl_wfx_cli_common.h"
 #include "lwip_common.h"
+#include "dhcp_server.h"
 
 /* Firmware include */
 #include "sl_wfx_wf200_C0.h"
@@ -34,13 +35,17 @@
 #include "brd8022a_pds.h"
 #include "brd8023a_pds.h"
 
-extern osSemaphoreId s_xDriverSemaphore;
-
 sl_wfx_rx_stats_t rx_stats;
+extern int use_dhcp_client;
+extern osSemaphoreId s_xDriverSemaphore;
+extern char event_log[];
 
 scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];
-uint8_t scan_count = 0; 
-uint8_t scan_count_web = 0; 
+uint8_t scan_count = 0;
+uint8_t scan_count_web = 0;
+bool scan_verbose = true;
+osSemaphoreId scan_sem;
+
 QueueHandle_t eventQueue;
 osSemaphoreId wfx_wakeup_sem;
 
@@ -106,7 +111,7 @@ sl_status_t sl_wfx_host_reset_chip(void)
   HAL_Delay(10);
   HAL_GPIO_WritePin(SL_WFX_RESET_PORT, SL_WFX_RESET_GPIO, GPIO_PIN_SET);
   HAL_Delay(10);
-  
+
   return SL_STATUS_OK;
 }
 
@@ -189,25 +194,22 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
     /******** INDICATION ********/
   case SL_WFX_CONNECT_IND_ID:
     {
-      sl_wfx_connect_ind_t* connect_indication = (sl_wfx_connect_ind_t*) event_payload;
-      sl_wfx_connect_callback(connect_indication->body.mac, connect_indication->body.status);
+      sl_wfx_connect_callback((sl_wfx_connect_ind_t*) event_payload);
       break;
     }
   case SL_WFX_DISCONNECT_IND_ID:
     {
-      sl_wfx_disconnect_ind_t* disconnect_indication = (sl_wfx_disconnect_ind_t*) event_payload;
-      sl_wfx_disconnect_callback(disconnect_indication->body.mac, disconnect_indication->body.reason);
+      sl_wfx_disconnect_callback((sl_wfx_disconnect_ind_t*) event_payload);
       break;
     }
   case SL_WFX_START_AP_IND_ID:
     {
-      sl_wfx_start_ap_ind_t* start_ap_indication = (sl_wfx_start_ap_ind_t*) event_payload;
-      sl_wfx_start_ap_callback(start_ap_indication->body.status);
+      sl_wfx_start_ap_callback((sl_wfx_start_ap_ind_t*) event_payload);
       break;
     }
   case SL_WFX_STOP_AP_IND_ID:
     {
-      sl_wfx_stop_ap_callback();
+      sl_wfx_stop_ap_callback((sl_wfx_stop_ap_ind_t*) event_payload);
       break;
     }
   case SL_WFX_RECEIVED_IND_ID:
@@ -221,47 +223,36 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
     }
   case SL_WFX_SCAN_RESULT_IND_ID:
     {
-      sl_wfx_scan_result_ind_t* scan_result = (sl_wfx_scan_result_ind_t*) event_payload;
-      sl_wfx_scan_result_callback(&scan_result->body);
+      sl_wfx_scan_result_callback((sl_wfx_scan_result_ind_t*) event_payload);
       break;
     }
   case SL_WFX_SCAN_COMPLETE_IND_ID:
     {
-      sl_wfx_scan_complete_ind_t* scan_complete = (sl_wfx_scan_complete_ind_t*) event_payload;
-      sl_wfx_scan_complete_callback(scan_complete->body.status);
+      sl_wfx_scan_complete_callback((sl_wfx_scan_complete_ind_t*) event_payload);
       break;
     }
   case SL_WFX_AP_CLIENT_CONNECTED_IND_ID:
     {
-      sl_wfx_ap_client_connected_ind_t* client_connected_indication = (sl_wfx_ap_client_connected_ind_t*) event_payload;
-      sl_wfx_client_connected_callback(client_connected_indication->body.mac);
+      sl_wfx_ap_client_connected_callback((sl_wfx_ap_client_connected_ind_t*) event_payload);
       break;
     }
   case SL_WFX_AP_CLIENT_REJECTED_IND_ID:
     {
-      sl_wfx_ap_client_rejected_ind_t* ap_client_rejected_indication = (sl_wfx_ap_client_rejected_ind_t*) event_payload;
-      sl_wfx_ap_client_rejected_callback(ap_client_rejected_indication->body.reason, ap_client_rejected_indication->body.mac);
+      sl_wfx_ap_client_rejected_callback((sl_wfx_ap_client_rejected_ind_t*) event_payload);
       break;
     }
   case SL_WFX_AP_CLIENT_DISCONNECTED_IND_ID:
     {
-      sl_wfx_ap_client_disconnected_ind_t* ap_client_disconnected_indication = (sl_wfx_ap_client_disconnected_ind_t*) event_payload;
-      sl_wfx_ap_client_disconnected_callback(ap_client_disconnected_indication->body.reason, ap_client_disconnected_indication->body.mac);
+      sl_wfx_ap_client_disconnected_callback((sl_wfx_ap_client_disconnected_ind_t*) event_payload);
       break;
     }
-#ifdef SL_WFX_USE_SECURE_LINK
-    case SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID:
+  case SL_WFX_EXT_AUTH_IND_ID:
     {
-      if(host_context.waited_event_id != SL_WFX_SECURELINK_EXCHANGE_PUB_KEYS_IND_ID) {
-        memcpy((void*)&sl_wfx_context->secure_link_exchange_ind,(void*)event_payload, event_payload->header.length);
-      }
+      sl_wfx_ext_auth_callback((sl_wfx_ext_auth_ind_t*) event_payload);
       break;
     }
-#endif
   case SL_WFX_GENERIC_IND_ID:
     {
-      sl_wfx_generic_ind_t* generic_status = (sl_wfx_generic_ind_t*)event_payload;
-      sl_wfx_generic_status_callback(generic_status);
       break;
     }
   case SL_WFX_EXCEPTION_IND_ID:
@@ -345,160 +336,277 @@ void sl_wfx_host_log(const char *string, ...)
 sl_status_t sl_wfx_host_lock(void)
 {
   sl_status_t status;
-  
+
   if(xSemaphoreTake(s_xDriverSemaphore, 500) == pdTRUE)
   {
     status = SL_STATUS_OK;
   }else{
     printf("Wi-Fi driver mutex timeout\r\n");
-    status = SL_STATUS_NO_MORE_RESOURCE;
+    status = SL_STATUS_TIMEOUT;
   }
-  
+
   return status;
 }
 
 sl_status_t sl_wfx_host_unlock(void)
 {
   xSemaphoreGive(s_xDriverSemaphore);
-  
+
   return SL_STATUS_OK;
 }
 
-/** Callback for individual AP discovered
- */
-void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_body_t* scan_result)
+
+/**************************************************************************//**
+ * Callback for individual scan result
+ *****************************************************************************/
+void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_t *scan_result)
 {
   scan_count++;
-  printf("# %2d %2d  %03d %02X:%02X:%02X:%02X:%02X:%02X  %s\r\n",
-          scan_count,
-          scan_result->channel,
-          ((int16_t)(scan_result->rcpi - 220)/2),
-          scan_result->mac[0], scan_result->mac[1],
-          scan_result->mac[2], scan_result->mac[3],
-          scan_result->mac[4], scan_result->mac[5],
-          scan_result->ssid_def.ssid);
-  if (scan_count <= SL_WFX_MAX_SCAN_RESULTS)
-  {
-    scan_list[scan_count - 1].ssid_def = scan_result->ssid_def;
-    scan_list[scan_count - 1].channel = scan_result->channel;
-    scan_list[scan_count - 1].security_mode = scan_result->security_mode;
-    scan_list[scan_count - 1].rcpi = scan_result->rcpi;
-    memcpy(scan_list[scan_count - 1].mac, scan_result->mac, 6);
+
+  if (scan_verbose) {
+    /*Report one AP information*/
+    printf(
+        "# %2d %2d %02X %03d %02X:%02X:%02X:%02X:%02X:%02X  %s\r\n",
+        scan_count,
+        scan_result->body.channel,
+        *(uint8_t *)&scan_result->body.security_mode,
+        ((int16_t)(scan_result->body.rcpi - 220) / 2),
+        scan_result->body.mac[0], scan_result->body.mac[1],
+        scan_result->body.mac[2], scan_result->body.mac[3],
+        scan_result->body.mac[4], scan_result->body.mac[5],
+        scan_result->body.ssid_def.ssid);
+  }
+
+  if (scan_count <= SL_WFX_MAX_SCAN_RESULTS) {
+    scan_list[scan_count - 1].ssid_def = scan_result->body.ssid_def;
+    scan_list[scan_count - 1].channel = scan_result->body.channel;
+    scan_list[scan_count - 1].security_mode = scan_result->body.security_mode;
+    scan_list[scan_count - 1].rcpi = scan_result->body.rcpi;
+    memcpy(scan_list[scan_count - 1].mac, scan_result->body.mac, 6);
   }
 }
 
-/** Callback to indicate the scan completion
- */
-void sl_wfx_scan_complete_callback(uint32_t status)
+/**************************************************************************//**
+ * Callback for scan complete
+ *****************************************************************************/
+void sl_wfx_scan_complete_callback(sl_wfx_scan_complete_ind_t *scan_complete)
 {
+  void * buffer;
+  sl_status_t status;
+
   scan_count_web = scan_count;
   scan_count = 0;
-  xEventGroupSetBits(wifi_events, SL_WFX_EVENT_SCAN_COMPLETE);
+
+  status = sl_wfx_host_allocate_buffer(&buffer,
+                                       SL_WFX_RX_FRAME_BUFFER,
+                                       scan_complete->header.length);
+  if (status == SL_STATUS_OK) {
+    memcpy(buffer, (void *)scan_complete, scan_complete->header.length);
+    xQueueSend(wifi_events_queue, &buffer, 0);
+  }
 }
 
-/** Callback triggered when a connection is established as station
- */
-void sl_wfx_connect_callback(uint8_t* mac, uint32_t status)
-{  
-  switch(status){
+/**************************************************************************//**
+ * Callback when station connects
+ *****************************************************************************/
+void sl_wfx_connect_callback(sl_wfx_connect_ind_t *connect)
+{
+  void *buffer;
+  sl_status_t status;
+
+  switch(connect->body.status){
   case WFM_STATUS_SUCCESS:
     {
       printf("Connected\r\n");
       sl_wfx_context->state |= SL_WFX_STA_INTERFACE_CONNECTED;
-      xEventGroupSetBits(wifi_events, SL_WFX_EVENT_CONNECT);
+
+      status = sl_wfx_host_allocate_buffer(&buffer,
+                                           SL_WFX_RX_FRAME_BUFFER,
+                                           connect->header.length);
+      if (status == SL_STATUS_OK) {
+        memcpy(buffer, (void *)connect, connect->header.length);
+        xQueueSend(wifi_events_queue, &buffer, 0);
+      }
       break;
     }
   case WFM_STATUS_NO_MATCHING_AP:
     {
-      printf("Connection failed, access point not found\r\n");
+      strcpy(event_log, "Connection failed, access point not found");
+      printf(event_log);
+      printf("\r\n");
       break;
     }
   case WFM_STATUS_CONNECTION_ABORTED:
     {
-      printf("Connection aborted\r\n");
+      strcpy(event_log, "Connection aborted");
+      printf(event_log);
+      printf("\r\n");
       break;
     }
   case WFM_STATUS_CONNECTION_TIMEOUT:
     {
-      printf("Connection timeout\r\n");
+      strcpy(event_log, "Connection timeout");
+      printf(event_log);
+      printf("\r\n");
       break;
     }
   case WFM_STATUS_CONNECTION_REJECTED_BY_AP:
     {
-      printf("Connection rejected by the access point\r\n");
+      strcpy(event_log, "Connection rejected by the access point");
+      printf(event_log);
+      printf("\r\n");
       break;
     }
   case WFM_STATUS_CONNECTION_AUTH_FAILURE:
     {
-      printf("Connection authentication failure\r\n");
+      strcpy(event_log, "Connection authentication failure");
+      printf(event_log);
+      printf("\r\n");
       break;
     }
   default:
     {
-      printf("Connection attempt error\r\n");
+      strcpy(event_log, "Connection attempt error");
+      printf(event_log);
+      printf("\r\n");
     }
   }
 }
 
-/** Callback triggered when signal strength confirmation is received
- */
-void sl_wfx_disconnect_callback(uint8_t* mac, uint16_t reason)
+/**************************************************************************//**
+ * Callback for station disconnect
+ *****************************************************************************/
+void sl_wfx_disconnect_callback(sl_wfx_disconnect_ind_t *disconnect)
 {
-  printf("Disconnected %d\r\n", reason);
-  sl_wfx_context->state &= ~SL_WFX_STA_INTERFACE_CONNECTED;
-  xEventGroupSetBits(wifi_events, SL_WFX_EVENT_DISCONNECT);
-}
+  void *buffer;
+  sl_status_t status;
 
-/** Callback triggered when a softap is started
- */
-void sl_wfx_start_ap_callback(uint32_t status)
-{
-  if (status == 0) {
-    printf("AP started\r\n");
-    printf("Join the AP with SSID: %s\r\n", softap_ssid);
-    sl_wfx_context->state |= SL_WFX_AP_INTERFACE_UP;
-    xEventGroupSetBits(wifi_events, SL_WFX_EVENT_START_AP);
-  } else {
-    printf("AP start failed\r\n");
+  printf("Disconnected %d\r\n", disconnect->body.reason);
+  sl_wfx_context->state &= ~SL_WFX_STA_INTERFACE_CONNECTED;
+
+  status = sl_wfx_host_allocate_buffer(&buffer,
+                                       SL_WFX_RX_FRAME_BUFFER,
+                                       disconnect->header.length);
+  if (status == SL_STATUS_OK) {
+    memcpy(buffer, (void *)disconnect, disconnect->header.length);
+    xQueueSend(wifi_events_queue, &buffer, 0);
   }
 }
 
-/** Callback triggered when a softap is stopped
- */
-void sl_wfx_stop_ap_callback(void)
+/**************************************************************************//**
+ * Callback for AP started
+ *****************************************************************************/
+void sl_wfx_start_ap_callback(sl_wfx_start_ap_ind_t *start_ap)
 {
+  void *buffer;
+  sl_status_t status;
+
+  if (start_ap->body.status == 0) {
+    printf("AP started\r\n");
+    printf("Join the AP with SSID: %s\r\n", softap_ssid);
+    sl_wfx_context->state |= SL_WFX_AP_INTERFACE_UP;
+
+    status = sl_wfx_host_allocate_buffer(&buffer,
+                                         SL_WFX_RX_FRAME_BUFFER,
+                                         start_ap->header.length);
+    if (status == SL_STATUS_OK) {
+      memcpy(buffer, (void *)start_ap, start_ap->header.length);
+      xQueueSend(wifi_events_queue, &buffer, 0);
+    }
+  } else {
+    printf("AP start failed\r\n");
+    strcpy(event_log, "AP start failed");
+  }
+}
+
+/**************************************************************************//**
+ * Callback for AP stopped
+ *****************************************************************************/
+void sl_wfx_stop_ap_callback(sl_wfx_stop_ap_ind_t *stop_ap)
+{
+  void *buffer;
+  sl_status_t status;
+
   printf("SoftAP stopped\r\n");
+  dhcpserver_clear_stored_mac ();
   sl_wfx_context->state &= ~SL_WFX_AP_INTERFACE_UP;
-  xEventGroupSetBits(wifi_events, SL_WFX_EVENT_STOP_AP);
+
+  status = sl_wfx_host_allocate_buffer(&buffer,
+                                       SL_WFX_RX_FRAME_BUFFER,
+                                       stop_ap->length);
+  if (status == SL_STATUS_OK) {
+    memcpy(buffer, (void *)stop_ap, stop_ap->length);
+    xQueueSend(wifi_events_queue, &buffer, 0);
+  }
 }
 
-/** Callback triggered when a client connects
- */
-void sl_wfx_client_connected_callback(uint8_t* mac)
+/**************************************************************************//**
+ * Callback for client connect to AP
+ *****************************************************************************/
+void sl_wfx_ap_client_connected_callback(sl_wfx_ap_client_connected_ind_t *ap_client_connected)
 {
-//  printf("Client connected, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-//         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-  sl_wfx_cli_wifi_add_client(mac);
+  printf("Client connected, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+         ap_client_connected->body.mac[0],
+         ap_client_connected->body.mac[1],
+         ap_client_connected->body.mac[2],
+         ap_client_connected->body.mac[3],
+         ap_client_connected->body.mac[4],
+         ap_client_connected->body.mac[5]);
+  printf("Open a web browser and go to http://%d.%d.%d.%d\r\n",
+         ap_ip_addr0, ap_ip_addr1, ap_ip_addr2, ap_ip_addr3);
 }
 
-/** Callback triggered when a client is rejected
- */
-void sl_wfx_ap_client_rejected_callback(uint32_t status, uint8_t* mac)
+/**************************************************************************//**
+ * Callback for client rejected from AP
+ *****************************************************************************/
+void sl_wfx_ap_client_rejected_callback(sl_wfx_ap_client_rejected_ind_t *ap_client_rejected)
 {
-//  printf("Client rejected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-//         status, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  struct eth_addr mac_addr;
+  memcpy(&mac_addr, ap_client_rejected->body.mac, SL_WFX_BSSID_SIZE);
+  dhcpserver_remove_mac(&mac_addr);
+  printf("Client rejected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+         ap_client_rejected->body.reason,
+         ap_client_rejected->body.mac[0],
+         ap_client_rejected->body.mac[1],
+         ap_client_rejected->body.mac[2],
+         ap_client_rejected->body.mac[3],
+         ap_client_rejected->body.mac[4],
+         ap_client_rejected->body.mac[5]);
 }
 
-/** Callback triggered when a client disconnects
- */
-void sl_wfx_ap_client_disconnected_callback(uint32_t status, uint8_t* mac)
+/**************************************************************************//**
+ * Callback for AP client disconnect
+ *****************************************************************************/
+void sl_wfx_ap_client_disconnected_callback(sl_wfx_ap_client_disconnected_ind_t *ap_client_disconnected)
 {
-//  printf("Client disconnected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-//         status, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-  sl_wfx_cli_wifi_remove_client(mac);
+  struct eth_addr mac_addr;
+  memcpy(&mac_addr, ap_client_disconnected->body.mac, SL_WFX_BSSID_SIZE);
+  dhcpserver_remove_mac(&mac_addr);
+  printf("Client disconnected, reason: %d, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+         ap_client_disconnected->body.reason,
+         ap_client_disconnected->body.mac[0],
+         ap_client_disconnected->body.mac[1],
+         ap_client_disconnected->body.mac[2],
+         ap_client_disconnected->body.mac[3],
+         ap_client_disconnected->body.mac[4],
+         ap_client_disconnected->body.mac[5]);
 }
 
-void sl_wfx_generic_status_callback(sl_wfx_generic_ind_t* frame)
+/**************************************************************************//**
+ * Callback for External Authentication
+ *****************************************************************************/
+void sl_wfx_ext_auth_callback(sl_wfx_ext_auth_ind_t *ext_auth_indication)
 {
-  rx_stats = frame->body.indication_data.rx_stats;
+  void *buffer;
+  sl_status_t status;
+
+  status = sl_wfx_host_allocate_buffer(&buffer,
+                                       SL_WFX_RX_FRAME_BUFFER,
+                                       ext_auth_indication->header.length);
+  if (status == SL_STATUS_OK) {
+    memcpy(buffer,
+           (void *)ext_auth_indication,
+           ext_auth_indication->header.length);
+    xQueueSend(wifi_events_queue, &buffer, 0);
+  }
 }

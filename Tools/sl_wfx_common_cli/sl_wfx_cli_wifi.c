@@ -20,6 +20,10 @@
 #include "sl_wfx_cli_generic.h"
 #include "sl_wfx_cli_common.h"
 #include "sl_wfx_host_events.h"
+#include "sl_wfx_sae.h"
+#include "sl_wfx_host.h"
+
+extern sl_wfx_context_t wifi;
 
 // X.x.x: Major version of the WiFi CLI
 #define SL_WFX_CLI_WIFI_VERSION_MAJOR      2
@@ -43,6 +47,12 @@ extern const uint32_t sl_wfx_firmware_size;
 static sl_wfx_context_t *wifi_ctx = NULL;
 static uint8_t wifi_clients[SL_WFX_CLI_WIFI_NB_MAX_CLIENTS][6] = {0};
 static uint8_t wifi_nb_clients_connected = 0;
+
+uint8_t wlan_bssid[SL_WFX_BSSID_SIZE];
+extern scan_result_list_t scan_list[];
+extern uint8_t scan_count_web;
+extern bool scan_verbose;
+
 
 static int reboot_cmd_cb (int argc,
                           char **argv,
@@ -122,7 +132,7 @@ static int network_up_cmd_cb (int argc,
   sl_status_t status;
   sl_wfx_security_mode_t *wlan_security;
   int res = -1;
-
+  bool ap_found = false;
   (void)argc;
   (void)argv;
 
@@ -134,14 +144,75 @@ static int network_up_cmd_cb (int argc,
   if ((wlan_ssid != NULL)
       && (wlan_passkey != NULL)
       && (wlan_security != NULL)) {
-    // Configure the wait event
-    sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_CONNECT);
 
+      //Retrieve the AP BSSID (required during WPA3 authentication) and CHANNEL(to avoid repeating the scan during the join command) with a scan
+      sl_wfx_ssid_def_t ssid;
+      uint8_t retry = 0;
+      uint16_t channel=0;
+      memcpy(ssid.ssid, wlan_ssid, strlen(wlan_ssid));
+      ssid.ssid_length = strlen(wlan_ssid);
+
+      do {
+        // Reset scan list
+    	scan_count_web = 0;
+        memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
+        scan_verbose = false;
+        // Configure the wait event
+          sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_SCAN_COMPLETE);
+        // perform a scan on every Wi-Fi channel in active mode
+        status = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0,&ssid,1,NULL,0,NULL);
+        if ((status == SL_STATUS_OK) || (status == SL_STATUS_WIFI_WARNING))
+        {
+        	// Wait for a confirmation
+        	    res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
+            if (res == SL_WFX_CLI_ERROR_TIMEOUT) {
+              msg = (char *)command_timeout_msg;
+              res = -1;
+            } else if (res == SL_WFX_CLI_ERROR_NONE) {
+            // Success
+			// Retrieve the AP information from the scan list, presuming that the
+			// first matching SSID is the one (not necessarily true).
+			for (uint16_t i = 0; i < scan_count_web; i++) {
+				  if (strcmp((char *) scan_list[i].ssid_def.ssid, wlan_ssid) == 0) {
+						memcpy(&wlan_bssid, scan_list[i].mac, SL_WFX_BSSID_SIZE);
+						channel= scan_list[i].channel;
+						ap_found = true;
+						break;
+				  }
+			}
+              res = 0;
+            } else {
+              msg = (char *)command_error_msg;
+              res = -1;
+            }
+        }
+      } while (!ap_found && retry++ < 3);
+
+      if (!ap_found) {
+        printf("AP %s not found\r\n", wlan_ssid);
+        msg = (char *)command_error_msg;
+      }
+     scan_verbose = true;
+
+    if (*wlan_security == WFM_SECURITY_MODE_WPA3_SAE) {
+        status = sl_wfx_sae_prepare(&wifi.mac_addr_0,
+        							(sl_wfx_mac_address_t *) wlan_bssid,
+        							(uint8_t*) wlan_passkey,
+									strlen(wlan_passkey));
+
+        printf("wlan preparing SAE...\r\n");
+        if (status != SL_STATUS_OK) {
+           printf("wlan: Could not prepare SAE\r\n");
+        }
+      }
+    //sl_wfx_set_scan_parameters(0,0,1);
+    // Configure the wait event
+    	      sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_CONNECT);
     // Connect to a Wi-Fi access point
     status = sl_wfx_send_join_command((uint8_t*) wlan_ssid,
                                       strlen(wlan_ssid),
-                                      NULL,
-                                      0,
+									  (sl_wfx_mac_address_t *) wlan_bssid,
+                                      channel,
                                       *wlan_security,
                                       1,
                                       0,
@@ -152,7 +223,8 @@ static int network_up_cmd_cb (int argc,
 
     if (status == SL_STATUS_OK) {
       // Wait for a confirmation
-      res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
+
+    	res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
       if (res == SL_WFX_CLI_ERROR_TIMEOUT) {
         msg = (char *)command_timeout_msg;
         res = -1;
@@ -342,7 +414,7 @@ static int powermode_cmd_cb (int argc,
     power_mode = atoi(buf);
 
     if (power_mode == 0) {
-      status = sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
+      status = sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, WFM_PM_POLL_FAST_PS ,0);
       if (status == SL_STATUS_OK) {
         strncpy(output_buf, "Power Mode disabled\r\n", output_buf_len);
         res = 0;
@@ -354,7 +426,7 @@ static int powermode_cmd_cb (int argc,
       buf[sizeof(buf)-1] = '\0';
       interval = atoi(buf);
 
-      status = sl_wfx_set_power_mode((sl_wfx_pm_mode_t)power_mode,
+      status = sl_wfx_set_power_mode((sl_wfx_pm_mode_t)power_mode, WFM_PM_POLL_FAST_PS ,
                                      (uint16_t)interval);
       if (status == SL_STATUS_OK) {
         snprintf(output_buf,

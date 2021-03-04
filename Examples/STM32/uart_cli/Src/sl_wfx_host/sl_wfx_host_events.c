@@ -34,6 +34,7 @@ EventGroupHandle_t wifi_events;
 
 static struct evt_notif notifications[SL_WFX_EVENT_COUNT] = {0};
 static uint32_t waited_flags = 0;
+osSemaphoreId sae_exch_sem;
 /*
  * The task that implements Wi-Fi events handling.
  */
@@ -41,6 +42,7 @@ static void wifi_events_task(void const * pvParameters);
 
 void wifi_events_start(void)
 {
+  sae_exch_sem = xSemaphoreCreateBinary();
   osThreadDef(eventsTask, wifi_events_task, osPriorityBelowNormal, 0, 1024);
   osThreadCreate(osThread(eventsTask), NULL);
   wifi_events_queue = xQueueCreate(SL_WFX_EVENTS_NB_MAX, sizeof(void *));

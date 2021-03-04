@@ -27,7 +27,7 @@ QueueHandle_t wifi_events_queue;
 
 extern sl_wfx_context_t wifi;
 extern osSemaphoreId scan_sem;
-
+osSemaphoreId sae_exch_sem;
 /*
  * The task that implements Wi-Fi events handling.
  */
@@ -35,6 +35,7 @@ static void wifi_events_task(void const * pvParameters);
 
 void wifi_events_start(void)
 {
+  sae_exch_sem = xSemaphoreCreateBinary();
   osThreadDef(wifi_events, wifi_events_task, osPriorityBelowNormal, 0, 1024);
   wifi_events_task_handle = osThreadCreate(osThread(wifi_events), NULL);
   wifi_events_queue = xQueueCreate(SL_WFX_EVENTS_NB_MAX, sizeof(void *));

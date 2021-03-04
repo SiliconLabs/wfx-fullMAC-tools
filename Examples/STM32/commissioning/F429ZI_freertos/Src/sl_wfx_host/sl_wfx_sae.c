@@ -14,6 +14,7 @@
  * limitations under the License.
  *****************************************************************************/
 
+#include "cmsis_os.h"
 #include "ports/includes.h"
 #include "utils/common.h"
 #include "common/sae.h"
@@ -24,7 +25,7 @@
 #define SL_IANA_IKE_GROUP_NIST_P256 19
 
 static struct sae_data sae_ctx;
-
+extern osSemaphoreId sae_exch_sem;
 /**************************************************************************//**
  * Prepare the SAE exchange.
  * This function must be called before sending a WPA3-SAE join request.
@@ -64,26 +65,28 @@ void sl_wfx_sae_exchange (sl_wfx_ext_auth_ind_t *ext_auth_indication)
   static struct wpabuf* buf = NULL;
   int ret;
   
-//  printf("2: ");
-//  for (int i=0; i<ext_auth_indication->body.auth_data_length; i++)
-//    printf("%02X", ext_auth_indication->body.auth_data[i]);
-//  printf("\r\n");
+  //printf("2: ");
+  //for (int i=0; i<ext_auth_indication->body.auth_data_length; i++)
+  //  printf("%02X", ext_auth_indication->body.auth_data[i]);
+  //printf("\r\n");
 
   switch (ext_auth_indication->body.auth_data_type) {
 
     case 0:
       // SAE start
       buf = wpabuf_alloc(SAE_COMMIT_MAX_LEN);
-//      printf("SAE write commit\r\n");
+      //printf("SAE write commit\r\n");
       sae_write_commit(&sae_ctx, buf, NULL, NULL);
       sl_wfx_ext_auth(WFM_EXT_AUTH_DATA_TYPE_SAE_COMMIT,
                       wpabuf_len(buf), wpabuf_head_u8(buf));
       wpabuf_free(buf);
+      xSemaphoreGive(sae_exch_sem);
       break;
 
     case 1:
       // SAE peer commit
-//      printf("SAE parse commit\r\n");
+      //printf("SAE parse commit\r\n");
+      if(xSemaphoreTake(sae_exch_sem, 0)==true){
       ret = sae_parse_commit(&sae_ctx,
                              ext_auth_indication->body.auth_data,
                              ext_auth_indication->body.auth_data_length,
@@ -91,27 +94,28 @@ void sl_wfx_sae_exchange (sl_wfx_ext_auth_ind_t *ext_auth_indication)
                              NULL,
                              NULL);
       if (!ret) {
-//        printf("SAE process commit\r\n");
+        //printf("SAE process commit\r\n");
         ret = sae_process_commit(&sae_ctx);
       }
       if (!ret) {
         buf = wpabuf_alloc(SAE_COMMIT_MAX_LEN);
-//        printf("SAE write confirm (%08lX)\r\n", (uint32_t)buf);
+        //printf("SAE write confirm (%08lX)\r\n", (uint32_t)buf);
         sae_write_confirm(&sae_ctx, buf);
-        sl_wfx_ext_auth(WFM_EXT_AUTH_DATA_TYPE_SAE_CONFIRM,
+        int status=sl_wfx_ext_auth(WFM_EXT_AUTH_DATA_TYPE_SAE_CONFIRM,
                         wpabuf_len(buf), wpabuf_head_u8(buf));
         wpabuf_free(buf);
-//        printf("SAE write confirm (%08lX)\r\n", (uint32_t)status);
+        //printf("SAE write confirm (%08lX)\r\n", (uint32_t)status);
+      }
       }
       break;
 
     case 2:
       // SAE peer confirm
-//      printf("SAE check confirm\r\n");
+      //printf("SAE check confirm\r\n");
       ret = sae_check_confirm(&sae_ctx,
                               ext_auth_indication->body.auth_data,
                               ext_auth_indication->body.auth_data_length);
-//      printf("SAE check confirm %d\r\n", ret);
+      //printf("SAE check confirm %d\r\n", ret);
       if (!ret) {
         sl_wfx_ext_auth(WFM_EXT_AUTH_DATA_TYPE_MSK, SAE_PMK_LEN, sae_ctx.pmk);
       }

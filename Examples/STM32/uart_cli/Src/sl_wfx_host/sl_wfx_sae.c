@@ -14,6 +14,7 @@
  * limitations under the License.
  *****************************************************************************/
 
+#include "cmsis_os.h"
 #include "ports/includes.h"
 #include "utils/common.h"
 #include "common/sae.h"
@@ -24,7 +25,7 @@
 #define SL_IANA_IKE_GROUP_NIST_P256 19
 
 static struct sae_data sae_ctx;
-
+extern osSemaphoreId sae_exch_sem;
 /**************************************************************************//**
  * Prepare the SAE exchange.
  * This function must be called before sending a WPA3-SAE join request.
@@ -79,11 +80,13 @@ void sl_wfx_sae_exchange (sl_wfx_ext_auth_ind_t *ext_auth_indication)
       sl_wfx_ext_auth(WFM_EXT_AUTH_DATA_TYPE_SAE_COMMIT,
                       wpabuf_len(buf), wpabuf_head_u8(buf));
       wpabuf_free(buf);
+      xSemaphoreGive(sae_exch_sem);
       break;
 
     case 1:
       // SAE peer commit
 //      printf("SAE parse commit\r\n");
+      if(xSemaphoreTake(sae_exch_sem, 0)==true){
       ret = sae_parse_commit(&sae_ctx,
                              ext_auth_indication->body.auth_data,
                              ext_auth_indication->body.auth_data_length,
@@ -102,6 +105,7 @@ void sl_wfx_sae_exchange (sl_wfx_ext_auth_ind_t *ext_auth_indication)
                         wpabuf_len(buf), wpabuf_head_u8(buf));
         wpabuf_free(buf);
 //        printf("SAE write confirm (%08lX)\r\n", (uint32_t)status);
+      }
       }
       break;
 

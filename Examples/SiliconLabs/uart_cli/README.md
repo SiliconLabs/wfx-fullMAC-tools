@@ -87,7 +87,7 @@ Please follow the instructions related to the platform suiting your case:
 								Usage: wfx_test_agent <cmd> [cmd_args]
 
 
-Additionally, you can display the specific command help by tipping:
+Additionally, you can display the specific command help by entering:
 
 ```
 @ [command] help

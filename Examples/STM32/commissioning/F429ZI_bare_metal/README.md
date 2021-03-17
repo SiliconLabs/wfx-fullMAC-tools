@@ -1,3 +1,3 @@
-# STM32/Bare Metal/LwIP Wi-Fi FMAC Driver Example
+# # Wi-Fi Commissioning Bare Metal Example on STM32F4 (NUCLEO-F429ZI)
 
-To use the example, follow the [**demonstration quick start guide**](https://docs.silabs.com/wifi/wf200/content-source/getting-started/stm32/bm/getting-started).
+For more information about the example and how to use it, please follow the [**demonstration quick start guide**](https://docs.silabs.com/wifi/wf200/content-source/getting-started/stm32/stm32f4/wifi-commissioning-bm/getting-started).

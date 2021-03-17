@@ -1,4 +1,3 @@
-# Commissioning Bare Metal Example on WGM160P
+# Wi-Fi Commissioning Bare Metal Example on WGM160P (BRD4321A)
 
-This example is based on the [**Commissioning MicriumOS Example on WGM160P**](../../micrium_os/WGM160P/README.md).
-Please consider reading the documentation of the WGM160P example as a first step before executing this example.
+For more information about the example and how to use it, please follow the [**demonstration quick start guide**](https://docs.silabs.com/wifi/wf200/content-source/getting-started/silabs/ssv4/wgm160/wifi-commissioning-bm/index).

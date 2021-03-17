@@ -59,11 +59,11 @@ It contains generic tools to help development around the Wi-Fi FMAC driver.
 
 1. Install Git. As mentionned above Git is mandatory to get started with the repository, tools can be found [here](https://git-scm.com/downloads)
 2. Retrieve the source code by cloning the repository on your computer using the command `git clone --recurse-submodules https://github.com/SiliconLabs/wfx-fullMAC-tools.git`
-3. Import the examples inside Simplicity Studio by following [this method](https://docs.silabs.com/wifi/wf200/content-source/getting-started/silabs/gg11/getting-started#import-the-project)
+3. Import the examples inside Simplicity Studio by following [this method](https://docs.silabs.com/wifi/wf200/content-source/getting-started/silabs/ssv4/gg11/wifi-commissioning-micriumos/getting-started#import-the-project)
 
 ## Update
 
 Updates are regularily pushed into the GitHub repository, these updates can add new examples, add new features or improvements or fix bugs.
 To retrieve changes published on the repository, enter the command `git pull origin` followed by the command `git submodule update` inside the repository folder on your computer.
 Simplicity Studio doesn't always take into account changes on linked file (e.g. addition or removal) causing compilation errors, a workaround is to delete the project from Simplicity Studio (without deleting the sources)
-and import again the project by following [this method](https://docs.silabs.com/wifi/wf200/content-source/getting-started/silabs/gg11/getting-started#import-the-project)
+and import again the project by following [this method](https://docs.silabs.com/wifi/wf200/content-source/getting-started/silabs/ssv4/gg11/wifi-commissioning-micriumos/getting-started#import-the-project)

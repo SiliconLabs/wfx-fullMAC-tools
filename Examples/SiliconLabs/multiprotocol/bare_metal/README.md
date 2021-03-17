@@ -63,4 +63,4 @@ make sure to request to stay connected, otherwise the Web page may not be displa
 11. LEDs can also be toggled from the push button PB0 on the board (except for EFR32xG21 devices)
 
 This example is actually a combination of two already existing examples, for more information about the Wireless Gecko interactions, please refer to the [DMP Light Demo](https://www.silabs.com/documents/public/quick-start-guides/qsg155-dynamic-multiprotocol-demo-quick-start-guide.pdf) and
-and for more information about the Web page interactions, please refer to the [Wi-Fi commissioning example](https://docs.silabs.com/wifi/wf200/content-source/getting-started/silabs/gg11/interacting-with-the-example).
+and for more information about the Web page interactions, please refer to the [Wi-Fi commissioning example](https://docs.silabs.com/wifi/wf200/content-source/getting-started/silabs/ssv4/gg11/wifi-commissioning-micriumos/interacting-with-the-example).

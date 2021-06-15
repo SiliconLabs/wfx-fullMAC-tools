@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2018, Silicon Laboratories Inc.
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,20 @@
 #include <stdint.h>
 #include "sl_wfx.h"
 #include "cmsis_os.h"
+#include "lwip/netif.h"
 
 #define SL_WFX_EVENT_MAX_SIZE  512
 #define SL_WFX_EVENT_LIST_SIZE 1
 #define SL_WFX_MAX_STATIONS    8
 #define SL_WFX_MAX_SCAN_RESULTS 50
+
+/* Wi-Fi events */
+typedef enum {
+  SL_WFX_TX_PACKET_AVAILABLE        = (1 << 0),
+  SL_WFX_RX_PACKET_AVAILABLE        = (1 << 1),
+  SL_WFX_TX_PACKET_CONF_RECEIVED    = (1 << 2),
+  SL_WFX_CONNECTED                  = (1 << 3)
+} sl_wfx_event_t;
 
 /* WFX host callbacks */
 void sl_wfx_connect_callback(sl_wfx_connect_ind_t *connect);
@@ -40,7 +49,6 @@ void sl_wfx_ap_client_rejected_callback(sl_wfx_ap_client_rejected_ind_t *ap_clie
 void sl_wfx_ap_client_disconnected_callback(sl_wfx_ap_client_disconnected_ind_t *ap_client_disconnected);
 void sl_wfx_ext_auth_callback(sl_wfx_ext_auth_ind_t *ext_auth_indication);
 
-
 typedef struct __attribute__((__packed__)) scan_result_list_s {
   sl_wfx_ssid_def_t ssid_def;
   uint8_t  mac[SL_WFX_MAC_ADDR_SIZE];
@@ -49,6 +57,26 @@ typedef struct __attribute__((__packed__)) scan_result_list_s {
   uint16_t rcpi;
 } scan_result_list_t;
 
-extern osSemaphoreId wfx_wakeup_sem;
+/* Packet Queue */
+typedef struct sl_wfx_packet_queue_item_t{
+  struct sl_wfx_packet_queue_item_t *next;
+  sl_wfx_interface_t interface;
+  uint32_t data_length;
+  sl_wfx_send_frame_req_t buffer;
+}sl_wfx_packet_queue_item_t;
 
+/* Packet Queue */
+typedef struct{
+  sl_wfx_packet_queue_item_t *head_ptr;
+  sl_wfx_packet_queue_item_t *tail_ptr;
+}sl_wfx_packet_queue_t;
+
+extern sl_wfx_context_t      wifi_context;
+extern QueueHandle_t         wifi_event_queue;
+extern sl_wfx_packet_queue_t sl_wfx_tx_queue_context;
+extern EventGroupHandle_t    sl_wfx_event_group;
+extern SemaphoreHandle_t     sl_wfx_tx_queue_mutex;
+extern osSemaphoreId         sl_wfx_wake_up_sem;
+
+void sl_wfx_task_start(void);
 #endif /* SL_WFX_HOST_H */

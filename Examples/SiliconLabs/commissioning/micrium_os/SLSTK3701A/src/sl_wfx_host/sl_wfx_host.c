@@ -3,7 +3,7 @@
  * @brief WFX FMAC driver host implementation
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,27 +65,27 @@ OS_SEM wfx_confirmation;
 OS_SEM wfx_wakeup_sem;
 
 static OS_MUTEX wfx_mutex;
-
-#define SL_WFX_EVENT_MAX_SIZE  512
-#define SL_WFX_EVENT_LIST_SIZE 1
-#define SL_WFX_MAX_STATIONS    8
+#define SL_WFX_EVENT_MAX_SIZE   512
+#define SL_WFX_EVENT_LIST_SIZE  1
+#define SL_WFX_MAX_STATIONS     8
 #define SL_WFX_MAX_SCAN_RESULTS 50
 
-OS_SEM scan_sem;
+OS_SEM             scan_sem;
 scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];
-static uint8_t scan_count = 0;
-uint8_t scan_count_web = 0;
-bool scan_verbose = true;
+static uint8_t     scan_count     = 0;
+uint8_t            scan_count_web = 0;
+bool               scan_verbose   = true;
+
 
 OS_SEM wfx_wakeup_sem;
 
 struct {
-  uint32_t wf200_firmware_download_progress;
+  uint32_t     wf200_firmware_download_progress;
   MEM_DYN_POOL buf_pool;
   MEM_DYN_POOL buf_pool_rx_tx;
-  int wf200_initialized;
-  uint8_t waited_event_id;
-  uint8_t posted_event_id;
+  int          wf200_initialized;
+  uint8_t      waited_event_id;
+  uint8_t      posted_event_id;
 } host_context;
 
 #define SL_WFX_HOST_BUFFER_SIZE 1616
@@ -104,25 +104,10 @@ sl_status_t sl_wfx_host_disable_spi (void);
 #endif
 #endif
 
-/* WF200 host callbacks */
-void sl_wfx_connect_callback(sl_wfx_connect_ind_t *connect);
-void sl_wfx_disconnect_callback(sl_wfx_disconnect_ind_t *disconnect);
-void sl_wfx_start_ap_callback(sl_wfx_start_ap_ind_t *start_ap);
-void sl_wfx_stop_ap_callback(sl_wfx_stop_ap_ind_t *stop_ap);
-void sl_wfx_host_received_frame_callback(sl_wfx_received_ind_t *rx_buffer);
-void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_t *scan_result);
-void sl_wfx_scan_complete_callback(sl_wfx_scan_complete_ind_t *scan_complete);
-void sl_wfx_generic_status_callback(sl_wfx_generic_ind_t *frame);
-void sl_wfx_ap_client_connected_callback(sl_wfx_ap_client_connected_ind_t *ap_client_connected);
-void sl_wfx_ap_client_rejected_callback(sl_wfx_ap_client_rejected_ind_t *ap_client_rejected);
-void sl_wfx_ap_client_disconnected_callback(sl_wfx_ap_client_disconnected_ind_t *ap_client_disconnected);
-void sl_wfx_ext_auth_callback(sl_wfx_ext_auth_ind_t *ext_auth_indication);
-
 /**************************************************************************//**
  * Set up memory pools for WFX host interface
  *****************************************************************************/
-sl_status_t sl_wfx_host_setup_memory_pools(void)
-{
+sl_status_t sl_wfx_host_setup_memory_pools (void) {
   RTOS_ERR err;
   Mem_DynPoolCreate("SL WFX Host Buffers",
                     &host_context.buf_pool,
@@ -144,8 +129,7 @@ sl_status_t sl_wfx_host_setup_memory_pools(void)
 /**************************************************************************//**
  * WFX FMAC driver host interface initialization
  *****************************************************************************/
-sl_status_t sl_wfx_host_init(void)
-{
+sl_status_t sl_wfx_host_init (void) {
   sl_status_t status = SL_STATUS_OK;
   RTOS_ERR err;
   bool error = false;
@@ -176,8 +160,7 @@ sl_status_t sl_wfx_host_init(void)
 /**************************************************************************//**
  * Get firmware data
  *****************************************************************************/
-sl_status_t sl_wfx_host_get_firmware_data(const uint8_t** data, uint32_t data_size)
-{
+sl_status_t sl_wfx_host_get_firmware_data (const uint8_t** data, uint32_t data_size) {
   *data = &sl_wfx_firmware[host_context.wf200_firmware_download_progress];
   host_context.wf200_firmware_download_progress += data_size;
   return SL_STATUS_OK;
@@ -186,8 +169,7 @@ sl_status_t sl_wfx_host_get_firmware_data(const uint8_t** data, uint32_t data_si
 /**************************************************************************//**
  * Get firmware size
  *****************************************************************************/
-sl_status_t sl_wfx_host_get_firmware_size(uint32_t* firmware_size)
-{
+sl_status_t sl_wfx_host_get_firmware_size (uint32_t* firmware_size) {
   *firmware_size = sizeof(sl_wfx_firmware);
   return SL_STATUS_OK;
 }
@@ -195,8 +177,7 @@ sl_status_t sl_wfx_host_get_firmware_size(uint32_t* firmware_size)
 /**************************************************************************//**
  * Get PDS data
  *****************************************************************************/
-sl_status_t sl_wfx_host_get_pds_data(const char **pds_data, uint16_t index)
-{
+sl_status_t sl_wfx_host_get_pds_data (const char **pds_data, uint16_t index) {
 #ifdef SLEXP802X
   // Manage dynamically the PDS in function of the chip connected
   if (strncmp("WFM200", (char *)sl_wfx_context->wfx_opn, 6) == 0) {
@@ -213,8 +194,7 @@ sl_status_t sl_wfx_host_get_pds_data(const char **pds_data, uint16_t index)
 /**************************************************************************//**
  * Get PDS size
  *****************************************************************************/
-sl_status_t sl_wfx_host_get_pds_size(uint16_t *pds_size)
-{
+sl_status_t sl_wfx_host_get_pds_size (uint16_t *pds_size) {
 #ifdef SLEXP802X
   // Manage dynamically the PDS in function of the chip connected
   if (strncmp("WFM200", (char *)sl_wfx_context->wfx_opn, 6) == 0) {
@@ -231,18 +211,16 @@ sl_status_t sl_wfx_host_get_pds_size(uint16_t *pds_size)
 /**************************************************************************//**
  * Deinit host interface
  *****************************************************************************/
-sl_status_t sl_wfx_host_deinit(void)
-{
+sl_status_t sl_wfx_host_deinit (void) {
   return SL_STATUS_OK;
 }
 
 /**************************************************************************//**
  * Allocate buffer
  *****************************************************************************/
-sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
-                                        sl_wfx_buffer_type_t type,
-                                        uint32_t buffer_size)
-{
+sl_status_t sl_wfx_host_allocate_buffer (void **buffer,
+                                         sl_wfx_buffer_type_t type,
+                                         uint32_t buffer_size) {
   RTOS_ERR err;
 
   if (buffer_size > host_context.buf_pool.BlkSize) {
@@ -263,8 +241,7 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
 /**************************************************************************//**
  * Free host buffer
  *****************************************************************************/
-sl_status_t sl_wfx_host_free_buffer(void* buffer, sl_wfx_buffer_type_t type)
-{
+sl_status_t sl_wfx_host_free_buffer (void* buffer, sl_wfx_buffer_type_t type) {
   RTOS_ERR err;
 
   Mem_DynPoolBlkFree(&host_context.buf_pool, buffer, &err);
@@ -278,8 +255,7 @@ sl_status_t sl_wfx_host_free_buffer(void* buffer, sl_wfx_buffer_type_t type)
 /**************************************************************************//**
  * Set reset pin low
  *****************************************************************************/
-sl_status_t sl_wfx_host_hold_in_reset(void)
-{
+sl_status_t sl_wfx_host_hold_in_reset (void) {
   GPIO_PinOutClear(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
   host_context.wf200_initialized = 0;
   return SL_STATUS_OK;
@@ -288,8 +264,7 @@ sl_status_t sl_wfx_host_hold_in_reset(void)
 /**************************************************************************//**
  * Set wakeup pin status
  *****************************************************************************/
-sl_status_t sl_wfx_host_set_wake_up_pin(uint8_t state)
-{
+sl_status_t sl_wfx_host_set_wake_up_pin (uint8_t state) {
   CORE_DECLARE_IRQ_STATE;
 
   CORE_ENTER_ATOMIC();
@@ -318,8 +293,7 @@ sl_status_t sl_wfx_host_set_wake_up_pin(uint8_t state)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_reset_chip(void)
-{
+sl_status_t sl_wfx_host_reset_chip (void) {
   RTOS_ERR err;
   // Pull it low for at least 1 ms to issue a reset sequence
   GPIO_PinOutClear(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
@@ -334,31 +308,30 @@ sl_status_t sl_wfx_host_reset_chip(void)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_wait_for_wake_up(void)
-{
+sl_status_t sl_wfx_host_wait_for_wake_up (void) {
   RTOS_ERR err;
   OSSemSet(&wfx_wakeup_sem, 0, &err);
   OSSemPend(&wfx_wakeup_sem, 3, OS_OPT_PEND_BLOCKING, 0, &err);
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_wait(uint32_t wait_time)
-{
+sl_status_t sl_wfx_host_wait (uint32_t wait_time) {
   RTOS_ERR err;
   OSTimeDly(wait_time, OS_OPT_TIME_DLY, &err);
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_setup_waited_event(uint8_t event_id)
-{
+sl_status_t sl_wfx_host_setup_waited_event (uint8_t event_id) {
   host_context.waited_event_id = event_id;
   host_context.posted_event_id = 0;
 
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id, uint32_t timeout, void** event_payload_out)
-{
+sl_status_t sl_wfx_host_wait_for_confirmation (uint8_t confirmation_id,
+											   uint32_t timeout,
+											   void** event_payload_out) {
+
   RTOS_ERR err;
   while (timeout > 0u) {
     timeout--;
@@ -368,7 +341,6 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id, uint32_t 
         if ( event_payload_out != NULL ) {
           *event_payload_out = sl_wfx_context->event_payload_buffer;
         }
-
         return SL_STATUS_OK;
       }
     } else if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_TIMEOUT) {
@@ -384,8 +356,7 @@ sl_status_t sl_wfx_host_wait_for_confirmation(uint8_t confirmation_id, uint32_t 
  *
  * @returns Returns SL_STATUS_OK if successful, SL_STATUS_FAIL otherwise
  *****************************************************************************/
-sl_status_t sl_wfx_host_lock(void)
-{
+sl_status_t sl_wfx_host_lock (void) {
   RTOS_ERR err;
   OSMutexPend(&wfx_mutex, 0, OS_OPT_PEND_BLOCKING, 0, &err);
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE)
@@ -400,8 +371,7 @@ sl_status_t sl_wfx_host_lock(void)
  *
  * @returns Returns SL_STATUS_OK if successful, SL_STATUS_FAIL otherwise
  *****************************************************************************/
-sl_status_t sl_wfx_host_unlock(void)
-{
+sl_status_t sl_wfx_host_unlock (void) {
   RTOS_ERR err;
   OSMutexPost(&wfx_mutex, OS_OPT_POST_NONE, &err);
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE)
@@ -416,10 +386,8 @@ sl_status_t sl_wfx_host_unlock(void)
  *
  * @returns Returns SL_STATUS_OK if successful, SL_STATUS_FAIL otherwise
  *****************************************************************************/
-sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
-{
+sl_status_t sl_wfx_host_post_event (sl_wfx_generic_message_t *event_payload) {
   RTOS_ERR err;
-
   switch (event_payload->header.id ) {
     /******** INDICATION ********/
     case SL_WFX_CONNECT_IND_ID:
@@ -550,16 +518,14 @@ sl_status_t sl_wfx_host_post_event(sl_wfx_generic_message_t *event_payload)
  *
  * @returns Returns SL_STATUS_OK if successful, SL_STATUS_FAIL otherwise
  *****************************************************************************/
-sl_status_t sl_wfx_host_transmit_frame(void* frame, uint32_t frame_len)
-{
+sl_status_t sl_wfx_host_transmit_frame (void* frame, uint32_t frame_len) {
   return sl_wfx_data_write(frame, frame_len);
 }
 
 /**************************************************************************//**
  * Callback for individual scan result
  *****************************************************************************/
-void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_t *scan_result)
-{
+void sl_wfx_scan_result_callback (sl_wfx_scan_result_ind_t *scan_result) {
   scan_count++;
 
   if (scan_verbose) {
@@ -588,8 +554,7 @@ void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_t *scan_result)
 /**************************************************************************//**
  * Callback for scan complete
  *****************************************************************************/
-void sl_wfx_scan_complete_callback(sl_wfx_scan_complete_ind_t *scan_complete)
-{
+void sl_wfx_scan_complete_callback (sl_wfx_scan_complete_ind_t *scan_complete) {
   void * buffer;
   sl_status_t status;
   RTOS_ERR err;
@@ -613,8 +578,7 @@ void sl_wfx_scan_complete_callback(sl_wfx_scan_complete_ind_t *scan_complete)
 /**************************************************************************//**
  * Callback when station connects
  *****************************************************************************/
-void sl_wfx_connect_callback(sl_wfx_connect_ind_t *connect)
-{
+void sl_wfx_connect_callback (sl_wfx_connect_ind_t *connect) {
   void *buffer;
   sl_status_t status;
   RTOS_ERR err;
@@ -679,8 +643,7 @@ void sl_wfx_connect_callback(sl_wfx_connect_ind_t *connect)
 /**************************************************************************//**
  * Callback for station disconnect
  *****************************************************************************/
-void sl_wfx_disconnect_callback(sl_wfx_disconnect_ind_t *disconnect)
-{
+void sl_wfx_disconnect_callback (sl_wfx_disconnect_ind_t *disconnect) {
   void *buffer;
   sl_status_t status;
   RTOS_ERR err;
@@ -704,8 +667,7 @@ void sl_wfx_disconnect_callback(sl_wfx_disconnect_ind_t *disconnect)
 /**************************************************************************//**
  * Callback for AP started
  *****************************************************************************/
-void sl_wfx_start_ap_callback(sl_wfx_start_ap_ind_t *start_ap)
-{
+void sl_wfx_start_ap_callback (sl_wfx_start_ap_ind_t *start_ap) {
   void *buffer;
   sl_status_t status;
   RTOS_ERR err;
@@ -728,15 +690,14 @@ void sl_wfx_start_ap_callback(sl_wfx_start_ap_ind_t *start_ap)
     }
   } else {
     printf("AP start failed\r\n");
-    strcpy(event_log, "AP start failed");
+    //strcpy(event_log, "AP start failed");
   }
 }
 
 /**************************************************************************//**
  * Callback for AP stopped
  *****************************************************************************/
-void sl_wfx_stop_ap_callback(sl_wfx_stop_ap_ind_t *stop_ap)
-{
+void sl_wfx_stop_ap_callback (sl_wfx_stop_ap_ind_t *stop_ap) {
   void *buffer;
   sl_status_t status;
   RTOS_ERR err;
@@ -757,8 +718,7 @@ void sl_wfx_stop_ap_callback(sl_wfx_stop_ap_ind_t *stop_ap)
 /**************************************************************************//**
  * Callback for client connect to AP
  *****************************************************************************/
-void sl_wfx_ap_client_connected_callback(sl_wfx_ap_client_connected_ind_t *ap_client_connected)
-{
+void sl_wfx_ap_client_connected_callback (sl_wfx_ap_client_connected_ind_t *ap_client_connected) {
   printf("Client connected, MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
          ap_client_connected->body.mac[0],
          ap_client_connected->body.mac[1],
@@ -773,8 +733,7 @@ void sl_wfx_ap_client_connected_callback(sl_wfx_ap_client_connected_ind_t *ap_cl
 /**************************************************************************//**
  * Callback for client rejected from AP
  *****************************************************************************/
-void sl_wfx_ap_client_rejected_callback(sl_wfx_ap_client_rejected_ind_t *ap_client_rejected)
-{
+void sl_wfx_ap_client_rejected_callback (sl_wfx_ap_client_rejected_ind_t *ap_client_rejected) {
   struct eth_addr mac_addr;
   memcpy(&mac_addr, ap_client_rejected->body.mac, SL_WFX_BSSID_SIZE);
   dhcpserver_remove_mac(&mac_addr);
@@ -791,8 +750,7 @@ void sl_wfx_ap_client_rejected_callback(sl_wfx_ap_client_rejected_ind_t *ap_clie
 /**************************************************************************//**
  * Callback for AP client disconnect
  *****************************************************************************/
-void sl_wfx_ap_client_disconnected_callback(sl_wfx_ap_client_disconnected_ind_t *ap_client_disconnected)
-{
+void sl_wfx_ap_client_disconnected_callback (sl_wfx_ap_client_disconnected_ind_t *ap_client_disconnected) {
   struct eth_addr mac_addr;
   memcpy(&mac_addr, ap_client_disconnected->body.mac, SL_WFX_BSSID_SIZE);
   dhcpserver_remove_mac(&mac_addr);
@@ -809,8 +767,7 @@ void sl_wfx_ap_client_disconnected_callback(sl_wfx_ap_client_disconnected_ind_t 
 /**************************************************************************//**
  * Callback for External Authentication
  *****************************************************************************/
-void sl_wfx_ext_auth_callback(sl_wfx_ext_auth_ind_t *ext_auth_indication)
-{
+void sl_wfx_ext_auth_callback (sl_wfx_ext_auth_ind_t *ext_auth_indication) {
   void *buffer;
   sl_status_t status;
   RTOS_ERR err;
@@ -833,8 +790,7 @@ void sl_wfx_ext_auth_callback(sl_wfx_ext_auth_ind_t *ext_auth_indication)
 /**************************************************************************//**
  * Callback for generic status received
  *****************************************************************************/
-void sl_wfx_generic_status_callback(sl_wfx_generic_ind_t *frame)
-{
+void sl_wfx_generic_status_callback (sl_wfx_generic_ind_t *frame) {
   (void)(frame);
   printf("Generic status received\r\n");
 }
@@ -845,10 +801,9 @@ void sl_wfx_generic_status_callback(sl_wfx_generic_ind_t *frame)
  * @returns SL_WIFI_SLEEP_GRANTED to let the WFx go to sleep,
  * SL_WIFI_SLEEP_NOT_GRANTED otherwise
  *****************************************************************************/
-sl_status_t sl_wfx_host_sleep_grant(sl_wfx_host_bus_transfer_type_t type,
-                                    sl_wfx_register_address_t address,
-                                    uint32_t length)
-{
+sl_status_t sl_wfx_host_sleep_grant (sl_wfx_host_bus_transfer_type_t type,
+                                     sl_wfx_register_address_t address,
+                                     uint32_t length) {
   (void)(type);
   (void)(address);
   (void)(length);
@@ -857,8 +812,7 @@ sl_status_t sl_wfx_host_sleep_grant(sl_wfx_host_bus_transfer_type_t type,
 }
 
 #if SL_WFX_DEBUG_MASK
-void sl_wfx_host_log(const char *string, ...)
-{
+void sl_wfx_host_log (const char *string, ...) {
   va_list valist;
 
   va_start(valist, string);

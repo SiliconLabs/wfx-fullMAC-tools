@@ -23,8 +23,6 @@
 #include "sl_wfx_sae.h"
 #include "sl_wfx_host.h"
 
-extern sl_wfx_context_t wifi;
-
 // X.x.x: Major version of the WiFi CLI
 #define SL_WFX_CLI_WIFI_VERSION_MAJOR      2
 // x.X.x: Minor version of the WiFi CLI
@@ -69,11 +67,11 @@ static int reboot_cmd_cb (int argc,
   (void)argc;
   (void)argv;
 
-  // Force the bus deinitialization to ensure a re-initialization from scratch.
-  // This is especially useful for the SDIO
+  /* Force the bus deinitialization to ensure a re-initialization from scratch.
+     This is especially useful for the SDIO*/
   sl_wfx_host_deinit_bus();
 
-  // Initialize the Wi-Fi chip
+  /* Initialize the Wi-Fi chip*/
   status = sl_wfx_init( wifi_ctx );
   switch(status) {
     case SL_STATUS_OK:
@@ -103,7 +101,7 @@ static int reboot_cmd_cb (int argc,
 
   }
 
-  // Format the output message
+  /* Format the output message*/
   snprintf(output_buf,
            output_buf_len,
            "%s%s\r\n",
@@ -124,8 +122,7 @@ static const sl_wfx_cli_generic_command_t reboot_cmd =
 static int network_up_cmd_cb (int argc,
                               char **argv,
                               char *output_buf,
-                              uint32_t output_buf_len)
-{
+                              uint32_t output_buf_len) {
   char *msg = NULL;
   char *wlan_ssid = NULL;
   char *wlan_passkey = NULL;
@@ -136,7 +133,7 @@ static int network_up_cmd_cb (int argc,
   (void)argc;
   (void)argv;
 
-  // Retrieve all the parameters required by the function
+  /* Retrieve all the parameters required by the function*/
   wlan_ssid = (char *)sl_wfx_cli_param_get_addr("wlan.ssid");
   wlan_passkey = (char *)sl_wfx_cli_param_get_addr("wlan.passkey");
   wlan_security = (sl_wfx_security_mode_t *)sl_wfx_cli_param_get_addr("wlan.security");
@@ -145,7 +142,7 @@ static int network_up_cmd_cb (int argc,
       && (wlan_passkey != NULL)
       && (wlan_security != NULL)) {
 
-      //Retrieve the AP BSSID (required during WPA3 authentication) and CHANNEL(to avoid repeating the scan during the join command) with a scan
+      /*Retrieve the AP BSSID (required during WPA3 authentication) and CHANNEL(to avoid repeating the scan during the join command) with a scan*/
       sl_wfx_ssid_def_t ssid;
       uint8_t retry = 0;
       uint16_t channel=0;
@@ -153,25 +150,24 @@ static int network_up_cmd_cb (int argc,
       ssid.ssid_length = strlen(wlan_ssid);
 
       do {
-        // Reset scan list
+        /* Reset scan list*/
     	scan_count_web = 0;
         memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
         scan_verbose = false;
-        // Configure the wait event
+        /* Configure the wait event*/
           sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_SCAN_COMPLETE);
-        // perform a scan on every Wi-Fi channel in active mode
+        /* perform a scan on every Wi-Fi channel in active mode*/
         status = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0,&ssid,1,NULL,0,NULL);
-        if ((status == SL_STATUS_OK) || (status == SL_STATUS_WIFI_WARNING))
-        {
-        	// Wait for a confirmation
+        if ((status == SL_STATUS_OK) || (status == SL_STATUS_WIFI_WARNING)) {
+        	/* Wait for a confirmation*/
         	    res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
             if (res == SL_WFX_CLI_ERROR_TIMEOUT) {
               msg = (char *)command_timeout_msg;
               res = -1;
             } else if (res == SL_WFX_CLI_ERROR_NONE) {
-            // Success
-			// Retrieve the AP information from the scan list, presuming that the
-			// first matching SSID is the one (not necessarily true).
+            /* Success
+			   Retrieve the AP information from the scan list, presuming that the
+			   first matching SSID is the one (not necessarily true).*/
 			for (uint16_t i = 0; i < scan_count_web; i++) {
 				  if (strcmp((char *) scan_list[i].ssid_def.ssid, wlan_ssid) == 0) {
 						memcpy(&wlan_bssid, scan_list[i].mac, SL_WFX_BSSID_SIZE);
@@ -192,23 +188,23 @@ static int network_up_cmd_cb (int argc,
         printf("AP %s not found\r\n", wlan_ssid);
         msg = (char *)command_error_msg;
       }
-     scan_verbose = true;
-
-    if (*wlan_security == WFM_SECURITY_MODE_WPA3_SAE) {
-        status = sl_wfx_sae_prepare(&wifi.mac_addr_0,
-        							(sl_wfx_mac_address_t *) wlan_bssid,
-        							(uint8_t*) wlan_passkey,
-									strlen(wlan_passkey));
-
+      scan_verbose = true;
+      
+      if (*wlan_security == WFM_SECURITY_MODE_WPA3_SAE) {
+        status = sl_wfx_sae_prepare(&wifi_context.mac_addr_0,
+                                    (sl_wfx_mac_address_t *) wlan_bssid,
+                                    (uint8_t*) wlan_passkey,
+                                    strlen(wlan_passkey));
+        
         printf("wlan preparing SAE...\r\n");
         if (status != SL_STATUS_OK) {
-           printf("wlan: Could not prepare SAE\r\n");
+          printf("wlan: Could not prepare SAE\r\n");
         }
       }
-    //sl_wfx_set_scan_parameters(0,0,1);
-    // Configure the wait event
+    sl_wfx_set_scan_parameters(0,0,1);
+    /* Configure the wait event*/
     	      sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_CONNECT);
-    // Connect to a Wi-Fi access point
+    /* Connect to a Wi-Fi access point*/
     status = sl_wfx_send_join_command((uint8_t*) wlan_ssid,
                                       strlen(wlan_ssid),
 									  (sl_wfx_mac_address_t *) wlan_bssid,
@@ -222,14 +218,14 @@ static int network_up_cmd_cb (int argc,
                                       0);
 
     if (status == SL_STATUS_OK) {
-      // Wait for a confirmation
+      /* Wait for a confirmation*/
 
     	res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
       if (res == SL_WFX_CLI_ERROR_TIMEOUT) {
         msg = (char *)command_timeout_msg;
         res = -1;
       } else if (res == SL_WFX_CLI_ERROR_NONE) {
-        // Success
+        /* Success*/
         res = 0;
       } else {
         msg = (char *)command_error_msg;
@@ -239,12 +235,12 @@ static int network_up_cmd_cb (int argc,
       msg = (char *)command_error_msg;
     }
   } else {
-    // One of the parameter could not be retrieved
+    /* One of the parameter could not be retrieved*/
     msg = (char *)missing_parameter_msg;
   }
 
   if (msg != NULL) {
-    // Format the output message
+    /* Format the output message*/
     strncpy(output_buf, msg, output_buf_len);
     if (output_buf_len > 0) {
       output_buf[output_buf_len - 1] = '\0';
@@ -282,20 +278,20 @@ static int network_down_cmd_cb (int argc,
   (void)argc;
   (void)argv;
 
-  // Configure the wait event
+  /* Configure the wait event*/
   sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_DISCONNECT);
 
-  // Disconnect from a Wi-Fi access point
+  /* Disconnect from a Wi-Fi access point*/
   status = sl_wfx_send_disconnect_command();
 
   if (status == SL_STATUS_OK) {
-    // Wait for a confirmation
+    /* Wait for a confirmation*/
     res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
     if (res == SL_WFX_CLI_ERROR_TIMEOUT) {
       msg = (char *)command_timeout_msg;
       res = -1;
     } else if (res == SL_WFX_CLI_ERROR_NONE) {
-      // Success
+      /* Success*/
       res = 0;
     } else {
       msg = (char *)command_error_msg;
@@ -306,7 +302,7 @@ static int network_down_cmd_cb (int argc,
   }
 
   if (msg != NULL) {
-    // Format the output message
+    /* Format the output message*/
     strncpy(output_buf, msg, output_buf_len);
     if (output_buf_len > 0) {
       output_buf[output_buf_len - 1] = '\0';
@@ -344,12 +340,12 @@ static int scan_cmd_cb (int argc,
   (void)argc;
   (void)argv;
 
-  // Configure the wait event
+  /* Configure the wait event*/
   sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_SCAN_COMPLETE);
 
   printf("!  # Ch RSSI MAC (BSSID)        Network (SSID)\r\n");
 
-  // Start a scan
+  /* Start a scan*/
   status = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE,
                                     NULL,
                                     0,
@@ -361,13 +357,13 @@ static int scan_cmd_cb (int argc,
 
   if ((status == SL_STATUS_OK)
       || (status == SL_STATUS_WIFI_WARNING)) {
-    // Wait for a confirmation
+    /* Wait for a confirmation*/
     res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
     if (res == SL_WFX_CLI_ERROR_TIMEOUT) {
       msg = (char *)command_timeout_msg;
       res = -1;
     } else if (res == SL_WFX_CLI_ERROR_NONE) {
-      // Success
+      /* Success*/
       res = 0;
     } else {
       msg = (char *)command_error_msg;
@@ -378,7 +374,7 @@ static int scan_cmd_cb (int argc,
   }
 
   if (msg != NULL) {
-    // Format the output message
+    /* Format the output message*/
     strncpy(output_buf, msg, output_buf_len);
     if (output_buf_len > 0) {
       output_buf[output_buf_len - 1] = '\0';
@@ -399,8 +395,7 @@ static const sl_wfx_cli_generic_command_t scan_cmd =
 static int powermode_cmd_cb (int argc,
                              char **argv,
                              char *output_buf,
-                             uint32_t output_buf_len)
-{
+                             uint32_t output_buf_len) {
   sl_status_t status;
   char *msg = NULL;
   int power_mode;
@@ -471,8 +466,7 @@ static const sl_wfx_cli_generic_command_t powermode_cmd =
 static int powersave_cmd_cb (int argc,
                              char **argv,
                              char *output_buf,
-                             uint32_t output_buf_len)
-{
+                             uint32_t output_buf_len) {
   sl_status_t status;
   char buf[4];
   int state;
@@ -485,14 +479,14 @@ static int powersave_cmd_cb (int argc,
   state = atoi(buf);
 
   if (state == 0) {
-    // Disable the Power Save
+    /*  Disable the Power Save*/
     status = sl_wfx_disable_device_power_save();
     if (status == SL_STATUS_OK) {
       strncpy(output_buf, "Power Save disabled\r\n", output_buf_len);
       res = 0;
     }
   } else {
-    // Enable the Power Save
+    /* Enable the Power Save*/
     status = sl_wfx_enable_device_power_save();
     if (status == SL_STATUS_OK) {
       strncpy(output_buf, "Power Save enabled\r\n", output_buf_len);
@@ -501,7 +495,7 @@ static int powersave_cmd_cb (int argc,
   }
 
   if (res != 0) {
-    // Format the output message
+    /* Format the output message*/
     strncpy(output_buf, (char *)command_error_msg, output_buf_len);
     if (output_buf_len > 0) {
       output_buf[output_buf_len - 1] = '\0';
@@ -524,8 +518,7 @@ static const sl_wfx_cli_generic_command_t powersave_cmd =
 static int wlan_rssi_cmd_cb (int argc,
                              char **argv,
                              char *output_buf,
-                             uint32_t output_buf_len)
-{
+                             uint32_t output_buf_len) {
   sl_status_t status;
   uint32_t rcpi;
   int res = -1;
@@ -539,7 +532,7 @@ static int wlan_rssi_cmd_cb (int argc,
              "RSSI value : %d dBm\r\n",
              (int16_t)(rcpi - 220)/2);
     res = 0;
-  } // else let the generic CLI display the error message
+  } /* else let the generic CLI display the error message*/
 
   return res;
 }
@@ -555,8 +548,7 @@ static const sl_wfx_cli_generic_command_t wlan_rssi_cmd =
 static int softap_up_cmd_cb (int argc,
                              char **argv,
                              char *output_buf,
-                             uint32_t output_buf_len)
-{
+                             uint32_t output_buf_len) {
   char *msg = NULL;
   char *softap_ssid = NULL;
   char *softap_passkey = NULL;
@@ -578,10 +570,10 @@ static int softap_up_cmd_cb (int argc,
       && (softap_passkey != NULL)
       && (softap_security != NULL)
       && (softap_channel != NULL)) {
-    // Configure the wait event
+    /* Configure the wait event*/
     sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_START_AP);
 
-    // Start the SoftAP interface
+    /* Start the SoftAP interface*/
     status = sl_wfx_start_ap_command(*softap_channel,
                                      (uint8_t*)softap_ssid,
                                      strlen(softap_ssid),
@@ -597,13 +589,13 @@ static int softap_up_cmd_cb (int argc,
                                      0);
 
     if (status == SL_STATUS_OK) {
-      // Wait for a confirmation
+      /* Wait for a confirmation*/
       res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
       if (res == SL_WFX_CLI_ERROR_TIMEOUT) {
         msg = (char *)command_timeout_msg;
         res = -1;
       } else if (res == SL_WFX_CLI_ERROR_NONE) {
-        // Success
+        /* Success*/
         res = 0;
       } else {
         msg = (char *)command_error_msg;
@@ -613,12 +605,12 @@ static int softap_up_cmd_cb (int argc,
       msg = (char *)command_error_msg;
     }
   } else {
-    // One of the parameter could not be retrieved
+    /* One of the parameter could not be retrieved*/
     msg = (char *)missing_parameter_msg;
   }
 
   if (msg != NULL) {
-    // Format the output message
+    /* Format the output message*/
     strncpy(output_buf, msg, output_buf_len);
     if (output_buf_len > 0) {
       output_buf[output_buf_len - 1] = '\0';
@@ -647,8 +639,7 @@ static const sl_wfx_cli_generic_command_t sup_cmd =
 static int softap_down_cmd_cb (int argc,
                                char **argv,
                                char *output_buf,
-                               uint32_t output_buf_len)
-{
+                               uint32_t output_buf_len) {
   char *msg = NULL;
   sl_status_t status;
   int res = -1;
@@ -656,19 +647,19 @@ static int softap_down_cmd_cb (int argc,
   (void)argc;
   (void)argv;
 
-  // Configure the wait event
+  /* Configure the wait event*/
   sl_wfx_cli_generic_config_wait(SL_WFX_EVENT_STOP_AP);
 
-  // Stop the SoftAP interface
+  /* Stop the SoftAP interface*/
   status = sl_wfx_stop_ap_command();
   if (status == SL_STATUS_OK) {
-    // Wait for a confirmation
+    /* Wait for a confirmation*/
     res = sl_wfx_cli_generic_wait(SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS);
     if (res == SL_WFX_CLI_ERROR_TIMEOUT) {
       msg = (char *)command_timeout_msg;
       res = -1;
     } else if (res == SL_WFX_CLI_ERROR_NONE) {
-      // Success
+      /* Success*/
       res = 0;
     } else {
       msg = (char *)command_error_msg;
@@ -679,14 +670,14 @@ static int softap_down_cmd_cb (int argc,
   }
 
   if (msg != NULL) {
-    // Format the output message
+    /* Format the output message*/
     strncpy(output_buf, msg, output_buf_len);
     if (output_buf_len > 0) {
       output_buf[output_buf_len - 1] = '\0';
     }
   }
 
-  // Clear the client list
+  /* Clear the client list*/
   wifi_nb_clients_connected = 0;
 
   return res;
@@ -711,8 +702,7 @@ static const sl_wfx_cli_generic_command_t sdo_cmd =
 static int softap_rssi_cmd_cb (int argc,
                                char **argv,
                                char *output_buf,
-                               uint32_t output_buf_len)
-{
+                               uint32_t output_buf_len) {
   sl_status_t status;
   uint32_t rcpi;
   char *msg = NULL;
@@ -725,9 +715,9 @@ static int softap_rssi_cmd_cb (int argc,
   strncpy(&mac[0], argv[1], sizeof(mac));
   mac[sizeof(mac)-1] = 0;
 
-  // Should be "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx" but it
-  // doesn't work with the nano LibC
-  // This code might cause issues.
+  /* Should be "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx" but it
+     doesn't work with the nano LibC
+     This code might cause issues.*/
   res = sscanf(mac,
                "%02hx:%02hx:%02hx:%02hx:%02hx:%02hx",
                (short unsigned int *)&mac_address.octet[0],
@@ -755,7 +745,7 @@ static int softap_rssi_cmd_cb (int argc,
   }
 
   if (msg != NULL) {
-    // Format the output message
+    /* Format the output message*/
     strncpy(output_buf, msg, output_buf_len);
     if (output_buf_len > 0) {
       output_buf[output_buf_len - 1] = '\0';
@@ -777,9 +767,8 @@ static const sl_wfx_cli_generic_command_t softap_rssi_cmd =
 static int softap_client_list_cmd_cb (int argc,
                                       char **argv,
                                       char *output_buf,
-                                      uint32_t output_buf_len)
-{
-  // Output can have a consequent size, directly output it
+                                      uint32_t output_buf_len) {
+  /* Output can have a consequent size, directly output it*/
   for (uint8_t i=0; i<wifi_nb_clients_connected; i++) {
     printf("%02X:%02X:%02X:%02X:%02X:%02X\r\n",
            wifi_clients[i][0], wifi_clients[i][1],
@@ -798,15 +787,14 @@ static const sl_wfx_cli_generic_command_t softap_client_list_cmd =
   0
 };
 
-int sl_wfx_cli_wifi_init (sl_wfx_context_t *wfx_ctx)
-{
+int sl_wfx_cli_wifi_init (sl_wfx_context_t *wfx_ctx) {
   int res = -1;
 
   if (wfx_ctx != NULL) {
-    // Initialize the resources needed by the commands
+    /* Initialize the resources needed by the commands*/
     wifi_ctx = wfx_ctx;
 
-    // Add wifi commands to the CLI
+    /* Add wifi commands to the CLI*/
     res = sl_wfx_cli_generic_register_cmd(&reboot_cmd);
     res = sl_wfx_cli_generic_register_cmd(&network_up_cmd);
     res = sl_wfx_cli_generic_register_cmd(&nup_cmd);
@@ -824,7 +812,7 @@ int sl_wfx_cli_wifi_init (sl_wfx_context_t *wfx_ctx)
     res = sl_wfx_cli_generic_register_cmd(&softap_client_list_cmd);
 
     if (res == 0) {
-      // Register the WiFi CLI module
+      /* Register the WiFi CLI module*/
       res = sl_wfx_cli_generic_register_module("WiFi CLI",
                                                SL_WFX_CLI_WIFI_VERSION_STRING);
     }
@@ -861,7 +849,7 @@ int sl_wfx_cli_wifi_remove_client (uint8_t *mac)
   }
 
   if (wifi_client_found) {
-    // Other clients may exit after the one removed, shift them all
+    /* Other clients may exit after the one removed, shift them all*/
     for (uint8_t j=i+1; j<wifi_nb_clients_connected; i++, j++) {
       memcpy(wifi_clients[i], wifi_clients[j], sizeof(wifi_clients[i]));
     }

@@ -629,7 +629,6 @@ int crypto_ec_point_is_at_infinity(
     struct crypto_ec* e,
     const struct crypto_ec_point* p)
 {
-    mbedtls_ecp_group* ec = (mbedtls_ecp_group*)e;
     mbedtls_ecp_point* ecp = (mbedtls_ecp_point*)p;
     int ret = -1;
 
@@ -672,7 +671,6 @@ int crypto_ec_point_cmp(
     const struct crypto_ec_point* a,
     const struct crypto_ec_point* b)
 {
-    mbedtls_ecp_group* ec = (mbedtls_ecp_group*)e;
     mbedtls_ecp_point* ecp_a = (mbedtls_ecp_point*)a;
     mbedtls_ecp_point* ecp_b = (mbedtls_ecp_point*)b;
     int ret = -1;

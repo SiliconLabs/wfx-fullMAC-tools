@@ -3,7 +3,7 @@
  * @brief LwIP task and related functions header file
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,22 +76,22 @@ sl_status_t lwip_start (void);
 /**************************************************************************//**
  * Set station link status to up.
  *****************************************************************************/
-sl_status_t lwip_set_sta_link_up(void);
+void lwip_set_sta_link_up(void);
 
 /**************************************************************************//**
  * Set station link status to down.
  *****************************************************************************/
-sl_status_t lwip_set_sta_link_down(void);
+void lwip_set_sta_link_down(void);
 
 /**************************************************************************//**
  * Set AP link status to up.
  *****************************************************************************/
-sl_status_t lwip_set_ap_link_up(void);
+void lwip_set_ap_link_up(void);
 
 /**************************************************************************//**
  * Set AP link status to down.
  *****************************************************************************/
-sl_status_t lwip_set_ap_link_down(void);
+void lwip_set_ap_link_down(void);
 
 /**************************************************************************//**
  * Button handler

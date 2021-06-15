@@ -245,7 +245,6 @@ err_t sta_ethernetif_init(struct netif *netif)
 
   /* initialize the hardware */
   low_level_init(netif);
-  sta_netif = *netif;
 
   return ERR_OK;
 }
@@ -272,7 +271,6 @@ err_t ap_ethernetif_init(struct netif *netif)
 
   /* initialize the hardware */
   low_level_init(netif);
-  ap_netif = *netif;
 
   return ERR_OK;
 }

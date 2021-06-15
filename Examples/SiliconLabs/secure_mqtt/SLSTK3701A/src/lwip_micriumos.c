@@ -185,7 +185,7 @@ static console_config_t console_config = {
 };
 #endif
 
-static const char led_json_object[] = "{\"name\":\"LED%u\",\"state\":\"%s\"}";
+static const char led_json_object[] = "{\"name\":\"LED%d\",\"state\":\"%3s\"}";
 
 /// TLS
 static char ca_certificate[2048] = {0};
@@ -257,7 +257,6 @@ static void mqtt_incoming_data_cb (void *arg,
 
   (void)arg;
   (void)flags;
-
   // Limit the input data size
   strncpy(buf, (char*)data, sizeof(buf));
   if (len < sizeof(buf)) {
@@ -269,9 +268,9 @@ static void mqtt_incoming_data_cb (void *arg,
   if (res == 2) {
     if (led_id < BSP_NO_OF_LEDS) {
       // sscanf captures everything up to the nul termination
-      if (strcmp(state, "On\"}") == 0) {
+      if (strcmp(state, "On\"") == 0) {
         BSP_LedSet(led_id);
-      } else if (strcmp(state, "Off\"}") == 0) {
+      } else if (strcmp(state, "Off") == 0) {
         BSP_LedClear(led_id);
       }
     } else {

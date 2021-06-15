@@ -98,7 +98,7 @@
 
 #define configSUPPORT_STATIC_ALLOCATION          0
 #define configSUPPORT_DYNAMIC_ALLOCATION         1
-#define configIDLE_SHOULD_YIELD			1
+#define configIDLE_SHOULD_YIELD			 1
 
 #define configUSE_PREEMPTION                     1
 #define configUSE_IDLE_HOOK                      0
@@ -108,9 +108,9 @@
 #define configMAX_PRIORITIES                     ( 7 )
 #define configMINIMAL_STACK_SIZE                 ((uint16_t)128)
 #if defined(__GNUC__)
- #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 25 * 1024 ) )
+ #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 35 * 1024 ) )
 #else
- #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 20 * 1024 ) )
+ #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 30 * 1024 ) )
 #endif
 #define configMAX_TASK_NAME_LEN                  ( 16 )
 #define configUSE_16_BIT_TICKS                   0

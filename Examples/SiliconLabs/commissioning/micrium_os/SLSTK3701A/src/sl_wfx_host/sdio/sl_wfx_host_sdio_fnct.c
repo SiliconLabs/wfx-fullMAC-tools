@@ -3,7 +3,7 @@
  * @brief Network Wi-Fi Driver for the WFX over SDIO
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc.  Your use of this
@@ -14,14 +14,6 @@
  * Software.
  *
  ******************************************************************************/
-
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                       DEPENDENCIES & AVAIL CHECK(S)
- *********************************************************************************************************
- *********************************************************************************************************
- */
 
 #include  <rtos_description.h>
 
@@ -34,13 +26,6 @@
 
 #endif
 
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                               INCLUDES
- *********************************************************************************************************
- *********************************************************************************************************
- */
 
 #include  <stdio.h>
 
@@ -57,13 +42,6 @@
 
 #include  "sl_wfx_host_sdio_fnct.h"
 
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                               LOCAL DEFINES
- *********************************************************************************************************
- *********************************************************************************************************
- */
 
 #define  RTOS_MODULE_CUR                    RTOS_CFG_MODULE_IO
 
@@ -71,13 +49,6 @@
 #define  SDIO_FNCT_BLK_LEN                  4u
 #define  SDIO_FNCT_BLK_QTY                 64u
 
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                       LOCAL GLOBAL VARIABLES
- *********************************************************************************************************
- *********************************************************************************************************
- */
 
 static KAL_SEM_HANDLE  sdio_fnct_sem;
 
@@ -89,53 +60,25 @@ static CPU_INT08U      sdio_fnct_buf[SDIO_FNCT_BUF_LEN];
 
 static CPU_INT08U      sdio_fnct_blk_buf[SDIO_FNCT_BLK_LEN * SDIO_FNCT_BLK_QTY];
 
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           LOCAL DATA TYPES
- *********************************************************************************************************
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                               LOCAL TABLES
- *********************************************************************************************************
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                       LOCAL FUNCTION PROTOTYPES
- *********************************************************************************************************
- *********************************************************************************************************
- */
 
 typedef void (*sdio_fnct_card_int_callback_t)(void);
 
 static sdio_fnct_card_int_callback_t sdio_fnct_card_int_callback;
 
 static  CPU_BOOLEAN  sdio_fnct_probe  (SD_BUS_HANDLE     bus_handle,
-                                             SD_FNCT_HANDLE    fnct_handle,
-                                             CPU_INT08U        sdio_fnct_if_code,
-                                             void            **pp_fnct_data);
+                                       SD_FNCT_HANDLE    fnct_handle,
+                                       CPU_INT08U        sdio_fnct_if_code,
+                                       void            **pp_fnct_data);
 
 static  void         sdio_fnct_conn   (SD_FNCT_HANDLE    fnct_handle,
-                                             void             *p_fnct_data);
+                                       void             *p_fnct_data);
 
 static  void         sdio_fnct_int    (SD_FNCT_HANDLE    fnct_handle,
-                                             void             *p_fnct_data);
+                                       void             *p_fnct_data);
 
 static  void         sdio_fnct_disconn(SD_FNCT_HANDLE    fnct_handle,
-                                             void             *p_fnct_data);
+                                       void             *p_fnct_data);
 
-/*
- *********************************************************************************************************
- *                                           LOCAL FUNCTIONS
- *********************************************************************************************************
- */
 
 const  SD_IO_FNCT_DRV_API  sdio_FnctDrvAPI = {
   .CardFnctProbe   = sdio_fnct_probe,
@@ -144,18 +87,9 @@ const  SD_IO_FNCT_DRV_API  sdio_FnctDrvAPI = {
   .CardFnctInt     = sdio_fnct_int
 };
 
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           GLOBAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
- */
-
 static void  sdio_fnct_task (void *p_arg);
 
-void  sdio_fnct_init(RTOS_ERR  *p_err)
-{
+void  sdio_fnct_init (RTOS_ERR  *p_err) {
   KAL_TASK_HANDLE  task_handle;
 
   sdio_fnct_card_int_callback = DEF_NULL;
@@ -178,45 +112,33 @@ void  sdio_fnct_init(RTOS_ERR  *p_err)
   }
 }
 
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           LOCAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
- */
-void sdio_fnct_int_reg(void* callback)
-{
+void sdio_fnct_int_reg (void* callback) {
   sdio_fnct_card_int_callback = (sdio_fnct_card_int_callback_t) callback;
 }
 
-static CPU_BOOLEAN sdio_fnct_probe(SD_BUS_HANDLE     bus_handle,
-                                         SD_FNCT_HANDLE    fnct_handle,
-                                         CPU_INT08U        sdio_fnct_if_code,
-                                         void            **pp_fnct_data)
-{
+static CPU_BOOLEAN sdio_fnct_probe (SD_BUS_HANDLE     bus_handle,
+                                    SD_FNCT_HANDLE    fnct_handle,
+                                    CPU_INT08U        sdio_fnct_if_code,
+                                    void            **pp_fnct_data) {
   sdio_fnct_bus_handle = bus_handle;
   sdio_fnct_handle = fnct_handle;
 
   return (DEF_OK);
 }
 
-static void sdio_fnct_conn(SD_FNCT_HANDLE   fnct_handle,
-                                 void            *p_fnct_data)
-{
+static void sdio_fnct_conn (SD_FNCT_HANDLE   fnct_handle,
+                            void            *p_fnct_data) {
   RTOS_ERR  err;
 
   KAL_SemPost(sdio_fnct_sem, KAL_OPT_POST_NONE, &err);
 }
 
-static void sdio_fnct_disconn(SD_FNCT_HANDLE   fnct_handle,
-                                    void            *p_fnct_data)
-{
+static void sdio_fnct_disconn (SD_FNCT_HANDLE   fnct_handle,
+                               void            *p_fnct_data) {
 }
 
-CPU_INT08U sdio_fnct_rdbyte(CPU_INT32U  reg_addr,
-                                  RTOS_ERR   *p_err)
-{
+CPU_INT08U sdio_fnct_rdbyte (CPU_INT32U  reg_addr,
+                             RTOS_ERR   *p_err) {
   CPU_INT08U  byte;
 
   byte = SD_IO_FnctRdByte(sdio_fnct_bus_handle,
@@ -228,9 +150,8 @@ CPU_INT08U sdio_fnct_rdbyte(CPU_INT32U  reg_addr,
 }
 
 void sdio_fnct_wrbyte(CPU_INT32U  reg_addr,
-                            CPU_INT08U  byte,
-                            RTOS_ERR   *p_err)
-{
+                      CPU_INT08U  byte,
+                      RTOS_ERR   *p_err) {
   SD_IO_FnctWrByte(sdio_fnct_bus_handle,
                    sdio_fnct_handle,
                    reg_addr,
@@ -238,12 +159,11 @@ void sdio_fnct_wrbyte(CPU_INT32U  reg_addr,
                    p_err);
 }
 
-void sdio_fnct_rd(CPU_INT32U   reg_addr,
-                        CPU_INT08U  *p_buf,
-                        CPU_INT16U   buf_len,
-                        CPU_BOOLEAN  fixed_addr,
-                        RTOS_ERR    *p_err)
-{
+void sdio_fnct_rd (CPU_INT32U   reg_addr,
+                   CPU_INT08U  *p_buf,
+                   CPU_INT16U   buf_len,
+                   CPU_BOOLEAN  fixed_addr,
+                   RTOS_ERR    *p_err) {
   SD_IO_FnctRd(sdio_fnct_bus_handle,
                sdio_fnct_handle,
                reg_addr,
@@ -254,11 +174,10 @@ void sdio_fnct_rd(CPU_INT32U   reg_addr,
 }
 
 void sdio_fnct_wr(CPU_INT32U    reg_addr,
-                        CPU_INT08U   *p_buf,
-                        CPU_INT16U    buf_len,
-                        CPU_BOOLEAN   fixed_addr,
-                        RTOS_ERR     *p_err)
-{
+                  CPU_INT08U   *p_buf,
+                  CPU_INT16U    buf_len,
+                  CPU_BOOLEAN   fixed_addr,
+                  RTOS_ERR     *p_err) {
   SD_IO_FnctWr(sdio_fnct_bus_handle,
                sdio_fnct_handle,
                reg_addr,
@@ -268,12 +187,11 @@ void sdio_fnct_wr(CPU_INT32U    reg_addr,
                p_err);
 }
 
-void sdio_fnct_rdblk(CPU_INT32U    reg_addr,
-                           CPU_INT08U   *p_buf,
-                           CPU_INT16U    blk_nbr,
-                           CPU_BOOLEAN   fixed_addr,
-                           RTOS_ERR     *p_err)
-{
+void sdio_fnct_rdblk (CPU_INT32U    reg_addr,
+                      CPU_INT08U   *p_buf,
+                      CPU_INT16U    blk_nbr,
+                      CPU_BOOLEAN   fixed_addr,
+                      RTOS_ERR     *p_err) {
   SD_IO_FnctRdBlk(sdio_fnct_bus_handle,
                   sdio_fnct_handle,
                   reg_addr,
@@ -283,12 +201,11 @@ void sdio_fnct_rdblk(CPU_INT32U    reg_addr,
                   p_err);
 }
 
-void sdio_fnct_wrblk(CPU_INT32U   reg_addr,
-                           CPU_INT08U  *p_buf,
-                           CPU_INT16U   blk_nbr,
-                           CPU_BOOLEAN  fixed_addr,
-                           RTOS_ERR    *p_err)
-{
+void sdio_fnct_wrblk (CPU_INT32U   reg_addr,
+                      CPU_INT08U  *p_buf,
+                      CPU_INT16U   blk_nbr,
+                      CPU_BOOLEAN  fixed_addr,
+                      RTOS_ERR    *p_err) {
   SD_IO_FnctWrBlk(sdio_fnct_bus_handle,
                   sdio_fnct_handle,
                   reg_addr,
@@ -298,25 +215,22 @@ void sdio_fnct_wrblk(CPU_INT32U   reg_addr,
                   p_err);
 }
 
-static void sdio_fnct_int(SD_FNCT_HANDLE  fnct_handle,
-                                void           *p_fnct_data)
-{
+static void sdio_fnct_int (SD_FNCT_HANDLE  fnct_handle,
+                           void           *p_fnct_data) {
   if (sdio_fnct_card_int_callback != DEF_NULL) {
     sdio_fnct_card_int_callback();
   }
 }
 
-void sdio_fnct_int_en(CPU_BOOLEAN  enable,
-                              RTOS_ERR    *p_err)
-{
+void sdio_fnct_int_en (CPU_BOOLEAN  enable,
+                       RTOS_ERR    *p_err) {
   SD_IO_FnctIntEnDis(sdio_fnct_bus_handle,
                      sdio_fnct_handle,
                      enable,
                      p_err);
 }
 
-static void sdio_fnct_task(void *p_arg)
-{
+static void sdio_fnct_task (void *p_arg) {
   RTOS_ERR     err;
   CPU_BOOLEAN  is_blk_mode_ok;
 
@@ -345,12 +259,5 @@ static void sdio_fnct_task(void *p_arg)
   }
 }
 
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                   DEPENDENCIES & AVAIL CHECK(S) END
- *********************************************************************************************************
- *********************************************************************************************************
- */
 
 #endif /* (defined(RTOS_MODULE_IO_SD_AVAIL)) */

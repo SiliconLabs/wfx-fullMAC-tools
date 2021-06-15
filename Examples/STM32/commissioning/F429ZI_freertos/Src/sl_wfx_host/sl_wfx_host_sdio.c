@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2018, Silicon Laboratories Inc.
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,12 @@
 #include "sl_wfx.h"
 #include "stm32f4xx_hal.h"
 
-/* SDIO CMD53 argument */
 #define SDIO_CMD53_WRITE                       ( 1 << 31 )
 #define SDIO_CMD53_FUNCTION( function )        ( ( ( function ) & 0x7 ) << 28 )
 #define SDIO_CMD53_BLOCK_MODE                  ( 1 << 27 )
 #define SDIO_CMD53_OPMODE_INCREASING_ADDRESS   ( 1 << 26 )
 #define SDIO_CMD53_ADDRESS( address )          ( ( ( address ) & 0x1ffff ) << 9 )
 #define SDIO_CMD53_COUNT( count )              ( ( count ) & 0x1ff )
-
 #define SDIO_CMD53_IS_BLOCK_MODE( arg )        ( ( ( arg ) & SDIO_CMD53_BLOCK_MODE ) != 0 )
 #define SDIO_CMD53_GET_COUNT( arg )            ( SDIO_CMD53_COUNT( arg ) )
 
@@ -38,9 +36,11 @@ extern void HAL_SDIO_MspInit(void);
 DMA_HandleTypeDef hdma_sdio_rx;
 DMA_HandleTypeDef hdma_sdio_tx;
 SemaphoreHandle_t sdioDMASemaphore;
-   
-sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)
-{
+
+/**************************************************************************//**
+ * Enable SDIO high speed mode
+ *****************************************************************************/
+sl_status_t sl_wfx_host_sdio_enable_high_speed_mode (void) {
   SDIO_InitTypeDef Init;
   Init.ClockEdge           = SDIO_CLOCK_EDGE_RISING;  //STM32F429 Errata
   Init.ClockBypass         = SDIO_CLOCK_BYPASS_DISABLE;
@@ -51,11 +51,14 @@ sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)
 
   SDIO_Init(SDIO, Init);
   SDIO_PowerState_ON(SDIO);
+  
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_init_bus(void)
-{
+/**************************************************************************//**
+ * Init host bus
+ *****************************************************************************/
+sl_status_t sl_wfx_host_init_bus (void) {
   uint32_t errorstate = SDMMC_ERROR_NONE;
   
   MX_SDIO_Init();
@@ -65,88 +68,90 @@ sl_status_t sl_wfx_host_init_bus(void)
   
   /* CMD0: GO_IDLE_STATE */
   errorstate = SDMMC_CmdGoIdleState(SDIO);
-  if(errorstate != SDMMC_ERROR_NONE)
-  {
+  if (errorstate != SDMMC_ERROR_NONE) {
     return SL_STATUS_FAIL;
   }
-  HAL_Delay(1); //Mandatory because wf200 reply to cmd0,
+  
+  /* Mandatory delay: wf200 replies to cmd0 */
+  HAL_Delay(1); 
+  
   /* CMD8 */
   errorstate = SDMMC_CmdOperCond(SDIO);
-  if(errorstate != SDMMC_ERROR_NONE)
-  {  
+  if (errorstate != SDMMC_ERROR_NONE) {  
     return SL_STATUS_FAIL;
   }
+  
   /* CMD3 */
   errorstate = SDMMC_CmdSetRelAdd(SDIO, NULL);
-  if(errorstate != SDMMC_ERROR_NONE)
-  {  
+  if (errorstate != SDMMC_ERROR_NONE) {  
     return SL_STATUS_FAIL;
   }
+  
   /* CMD7 */
   errorstate = SDMMC_CmdSelDesel(SDIO, 0x00010000);
-  if(errorstate != SDMMC_ERROR_NONE)
-  {  
+  if (errorstate != SDMMC_ERROR_NONE) {  
     return SL_STATUS_FAIL;
   }
   
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_deinit_bus(void)
-{
+/**************************************************************************//**
+ * Deinit host bus
+ *****************************************************************************/
+sl_status_t sl_wfx_host_deinit_bus (void) {
+  /* Delete the semaphore (No function implemented for semaphores, use mutex function) */
+  osMutexDelete(sdioDMASemaphore);
+  
   MX_SDIO_DeInit();
   return SL_STATUS_OK;
 }
 
-static uint32_t SDMMC_GetCmdResp(SDIO_TypeDef *SDIOx)
-{
+/**************************************************************************//**
+ * Get SDIO comand response
+ *****************************************************************************/
+static uint32_t SDMMC_GetCmdResp (SDIO_TypeDef *SDIOx) {
   /* 8 is the number of required instructions cycles for the below loop statement.
   The SDMMC_CMDTIMEOUT is expressed in ms */
   register uint32_t count = SDIO_CMDTIMEOUT * (SystemCoreClock / 8U /1000U);
 
-  do
-  {
-    if (count-- == 0U)
-    {
+  do {
+    if (count-- == 0U) {
       return SDMMC_ERROR_TIMEOUT;
     }
-    
   }while(!__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CCRCFAIL | SDIO_FLAG_CMDREND | SDIO_FLAG_CTIMEOUT));
     
-  if (__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CTIMEOUT))
-  {
+  if (__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CTIMEOUT)) {
     __SDIO_CLEAR_FLAG(SDIOx, SDIO_FLAG_CTIMEOUT);
     return SDMMC_ERROR_CMD_RSP_TIMEOUT;
-  }
-  else if (__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CCRCFAIL))
-  {
+  } else if (__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CCRCFAIL)) {
     __SDIO_CLEAR_FLAG(SDIOx, SDIO_FLAG_CCRCFAIL);
     return SDMMC_ERROR_CMD_CRC_FAIL;
-  }
-  else if(__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CMDREND))
-  {
+  } else if(__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CMDREND)) {
     __SDIO_CLEAR_FLAG(SDIOx, SDIO_FLAG_CMDREND);
   }
+  
   return SDMMC_ERROR_NONE;
 }
 
-/* Command 52 */
-sl_status_t sl_wfx_host_sdio_transfer_cmd52(sl_wfx_host_bus_transfer_type_t type,
-                                            uint8_t function,
-                                            uint32_t address,
-                                            uint8_t* buffer)
-{
+/**************************************************************************//**
+ * Transfer SDIO Command 52
+ *****************************************************************************/
+sl_status_t sl_wfx_host_sdio_transfer_cmd52 (sl_wfx_host_bus_transfer_type_t type,
+                                             uint8_t function,
+                                             uint32_t address,
+                                             uint8_t* buffer) {
   uint32_t status;
   SDIO_CmdInitTypeDef command;
-  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE )
-  {
-    if(type == SL_WFX_BUS_WRITE){
+
+  if (xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE) {
+    if (type == SL_WFX_BUS_WRITE) {
       /*Argument to write on the SDIO bus*/
       command.Argument = 0x80000000 | // 0x80000000 for write, 0x00000000 for read
         (function << 28) | // function number
           (address << 9)
             | *buffer; // length
-    }else{
+    } else {
       /*Argument to read on the SDIO bus*/
       command.Argument = 0x00000000 | // 0x80000000 for write, 0x00000000 for read
         (function << 28) | // function number
@@ -159,55 +164,56 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd52(sl_wfx_host_bus_transfer_type_t type
     SDIO_SendCommand(SDIO, &command);
     status = SDMMC_GetCmdResp(SDIO);
     
-    if(status == SDMMC_ERROR_NONE)
-    {
+    if (status == SDMMC_ERROR_NONE) {
       uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
-      if((response_flags & 0xFF00) == 0x1000)
-      {
+      if ((response_flags & 0xFF00) == 0x1000) {
         *buffer = response_flags & 0xFF;
-      }else{
+      } else {
         return SL_STATUS_FAIL;
       }
-    }else{
+    } else {
       return SL_STATUS_FAIL;
     }
     xSemaphoreGive(sdioDMASemaphore); 
   }
+  
   return SL_STATUS_OK;
 }
 
-static void SDIO_transmit_cplt(DMA_HandleTypeDef *hdma)
-{
+/**************************************************************************//**
+ * DMA transmit complete callback
+ *****************************************************************************/
+static void SDIO_transmit_cplt (DMA_HandleTypeDef *hdma) {
   __SDIO_ENABLE_IT(SDIO, SDIO_IT_DATAEND);
 }
 
-static void SDIO_receive_cplt(DMA_HandleTypeDef *hdma)
-{
+/**************************************************************************//**
+ * DMA receive complete callback
+ *****************************************************************************/
+static void SDIO_receive_cplt (DMA_HandleTypeDef *hdma) {
   /* Disable the DMA transfer for transmit request by setting the DMAEN bit
   in the MMC DCTRL register */
   SDIO->DCTRL &= (uint32_t)~((uint32_t)SDIO_DCTRL_DMAEN);
 }
 
-/* Command 53 */
-sl_status_t sl_wfx_host_sdio_read_cmd53(uint8_t function,
-                                        uint32_t address,
-                                        uint8_t* buffer,
-                                        uint16_t buffer_length)
-{    
+/**************************************************************************//**
+ * Read SDIO Command 53
+ *****************************************************************************/
+sl_status_t sl_wfx_host_sdio_read_cmd53 (uint8_t function,
+                                         uint32_t address,
+                                         uint8_t* buffer,
+                                         uint16_t buffer_length) {    
   SDIO_CmdInitTypeDef command;
   SDIO_DataInitTypeDef config;
   
   SDIO->DCTRL = 0U;  
   
-  if(buffer_length >= SL_WFX_SDIO_BLOCK_MODE_THRESHOLD)
-  {
+  if(buffer_length >= SL_WFX_SDIO_BLOCK_MODE_THRESHOLD) {
     uint32_t block_count = ( buffer_length / SL_WFX_SDIO_BLOCK_SIZE ) + ( ( ( buffer_length % SL_WFX_SDIO_BLOCK_SIZE ) == 0 ) ? 0 : 1 );
     command.Argument = SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT(block_count);
     config.TransferMode  = SDIO_TRANSFER_MODE_BLOCK;
     config.DataBlockSize = sdio_optimal_block_size(SL_WFX_SDIO_BLOCK_SIZE);
-  }
-  else
-  {
+  } else {
     command.Argument = SDIO_CMD53_COUNT(buffer_length);
     config.TransferMode  = SDIO_TRANSFER_MODE_STREAM;
     config.DataBlockSize = sdio_optimal_block_size(buffer_length);
@@ -235,33 +241,31 @@ sl_status_t sl_wfx_host_sdio_read_cmd53(uint8_t function,
   SDIO_SendCommand(SDIO, &command);
   SDMMC_GetCmdResp(SDIO);
   uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
-  if(((response_flags>> 8) & 0xFF) != 0x20)
-  {
+  if (((response_flags>> 8) & 0xFF) != 0x20) {
     return SL_STATUS_FAIL;
   }
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_sdio_write_cmd53(uint8_t function, 
-                                         uint32_t address,
-                                         uint8_t* buffer,
-                                         uint16_t buffer_length)
-{
+/**************************************************************************//**
+ * Write SDIO Command 53
+ *****************************************************************************/
+sl_status_t sl_wfx_host_sdio_write_cmd53 (uint8_t function, 
+                                          uint32_t address,
+                                          uint8_t* buffer,
+                                          uint16_t buffer_length) {
   SDIO_CmdInitTypeDef command;
   SDIO_DataInitTypeDef config;
   
   SDIO->DCTRL = 0U;  
   hdma_sdio_tx.XferCpltCallback = SDIO_transmit_cplt;
 
-  if(buffer_length >= SL_WFX_SDIO_BLOCK_MODE_THRESHOLD)
-  {
+  if(buffer_length >= SL_WFX_SDIO_BLOCK_MODE_THRESHOLD) {
     uint32_t block_count = ( buffer_length / SL_WFX_SDIO_BLOCK_SIZE ) + ( ( ( buffer_length % SL_WFX_SDIO_BLOCK_SIZE ) == 0 ) ? 0 : 1 );
     command.Argument = SDIO_CMD53_BLOCK_MODE | SDIO_CMD53_COUNT(block_count);
     config.TransferMode  = SDIO_TRANSFER_MODE_BLOCK;
     config.DataBlockSize = sdio_optimal_block_size(SL_WFX_SDIO_BLOCK_SIZE);
-  }
-  else
-  {
+  } else {
     command.Argument = SDIO_CMD53_COUNT(buffer_length);
     config.TransferMode  = SDIO_TRANSFER_MODE_STREAM;
     config.DataBlockSize = sdio_optimal_block_size(buffer_length);
@@ -279,8 +283,7 @@ sl_status_t sl_wfx_host_sdio_write_cmd53(uint8_t function,
   SDIO_SendCommand(SDIO, &command);
   SDMMC_GetCmdResp(SDIO);
   uint32_t response_flags = SDIO_GetResponse(SDIO, SDIO_RESP1);
-  if(((response_flags>> 8) & 0xFF) != 0x20)
-  {
+  if (((response_flags>> 8) & 0xFF) != 0x20) {
     return SL_STATUS_FAIL;
   }
   
@@ -296,47 +299,52 @@ sl_status_t sl_wfx_host_sdio_write_cmd53(uint8_t function,
   return SL_STATUS_OK;
 }
 
+/**************************************************************************//**
+ * Transfer SDIO Command 53
+ *****************************************************************************/
 sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_transfer_type_t type,
                                             uint8_t function,
                                             uint32_t address,
                                             uint8_t* buffer,
-                                            uint16_t buffer_length)
-{    
+                                            uint16_t buffer_length) {    
   sl_status_t    result  = SL_STATUS_FAIL;
   
-  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE)
-  {
-    if(type == SL_WFX_BUS_WRITE)
-    {
+  if (xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE) {
+    if (type == SL_WFX_BUS_WRITE) {
       result = sl_wfx_host_sdio_write_cmd53(function, address, buffer, buffer_length);
-    }else{
+    } else {
       result = sl_wfx_host_sdio_read_cmd53(function, address, buffer, buffer_length);
     }
-  }else{
+  } else {
     result = SL_STATUS_TIMEOUT;
   }
   /* Wait to receive the semaphore back from the DMA. In case of a read function, this means data is ready to be read*/ 
-  if(xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE)
-  {     
+  if (xSemaphoreTake(sdioDMASemaphore, portMAX_DELAY) == pdTRUE) {    
     xSemaphoreGive(sdioDMASemaphore); 
   }
   return result;
 }
 
-sl_status_t sl_wfx_host_enable_platform_interrupt(void)
-{
+/**************************************************************************//**
+ * Enable platform interrupt
+ *****************************************************************************/
+sl_status_t sl_wfx_host_enable_platform_interrupt (void) {
   __SDIO_ENABLE_IT(SDIO, SDIO_IT_SDIOIT);
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_disable_platform_interrupt(void)
-{
+/**************************************************************************//**
+ * Disable platform interrupt
+ *****************************************************************************/
+sl_status_t sl_wfx_host_disable_platform_interrupt (void) {
   __SDIO_DISABLE_IT(SDIO, SDIO_IT_SDIOIT);
   return SL_STATUS_OK;
 }
 
-static uint32_t sdio_optimal_block_size(uint16_t buffer_size)
-{
+/**************************************************************************//**
+ * Determine the optimal SDIO block size
+ *****************************************************************************/
+static uint32_t sdio_optimal_block_size (uint16_t buffer_size) {
     if ( buffer_size > (uint16_t) 2048 )
         return SDIO_DATABLOCK_SIZE_4096B;
     if ( buffer_size > (uint16_t) 1024 )
@@ -362,9 +370,10 @@ static uint32_t sdio_optimal_block_size(uint16_t buffer_size)
     return SDIO_DATABLOCK_SIZE_4B;
 }
 
-/* SDIO init function */
-static void MX_SDIO_Init(void)
-{
+/**************************************************************************//**
+ * SDIO init function
+ *****************************************************************************/
+static void MX_SDIO_Init (void) {
   SDIO_InitTypeDef Init;
   
   HAL_SDIO_MspInit();
@@ -380,21 +389,13 @@ static void MX_SDIO_Init(void)
   __SDIO_ENABLE(SDIO);
 }
 
-/* SDIO deinit function */
-static void MX_SDIO_DeInit(void)
-{
-  /* Peripheral clock disable */
-  __HAL_RCC_SDIO_CLK_DISABLE();
-
-  HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
-                  |GPIO_PIN_12);
-  
-  HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
-  
+/**************************************************************************//**
+ * SDIO deinit function
+ *****************************************************************************/
+static void MX_SDIO_DeInit (void) {
   /* SDIO DMA DeInit */
   HAL_DMA_DeInit(&hdma_sdio_rx);
   HAL_DMA_DeInit(&hdma_sdio_tx);
-  
-  /* SDIO interrupt DeInit */
-  HAL_NVIC_DisableIRQ(SDIO_IRQn);
+
+  SDIO_PowerState_OFF(SDIO);
 }

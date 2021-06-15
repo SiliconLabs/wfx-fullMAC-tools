@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2018, Silicon Laboratories Inc.
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,27 +67,27 @@ extern "C" {
 /**************************************************************************//**
  * Start LwIP task.
  *****************************************************************************/
-sl_status_t lwip_start (void);
+void lwip_start (void);
 
 /**************************************************************************//**
  * Set station link status to up.
  *****************************************************************************/
-sl_status_t lwip_set_sta_link_up(void);
+void lwip_set_sta_link_up(void);
 
 /**************************************************************************//**
  * Set station link status to down.
  *****************************************************************************/
-sl_status_t lwip_set_sta_link_down(void);
+void lwip_set_sta_link_down(void);
 
 /**************************************************************************//**
  * Set AP link status to up.
  *****************************************************************************/
-sl_status_t lwip_set_ap_link_up(void);
+void lwip_set_ap_link_up(void);
 
 /**************************************************************************//**
  * Set AP link status to down.
  *****************************************************************************/
-sl_status_t lwip_set_ap_link_down(void);
+void lwip_set_ap_link_down(void);
 
 #ifdef __cplusplus
 }

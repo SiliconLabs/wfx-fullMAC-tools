@@ -3,7 +3,7 @@
  * @brief LwIP task and related functions header file
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,22 +76,22 @@ sl_status_t lwip_start (void);
 /**************************************************************************//**
  * Set station link status to up.
  *****************************************************************************/
-sl_status_t lwip_set_sta_link_up(void);
+void lwip_set_sta_link_up(void);
 
 /**************************************************************************//**
  * Set station link status to down.
  *****************************************************************************/
-sl_status_t lwip_set_sta_link_down(void);
+void lwip_set_sta_link_down(void);
 
 /**************************************************************************//**
  * Set AP link status to up.
  *****************************************************************************/
-sl_status_t lwip_set_ap_link_up(void);
+void lwip_set_ap_link_up(void);
 
 /**************************************************************************//**
  * Set AP link status to down.
  *****************************************************************************/
-sl_status_t lwip_set_ap_link_down(void);
+void lwip_set_ap_link_down(void);
 
 /**************************************************************************//**
  * Enable DHCP client.
@@ -117,14 +117,14 @@ void lwip_disable_dhcp_client(void);
 #define SOFTAP_SECURITY_DEFAULT WFM_SECURITY_MODE_WPA2_PSK        ///< wifi security for soft ap mode: WFM_SECURITY_MODE_OPEN/WFM_SECURITY_MODE_WEP/WFM_SECURITY_MODE_WPA2_WPA1_PSK
 #define SOFTAP_CHANNEL_DEFAULT  6                                 ///< wifi channel for soft ap
 
-extern char wlan_ssid[32+1];
-extern char wlan_passkey[64+1];
-extern sl_wfx_security_mode_t wlan_security;
-extern uint8_t wlan_bssid[SL_WFX_BSSID_SIZE];
-extern char softap_ssid[32+1];
-extern char softap_passkey[64+1];
-extern sl_wfx_security_mode_t softap_security;
-extern uint8_t softap_channel;
+extern char 					wlan_ssid[32+1];
+extern char 					wlan_passkey[64+1];
+extern sl_wfx_security_mode_t 	wlan_security;
+extern uint8_t 					wlan_bssid[SL_WFX_BSSID_SIZE];
+extern char 					softap_ssid[32+1];
+extern char 					softap_passkey[64+1];
+extern sl_wfx_security_mode_t 	softap_security;
+extern uint8_t 					softap_channel;
 
 extern uint8_t sta_ip_addr0;
 extern uint8_t sta_ip_addr1;

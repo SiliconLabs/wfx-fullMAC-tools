@@ -16,6 +16,7 @@
 
 #include "app_version.h"
 #include "demo_config.h"
+#include "sl_wfx_host.h"
 #include "sl_wfx_cli_common.h"
 #include "dhcp_client.h"
 #include "dhcp_server.h"
@@ -23,8 +24,6 @@
 #include "lwip/ip_addr.h"
 #include "lwip/dhcp.h"
 #include "lwip/netif.h"
-
-extern sl_wfx_context_t wifi;
 
 #ifdef SL_WFX_USE_SECURE_LINK
 extern uint8_t secure_link_mac_key[SL_WFX_SECURE_LINK_MAC_KEY_LENGTH];
@@ -46,7 +45,7 @@ static const char *security_modes[] = {
   "OPEN",
   "WEP",
   "WPA1/WPA2",
-  NULL,       // Trick to link directly the security mode to its "name".
+  NULL,       /* Trick to link directly the security mode to its "name".*/
   "WPA2",
   NULL,
   "WPA3"
@@ -54,20 +53,19 @@ static const char *security_modes[] = {
 
 static int set_security_mode (char *param_name,
                               void *param_addr,
-                              char *new_value)
-{
+                              char *new_value) {
   sl_wfx_security_mode_t *mode = (sl_wfx_security_mode_t *)param_addr;
   int ret = -1;
   uint8_t i;
 
   (void)param_name;
 
-  // Iterate through the security modes
+  /* Iterate through the security modes*/
   for (i=0; i<(sizeof(security_modes)/sizeof(char*)); i++) {
     if ((strncmp(new_value, security_modes[i], strlen(security_modes[i])) == 0)
         && (new_value[strlen(security_modes[i])] == '\0')) {
 
-      // Security mode found
+      /* Security mode found*/
       *mode = (sl_wfx_security_mode_t)i;
       ret = 0;
       break;
@@ -80,8 +78,7 @@ static int set_security_mode (char *param_name,
 static int get_security_mode (char *param_name,
                               void *param_addr,
                               char *output_buf,
-                              uint32_t output_buf_len)
-{
+                              uint32_t output_buf_len) {
   int ret = -1;
   sl_wfx_security_mode_t mode = *(sl_wfx_security_mode_t *)param_addr;
 
@@ -95,19 +92,18 @@ static int get_security_mode (char *param_name,
   return ret;
 }
 
-static int convert_str_to_ipv4 (char *ipv4, ip_addr_t *ip)
-{
+static int convert_str_to_ipv4 (char *ipv4, ip_addr_t *ip) {
   uint8_t *ptr = (uint8_t *)(&(ip->addr));
   char buf[16] = {0}; //IP v4 max size
   int ret = -1;
 
-  // Ensure the input size
+  /* Ensure the input size*/
   strncpy(buf, ipv4, sizeof(buf));
   buf[sizeof(buf)-1] = 0;
 
-  // Extract the IP address
-  // Should be "%hhu.%hhu.%hhu.%hhu" but it
-  // doesn't work with nano LibC
+  /* Extract the IP address
+     Should be "%hhu.%hhu.%hhu.%hhu" but it
+     doesn't work with nano LibC*/
   ret = sscanf(buf,
                "%hu.%hu.%hu.%hu",
                (short unsigned int *)&ptr[0],
@@ -115,7 +111,7 @@ static int convert_str_to_ipv4 (char *ipv4, ip_addr_t *ip)
                (short unsigned int *)&ptr[2],
                (short unsigned int *)&ptr[3]);
   if (ret == 4) {
-    // Success, 4 numbers have been extracted
+    /* Success, 4 numbers have been extracted*/
     ret = 0;
   }
 
@@ -124,8 +120,7 @@ static int convert_str_to_ipv4 (char *ipv4, ip_addr_t *ip)
 
 static int convert_ipv4_to_str (ip_addr_t ip,
                                 char *output_buf,
-                                uint32_t output_buf_len)
-{
+                                uint32_t output_buf_len) {
   uint8_t *ptr = (uint8_t *)&ip.addr;
 
   snprintf(output_buf,
@@ -138,18 +133,17 @@ static int convert_ipv4_to_str (ip_addr_t ip,
 
 static int set_netif_netmask (char *param_name,
                               void *param_addr,
-                              char *new_value)
-{
+                              char *new_value) {
   struct netif *netif = (struct netif *)param_addr;
   ip_addr_t new_ip;
   int ret;
 
   (void)param_name;
 
-  // Convert the IP address
+  /* Convert the IP address*/
   ret = convert_str_to_ipv4(new_value, &new_ip);
   if (ret == 0) {
-    // Update the interface's netmask address
+    /* Update the interface's netmask address*/
     netif_set_netmask(netif, &new_ip);
   }
 
@@ -159,8 +153,7 @@ static int set_netif_netmask (char *param_name,
 static int get_netif_netmask (char *param_name,
                               void *param_addr,
                               char *output_buf,
-                              uint32_t output_buf_len)
-{
+                              uint32_t output_buf_len) {
   struct netif *netif = (struct netif *)param_addr;
 
   (void)param_name;
@@ -170,18 +163,17 @@ static int get_netif_netmask (char *param_name,
 
 static int set_netif_gateway (char *param_name,
                               void *param_addr,
-                              char *new_value)
-{
+                              char *new_value) {
   struct netif *netif = (struct netif *)param_addr;
   ip_addr_t new_ip;
   int ret;
 
   (void)param_name;
 
-  // Convert the IP address
+  /* Convert the IP address*/
   ret = convert_str_to_ipv4(new_value, &new_ip);
   if (ret == 0) {
-    // Update the interface's gateway address
+    /* Update the interface's gateway address*/
     netif_set_gw(netif, &new_ip);
   }
 
@@ -191,8 +183,7 @@ static int set_netif_gateway (char *param_name,
 static int get_netif_gateway (char *param_name,
                               void *param_addr,
                               char *output_buf,
-                              uint32_t output_buf_len)
-{
+                              uint32_t output_buf_len) {
   struct netif *netif = (struct netif *)param_addr;
 
   (void)param_name;
@@ -202,18 +193,17 @@ static int get_netif_gateway (char *param_name,
 
 static int set_netif_ipaddr (char *param_name,
                              void *param_addr,
-                             char *new_value)
-{
+                             char *new_value) {
   struct netif *netif = (struct netif *)param_addr;
   ip_addr_t new_ip;
   int ret;
 
   (void)param_name;
 
-  // Convert the IP address
+  /* Convert the IP address*/
   ret = convert_str_to_ipv4(new_value, &new_ip);
   if (ret == 0) {
-    // Update the interface's IP address
+    /* Update the interface's IP address*/
     netif_set_ipaddr(netif, &new_ip);
   }
 
@@ -223,8 +213,7 @@ static int set_netif_ipaddr (char *param_name,
 static int get_netif_ipaddr (char *param_name,
                              void *param_addr,
                              char *output_buf,
-                             uint32_t output_buf_len)
-{
+                             uint32_t output_buf_len) {
   struct netif *netif = (struct netif *)param_addr;
 
   (void)param_name;
@@ -234,33 +223,32 @@ static int get_netif_ipaddr (char *param_name,
 
 static int set_dhcp_client_state (char *param_name,
                                   void *param_addr,
-                                  char *new_value)
-{
+                                  char *new_value) {
   ip_addr_t sta_ipaddr, sta_netmask, sta_gw;
   int res;
 
   (void)param_name;
   (void)param_addr;
 
-  // To limit undefined behaviors and ease the development
-  // only accept a DHCP state change while the WLAN interface is down.
-  if ((wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) == 0) {
-    // Update the DHCP client indicator
+  /* To limit undefined behaviors and ease the development
+     only accept a DHCP state change while the WLAN interface is down.*/
+  if ((wifi_context.state & SL_WFX_STA_INTERFACE_CONNECTED) == 0) {
+    /* Update the DHCP client indicator*/
     use_dhcp_client = !!atoi(new_value);
 
     if (use_dhcp_client == 0) {
-      // Disable the DHCP requests
+      /* Disable the DHCP requests*/
       dhcpclient_set_link_state(0);
 
-        // Restore default static addresses
+        /* Restore default static addresses*/
         IP_ADDR4(&sta_ipaddr, sta_ip_addr0, sta_ip_addr1, sta_ip_addr2, sta_ip_addr3);
         IP_ADDR4(&sta_netmask, sta_netmask_addr0, sta_netmask_addr1, sta_netmask_addr2, sta_netmask_addr3);
         IP_ADDR4(&sta_gw, sta_gw_addr0, sta_gw_addr1, sta_gw_addr2, sta_gw_addr3);
         netif_set_addr(&sta_netif, &sta_ipaddr, &sta_netmask, &sta_gw);
     } else {
-        // Clear current address
+        /* Clear current address*/
         netif_set_addr(&sta_netif, NULL, NULL, NULL);
-        // Let the connect event enable the DHCP requests
+        /* Let the connect event enable the DHCP requests*/
     }
 
     res = 0;
@@ -275,8 +263,7 @@ static int set_dhcp_client_state (char *param_name,
 static int get_dhcp_client_state (char *param_name,
                                   void *param_addr,
                                   char *output_buf,
-                                  uint32_t output_buf_len)
-{
+                                  uint32_t output_buf_len) {
   (void)param_name;
   (void)param_addr;
 
@@ -287,21 +274,20 @@ static int get_dhcp_client_state (char *param_name,
 
 static int set_dhcp_server_state (char *param_name,
                                   void *param_addr,
-                                  char *new_value)
-{
+                                  char *new_value) {
   int res;
 
   (void)param_name;
   (void)param_addr;
 
-  // No known issues but limit this update for consistency with the DHCP client.
-  if ((wifi.state & SL_WFX_AP_INTERFACE_UP) == 0) {
+  /* No known issues but limit this update for consistency with the DHCP client.*/
+  if ((wifi_context.state & SL_WFX_AP_INTERFACE_UP) == 0) {
     use_dhcp_server = !!atoi(new_value);
 
     if ((use_dhcp_server == 0)
         && dhcpserver_is_started()) {
       dhcpserver_stop();
-    } //else let the SoftAP start configure the DHCP server
+    } /*else let the SoftAP start configure the DHCP server*/
 
     res = 0;
   } else {
@@ -315,8 +301,7 @@ static int set_dhcp_server_state (char *param_name,
 static int get_dhcp_server_state (char *param_name,
                                   void *param_addr,
                                   char *output_buf,
-                                  uint32_t output_buf_len)
-{
+                                  uint32_t output_buf_len) {
   (void)param_name;
   (void)param_addr;
 
@@ -328,8 +313,7 @@ static int get_dhcp_server_state (char *param_name,
 static int get_station_pmk (char *param_name,
                             void *param_addr,
                             char *output_buf,
-                            uint32_t output_buf_len)
-{
+                            uint32_t output_buf_len) {
   uint32_t password_length;
   sl_status_t status;
   int ret = -1;
@@ -357,8 +341,7 @@ static int get_station_pmk (char *param_name,
 static int get_softap_pmk (char *param_name,
                            void *param_addr,
                            char *output_buf,
-                           uint32_t output_buf_len)
-{
+                           uint32_t output_buf_len) {
   uint32_t password_length = 0;
   sl_status_t status;
   int ret = -1;
@@ -385,22 +368,21 @@ static int get_softap_pmk (char *param_name,
 
 static int set_mac_addr (char *param_name,
                          void *param_addr,
-                         char *new_value)
-{
+                         char *new_value) {
   netif_init_fn netif_init;
   struct netif *netif;
   sl_wfx_interface_t interface;
   sl_wfx_mac_address_t new_mac;
-  char buf[18] = {0}; // Mac address size
+  char buf[18] = {0}; /* Mac address size*/
   int ret;
 
-  // Ensure the input size
+  /* Ensure the input size*/
   strncpy(buf, new_value, sizeof(buf));
   buf[sizeof(buf)-1] = 0;
 
-  // Extract the IP address
-  // Should be "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx" but it
-  // doesn't work with the nano LibC
+  /* Extract the IP address
+     Should be "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx" but it
+     doesn't work with the nano LibC*/
   ret = sscanf(buf,
                "%02hx:%02hx:%02hx:%02hx:%02hx:%02hx",
                (short unsigned int *)&new_mac.octet[0],
@@ -410,10 +392,10 @@ static int set_mac_addr (char *param_name,
                (short unsigned int *)&new_mac.octet[4],
                (short unsigned int *)&new_mac.octet[5]);
   if (ret == 6) {
-    // Success, 6 numbers have been extracted
+    /* Success, 6 numbers have been extracted*/
 
-    // Check which interface it is
-    if ((uint8_t *)param_addr == &wifi.mac_addr_0.octet[0]) {
+    /* Check which interface it is*/
+    if ((uint8_t *)param_addr == &wifi_context.mac_addr_0.octet[0]) {
       interface = SL_WFX_STA_INTERFACE;
       netif_init = sta_ethernetif_init;
       netif = &sta_netif;
@@ -423,16 +405,16 @@ static int set_mac_addr (char *param_name,
       netif = &ap_netif;
     }
 
-    // Apply the new mac address
+    /* Apply the new mac address*/
     ret = (int)sl_wfx_set_mac_address(&new_mac, interface);
     if (ret == 0) {
-      // Update the parameter wit the new mac address
+      /* Update the parameter wit the new mac address*/
       memcpy(param_addr, new_mac.octet, sizeof(new_mac.octet));
-      // Update the LwIP stack state
+      /* Update the LwIP stack state*/
       ret = netif_init(netif);
     }
   } else {
-    // Parsing error
+    /* Parsing error*/
     ret = -1;
   }
 
@@ -442,8 +424,7 @@ static int set_mac_addr (char *param_name,
 static int get_mac_addr (char *param_name,
                          void *param_addr,
                          char *output_buf,
-                         uint32_t output_buf_len)
-{
+                         uint32_t output_buf_len) {
   uint8_t *mac = (uint8_t *)param_addr;
 
   snprintf(output_buf,
@@ -457,25 +438,24 @@ static int get_mac_addr (char *param_name,
 static int get_wifi_state (char *param_name,
                            void *param_addr,
                            char *output_buf,
-                           uint32_t output_buf_len)
-{
+                           uint32_t output_buf_len) {
   (void)param_name;
   (void)param_addr;
 
-  if ((wifi.state & SL_WFX_STARTED) == SL_WFX_STARTED) {
+  if ((wifi_context.state & SL_WFX_STARTED) == SL_WFX_STARTED) {
     snprintf(output_buf,
              output_buf_len,
              "WiFi chip started:\r\n\tSTA: %sconnected\r\n\tAP:  %sstarted\r\n\tPS:  %sactive",
-             wifi.state & SL_WFX_STA_INTERFACE_CONNECTED ? "" : "not ",
-             wifi.state & SL_WFX_AP_INTERFACE_UP ? "" : "not ",
-             wifi.state & SL_WFX_POWER_SAVE_ACTIVE ? "" : "in");
+			 wifi_context.state & SL_WFX_STA_INTERFACE_CONNECTED ? "" : "not ",
+			 wifi_context.state & SL_WFX_AP_INTERFACE_UP ? "" : "not ",
+			 wifi_context.state & SL_WFX_POWER_SAVE_ACTIVE ? "" : "in");
 
-    if ((wifi.state & SL_WFX_POWER_SAVE_ACTIVE) == SL_WFX_POWER_SAVE_ACTIVE) {
+    if ((wifi_context.state & SL_WFX_POWER_SAVE_ACTIVE) == SL_WFX_POWER_SAVE_ACTIVE) {
       snprintf(output_buf,
                output_buf_len,
                "%s(%s)\r\n",
                output_buf,
-               wifi.state & SL_WFX_SLEEPING ? "sleeping" : "awake");
+			   wifi_context.state & SL_WFX_SLEEPING ? "sleeping" : "awake");
     } else if ((strlen(output_buf) + 2) <= output_buf_len) {
       strcat(output_buf, "\r\n");
     }
@@ -489,8 +469,7 @@ static int get_wifi_state (char *param_name,
 static int get_app_version (char *param_name,
                             void *param_addr,
                             char *output_buf,
-                            uint32_t output_buf_len)
-{
+                            uint32_t output_buf_len) {
   (void)param_name;
   (void)param_addr;
 
@@ -507,8 +486,7 @@ static int get_app_version (char *param_name,
 static int get_driver_version (char *param_name,
                                void *param_addr,
                                char *output_buf,
-                               uint32_t output_buf_len)
-{
+                               uint32_t output_buf_len) {
   (void)param_name;
   (void)param_addr;
 
@@ -520,15 +498,16 @@ static int get_driver_version (char *param_name,
 static int get_firmware_version (char *param_name,
                                  void *param_addr,
                                  char *output_buf,
-                                 uint32_t output_buf_len)
-{
+                                 uint32_t output_buf_len) {
   (void)param_name;
   (void)param_addr;
 
   snprintf(output_buf,
            output_buf_len,
            "%u.%u.%u\r\n",
-           wifi.firmware_major, wifi.firmware_minor, wifi.firmware_build);
+		   wifi_context.firmware_major,
+		   wifi_context.firmware_minor,
+		   wifi_context.firmware_build);
 
   return 0;
 }
@@ -536,8 +515,7 @@ static int get_firmware_version (char *param_name,
 static int get_target (char *param_name,
                        void *param_addr,
                        char *output_buf,
-                       uint32_t output_buf_len)
-{
+                       uint32_t output_buf_len) {
   (void)param_name;
   (void)param_addr;
 
@@ -549,8 +527,7 @@ static int get_target (char *param_name,
 static int get_bus_wifi (char *param_name,
                          void *param_addr,
                          char *output_buf,
-                         uint32_t output_buf_len)
-{
+                         uint32_t output_buf_len) {
   (void)param_name;
   (void)param_addr;
 
@@ -560,8 +537,7 @@ static int get_bus_wifi (char *param_name,
 }
 
 
-int lwip_param_register (void)
-{
+int lwip_param_register (void) {
   int ret;
 
   ret  = sl_wfx_cli_param_register("version_app",
@@ -610,8 +586,8 @@ int lwip_param_register (void)
                                    NULL);
 
   ret |= sl_wfx_cli_param_register("wifi_state",
-                                   (void *)&wifi.state,
-                                   sizeof(wifi.state),
+                                   (void *)&wifi_context.state,
+                                   sizeof(wifi_context.state),
                                    SL_WFX_CLI_PARAM_GET_RIGHT,
                                    SL_WFX_CLI_PARAM_TYPE_CUSTOM,
                                    "WiFi chip state",
@@ -691,8 +667,8 @@ int lwip_param_register (void)
                                    NULL);
 
   ret |= sl_wfx_cli_param_register("wlan.mac",
-                                   (void *)&wifi.mac_addr_0.octet,
-                                   sizeof(wifi.mac_addr_0.octet),
+                                   (void *)&wifi_context.mac_addr_0.octet,
+                                   sizeof(wifi_context.mac_addr_0.octet),
                                    SL_WFX_CLI_PARAM_GET_RIGHT | SL_WFX_CLI_PARAM_SET_RIGHT,
                                    SL_WFX_CLI_PARAM_TYPE_CUSTOM,
                                    "WLAN mac address (EUI-48 format)",
@@ -772,8 +748,8 @@ int lwip_param_register (void)
                                    NULL);
 
   ret |= sl_wfx_cli_param_register("softap.mac",
-                                   (void *)&wifi.mac_addr_1.octet,
-                                   sizeof(wifi.mac_addr_1.octet),
+                                   (void *)&wifi_context.mac_addr_1.octet,
+                                   sizeof(wifi_context.mac_addr_1.octet),
                                    SL_WFX_CLI_PARAM_GET_RIGHT | SL_WFX_CLI_PARAM_SET_RIGHT,
                                    SL_WFX_CLI_PARAM_TYPE_CUSTOM,
                                    "SoftAP mac address (EUI-48 format)",

@@ -209,7 +209,9 @@ sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)
 static void sdio_irq_callback(void)
 {
   xSemaphoreGiveFromISR(wfx_wakeup_sem, &xHigherPriorityTaskWoken);
-  vTaskNotifyGiveFromISR(busCommTaskHandle, &xHigherPriorityTaskWoken);
+  xEventGroupSetBitsFromISR(sl_wfx_event_group,
+                                SL_WFX_RX_PACKET_AVAILABLE,
+                                &xHigherPriorityTaskWoken);
 }
 
 static void yield_function(void)

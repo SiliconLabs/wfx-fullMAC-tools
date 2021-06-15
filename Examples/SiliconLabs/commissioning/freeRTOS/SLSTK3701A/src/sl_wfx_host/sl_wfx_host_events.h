@@ -16,14 +16,6 @@
 #ifndef SL_WFX_HOST_EVENTS_H
 #define SL_WFX_HOST_EVENTS_H
 
-/* Wi-Fi events*/
-#define SL_WFX_CONNECT          ( 1 << 1 )
-#define SL_WFX_DISCONNECT       ( 1 << 2 )
-#define SL_WFX_START_AP         ( 1 << 3 )
-#define SL_WFX_STOP_AP          ( 1 << 4 )
-#define SL_WFX_SCAN_COMPLETE    ( 1 << 5 )
-
-extern EventGroupHandle_t sl_wfx_event_group;
 
 #ifdef __cplusplus
 extern "C" {

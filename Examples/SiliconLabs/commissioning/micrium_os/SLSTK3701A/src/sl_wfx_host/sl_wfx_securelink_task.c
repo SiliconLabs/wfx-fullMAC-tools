@@ -23,9 +23,9 @@
 
 //Task Data Structures
 static CPU_STK wfx_securelink_task_stack[WFX_SECURELINK_TASK_STK_SIZE];
-OS_TCB wfx_securelink_task_tcb;
+OS_TCB sl_wfx_securelink_task_tcb;
 
-OS_MUTEX   wfx_securelink_rx_mutex;
+OS_MUTEX   sl_wfx_securelink_rx_mutex;
 
 /*
  * The task that implements the securelink renegotiation with WFX.
@@ -34,7 +34,7 @@ static void wfx_securelink_task (void *p_arg)
 {
   RTOS_ERR err;
   sl_status_t result;
-  OSMutexCreate(&wfx_securelink_rx_mutex,"wfx secure link RX mutex", &err);
+  OSMutexCreate(&sl_wfx_securelink_rx_mutex,"wfx secure link RX mutex", &err);
   for( ;; )
   {
   OSTaskSemPend (0,OS_OPT_PEND_BLOCKING,0,&err);
@@ -53,7 +53,7 @@ void wfx_securelink_task_start (void)
 {
   RTOS_ERR err;
 
-  OSTaskCreate(&wfx_securelink_task_tcb,
+  OSTaskCreate(&sl_wfx_securelink_task_tcb,
                "WFX SecureLink Task",
                wfx_securelink_task,
                DEF_NULL,

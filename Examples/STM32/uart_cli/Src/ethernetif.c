@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2018, Silicon Laboratories Inc.
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,8 @@
  * limitations under the License.
  *****************************************************************************/
 
-/* Includes */
 #include "stm32f4xx_hal.h"
-#include <string.h>
-
-#include "sl_wfx.h"
 #include "sl_wfx_host.h"
-
-/* LwIP includes. */
 #include "lwip_common.h"
 #include "lwip/timeouts.h"
 #include "netif/etharp.h"
@@ -30,23 +24,24 @@
 /***************************************************************************//**
  * Defines
 ******************************************************************************/
-#define STATION_NETIF0 's'
-#define STATION_NETIF1 't'
-#define SOFTAP_NETIF0  'a'
-#define SOFTAP_NETIF1  'p'
+#define STATION_NETIF "st"
+#define SOFTAP_NETIF "ap"
 
 /***************************************************************************//**
  * Variables
 ******************************************************************************/
-extern sl_wfx_context_t wifi;
-extern char wlan_ssid[];
-extern char wlan_passkey[];
-extern sl_wfx_security_mode_t wlan_security;
-
-extern char softap_ssid[];
-extern char softap_passkey[];
-extern sl_wfx_security_mode_t softap_security;
-extern uint8_t softap_channel;
+/* Default parameters */
+sl_wfx_context_t wifi_context;
+char wlan_ssid[32+1]                    = WLAN_SSID_DEFAULT;
+char wlan_passkey[64+1]                 = WLAN_PASSKEY_DEFAULT;
+sl_wfx_password_t wlan_pmk              = {0};
+sl_wfx_security_mode_t wlan_security    = WLAN_SECURITY_DEFAULT;
+char softap_ssid[32+1]                  = SOFTAP_SSID_DEFAULT;
+char softap_passkey[64+1]               = SOFTAP_PASSKEY_DEFAULT;
+sl_wfx_password_t softap_pmk            = {0};
+sl_wfx_security_mode_t softap_security  = SOFTAP_SECURITY_DEFAULT;
+uint8_t softap_channel                  = SOFTAP_CHANNEL_DEFAULT;
+/* Default parameters */
 
 /***************************************************************************//**
  * @brief
@@ -57,29 +52,15 @@ extern uint8_t softap_channel;
  * @return
  *    None
  ******************************************************************************/
-static void low_level_init(struct netif *netif)
-{
+static void low_level_init (struct netif *netif) {
   /* set netif MAC hardware address length */
   netif->hwaddr_len = ETH_HWADDR_LEN;
   
   /* Check which netif is initialized and set netif MAC hardware address */
-  if (netif->name[0] == SOFTAP_NETIF0)
-  {
-    netif->hwaddr[0] =  wifi.mac_addr_1.octet[0];
-    netif->hwaddr[1] =  wifi.mac_addr_1.octet[1];
-    netif->hwaddr[2] =  wifi.mac_addr_1.octet[2];
-    netif->hwaddr[3] =  wifi.mac_addr_1.octet[3];
-    netif->hwaddr[4] =  wifi.mac_addr_1.octet[4];
-    netif->hwaddr[5] =  wifi.mac_addr_1.octet[5];
-  }
-  else
-  {
-    netif->hwaddr[0] =  wifi.mac_addr_0.octet[0];
-    netif->hwaddr[1] =  wifi.mac_addr_0.octet[1];
-    netif->hwaddr[2] =  wifi.mac_addr_0.octet[2];
-    netif->hwaddr[3] =  wifi.mac_addr_0.octet[3];
-    netif->hwaddr[4] =  wifi.mac_addr_0.octet[4];
-    netif->hwaddr[5] =  wifi.mac_addr_0.octet[5];
+  if (memcmp(netif->name, STATION_NETIF, 2) == 0) {
+    memcpy(netif->hwaddr, wifi_context.mac_addr_0.octet, 6);
+  } else {
+    memcpy(netif->hwaddr, wifi_context.mac_addr_1.octet, 6);
   }
 
   /* Set netif maximum transfer unit */
@@ -105,58 +86,55 @@ static void low_level_init(struct netif *netif)
  * @return
  *    ERR_OK if successful
  ******************************************************************************/
-static err_t low_level_output(struct netif *netif, struct pbuf *p)
-{
-  err_t errval;
+static err_t low_level_output (struct netif *netif, struct pbuf *p) {
   struct pbuf *q;
-  sl_wfx_send_frame_req_t* tx_buffer;
+  uint8_t *buffer;
+  sl_wfx_packet_queue_item_t *queue_item;
   sl_status_t result;
-  uint8_t *buffer ;
-  uint32_t frame_length;
   
-  /* Compute packet frame length */
-  frame_length = SL_WFX_ROUND_UP(p->tot_len, 2);
+  /* Take TX queue mutex */
+  xSemaphoreTake(sl_wfx_tx_queue_mutex, portMAX_DELAY);
+
+  /* Allocate a buffer for a queue item */
+  result = sl_wfx_allocate_command_buffer((sl_wfx_generic_message_t**)(&queue_item),
+                                          SL_WFX_SEND_FRAME_REQ_ID,
+                                          SL_WFX_TX_FRAME_BUFFER,
+                                          p->tot_len + sizeof(sl_wfx_packet_queue_item_t));
   
-  sl_wfx_allocate_command_buffer((sl_wfx_generic_message_t**)(&tx_buffer),
-                                 SL_WFX_SEND_FRAME_REQ_ID,
-                                 SL_WFX_TX_FRAME_BUFFER,
-                                 frame_length + sizeof(sl_wfx_send_frame_req_t));
-  buffer = tx_buffer->body.packet_data;
+  if ((result != SL_STATUS_OK) || (queue_item == NULL)) {
+    return ERR_MEM;
+  }
+
+  buffer = queue_item->buffer.body.packet_data;
   
-  for(q = p; q != NULL; q = q->next)
-  {
+  for (q = p; q != NULL; q = q->next) {
     /* Copy the bytes */
     memcpy(buffer, q->payload, q->len);
     buffer += q->len;
   }
-  
-  /* Transmit to the station or softap interface */ 
-  if (netif->name[0] == SOFTAP_NETIF0)
-  {
-    result = sl_wfx_send_ethernet_frame(tx_buffer,
-                                        frame_length,
-                                        SL_WFX_SOFTAP_INTERFACE,
-                                        WFM_PRIORITY_BE0);
-  }
-  else
-  {
-    result = sl_wfx_send_ethernet_frame(tx_buffer,
-                                        frame_length,
-                                        SL_WFX_STA_INTERFACE,
-                                        WFM_PRIORITY_BE0);
-  }
-  sl_wfx_free_command_buffer((sl_wfx_generic_message_t*) tx_buffer,
-                             SL_WFX_SEND_FRAME_REQ_ID,
-                             SL_WFX_TX_FRAME_BUFFER);
 
-  if(result == SL_STATUS_OK)
-  {
-    errval = ERR_OK;
-  }else{
-    errval = ERR_MEM;
+  /* Provide the data length the interface information to the pbuf */
+  queue_item->interface = (memcmp(netif->name, STATION_NETIF, 2) == 0)?  SL_WFX_STA_INTERFACE : SL_WFX_SOFTAP_INTERFACE;
+  queue_item->data_length = p->tot_len;
+  
+  /* Determine if there is anything on the tx packet queue */
+  if (sl_wfx_tx_queue_context.head_ptr != NULL) {
+    sl_wfx_tx_queue_context.tail_ptr->next = queue_item;
+  } else {
+    /* If tx packet queue is empty, setup head & tail pointers */
+    sl_wfx_tx_queue_context.head_ptr = queue_item;
   }
   
-  return errval;
+  /* Update the tail pointer */
+  sl_wfx_tx_queue_context.tail_ptr = queue_item;
+  
+  /* Notify that a TX frame is ready */
+  xEventGroupSetBits(sl_wfx_event_group, SL_WFX_TX_PACKET_AVAILABLE);
+  
+  /* Release TX queue mutex */
+  xSemaphoreGive(sl_wfx_tx_queue_mutex);
+  
+  return ERR_OK;
 }
 
 /***************************************************************************//**
@@ -170,24 +148,20 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
  * @return
  *    LwIP pbuf filled with received packet, or NULL on error
  ******************************************************************************/
-static struct pbuf *low_level_input(struct netif *netif, sl_wfx_received_ind_t* rx_buffer)
-{
+static struct pbuf *low_level_input (struct netif *netif, sl_wfx_received_ind_t* rx_buffer) {
   struct pbuf *p, *q;
   uint8_t *buffer;
   
   /* Obtain the packet by removing the padding. */
   buffer = (uint8_t *)&(rx_buffer->body.frame[rx_buffer->body.frame_padding]);
  
-  if (rx_buffer->body.frame_length > 0)
-  {
+  if (rx_buffer->body.frame_length > 0) {
     /* We allocate a pbuf chain of pbufs from the Lwip buffer pool */
     p = pbuf_alloc(PBUF_RAW, rx_buffer->body.frame_length, PBUF_POOL);
   }
   
-  if (p != NULL)
-  {
-    for(q = p; q != NULL; q = q->next)
-    {
+  if (p != NULL) {
+    for (q = p; q != NULL; q = q->next) {
       /* Copy remaining data in pbuf */
       memcpy(q->payload, buffer, q->len);
       buffer += q->len;
@@ -206,29 +180,24 @@ static struct pbuf *low_level_input(struct netif *netif, sl_wfx_received_ind_t* 
  * @return
  *    None
 ******************************************************************************/
-void sl_wfx_host_received_frame_callback(sl_wfx_received_ind_t* rx_buffer)
-{
+void sl_wfx_host_received_frame_callback (sl_wfx_received_ind_t* rx_buffer) {
   struct pbuf *p;
   struct netif *netif;
   
   /* Check packet interface to send to AP or STA interface */
-  if((rx_buffer->header.info & SL_WFX_MSG_INFO_INTERFACE_MASK) == 
-     (SL_WFX_STA_INTERFACE << SL_WFX_MSG_INFO_INTERFACE_OFFSET))
-  {
+  if ((rx_buffer->header.info & SL_WFX_MSG_INFO_INTERFACE_MASK) == 
+     (SL_WFX_STA_INTERFACE << SL_WFX_MSG_INFO_INTERFACE_OFFSET)) {
     /* Send to station interface */
     netif = &sta_netif;
-  }else{
+  } else {
     /* Send to softAP interface */
     netif = &ap_netif;
   }
-     
-  if (netif != NULL)
-  {
+
+  if (netif != NULL) {
     p = low_level_input(netif, rx_buffer);
-    if (p != NULL)
-    {
-      if (netif->input(p, netif) != ERR_OK)
-      {
+    if (p != NULL) {
+      if (netif->input(p, netif) != ERR_OK) {
         pbuf_free(p);
       }
     }
@@ -244,20 +213,17 @@ void sl_wfx_host_received_frame_callback(sl_wfx_received_ind_t* rx_buffer)
  * @return
  *    ERR_OK if successful
  ******************************************************************************/
-err_t sta_ethernetif_init(struct netif *netif)
-{
+err_t sta_ethernetif_init (struct netif *netif) {
   LWIP_ASSERT("netif != NULL", (netif != NULL));
 
   /* Set the netif name to identify the interface */
-  netif->name[0] = STATION_NETIF0;
-  netif->name[1] = STATION_NETIF1;
+  memcpy(netif->name, STATION_NETIF, 2);
 
   netif->output = etharp_output;
   netif->linkoutput = low_level_output;
 
   /* initialize the hardware */
   low_level_init(netif);
-  sta_netif = *netif;
   
   return ERR_OK;
 }
@@ -271,25 +237,21 @@ err_t sta_ethernetif_init(struct netif *netif)
  * @return
  *    ERR_OK if successful
  ******************************************************************************/
-err_t ap_ethernetif_init(struct netif *netif)
-{
+err_t ap_ethernetif_init (struct netif *netif) {
   LWIP_ASSERT("netif != NULL", (netif != NULL));
 
   /* Set the netif name to identify the interface */
-  netif->name[0] = SOFTAP_NETIF0;
-  netif->name[1] = SOFTAP_NETIF1;
+  memcpy(netif->name, SOFTAP_NETIF, 2);
 
   netif->output = etharp_output;
   netif->linkoutput = low_level_output;
 
   /* initialize the hardware */
   low_level_init(netif);
-  ap_netif = *netif;
   
   return ERR_OK;
 }
 
-u32_t sys_now(void)
-{
+u32_t sys_now (void) {
   return HAL_GetTick();
 }

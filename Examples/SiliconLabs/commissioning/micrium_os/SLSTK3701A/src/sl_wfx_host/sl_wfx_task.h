@@ -18,6 +18,7 @@
 
 #include <kernel/include/os.h>
 #include "sl_wfx_constants.h"
+#include "sl_wfx_host.h"
 
 #define SL_WFX_BUS_EVENT_FLAG_RX      1
 #define SL_WFX_BUS_EVENT_FLAG_TX      2
@@ -26,28 +27,28 @@
 
 typedef struct {
   sl_wfx_send_frame_req_t *frame;
-  uint32_t data_length;
-  sl_wfx_interface_t interface;
-  uint8_t priority;
-} wfx_frame_q_item;
+  uint32_t                 data_length;
+  sl_wfx_interface_t       interface;
+  uint8_t                  priority;
+} sl_wfx_frame_q_item;
 
-extern wfx_frame_q_item wfx_bus_tx_frame;
-extern OS_SEM wfx_bus_tx_complete;
-extern OS_FLAG_GRP wfx_bus_evts;
-extern sl_wfx_context_t wifi;
-
+extern sl_wfx_frame_q_item   bus_tx_frame;
+extern OS_SEM                bus_tx_complete_sem;
+extern OS_FLAG_GRP           bus_events;
+extern OS_MUTEX              sl_wfx_tx_queue_mutex;
+extern sl_wfx_packet_queue_t sl_wfx_tx_queue_context;
 #ifdef __cplusplus
 extern "C" {
 #endif
 /**************************************************************************//**
  * Start wfx bus communication task.
  *****************************************************************************/
-void wfx_bus_start(void);
+void sl_wfx_task_start (void);
 
 /**************************************************************************//**
  * Returns status of wfx receive frames.
  *****************************************************************************/
-bool wfx_bus_is_receive_processing (void);
+bool bus_is_receive_processing (void);
 #ifdef __cplusplus
 }
 #endif

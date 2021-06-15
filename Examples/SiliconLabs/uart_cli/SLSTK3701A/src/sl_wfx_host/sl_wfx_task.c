@@ -3,7 +3,7 @@
  * @brief WFX FMAC driver main bus communication task
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,36 +40,59 @@
 #include "sl_wfx_task.h"
 #include "sl_wfx_host.h"
 
-// Bus Task Configurations
+/* Bus Task Configurations*/
 #define SL_WFX_BUS_TASK_PRIO              15u
 #define SL_WFX_BUS_TASK_STK_SIZE         512u
 #define SL_WFX_EVENT_TIMEOUT_MS           (0)
 
-/// wfx bus task stack
+/* wfx bus task stack*/
 static CPU_STK sl_wfx_bus_task_stk[SL_WFX_BUS_TASK_STK_SIZE];
-/// wfx bus task TCB
+/* wfx bus task TCB*/
 static OS_TCB sl_wfx_bus_task_tcb;
 
 OS_FLAG_GRP bus_events;
 sl_wfx_frame_q_item bus_tx_frame;
 OS_SEM bus_tx_complete_sem;
+OS_MUTEX sl_wfx_tx_queue_mutex;
+sl_wfx_packet_queue_t sl_wfx_tx_queue_context;
 
-/// Flag to indicate receive frames is currently running.
+/* Flag to indicate receive frames is currently running.*/
 static bool wfx_rx_in_process = false;
 
-/// wfx_fmac_driver context
-sl_wfx_context_t wifi;
+static void        sl_wfx_task_entry (void *p_arg);
+static sl_status_t sl_wfx_rx_process (uint16_t control_register);
+static sl_status_t sl_wfx_tx_process (void);
 
-// Connection parameters
-char wlan_ssid[32+1]                    = WLAN_SSID_DEFAULT;
-char wlan_passkey[64+1]                 = WLAN_PASSKEY_DEFAULT;
-sl_wfx_password_t wlan_pmk              = {0};
-sl_wfx_security_mode_t wlan_security    = WLAN_SECURITY_DEFAULT;
-char softap_ssid[32+1]                  = SOFTAP_SSID_DEFAULT;
-char softap_passkey[64+1]               = SOFTAP_PASSKEY_DEFAULT;
-sl_wfx_password_t softap_pmk            = {0};
-sl_wfx_security_mode_t softap_security  = SOFTAP_SECURITY_DEFAULT;
-uint8_t softap_channel                  = SOFTAP_CHANNEL_DEFAULT;
+
+/**************************************************************************//**
+ * Wfx process task entry
+ *****************************************************************************/
+static void sl_wfx_task_entry (void *p_arg) {
+  RTOS_ERR err;
+  uint16_t control_register = 0;
+  OS_FLAGS  flags = 0;
+  sl_wfx_host_setup_memory_pools();
+
+  while(1) {
+
+		/*Wait for an event*/
+		flags = OSFlagPend(&bus_events, 0xF, SL_WFX_EVENT_TIMEOUT_MS,
+							 OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
+							 0, &err);
+		if (flags & SL_WFX_BUS_EVENT_FLAG_RX) {
+			  /* Process RX packets */
+			  sl_wfx_rx_process(control_register);
+#ifdef SL_WFX_USE_SDIO
+        /* Reenable interrupt (req for sdio)*/
+        sl_wfx_host_enable_platform_interrupt();
+#endif
+		}
+		if (flags & SL_WFX_BUS_EVENT_FLAG_TX) {
+				/* Process TX packets */
+				sl_wfx_tx_process();
+		}
+  }
+}
 
 /***************************************************************************//**
  * Check receive frame status
@@ -82,81 +105,84 @@ bool bus_is_receive_processing(void)
 /***************************************************************************//**
  * Receives frames from the WF200.
  ******************************************************************************/
-static sl_status_t receive_frames()
-{
+static sl_status_t sl_wfx_rx_process (uint16_t control_register) {
+  RTOS_ERR err;
   sl_status_t result;
-  uint16_t control_register = 0;
 
-  wfx_rx_in_process = true;
+  result = sl_wfx_receive_frame(&control_register);
 
-  do {
-    result = sl_wfx_receive_frame(&control_register);
-    SL_WFX_ERROR_CHECK(result);
-  } while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 );
+  if ((control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0) {
+	  /* if a packet is still available in the WF200, set an RX event */
+	  OSFlagPost(&bus_events, SL_WFX_BUS_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
+  }
 
-  error_handler:
-  wfx_rx_in_process = false;
   return result;
 }
 
-/***************************************************************************//**
- * WF200 bus communication task.
- ******************************************************************************/
-static void sl_wfx_bus_task(void *p_arg)
-{
+/**************************************************************************//**
+ * Wfx process tx queue
+ *****************************************************************************/
+static sl_status_t sl_wfx_tx_process (void) {
   RTOS_ERR err;
   sl_status_t result;
-  OS_FLAGS  flags = 0;
-  sl_wfx_host_setup_memory_pools();
-  OSFlagCreate(&bus_events, "bus events", 0, &err);
-  OSSemCreate(&bus_tx_complete_sem, "bus tx comp", 0, &err);
-  for (;; ) {
-    /*Wait for an interrupt from WFX*/
-    flags = OSFlagPend(&bus_events, 0xF, SL_WFX_EVENT_TIMEOUT_MS,
-                       OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_CONSUME,
-                       0, &err);
+  sl_wfx_packet_queue_item_t *item_to_free;
 
-    if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE) {
-
-      if (flags & SL_WFX_BUS_EVENT_FLAG_RX) {
-        // Treat received frames
-        receive_frames();
-
-#ifdef SL_WFX_USE_SDIO
-        // Reenable interrupt (req for sdio)
-        sl_wfx_host_enable_platform_interrupt();
-#endif
-      }
-      if (flags & SL_WFX_BUS_EVENT_FLAG_TX) {
-        int i = 0;
-        result = SL_STATUS_FAIL;
-        while ((result != SL_STATUS_OK) && (i++ < 10)) {
-          result = sl_wfx_send_ethernet_frame(bus_tx_frame.frame,
-                                              bus_tx_frame.data_length,
-                                              bus_tx_frame.interface,
-                                              bus_tx_frame.priority);
-        }
-        if (result != SL_STATUS_OK) {
-          printf("Unable to send ethernet frame\r\n");
-        }
-        // Ensure to unlock the stack
-        OSSemPost(&bus_tx_complete_sem, OS_OPT_POST_ALL, &err);
-      }
-    } else {
-      printf("Bus Task error\r\n");
-    }
+  if (sl_wfx_tx_queue_context.head_ptr == NULL) {
+    return SL_STATUS_EMPTY;
   }
-}
 
+  /* Take TX queue mutex */
+  OSMutexPend(&sl_wfx_tx_queue_mutex, 0, OS_OPT_PEND_BLOCKING, 0, &err);
+
+  /* Send the packet */
+  result = sl_wfx_send_ethernet_frame(&sl_wfx_tx_queue_context.head_ptr->buffer,
+                                      sl_wfx_tx_queue_context.head_ptr->data_length,
+                                      sl_wfx_tx_queue_context.head_ptr->interface,
+                                      WFM_PRIORITY_BE0);
+
+  if (result != SL_STATUS_OK) {
+    /* If the packet is not successfully sent, set the associated event and return */
+    OSFlagPost(&bus_events, SL_WFX_BUS_EVENT_FLAG_TX, OS_OPT_POST_FLAG_SET, &err);
+    OSMutexPost(&sl_wfx_tx_queue_mutex, OS_OPT_POST_NONE, &err);
+    return SL_STATUS_FULL;
+  }
+
+  /* The packet has been successfully sent, free it  */
+  item_to_free = sl_wfx_tx_queue_context.head_ptr;
+
+  /* Move the queue pointer to process the next packet */
+  sl_wfx_tx_queue_context.head_ptr = sl_wfx_tx_queue_context.head_ptr->next;
+
+  /* The packet has been sent, release the packet  */
+  sl_wfx_free_command_buffer((sl_wfx_generic_message_t*) item_to_free,
+                             SL_WFX_SEND_FRAME_REQ_ID,
+                             SL_WFX_TX_FRAME_BUFFER);
+
+  /* If a packet is available, set the associated event */
+  if (sl_wfx_tx_queue_context.head_ptr != NULL) {
+    OSFlagPost(&bus_events, SL_WFX_BUS_EVENT_FLAG_TX, OS_OPT_POST_FLAG_SET, &err);
+  }
+
+  /* Release TX queue mutex */
+  OSMutexPost(&sl_wfx_tx_queue_mutex, OS_OPT_POST_NONE, &err);
+
+  return result;
+}
 /***************************************************************************//**
  * Creates WF200 bus communication task.
  ******************************************************************************/
-void bus_comm_start()
-{
+void sl_wfx_task_start (void) {
   RTOS_ERR err;
+  OSFlagCreate(&bus_events, "bus events", 0, &err);
+  OSMutexCreate(&sl_wfx_tx_queue_mutex, "tx queue mutex",&err);
+  OSSemCreate(&bus_tx_complete_sem, "bus tx comp", 0, &err);
+
+  sl_wfx_tx_queue_context.head_ptr = NULL;
+  sl_wfx_tx_queue_context.tail_ptr = NULL;
+
   OSTaskCreate(&sl_wfx_bus_task_tcb,
                "WFX bus Task",
-               sl_wfx_bus_task,
+			   sl_wfx_task_entry,
                DEF_NULL,
                SL_WFX_BUS_TASK_PRIO,
                &sl_wfx_bus_task_stk[0],
@@ -167,6 +193,6 @@ void bus_comm_start()
                DEF_NULL,
                (OS_OPT_TASK_STK_CLR),
                &err);
-  // Check error code.
+  /* Check error code.*/
   APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }

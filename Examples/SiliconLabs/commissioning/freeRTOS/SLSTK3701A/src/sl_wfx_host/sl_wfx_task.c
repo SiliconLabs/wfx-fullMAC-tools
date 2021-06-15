@@ -37,81 +37,117 @@
 #include "sl_wfx_task.h"
 #include "sl_wfx.h"
 
-wfx_frame_q_item   wfxtask_tx_frame;
-SemaphoreHandle_t  wfxtask_tx_complete;
-SemaphoreHandle_t  wfxtask_mutex ;
+osThreadId            sl_wfx_task_handle;
+EventGroupHandle_t    sl_wfx_event_group;
+SemaphoreHandle_t     sl_wfx_tx_queue_mutex;
+sl_wfx_packet_queue_t sl_wfx_tx_queue_context;
 
-SemaphoreHandle_t  s_xDriverSemaphore;
-EventGroupHandle_t sl_wfx_event_group;
-osThreadId busCommTaskHandle ;
+osThreadId         busCommTaskHandle ;
 
-SemaphoreHandle_t spi_irq;
-// Flag to indicate receive frames is currently running.
-static bool wfx_rx_in_process = false;
 
-// wfx_fmac_driver context
-sl_wfx_context_t wifi;
 
-// Connection parameters
-char wlan_ssid[32]                     = WLAN_SSID_DEFAULT;
-char wlan_passkey[64]                  = WLAN_PASSKEY_DEFAULT;
-sl_wfx_security_mode_t wlan_security   = WLAN_SECURITY_DEFAULT;
-char softap_ssid[32]                   = SOFTAP_SSID_DEFAULT;
-char softap_passkey[64]                = SOFTAP_PASSKEY_DEFAULT;
-sl_wfx_security_mode_t softap_security = SOFTAP_SECURITY_DEFAULT;
-uint8_t softap_channel                 = SOFTAP_CHANNEL_DEFAULT;
+static void        sl_wfx_task_entry(void const * pvParameters);
+static sl_status_t sl_wfx_rx_process (uint16_t control_register);
+static sl_status_t sl_wfx_tx_process (void);
+/**************************************************************************//**
+ * Wfx process task entry
+ *****************************************************************************/
+static void sl_wfx_task_entry (void const * pvParameters) {
+  uint16_t control_register = 0;
+  EventBits_t wifi_event_bits;
 
-/***************************************************************************//**
- * Check receive frame status
- ******************************************************************************/
-bool wfxtask_is_receive_processing(void)
-{
-  return wfx_rx_in_process;
+  while(1) {
+    /*Wait for an event*/
+    wifi_event_bits = xEventGroupWaitBits(sl_wfx_event_group,
+                                          SL_WFX_TX_PACKET_AVAILABLE | SL_WFX_RX_PACKET_AVAILABLE,
+                                          pdTRUE,
+                                          pdFALSE,
+                                          portMAX_DELAY);
+
+    if (wifi_event_bits & SL_WFX_TX_PACKET_AVAILABLE) {
+      /* Process TX packets */
+      sl_wfx_tx_process();
+    }
+    if (wifi_event_bits & SL_WFX_RX_PACKET_AVAILABLE) {
+      /* Process RX packets */
+      sl_wfx_rx_process(control_register);
+    }
+  }
 }
 
-/***************************************************************************//**
- * Receives frames from the WFX.
- ******************************************************************************/
-static sl_status_t receive_frames()
-{
+/**************************************************************************//**
+ * Wfx process receive frame
+ *****************************************************************************/
+static sl_status_t sl_wfx_rx_process (uint16_t control_register) {
   sl_status_t result;
-  uint16_t control_register = 0;
 
-  do {
-    result = sl_wfx_receive_frame(&control_register);
-    SL_WFX_ERROR_CHECK(result);
-  } while ( (control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0 );
+  sl_wfx_host_disable_platform_interrupt();
 
-error_handler:
+  /* Receive a frame */
+  result = sl_wfx_receive_frame(&control_register);
+
+  if (result) {
+    sl_wfx_host_enable_platform_interrupt();
+  } else {
+    if ((control_register & SL_WFX_CONT_NEXT_LEN_MASK) != 0) {
+
+      /* if a packet is still available in the WF200, set an RX event */
+      xEventGroupSetBits(sl_wfx_event_group, SL_WFX_RX_PACKET_AVAILABLE);
+    } else {
+      sl_wfx_host_enable_platform_interrupt();
+    }
+  }
+
   return result;
 }
 
-/***************************************************************************//**
- * WFX bus communication task.
- ******************************************************************************/
-static void wfx_bus_task(void const *p_arg)
-{
-  /* create a mutex used for making driver accesses atomic */
-  s_xDriverSemaphore = xSemaphoreCreateMutex();
+/**************************************************************************//**
+ * Wfx process tx queue
+ *****************************************************************************/
+static sl_status_t sl_wfx_tx_process (void) {
+  sl_status_t result;
+  sl_wfx_packet_queue_item_t *item_to_free;
 
-  /* create an event group to track Wi-Fi events */
-  sl_wfx_event_group = xEventGroupCreate();
-
-  for(;;)
-  {
-    /*Wait for an interrupt from WFX*/
-    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-
-    /*Disable the interrupt while treating frames received to avoid
-     *the case where the interrupt is set but there is no frame left to treat.*/
-    sl_wfx_host_disable_platform_interrupt();
-
-    /*Receive the frame(s) pending in WFX*/
-    receive_frames();
-
-    /*Re-enable the interrupt*/
-    sl_wfx_host_enable_platform_interrupt();
+  if (sl_wfx_tx_queue_context.head_ptr == NULL) {
+    return SL_STATUS_EMPTY;
   }
+
+  /* Take TX queue mutex */
+  xSemaphoreTake(sl_wfx_tx_queue_mutex, portMAX_DELAY);
+
+  /* Send the packet */
+  result = sl_wfx_send_ethernet_frame(&sl_wfx_tx_queue_context.head_ptr->buffer,
+                                      sl_wfx_tx_queue_context.head_ptr->data_length,
+                                      sl_wfx_tx_queue_context.head_ptr->interface,
+                                      WFM_PRIORITY_BE0);
+
+  if (result != SL_STATUS_OK) {
+    /* If the packet is not successfully sent, set the associated event and return */
+    xEventGroupSetBits(sl_wfx_event_group, SL_WFX_TX_PACKET_AVAILABLE);
+    xSemaphoreGive(sl_wfx_tx_queue_mutex);
+    return SL_STATUS_FULL;
+  }
+
+  /* The packet has been successfully sent, free it  */
+  item_to_free = sl_wfx_tx_queue_context.head_ptr;
+
+  /* Move the queue pointer to process the next packet */
+  sl_wfx_tx_queue_context.head_ptr = sl_wfx_tx_queue_context.head_ptr->next;
+
+  /* The packet has been sent, release the packet  */
+  sl_wfx_free_command_buffer((sl_wfx_generic_message_t*) item_to_free,
+                             SL_WFX_SEND_FRAME_REQ_ID,
+                             SL_WFX_TX_FRAME_BUFFER);
+
+  /* If a packet is available, set the associated event */
+  if (sl_wfx_tx_queue_context.head_ptr != NULL) {
+    xEventGroupSetBits(sl_wfx_event_group, SL_WFX_TX_PACKET_AVAILABLE);
+  }
+
+  /* Release TX queue mutex */
+  xSemaphoreGive(sl_wfx_tx_queue_mutex);
+
+  return result;
 }
 
 /***************************************************************************//**
@@ -119,6 +155,10 @@ static void wfx_bus_task(void const *p_arg)
  ******************************************************************************/
 void wfx_bus_start()
 {
-  osThreadDef(busCommTask, wfx_bus_task, osPriorityRealtime, 0, 512);
+  sl_wfx_event_group = xEventGroupCreate();
+  sl_wfx_tx_queue_mutex = xSemaphoreCreateMutex();
+  sl_wfx_tx_queue_context.head_ptr = NULL;
+  sl_wfx_tx_queue_context.tail_ptr = NULL;
+  osThreadDef(busCommTask, sl_wfx_task_entry, osPriorityHigh, 0, 512);
   busCommTaskHandle = osThreadCreate(osThread(busCommTask), NULL);
 }

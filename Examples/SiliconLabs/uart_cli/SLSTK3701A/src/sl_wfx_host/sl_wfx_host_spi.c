@@ -41,7 +41,6 @@
 #include <common/include/rtos_utils.h>
 #include <common/include/rtos_err.h>
 
-
 #define USART         SL_WFX_HOST_CFG_SPI_USART
 #define USART_CLK     SL_WFX_HOST_CFG_SPI_USART_CLK
 #define RX_DMA_SIGNAL SL_WFX_HOST_CFG_SPI_RX_DMA_SIGNAL
@@ -52,21 +51,20 @@
 #define USART_RX_PIN  SL_WFX_HOST_CFG_SPI_USART_RX_PIN
 #define USART_CLK_PIN SL_WFX_HOST_CFG_SPI_USART_CLK_PIN
 
-static OS_SEM spi_sem;
+static OS_SEM 			   spi_sem;
 static unsigned int        tx_dma_channel;
 static unsigned int        rx_dma_channel;
 static uint32_t            dummy_rx_data;
 static uint32_t            dummy_tx_data;
-static bool spi_enabled = false;
+static bool 			   spi_enabled = false;
 
 /**************************************************************************//**
  * Initialize SPI peripheral
  *****************************************************************************/
-sl_status_t sl_wfx_host_init_bus(void)
-{
-  RTOS_ERR err;
+sl_status_t sl_wfx_host_init_bus (void) {
 
-  // Initialize and enable the USART
+  RTOS_ERR err;
+  /* Initialize and enable the USART*/
   USART_InitSync_TypeDef usartInit = USART_INITSYNC_DEFAULT;
 
   spi_enabled = true;
@@ -105,12 +103,11 @@ sl_status_t sl_wfx_host_init_bus(void)
 /**************************************************************************//**
  * De-initialize SPI peripheral and DMAs
  *****************************************************************************/
-sl_status_t sl_wfx_host_deinit_bus(void)
-{
+sl_status_t sl_wfx_host_deinit_bus (void) {
   RTOS_ERR err;
 
   OSSemDel(&spi_sem, OS_OPT_DEL_ALWAYS, &err);
-  // Stop DMAs.
+  /* Stop DMAs.*/
   DMADRV_StopTransfer(rx_dma_channel);
   DMADRV_StopTransfer(tx_dma_channel);
   DMADRV_FreeChannel(tx_dma_channel);
@@ -124,8 +121,7 @@ sl_status_t sl_wfx_host_deinit_bus(void)
 /**************************************************************************//**
  * Assert chip select.
  *****************************************************************************/
-sl_status_t sl_wfx_host_spi_cs_assert()
-{
+sl_status_t sl_wfx_host_spi_cs_assert () {
   GPIO_PinOutClear(USART_PORT, USART_CS_PIN);
   return SL_STATUS_OK;
 }
@@ -133,24 +129,25 @@ sl_status_t sl_wfx_host_spi_cs_assert()
 /**************************************************************************//**
  * De-assert chip select.
  *****************************************************************************/
-sl_status_t sl_wfx_host_spi_cs_deassert()
-{
+sl_status_t sl_wfx_host_spi_cs_deassert () {
   GPIO_PinOutSet(USART_PORT, USART_CS_PIN);
   return SL_STATUS_OK;
 }
-
-static bool rx_dma_complete(unsigned int channel,
-                          unsigned int sequenceNo,
-                          void *userParam)
-{
+/**************************************************************************//**
+ * DMA receive callback
+ *****************************************************************************/
+static bool rx_dma_complete (unsigned int channel,
+                             unsigned int sequenceNo,
+                             void        *userParam) {
   RTOS_ERR err;
   OSSemPost(&spi_sem, OS_OPT_POST_1, &err);
   return true;
 }
-
-void receiveDMA(uint8_t* buffer, uint16_t buffer_length)
-{
-// Start receive DMA.
+/**************************************************************************//**
+ * DMA receive function
+ *****************************************************************************/
+void receiveDMA (uint8_t* buffer, uint16_t buffer_length) {
+  /* Start receive DMA.*/
   DMADRV_PeripheralMemory(rx_dma_channel,
                           RX_DMA_SIGNAL,
                           (void*)buffer,
@@ -161,7 +158,7 @@ void receiveDMA(uint8_t* buffer, uint16_t buffer_length)
                           rx_dma_complete,
                           NULL);
 
-  // Start transmit DMA.
+  /* Start transmit DMA.*/
   DMADRV_MemoryPeripheral(tx_dma_channel,
                           TX_DMA_SIGNAL,
                           (void *)&(USART->TXDATA),
@@ -172,11 +169,12 @@ void receiveDMA(uint8_t* buffer, uint16_t buffer_length)
                           NULL,
                           NULL);
 }
-
-void transmitDMA(uint8_t* buffer, uint16_t buffer_length)
-{
-  // Receive DMA runs only to initiate callback
-  // Start receive DMA.
+/**************************************************************************//**
+ * DMA transmit function
+ *****************************************************************************/
+void transmitDMA (uint8_t* buffer, uint16_t buffer_length) {
+  /* Receive DMA runs only to initiate callback
+     Start receive DMA.*/
   DMADRV_PeripheralMemory(rx_dma_channel,
                           RX_DMA_SIGNAL,
                           &dummy_rx_data,
@@ -186,7 +184,7 @@ void transmitDMA(uint8_t* buffer, uint16_t buffer_length)
                           dmadrvDataSize1,
                           rx_dma_complete,
                           NULL);
-  // Start transmit DMA.
+  /* Start transmit DMA.*/
   DMADRV_MemoryPeripheral(tx_dma_channel,
                           TX_DMA_SIGNAL,
                           (void *)&(USART->TXDATA),
@@ -201,12 +199,11 @@ void transmitDMA(uint8_t* buffer, uint16_t buffer_length)
 /**************************************************************************//**
  * WFX SPI transfer implementation
  *****************************************************************************/
-sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_transfer_type_t type,
-                                                  uint8_t *header,
-                                                  uint16_t header_length,
-                                                  uint8_t *buffer,
-                                                  uint16_t buffer_length)
-{
+sl_status_t sl_wfx_host_spi_transfer_no_cs_assert (sl_wfx_host_bus_transfer_type_t type,
+                                                   uint8_t *header,
+                                                   uint16_t header_length,
+                                                   uint8_t *buffer,
+                                                   uint16_t buffer_length) {
   const bool is_read = (type == SL_WFX_BUS_READ);
   RTOS_ERR err;
   err.Code = RTOS_ERR_NONE;
@@ -235,7 +232,6 @@ sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_transfer_type_
     OSSemPend(&spi_sem, 0, OS_OPT_PEND_BLOCKING, 0, &err);
   }
 
-
   if (err.Code == RTOS_ERR_NONE) {
     return SL_STATUS_OK;
   } else {
@@ -246,8 +242,8 @@ sl_status_t sl_wfx_host_spi_transfer_no_cs_assert(sl_wfx_host_bus_transfer_type_
 /**************************************************************************//**
  * Enable WFX interrupt
  *****************************************************************************/
-sl_status_t sl_wfx_host_enable_platform_interrupt(void)
-{
+sl_status_t sl_wfx_host_enable_platform_interrupt (void) {
+
   GPIO_ExtIntConfig(SL_WFX_HOST_CFG_SPI_WIRQPORT,
                     SL_WFX_HOST_CFG_SPI_WIRQPIN,
                     SL_WFX_HOST_CFG_SPI_IRQ,
@@ -260,18 +256,15 @@ sl_status_t sl_wfx_host_enable_platform_interrupt(void)
 /**************************************************************************//**
  * Disable WFX interrupt
  *****************************************************************************/
-sl_status_t sl_wfx_host_disable_platform_interrupt(void)
-{
+sl_status_t sl_wfx_host_disable_platform_interrupt (void) {
   GPIO_IntDisable(1 << SL_WFX_HOST_CFG_SPI_IRQ);
   return SL_STATUS_OK;
 }
-sl_status_t sl_wfx_host_enable_spi(void)
-{
+sl_status_t sl_wfx_host_enable_spi (void) {
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wfx_host_disable_spi(void)
-{
+sl_status_t sl_wfx_host_disable_spi (void) {
   return SL_STATUS_OK;
 }
 

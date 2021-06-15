@@ -63,15 +63,14 @@ sl_status_t sl_wfx_host_init_bus(void)
 
   sdio_fnct_init(&err);
 
-  if (sd_bus_handle == SD_BusHandleNull) {
-    sd_bus_handle = SD_BusHandleGetFromName(SL_WIFI_CFG_SD_CONTROLLER_NAME);
+  sd_bus_handle = SD_BusHandleGetFromName(SL_WIFI_CFG_SD_CONTROLLER_NAME);
 
-    SD_BusStart(sd_bus_handle, &err);
+  SD_BusStart(sd_bus_handle, &err);
 
-    if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-      return SL_STATUS_FAIL;
-    }
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    return SL_STATUS_FAIL;
   }
+
 
   return SL_STATUS_OK;
 }

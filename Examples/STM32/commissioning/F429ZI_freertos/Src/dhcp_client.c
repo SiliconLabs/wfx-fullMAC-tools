@@ -1,10 +1,5 @@
-/***************************************************************************//**
- * @file
- * @brief LwIP DHCP client implementation
- *******************************************************************************
- * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
+/**************************************************************************//**
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

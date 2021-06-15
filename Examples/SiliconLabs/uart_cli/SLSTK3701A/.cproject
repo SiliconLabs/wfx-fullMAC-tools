@@ -42,6 +42,7 @@
 									<listOptionValue builtIn="false" value="MICRIUMOS=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_CLI_PARAM_NB_MAX_PARAMS=25"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
+									<listOptionValue builtIn="false" value="UART_CLI=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2026396169" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.1091880051" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
@@ -219,6 +220,7 @@
 									<listOptionValue builtIn="false" value="MICRIUMOS=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_CLI_PARAM_NB_MAX_PARAMS=25"/>
 									<listOptionValue builtIn="false" value="&quot;MBEDTLS_CONFIG_FILE =&quot;config-sl-crypto-all-acceleration-micriumos.h&quot;"/>
+									<listOptionValue builtIn="false" value="UART_CLI=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.604808963" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog.632203523" name="Generate debugger-friendly prologs (-mno-sched-prolog)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog" value="true" valueType="boolean"/>
@@ -346,6 +348,7 @@
 									<listOptionValue builtIn="false" value="IO_SD_ASYNC_TASK_PRIO_DFLT=16"/>
 									<listOptionValue builtIn="false" value="BSP_SD_ROUTE_SEL=0"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="UART_CLI=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level.497980600" name="Optimization Level" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog.1036155811" name="Generate debugger-friendly prologs (-mno-sched-prolog)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.prolog" value="true" valueType="boolean"/>
@@ -434,6 +437,7 @@
 									<listOptionValue builtIn="false" value="SL_WFX_CLI_GEN_INPUT_BUF_SIZE=256"/>
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SPI=1"/>
 									<listOptionValue builtIn="false" value="EFM32GG11B820F2048GL192=1"/>
+									<listOptionValue builtIn="false" value="UART_CLI=1"/>
 								</option>
 								<option id="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin.2058866483" name="Always branch to builtin functions (-fno-builtin)" superClass="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.debug.builtin" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.optimization.level.196737546" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>

@@ -119,12 +119,14 @@ int  main(void)
   printf("WF200 FreeRTOS LwIP Example\n");
 
   // Start wfx bus communication task.
+
+
+  wfx_events_task_start();
   wfx_bus_start();
 #ifdef SL_WFX_USE_SECURE_LINK
   wfx_securelink_task_start(); // start securelink key renegotiation task
 #endif //SL_WFX_USE_SECURE_LINK
 
-  wfx_events_task_start();
   lwip_start();
 
   // Start scheduler
@@ -155,11 +157,15 @@ static void GPIO_Unified_IRQ(void)
   if (interrupt_mask & 0x400) {
     xSemaphoreGiveFromISR(wfx_wakeup_sem, &xHigherPriorityTaskWoken);
 #ifdef  SL_WFX_USE_SPI
-    vTaskNotifyGiveFromISR( busCommTaskHandle, &xHigherPriorityTaskWoken );
+    xEventGroupSetBitsFromISR(sl_wfx_event_group,
+                              SL_WFX_RX_PACKET_AVAILABLE,
+                              &xHigherPriorityTaskWoken);
 #endif
 #ifdef  SL_WFX_USE_SDIO
 #ifdef  SLEEP_ENABLED
-    vTaskNotifyGiveFromISR( busCommTaskHandle, &xHigherPriorityTaskWoken );
+    xEventGroupSetBitsFromISR(sl_wfx_event_group,
+                                  SL_WFX_RX_PACKET_AVAILABLE,
+                                  &xHigherPriorityTaskWoken);
 #endif
 #endif
 
@@ -241,4 +247,35 @@ void vApplicationStackOverflowHook (TaskHandle_t xTask, signed char *pcTaskName)
   (void)xTask;
   (void)pcTaskName;
   configASSERT(0);
+}
+/**
+ * @brief User defined assertion call. This function is plugged into configASSERT.
+ * See FreeRTOSConfig.h to define configASSERT to something different.
+ */
+void vAssertCalled(const char * pcFile,
+	uint32_t ulLine)
+{
+    /* FIX ME. If necessary, update to applicable assertion routine actions. */
+
+	const uint32_t ulLongSleep = 1000UL;
+	volatile uint32_t ulBlockVariable = 0UL;
+	volatile char * pcFileName = (volatile char *)pcFile;
+	volatile uint32_t ulLineNumber = ulLine;
+
+	(void)pcFileName;
+	(void)ulLineNumber;
+
+	printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
+	fflush(stdout);
+
+	/* Setting ulBlockVariable to a non-zero value in the debugger will allow
+	* this function to be exited. */
+	taskDISABLE_INTERRUPTS();
+	{
+		while (ulBlockVariable == 0UL)
+		{
+			vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
+		}
+	}
+	taskENABLE_INTERRUPTS();
 }

@@ -3,7 +3,7 @@
  * @brief LwIP task and related functions
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@
 
 #include "demo_config.h"
 
-// LwIP includes.
+/* LwIP includes.*/
 #include "lwip/dns.h"
 #include "lwip/netif.h"
 #include "lwip/tcpip.h"
@@ -66,74 +66,74 @@ static int netif_config(void);
 
 #define LWIP_APP_ECHO_ENABLED        1u
 
-/// LwIP station network interface structure.
+/* LwIP station network interface structure.*/
 struct netif sta_netif;
-/// LwIP AP network interface structure.
+/* LwIP AP network interface structure.*/
 struct netif ap_netif;
 
-/// Enable or disable DHCP client for station.
+/* Enable or disable DHCP client for station.*/
 int use_dhcp_client = USE_DHCP_CLIENT_DEFAULT;
-/// Enable or disable DHCP server for softAP.
+/* Enable or disable DHCP server for softAP.*/
 int use_dhcp_server = USE_DHCP_SERVER_DEFAULT;
 
-/// Station IP address octet 0.
+/* Station IP address octet 0.*/
 uint8_t sta_ip_addr0 = STA_IP_ADDR0_DEFAULT;
-/// Station IP address octet 1.
+/* Station IP address octet 1.*/
 uint8_t sta_ip_addr1 = STA_IP_ADDR1_DEFAULT;
-/// Station IP address octet 2.
+/* Station IP address octet 2.*/
 uint8_t sta_ip_addr2 = STA_IP_ADDR2_DEFAULT;
-/// Station IP address octet 3.
+/* Station IP address octet 3.*/
 uint8_t sta_ip_addr3 = STA_IP_ADDR3_DEFAULT;
 
-/// Station net mask octet 0.
+/* Station net mask octet 0.*/
 uint8_t sta_netmask_addr0 = STA_NETMASK_ADDR0_DEFAULT;
-/// Station net mask octet 1.
+/* Station net mask octet 1.*/
 uint8_t sta_netmask_addr1 = STA_NETMASK_ADDR1_DEFAULT;
-/// Station net mask octet 2.
+/* Station net mask octet 2.*/
 uint8_t sta_netmask_addr2 = STA_NETMASK_ADDR2_DEFAULT;
-/// Station net mask octet 3.
+/* Station net mask octet 3.*/
 uint8_t sta_netmask_addr3 = STA_NETMASK_ADDR3_DEFAULT;
 
-/// Station gateway IP octet 0.
+/* Station gateway IP octet 0.*/
 uint8_t sta_gw_addr0 = STA_GW_ADDR0_DEFAULT;
-/// Station gateway IP octet 1.
+/* Station gateway IP octet 1.*/
 uint8_t sta_gw_addr1 = STA_GW_ADDR1_DEFAULT;
-/// Station gateway IP octet 2.
+/* Station gateway IP octet 2.*/
 uint8_t sta_gw_addr2 = STA_GW_ADDR2_DEFAULT;
-/// Station gateway IP octet 3.
+/* Station gateway IP octet 3.*/
 uint8_t sta_gw_addr3 = STA_GW_ADDR3_DEFAULT;
 
-/// AP IP address octet 0.
+/* AP IP address octet 0.*/
 uint8_t ap_ip_addr0 = AP_IP_ADDR0_DEFAULT;
-/// AP IP address octet 1.
+/* AP IP address octet 1.*/
 uint8_t ap_ip_addr1 = AP_IP_ADDR1_DEFAULT;
-/// AP IP address octet 2.
+/* AP IP address octet 2.*/
 uint8_t ap_ip_addr2 = AP_IP_ADDR2_DEFAULT;
-/// AP IP address octet 3.
+/* AP IP address octet 3.*/
 uint8_t ap_ip_addr3 = AP_IP_ADDR3_DEFAULT;
 
-/// AP net mask octet 0.
+/* AP net mask octet 0.*/
 uint8_t ap_netmask_addr0 = AP_NETMASK_ADDR0_DEFAULT;
-/// AP net mask octet 1.
+/* AP net mask octet 1.*/
 uint8_t ap_netmask_addr1 = AP_NETMASK_ADDR1_DEFAULT;
-/// AP net mask octet 2.
+/* AP net mask octet 2.*/
 uint8_t ap_netmask_addr2 = AP_NETMASK_ADDR2_DEFAULT;
-/// AP net mask octet 3.
+/* AP net mask octet 3.*/
 uint8_t ap_netmask_addr3 = AP_NETMASK_ADDR3_DEFAULT;
 
-/// AP gateway IP octet 0.
+/* AP gateway IP octet 0.*/
 uint8_t ap_gw_addr0 = AP_GW_ADDR0_DEFAULT;
-/// AP gateway IP octet 1.
+/* AP gateway IP octet 1.*/
 uint8_t ap_gw_addr1 = AP_GW_ADDR1_DEFAULT;
-/// AP gateway IP octet 2.
+/* AP gateway IP octet 2.*/
 uint8_t ap_gw_addr2 = AP_GW_ADDR2_DEFAULT;
-/// AP gateway IP octet 3.
+/* AP gateway IP octet 3.*/
 uint8_t ap_gw_addr3 = AP_GW_ADDR3_DEFAULT;
 
 
-/// LwIP task stack
+/* LwIP task stack*/
 static CPU_STK lwip_task_stk[LWIP_TASK_STK_SIZE];
-/// LwIP task TCB
+/* LwIP task TCB*/
 static OS_TCB lwip_task_tcb;
 
 /**************************************************************************//**
@@ -141,10 +141,9 @@ static OS_TCB lwip_task_tcb;
  *
  * @param button_id Button Id related to the event
  *****************************************************************************/
-void lwip_button_handler (uint32_t button_id)
-{
+void lwip_button_handler (uint32_t button_id) {
   if (button_id < BSP_NO_OF_LEDS) {
-    // Toggle the associated LED as a life indicator
+    /* Toggle the associated LED as a life indicator*/
     BSP_LedToggle(button_id);
   }
 }
@@ -154,106 +153,96 @@ void lwip_button_handler (uint32_t button_id)
  *
  * @param p_arg Unused parameter.
  ******************************************************************************/
-static void lwip_task(void *p_arg)
-{
+static void lwip_task (void *p_arg) {
   int res = 0;
   RTOS_ERR err;
 
-  // Create tcp_ip stack thread
+  /* Create tcp_ip stack thread*/
   tcpip_init(NULL, NULL);
 
-  // Start DHCP Client
+  /* Start DHCP Client*/
   dhcpclient_start();
 
-  // Initialize the LwIP stack
+  /* Initialize the LwIP stack*/
   res |= netif_config();
   if (res == 0) {
-    // Register all application parameters to make them available in get/set commands
+    /* Register all application parameters to make them available in get/set commands*/
     res |= lwip_param_register();
     LWIP_ASSERT("Param register error", res == 0);
 
-    // Register get/set commands in the shell
+    /* Register get/set commands in the shell*/
     res |= sl_wfx_cli_param_init();
     LWIP_ASSERT("Param CLI init error", res == 0);
 
-    // Register Wi-Fi commands in the shell
-    res |= sl_wfx_cli_wifi_init(&wifi);
+    /* Register Wi-Fi commands in the shell*/
+    res |= sl_wfx_cli_wifi_init(&wifi_context);
     LWIP_ASSERT("WiFi CLI init error", res == 0);
 
-    // Register IP commands in the shell
+    /* Register IP commands in the shell*/
     res |= sl_wfx_cli_ip_init();
     LWIP_ASSERT("IP CLI init error", res == 0);
 
-    // Register RF Test Agent commands in the shell
-    res |= sl_wfx_cli_rf_test_agent_init(&wifi, &rx_stats);
+    /* Register RF Test Agent commands in the shell*/
+    res |= sl_wfx_cli_rf_test_agent_init(&wifi_context, &rx_stats);
     LWIP_ASSERT("RF Test Agent CLI init error", res == 0);
 
 #ifdef SL_WFX_USE_SECURE_LINK
-    // Register Secure Link commands in the shell
+    /* Register Secure Link commands in the shell*/
     res |= sl_wfx_cli_secure_link_init();
     LWIP_ASSERT("Secure Link CLI init error", res == 0);
 #endif
   }
 
   for (;; ) {
-    // Delete the LwIP init thread
+    /* Delete the LwIP init thread*/
     OSTaskDel (NULL, &err);
   }
 }
 /**************************************************************************//**
  * Set station link status to up.
  *****************************************************************************/
-sl_status_t lwip_set_sta_link_up(void)
-{
+void lwip_set_sta_link_up (void) {
   netifapi_netif_set_up(&sta_netif);
   netifapi_netif_set_link_up(&sta_netif);
   if (use_dhcp_client) {
     dhcpclient_set_link_state(1);
   }
-  return SL_STATUS_OK;
 }
 /**************************************************************************//**
  * Set station link status to down.
  *****************************************************************************/
-sl_status_t lwip_set_sta_link_down(void)
-{
+void lwip_set_sta_link_down (void) {
   if (use_dhcp_client) {
     dhcpclient_set_link_state(0);
   }
   netifapi_netif_set_link_down(&sta_netif);
   netifapi_netif_set_down(&sta_netif);
-  return SL_STATUS_OK;
 }
 /**************************************************************************//**
  * Set AP link status to up.
  *****************************************************************************/
-sl_status_t lwip_set_ap_link_up(void)
-{
+void lwip_set_ap_link_up (void) {
   netifapi_netif_set_up(&ap_netif);
   netifapi_netif_set_link_up(&ap_netif);
   if (use_dhcp_server) {
     dhcpserver_start();
   }
-  return SL_STATUS_OK;
 }
 
 /**************************************************************************//**
  * Set AP link status to down.
  *****************************************************************************/
-sl_status_t lwip_set_ap_link_down(void)
-{
+void lwip_set_ap_link_down (void) {
   if (use_dhcp_server) {
     dhcpserver_stop();
   }
   netifapi_netif_set_link_down(&ap_netif);
   netifapi_netif_set_down(&ap_netif);
-  return SL_STATUS_OK;
 }
 /***************************************************************************//**
  * Initializes LwIP network interface.
  ******************************************************************************/
-static int netif_config(void)
-{
+static int netif_config (void) {
   sl_status_t status;
   ip_addr_t sta_ipaddr, ap_ipaddr;
   ip_addr_t sta_netmask, ap_netmask;
@@ -275,10 +264,10 @@ static int netif_config(void)
   IP_ADDR4(&ap_gw, ap_gw_addr0, ap_gw_addr1, ap_gw_addr2, ap_gw_addr3);
 
   /* Initialize the WF200 used by the two interfaces */
-  status = sl_wfx_init(&wifi);
+  status = sl_wfx_init(&wifi_context);
   switch (status) {
     case SL_STATUS_OK:
-      wifi.state = SL_WFX_STARTED;
+      wifi_context.state = SL_WFX_STARTED;
       ret = 0;
       break;
     case SL_STATUS_WIFI_INVALID_KEY:
@@ -298,11 +287,11 @@ static int netif_config(void)
   }
 
   if (ret == 0) {
-    // Add station and softAP interfaces
+    /* Add station and softAP interfaces*/
     netif_add(&sta_netif, &sta_ipaddr, &sta_netmask, &sta_gw, NULL, &sta_ethernetif_init, &tcpip_input);
     netif_add(&ap_netif, &ap_ipaddr, &ap_netmask, &ap_gw, NULL, &ap_ethernetif_init, &tcpip_input);
 
-    // Registers the default network interface.
+    /* Registers the default network interface.*/
     netif_set_default(&sta_netif);
   }
 
@@ -312,8 +301,7 @@ static int netif_config(void)
 /**************************************************************************//**
  * Start LwIP task.
  *****************************************************************************/
-sl_status_t lwip_start(void)
-{
+sl_status_t lwip_start (void) {
   RTOS_ERR err;
 
   OSTaskCreate(&lwip_task_tcb,

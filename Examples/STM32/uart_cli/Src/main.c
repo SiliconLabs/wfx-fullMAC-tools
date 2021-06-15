@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2018, Silicon Laboratories Inc.
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
-#include "sl_wfx.h"
+#include "sl_wfx_host.h"
 #include "sl_wfx_host_pin.h"
 #include "lwip_common.h"
 #include "sl_wfx_host_events.h"
@@ -28,8 +28,7 @@
 #include <mbedtls/threading.h>
 #include MBEDTLS_CONFIG_FILE
 
-
-extern void sl_wfx_securelink_start(void);
+extern void sl_wfx_secure_link_start(void);
 
 RNG_HandleTypeDef hrng;
 UART_HandleTypeDef huart3;
@@ -40,19 +39,12 @@ static void MX_GPIO_Init(void);
 static void MX_RNG_Init(void);
 static void MX_USART3_UART_Init(void);
 
-extern void wifi_bus_comm_start( void );
-extern int lwip_param_register(void);
-
-extern sl_wfx_context_t wifi;
-
-
 /**
   * @brief  The application entry point.
   *
   * @retval None
   */
-int main(void)
-{
+int main (void) {
   int res;
   
   HAL_Init();
@@ -74,17 +66,18 @@ int main(void)
          WFX_UART_CLI_APP_VERSION_MINOR,
          WFX_UART_CLI_APP_VERSION_BUILD);
   
-  /* Create the thread(s) */
-  wifi_bus_comm_start();
-  // Enable mbedtls FreeRTOS support  
+  /* Create the tasks */
+  sl_wfx_task_start();
+
+  /* Enable mbedtls FreeRTOS support   */
   THREADING_setup();
 #ifdef SL_WFX_USE_SECURE_LINK
-  
-  sl_wfx_securelink_start(); // start securelink key renegotiation task
+  /* Start securelink key renegotiation task */
+  sl_wfx_secure_link_start(); 
 #endif //SL_WFX_USE_SECURE_LINK
   
   wifi_events_start();
-  lwip_start ();
+  lwip_start();
   
   res = sl_wfx_cli_generic_init(NULL);
   if (res != 0) {

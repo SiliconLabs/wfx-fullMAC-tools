@@ -228,7 +228,7 @@ static const char *start_station_cgi_handler(int index, int num_params,
         wlan_security = WFM_SECURITY_MODE_OPEN;
       }
     }
-    if (!(wifi.state & SL_WFX_STA_INTERFACE_CONNECTED))
+    if (!(wifi_context.state & SL_WFX_STA_INTERFACE_CONNECTED))
     {
       status = sl_wfx_send_join_command((uint8_t*) wlan_ssid, ssid_length,
                                         NULL, 0, wlan_security, 0, 0,
@@ -329,13 +329,12 @@ static const char *start_scan_cgi_handler(int index, int num_params,
   scan_count_web = 0;
   memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
 
-  xEventGroupClearBits(sl_wfx_event_group, SL_WFX_SCAN_COMPLETE);
+  xSemaphoreTake(wifi_scan_sem, 0);
   /* perform a scan on every Wi-Fi channel in active mode */
   result = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0, NULL,0,NULL,0,NULL);
   if ((result == SL_STATUS_OK) || (result == SL_STATUS_WIFI_WARNING))
   {
-    if(xEventGroupWaitBits(sl_wfx_event_group, SL_WFX_SCAN_COMPLETE,
-                           pdTRUE, pdTRUE, 5000/portTICK_PERIOD_MS) == 0)
+    if(xSemaphoreTake(wifi_scan_sem, 5000/portTICK_PERIOD_MS) != pdTRUE)
     {
       printf("Scan command timeout\r\n");
     }
@@ -399,7 +398,7 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
       memset(string_list, 0, sizeof(string_list));
       break;
     case 3: // <!--#softap_state-->
-      if(wifi.state & SL_WFX_AP_INTERFACE_UP)
+      if(wifi_context.state & SL_WFX_AP_INTERFACE_UP)
       {
         result = snprintf(pc_insert, 2, "1");
       }else{
@@ -419,12 +418,12 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
     case 6: // <!--#softap_mac-->
       result = sprintf(pc_insert,
                        "%02X:%02X:%02X:%02X:%02X:%02X",
-                       wifi.mac_addr_1.octet[0],
-                       wifi.mac_addr_1.octet[1],
-                       wifi.mac_addr_1.octet[2],
-                       wifi.mac_addr_1.octet[3],
-                       wifi.mac_addr_1.octet[4],
-                       wifi.mac_addr_1.octet[5]);
+                       wifi_context.mac_addr_1.octet[0],
+                       wifi_context.mac_addr_1.octet[1],
+                       wifi_context.mac_addr_1.octet[2],
+                       wifi_context.mac_addr_1.octet[3],
+                       wifi_context.mac_addr_1.octet[4],
+                       wifi_context.mac_addr_1.octet[5]);
       break;
     case 7: // <!--#softap_secu-->
       if(softap_security == WFM_SECURITY_MODE_OPEN)                result = sprintf(pc_insert, "OPEN");
@@ -467,7 +466,7 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
       memset(string_list, 0, sizeof(string_list));
       break;
     case 10: /* <!--#station_state--> */
-      if(wifi.state & SL_WFX_STA_INTERFACE_CONNECTED)
+      if(wifi_context.state & SL_WFX_STA_INTERFACE_CONNECTED)
       {
         result = snprintf(pc_insert, 2, "1");
       }else{
@@ -484,12 +483,12 @@ static uint16_t ssi_handler(int index, char *pc_insert, int insert_len)
     case 12: /* <!--#station_mac--> */
       result = sprintf(pc_insert,
                        "%02X:%02X:%02X:%02X:%02X:%02X",
-                       wifi.mac_addr_0.octet[0],
-                       wifi.mac_addr_0.octet[1],
-                       wifi.mac_addr_0.octet[2],
-                       wifi.mac_addr_0.octet[3],
-                       wifi.mac_addr_0.octet[4],
-                       wifi.mac_addr_0.octet[5]);
+                       wifi_context.mac_addr_0.octet[0],
+                       wifi_context.mac_addr_0.octet[1],
+                       wifi_context.mac_addr_0.octet[2],
+                       wifi_context.mac_addr_0.octet[3],
+                       wifi_context.mac_addr_0.octet[4],
+                       wifi_context.mac_addr_0.octet[5]);
       break;
     case 13: /* <!--#ap_ssid--> */
       result = snprintf(pc_insert, 32, "%s", wlan_ssid);
@@ -872,15 +871,15 @@ static void Netif_Config(void)
   IP_ADDR4(&ap_gw,ap_gw_addr0,ap_gw_addr1,ap_gw_addr2,ap_gw_addr3);
 
   /* Initialize the WF200 used by the two interfaces */
-  status = sl_wfx_init(&wifi);
+  status = sl_wfx_init(&wifi_context);
   printf("FMAC Driver version    %s\r\n", FMAC_DRIVER_VERSION_STRING);
   switch(status) {
     case SL_STATUS_OK:
-      wifi.state = SL_WFX_STARTED;
+      wifi_context.state = SL_WFX_STARTED;
       printf("WF200 Firmware version %d.%d.%d\r\n",
-             wifi.firmware_major,
-             wifi.firmware_minor,
-             wifi.firmware_build);
+             wifi_context.firmware_major,
+             wifi_context.firmware_minor,
+             wifi_context.firmware_build);
       printf("WF200 initialization successful\r\n");
       break;
     case SL_STATUS_WIFI_INVALID_KEY:

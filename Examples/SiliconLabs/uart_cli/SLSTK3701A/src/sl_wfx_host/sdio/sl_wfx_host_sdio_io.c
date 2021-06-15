@@ -41,13 +41,13 @@ static bool sdio_enabled = false;
  *
  * @return   sl_status_t    Error code of the operation as defined in sl_status.h.
  *******************************************************************************************************/
-sl_status_t sl_wfx_host_init_bus(void)
-{
+sl_status_t sl_wfx_host_init_bus (void) {
+
   RTOS_ERR err;
 
   GPIO_PinOutSet(SL_WFX_HOST_CFG_RESET_PORT, SL_WFX_HOST_CFG_RESET_PIN);
   sdio_enabled = true;
-  // Check to see if the bus was already added
+  /* Check to see if the bus was already added*/
   if (SD_BusHandleGetFromName(SL_WIFI_CFG_SD_CONTROLLER_NAME) == SD_BusHandleNull) {
     (void)SD_BusAdd(SL_WIFI_CFG_SD_CONTROLLER_NAME, &err);
     if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
@@ -57,15 +57,13 @@ sl_status_t sl_wfx_host_init_bus(void)
 
   sdio_fnct_init(&err);
 
-  if (sd_bus_handle == SD_BusHandleNull) {
-    sd_bus_handle = SD_BusHandleGetFromName(SL_WIFI_CFG_SD_CONTROLLER_NAME);
+  sd_bus_handle = SD_BusHandleGetFromName(SL_WIFI_CFG_SD_CONTROLLER_NAME);
 
-    SD_BusStart(sd_bus_handle, &err);
+  SD_BusStart(sd_bus_handle, &err);
 
     if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
       return SL_STATUS_FAIL;
     }
-  }
 
   return SL_STATUS_OK;
 }
@@ -77,8 +75,8 @@ sl_status_t sl_wfx_host_init_bus(void)
  *
  * @return   sl_status_t    Error code of the operation as defined in sl_status.h.
  *******************************************************************************************************/
-sl_status_t sl_wfx_host_deinit_bus(void)
-{
+sl_status_t sl_wfx_host_deinit_bus (void) {
+
   RTOS_ERR err;
 
   if (sd_bus_handle != SD_BusHandleNull) {
@@ -92,8 +90,10 @@ sl_status_t sl_wfx_host_deinit_bus(void)
   return SL_STATUS_OK;
 }
 
-static sl_status_t sdio_io_write_direct(uint8_t function, uint32_t address, uint8_t* data)
-{
+static sl_status_t sdio_io_write_direct (uint8_t function,
+		                                 uint32_t address,
+										 uint8_t* data) {
+
   RTOS_ERR    err;
   sl_status_t result;
 
@@ -110,8 +110,9 @@ static sl_status_t sdio_io_write_direct(uint8_t function, uint32_t address, uint
   return result;
 }
 
-static sl_status_t sdio_io_read_direct(uint8_t function, uint32_t address, uint8_t* data)
-{
+static sl_status_t sdio_io_read_direct (uint8_t function,
+		                                uint32_t address,
+										uint8_t* data) {
   RTOS_ERR    err;
   sl_status_t result;
 
@@ -126,8 +127,10 @@ static sl_status_t sdio_io_read_direct(uint8_t function, uint32_t address, uint8
   return result;
 }
 
-static sl_status_t sdio_io_write_extended(uint8_t function, uint32_t address, uint8_t* data, uint32_t data_length)
-{
+static sl_status_t sdio_io_write_extended (uint8_t function,
+		                                   uint32_t address,
+										   uint8_t* data,
+										   uint32_t data_length) {
   RTOS_ERR    err;
   sl_status_t result;
   uint32_t    block_count;
@@ -156,8 +159,10 @@ static sl_status_t sdio_io_write_extended(uint8_t function, uint32_t address, ui
   return result;
 }
 
-static sl_status_t sdio_io_read_extended(uint8_t function, uint32_t address, uint8_t* data, uint32_t data_length)
-{
+static sl_status_t sdio_io_read_extended (uint8_t function,
+		                                  uint32_t address,
+										  uint8_t* data,
+										  uint32_t data_length) {
   RTOS_ERR    err;
   sl_status_t result;
   uint32_t    block_count;
@@ -186,9 +191,13 @@ static sl_status_t sdio_io_read_extended(uint8_t function, uint32_t address, uin
 
   return result;
 }
-
-sl_status_t sl_wfx_host_sdio_transfer_cmd52(sl_wfx_host_bus_transfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer)
-{
+/**************************************************************************//**
+ * Send command 52 on the SDIO bus
+ *****************************************************************************/
+sl_status_t sl_wfx_host_sdio_transfer_cmd52 (sl_wfx_host_bus_transfer_type_t type,
+		                                     uint8_t function,
+											 uint32_t address,
+											 uint8_t* buffer) {
   sl_status_t status;
 
   if (type == SL_WFX_BUS_WRITE) {
@@ -199,9 +208,14 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd52(sl_wfx_host_bus_transfer_type_t type
 
   return status;
 }
-
-sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_transfer_type_t type, uint8_t function, uint32_t address, uint8_t* buffer, uint16_t buffer_length)
-{
+/**************************************************************************//**
+ * @brief Send command 53 on the SDIO bus
+ *****************************************************************************/
+sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_transfer_type_t type,
+		                                    uint8_t function,
+											uint32_t address,
+											uint8_t* buffer,
+											uint16_t buffer_length) {
   sl_status_t status;
 
   if (type == SL_WFX_BUS_WRITE) {
@@ -212,21 +226,25 @@ sl_status_t sl_wfx_host_sdio_transfer_cmd53(sl_wfx_host_bus_transfer_type_t type
 
   return status;
 }
+/**************************************************************************//**
+ * @brief Enable the SDIO high-speed mode
+ *****************************************************************************/
+sl_status_t sl_wfx_host_sdio_enable_high_speed_mode (void) {
 
-sl_status_t sl_wfx_host_sdio_enable_high_speed_mode(void)
-{
   sl_status_t result;
   uint8_t     value_u8;
 
   result = sdio_io_read_direct(0, 0x13, &value_u8);
-  value_u8 |= 0x2;   // Set EHS to 1
+  value_u8 |= 0x2;   /* Set EHS to 1*/
   result = sdio_io_write_direct(0, 0x13, &value_u8);
-  SDIO->HOSTCTRL1 |= SDIO_HOSTCTRL1_HSEN;   // Enable HS mode at the host
+  SDIO->HOSTCTRL1 |= SDIO_HOSTCTRL1_HSEN;   /* Enable HS mode at the host*/
   return result;
 }
+/**************************************************************************//**
+ * SDIO interrupt request callback
+ *****************************************************************************/
+static void sdio_irq_callback (void* arg) {
 
-static void sdio_irq_callback(void* arg)
-{
   RTOS_ERR err;
   OSFlagPost(&bus_events, SL_WFX_BUS_EVENT_FLAG_RX, OS_OPT_POST_FLAG_SET, &err);
 }
@@ -238,8 +256,8 @@ static void sdio_irq_callback(void* arg)
  *
  * @return   sl_status_t    Error code of the operation as defined in sl_status.h.
  *******************************************************************************************************/
-sl_status_t sl_wfx_host_enable_platform_interrupt(void)
-{
+sl_status_t sl_wfx_host_enable_platform_interrupt (void) {
+
   RTOS_ERR err;
   sdio_fnct_int_reg((void*)sdio_irq_callback);
 
@@ -260,8 +278,8 @@ sl_status_t sl_wfx_host_enable_platform_interrupt(void)
  *
  * @return   sl_status_t    Error code of the operation as defined in sl_status.h.
  *******************************************************************************************************/
-sl_status_t sl_wfx_host_disable_platform_interrupt(void)
-{
+sl_status_t sl_wfx_host_disable_platform_interrupt (void) {
+
   RTOS_ERR err;
   SDIO->IEN &= ~(SDIO_IFCR_CARDINT);
   SDIO->IFENC &= ~(SDIO_IFENC_CARDINTEN);

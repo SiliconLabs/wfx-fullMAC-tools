@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2018, Silicon Laboratories Inc.
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,14 @@
  * limitations under the License.
  *****************************************************************************/
 
-/* Includes */
 #include "cmsis_os.h"
 #include "stm32f4xx_hal.h"
 #include "string.h" 
-
 #include "lwip_common.h"
-/* LwIP includes. */
 #include "ethernetif.h"
 #include "lwip/netif.h"
 #include "lwip/tcpip.h"
 #include "lwip/netifapi.h"
-
 #include "sl_wfx.h"
 #include "sl_wfx_host.h"
 #include "sl_wfx_host_pin.h"
@@ -35,7 +31,6 @@
 #include "dhcp_client.h"
 
 extern sl_wfx_rx_stats_t rx_stats;
-extern sl_wfx_context_t wifi;
 extern scan_result_list_t scan_list[];
 extern uint8_t scan_count_web; 
 char event_log[50];
@@ -76,8 +71,8 @@ uint8_t ap_gw_addr1 = AP_GW_ADDR1_DEFAULT;
 uint8_t ap_gw_addr2 = AP_GW_ADDR2_DEFAULT;
 uint8_t ap_gw_addr3 = AP_GW_ADDR3_DEFAULT;
 
-static void StartThread(void const * argument);
-static int Netif_Config(void);
+static void lwip_start_task_entry(void const * argument);
+static int netif_config(void);
 
 /***************************************************************************//**
  * @brief
@@ -89,8 +84,7 @@ static int Netif_Config(void);
  * @return
  *    none
  ******************************************************************************/
-static void StartThread(void const * argument)
-{
+static void lwip_start_task_entry (void const * argument) {
   int res;
   
   /* Create tcp_ip stack thread */
@@ -100,7 +94,7 @@ static void StartThread(void const * argument)
   dhcpclient_start();
   
   /* Initialize the LwIP stack */
-  res = Netif_Config();
+  res = netif_config();
   if (res == 0) {  
     /* Register all application parameters to make them available in get/set commands */
     res = lwip_param_register();
@@ -115,7 +109,7 @@ static void StartThread(void const * argument)
     }
     
     /* Register Wi-Fi commands in the shell */
-    res = sl_wfx_cli_wifi_init(&wifi);
+    res = sl_wfx_cli_wifi_init(&wifi_context);
     if (res != 0) {
       printf("WiFi CLI init error (%d)\r\n", res);
     }
@@ -127,7 +121,7 @@ static void StartThread(void const * argument)
     }
     
     /* Register the RF Test Agent commands in the shell */
-    res = sl_wfx_cli_rf_test_agent_init(&wifi, &rx_stats);
+    res = sl_wfx_cli_rf_test_agent_init(&wifi_context, &rx_stats);
     if (res != 0) {
       printf("RF Test Agent CLI init error (%d)\r\n", res);
     }
@@ -141,8 +135,7 @@ static void StartThread(void const * argument)
 #endif
   }
   
-  for( ;; )
-  {
+  while(1) {
     /* Delete the Init Thread */ 
     osThreadTerminate(NULL);
   }
@@ -158,8 +151,7 @@ static void StartThread(void const * argument)
  * @return
  *    none
  ******************************************************************************/
-void lwip_set_sta_link_up (void)
-{
+void lwip_set_sta_link_up (void) {
   netifapi_netif_set_up(&sta_netif);
   netifapi_netif_set_link_up(&sta_netif);
   if (use_dhcp_client) {
@@ -177,8 +169,7 @@ void lwip_set_sta_link_up (void)
  * @return
  *    none
 ******************************************************************************/
-void lwip_set_sta_link_down (void)
-{
+void lwip_set_sta_link_down (void) {
   if (use_dhcp_client) {
     dhcpclient_set_link_state(0);
   }
@@ -196,8 +187,7 @@ void lwip_set_sta_link_down (void)
  * @return
  *    none
  ******************************************************************************/
-void lwip_set_ap_link_up (void)
-{
+void lwip_set_ap_link_up (void) {
   netifapi_netif_set_up(&ap_netif);
   netifapi_netif_set_link_up(&ap_netif);
   if (use_dhcp_server) {
@@ -215,8 +205,7 @@ void lwip_set_ap_link_up (void)
  * @return
  *    none
  ******************************************************************************/
-void lwip_set_ap_link_down (void)
-{
+void lwip_set_ap_link_down (void) {
   if (use_dhcp_server) {
     dhcpserver_stop();
   }
@@ -234,8 +223,7 @@ void lwip_set_ap_link_down (void)
  * @return
 *    0: initialization success, -1: an error occurred
  ******************************************************************************/
-static int Netif_Config(void)
-{
+static int netif_config(void) {
   sl_status_t status;
   ip_addr_t sta_ipaddr, ap_ipaddr;
   ip_addr_t sta_netmask, ap_netmask;
@@ -243,14 +231,11 @@ static int Netif_Config(void)
   int res = -1;
   
   /* Initialize the Station information */
-  if (use_dhcp_client)
-  {
+  if (use_dhcp_client) {
     ip_addr_set_zero_ip4(&sta_ipaddr);
     ip_addr_set_zero_ip4(&sta_netmask);
     ip_addr_set_zero_ip4(&sta_gw);
-  }
-  else
-  {
+  } else {
     IP_ADDR4(&sta_ipaddr,sta_ip_addr0,sta_ip_addr1,sta_ip_addr2,sta_ip_addr3);
     IP_ADDR4(&sta_netmask,sta_netmask_addr0,sta_netmask_addr1,sta_netmask_addr2,sta_netmask_addr3);
     IP_ADDR4(&sta_gw,sta_gw_addr0,sta_gw_addr1,sta_gw_addr2,sta_gw_addr3);
@@ -262,10 +247,10 @@ static int Netif_Config(void)
   IP_ADDR4(&ap_gw,ap_gw_addr0,ap_gw_addr1,ap_gw_addr2,ap_gw_addr3);
   
   /* Initialize the WF200 used by the two interfaces */
-  status = sl_wfx_init(&wifi);
-  switch(status) {
+  status = sl_wfx_init(&wifi_context);
+  switch (status) {
   case SL_STATUS_OK:
-    wifi.state = SL_WFX_STARTED;
+    wifi_context.state = SL_WFX_STARTED;
     res = 0;
     break;
   case SL_STATUS_WIFI_INVALID_KEY:
@@ -306,8 +291,7 @@ static int Netif_Config(void)
  * @return
  *    none
  ******************************************************************************/
-void lwip_start (void)
-{
-  osThreadDef(Start, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
-  osThreadCreate (osThread(Start), NULL);
+void lwip_start (void) {
+  osThreadDef(lwip_start, lwip_start_task_entry, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
+  osThreadCreate(osThread(lwip_start), NULL);
 }

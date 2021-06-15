@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2018, Silicon Laboratories Inc.
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,33 +22,30 @@
 
 #define SL_WFX_EVENTS_NB_MAX                 10u
 
-osThreadId wifi_events_task_handle;
-QueueHandle_t wifi_events_queue;
-
-extern sl_wfx_context_t wifi;
-extern osSemaphoreId scan_sem;
+QueueHandle_t wifi_event_queue;
 osSemaphoreId sae_exch_sem;
-/*
- * The task that implements Wi-Fi events handling.
- */
-static void wifi_events_task(void const * pvParameters);
 
-void wifi_events_start(void)
-{
+static void wifi_events_task_entry(void const * pvParameters);
+
+/**************************************************************************//**
+ * Start the Wi-Fi event handling task
+ *****************************************************************************/
+void wifi_events_start (void) {
   sae_exch_sem = xSemaphoreCreateBinary();
-  osThreadDef(wifi_events, wifi_events_task, osPriorityBelowNormal, 0, 1024);
-  wifi_events_task_handle = osThreadCreate(osThread(wifi_events), NULL);
-  wifi_events_queue = xQueueCreate(SL_WFX_EVENTS_NB_MAX, sizeof(void *));
+  osThreadDef(eventsTask, wifi_events_task_entry, osPriorityBelowNormal, 0, 1024);
+  osThreadCreate(osThread(eventsTask), NULL);
+  wifi_event_queue = xQueueCreate(SL_WFX_EVENTS_NB_MAX, sizeof(void *));
 }
 
-static void wifi_events_task(void const * pvParameters)
-{
+/**************************************************************************//**
+ * Wi-Fi event handling task entry point
+ *****************************************************************************/
+static void wifi_events_task_entry (void const * pvParameters) {
   sl_wfx_generic_message_t *msg;
   BaseType_t ret;
   
-  for(;;)
-  {
-    ret = xQueueReceive(wifi_events_queue, (void *)&msg, portMAX_DELAY);
+  while(1) {
+    ret = xQueueReceive(wifi_event_queue, (void *)&msg, portMAX_DELAY);
      
     if ((ret == pdTRUE) && (msg != NULL)) {
       switch (msg->header.id) {
@@ -57,8 +54,8 @@ static void wifi_events_task(void const * pvParameters)
           lwip_set_sta_link_up();
 
 #ifdef SLEEP_ENABLED
-          if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
-            // Enable the power save
+          if (!(wifi_context.state & SL_WFX_AP_INTERFACE_UP)) {
+            /* Enable the power save */
             sl_wfx_set_power_mode(WFM_PM_MODE_PS, WFM_PM_POLL_FAST_PS,1);
             sl_wfx_enable_device_power_save();
           }
@@ -75,7 +72,7 @@ static void wifi_events_task(void const * pvParameters)
           lwip_set_ap_link_up();
 
 #ifdef SLEEP_ENABLED
-          // Power save always disabled when SoftAP mode enabled
+          /* Power save always disabled when SoftAP mode enabled */
           sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, WFM_PM_POLL_FAST_PS, 0);
           sl_wfx_disable_device_power_save();
 #endif
@@ -86,8 +83,8 @@ static void wifi_events_task(void const * pvParameters)
           lwip_set_ap_link_down();
 
 #ifdef SLEEP_ENABLED
-          if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
-            // Enable the power save
+          if (wifi_context.state & SL_WFX_STA_INTERFACE_CONNECTED) {
+            /* Enable the power save */
             sl_wfx_set_power_mode(WFM_PM_MODE_PS, WFM_PM_POLL_FAST_PS,1);
             sl_wfx_enable_device_power_save();
           }
@@ -96,7 +93,7 @@ static void wifi_events_task(void const * pvParameters)
         }
         case SL_WFX_SCAN_COMPLETE_IND_ID:
         {
-          xSemaphoreGive(scan_sem);
+          xSemaphoreGive(wifi_scan_sem);
           break;
         }
         case SL_WFX_EXT_AUTH_IND_ID:

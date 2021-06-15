@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
- 
-/* Standard includes. */
+
 #include <stdio.h>
 #include "string.h"
-
 #include "cmsis_os.h"
 #include "stm32f4xx_hal.h"
 #include "sl_wfx.h"
@@ -31,9 +29,6 @@ extern UART_HandleTypeDef huart3;
 extern scan_result_list_t scan_list[];
 extern uint8_t scan_count_web; 
 extern bool scan_verbose;
-extern SemaphoreHandle_t scan_sem;
-
-extern sl_wfx_context_t wifi;
 
 /* Dimensions the buffer into which input characters are placed. */
 #define WIFI_CLI_INPUT_BUF_SIZE	50
@@ -109,13 +104,13 @@ void wifi_cli_cfg_dialog(void)
           scan_count_web = 0;
           memset(scan_list, 0, sizeof(scan_result_list_t) * SL_WFX_MAX_SCAN_RESULTS);
           scan_verbose = false;
-          xSemaphoreTake(scan_sem, 0);
+          xSemaphoreTake(wifi_scan_sem, 0);
           
           // perform a scan on every Wi-Fi channel in active mode
           status = sl_wfx_send_scan_command(WFM_SCAN_MODE_ACTIVE, NULL,0,&ssid,1,NULL,0,NULL);
           if ((status == SL_STATUS_OK) || (status == SL_STATUS_WIFI_WARNING))
           {
-            xSemaphoreTake(scan_sem, 5000/portTICK_PERIOD_MS);
+            xSemaphoreTake(wifi_scan_sem, 5000/portTICK_PERIOD_MS);
             
             // Retrieve the AP information from the scan list, presuming that the
             // first matching SSID is the one (not necessarily true).
@@ -144,34 +139,33 @@ void wifi_cli_cfg_dialog(void)
       wifi_cli_get_input(portMAX_DELAY);
       wifi_cli_input_buf[2] = '\0';
       switch (atoi(wifi_cli_input_buf)) {
-        case 1:
-          wlan_security = WFM_SECURITY_MODE_OPEN;
-          break;
-        case 2:
-          wlan_security = WFM_SECURITY_MODE_WEP;
-          break;
-        case 3:
-          wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
-          break;
-        case 4:
-          wlan_security = WFM_SECURITY_MODE_WPA2_PSK;
-          break;
-        case 5:
-          wlan_security = WFM_SECURITY_MODE_WPA3_SAE;
-          if (sl_wfx_sae_prepare(&wifi.mac_addr_0,
-                                      (sl_wfx_mac_address_t *)wlan_bssid,
-                                      (uint8_t *)wlan_passkey,
-                                      strlen(wlan_passkey)) != SL_STATUS_OK) {
-            printf("SAE prepare failure\r\n");
-            return;
-          }          
-          break;
-        default:
-          printf("Unknwon value, default value applied\n");
-          break;
+      case 1:
+        wlan_security = WFM_SECURITY_MODE_OPEN;
+        break;
+      case 2:
+        wlan_security = WFM_SECURITY_MODE_WEP;
+        break;
+      case 3:
+        wlan_security = WFM_SECURITY_MODE_WPA2_WPA1_PSK;
+        break;
+      case 4:
+        wlan_security = WFM_SECURITY_MODE_WPA2_PSK;
+        break;
+      case 5:
+        wlan_security = WFM_SECURITY_MODE_WPA3_SAE;
+        if (sl_wfx_sae_prepare(&wifi_context.mac_addr_0,
+                               (sl_wfx_mac_address_t *)wlan_bssid,
+                               (uint8_t *)wlan_passkey,
+                               strlen(wlan_passkey)) != SL_STATUS_OK) {
+                                 printf("SAE prepare failure\r\n");
+                                 return;
+                               }          
+        break;
+      default:
+        printf("Unknwon value, default value applied\n");
+        break;
       }
       sl_wfx_send_join_command((uint8_t*) wlan_ssid, strlen(wlan_ssid), NULL, 0, wlan_security, 1, 0, (uint8_t*) wlan_passkey, strlen(wlan_passkey), NULL, 0);
-      lwip_set_sta_link_up();
     } else if (!strcmp(wifi_cli_input_buf, "2")) {
       printf("\nEnter the SSID of the SoftAP you want to create:\n");
       wifi_cli_get_input(portMAX_DELAY);
@@ -203,11 +197,9 @@ void wifi_cli_cfg_dialog(void)
           break;
       }
       sl_wfx_start_ap_command(softap_channel, (uint8_t*) softap_ssid, strlen(softap_ssid), 0, 0, softap_security, 0, (uint8_t*) softap_passkey, strlen(softap_passkey), NULL, 0, NULL, 0);
-      lwip_set_ap_link_up();
     }
   }else{
     sl_wfx_start_ap_command(softap_channel, (uint8_t*) softap_ssid, strlen(softap_ssid), 0, 0, softap_security, 0, (uint8_t*) softap_passkey, strlen(softap_passkey), NULL, 0, NULL, 0);
-    lwip_set_ap_link_up();
   }
 }
 
@@ -287,16 +279,12 @@ static void prvUARTInputTask(void const * pvParameters )
         memset( wifi_cli_input_buf, 0x00, WIFI_CLI_INPUT_BUF_SIZE );
 
       }else{
-        if( cRxedChar == '\n' )
-        {
+        if ( cRxedChar == '\n' ) {
           /* Ignore the character. */
-        }
-        else if( cRxedChar == '\b' )
-        {
+        }else if ( cRxedChar == '\b' ) {
           /* Backspace was pressed.  Erase the last character in the
           string - if any. */
-          if( cInputIndex > 0 )
-          {       
+          if ( cInputIndex > 0 ) {       
             uint8_t* backspace = "\b \b";
             strcat(string_output, ( char * ) backspace);
             cInputIndex--;
@@ -308,10 +296,8 @@ static void prvUARTInputTask(void const * pvParameters )
           /* A character was entered.  Add it to the string
           entered so far.  When a \r is entered the complete
           string will be passed to the command interpreter. */
-          if( ( cRxedChar >= ' ' ) && ( cRxedChar <= '~' ) )
-          {
-            if( cInputIndex < WIFI_CLI_INPUT_BUF_SIZE )
-            {
+          if (( cRxedChar >= ' ' ) && ( cRxedChar <= '~' )) {
+            if ( cInputIndex < WIFI_CLI_INPUT_BUF_SIZE ) {
               wifi_cli_input_buf[ cInputIndex ] = cRxedChar;
               cInputIndex++;
             }
@@ -319,10 +305,9 @@ static void prvUARTInputTask(void const * pvParameters )
         }
       }
       /*Send back the UART response, wait for the binary semaphore to be available*/
-      if(strlen( ( char * ) string_output ) != 0){
-        if( xSemaphoreTake( uart3Semaphore, portMAX_DELAY ) == pdTRUE )
-        {
-          HAL_UART_Transmit_IT(&huart3, (uint8_t *) string_output, strlen( ( char * ) string_output ) );
+      if (strlen( ( char * ) string_output ) != 0) {
+        if ( xSemaphoreTake(uart3Semaphore, portMAX_DELAY ) == pdTRUE) {
+          HAL_UART_Transmit_IT(&huart3, (uint8_t *) string_output, strlen((char *) string_output));
         }
       }
     }

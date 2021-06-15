@@ -98,7 +98,7 @@
 
 #define configSUPPORT_STATIC_ALLOCATION          0
 #define configSUPPORT_DYNAMIC_ALLOCATION         1
-#define configIDLE_SHOULD_YIELD			1
+#define configIDLE_SHOULD_YIELD			 1
 
 #define configUSE_PREEMPTION                     1
 #define configUSE_IDLE_HOOK                      0
@@ -108,15 +108,19 @@
 #define configMAX_PRIORITIES                     ( 7 )
 #define configMINIMAL_STACK_SIZE                 ((uint16_t)128)
 #if defined(__GNUC__)
- #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 25 * 1024 ) )
+ #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 35 * 1024 ) )
 #else
- #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 20 * 1024 ) )
+ #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 30 * 1024 ) )
 #endif
 #define configMAX_TASK_NAME_LEN                  ( 16 )
 #define configUSE_16_BIT_TICKS                   0
 #define configUSE_MUTEXES                        1
 #define configQUEUE_REGISTRY_SIZE                8
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION  1
+#define configUSE_TIMERS                         1
+#define configTIMER_TASK_PRIORITY                6
+#define configTIMER_QUEUE_LENGTH                 1
+#define configTIMER_TASK_STACK_DEPTH             128
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                    0
@@ -132,6 +136,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelayUntil             0
 #define INCLUDE_vTaskDelay                  1
 #define INCLUDE_xTaskGetSchedulerState      1
+#define INCLUDE_xTimerPendFunctionCall      1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
@@ -168,12 +173,6 @@ header file. */
 standard names. */
 #define vPortSVCHandler    SVC_Handler
 #define xPortPendSVHandler PendSV_Handler
-
-/* Dimensions a buffer that can be used by the FreeRTOS+CLI command
-interpreter.  Set this value to 1 to save RAM if FreeRTOS+CLI does not supply
-the output butter.  See the FreeRTOS+CLI documentation for more information:
-http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_CLI/ */
-#define configCOMMAND_INT_MAX_OUTPUT_SIZE			4096
 
 /* IMPORTANT: This define MUST be commented when used with STM32Cube firmware, 
               to prevent overwriting SysTick_Handler defined within STM32Cube HAL */

@@ -3,7 +3,7 @@
  * @brief WFX FMAC driver event processing task
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,28 +40,26 @@
 #include "sl_wfx_sae.h"
 #include "sl_wfx.h"
 
-// Event Task Configurations
+/* Event Task Configurations*/
 #define WFX_EVENTS_TASK_PRIO              21u
 #define WFX_EVENTS_TASK_STK_SIZE        1024u
-
 #define WFX_EVENTS_NB_MAX                 10u
 
-
 extern OS_SEM scan_sem;
-
-/// wfx event task stack
+/* wifi event task stack*/
 static CPU_STK wfx_events_task_stk[WFX_EVENTS_TASK_STK_SIZE];
-/// wfx event task TCB
+/* wifi event task TCB*/
 static OS_TCB wfx_events_task_tcb;
 
-/// WiFi event queue
+
+/* WiFi event queue*/
 OS_Q wifi_events;
 
 /***************************************************************************//**
  * WFX events processing task.
  ******************************************************************************/
-static void wfx_events_task(void *p_arg)
-{
+static void wfx_events_task (void *p_arg) {
+
   RTOS_ERR err;
   OS_MSG_SIZE msg_size;
   sl_wfx_generic_message_t *msg;
@@ -83,8 +81,8 @@ static void wfx_events_task(void *p_arg)
           lwip_set_sta_link_up();
 
 #ifdef SLEEP_ENABLED
-          if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
-            // Enable the power save
+          if (!(wifi_context.state & SL_WFX_AP_INTERFACE_UP)) {
+            /* Enable the power save*/
             sl_wfx_set_power_mode(WFM_PM_MODE_PS, WFM_PM_POLL_FAST_PS ,1);
             sl_wfx_enable_device_power_save();
           }
@@ -101,7 +99,7 @@ static void wfx_events_task(void *p_arg)
           lwip_set_ap_link_up();
 
 #ifdef SLEEP_ENABLED
-          // Power save always disabled when SoftAP mode enabled
+          /* Power save always disabled when SoftAP mode enabled*/
           sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, WFM_PM_POLL_FAST_PS ,0);
           sl_wfx_disable_device_power_save();
 #endif
@@ -112,8 +110,8 @@ static void wfx_events_task(void *p_arg)
           lwip_set_ap_link_down();
 
 #ifdef SLEEP_ENABLED
-          if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
-            // Enable the power save
+          if (wifi_context.state & SL_WFX_STA_INTERFACE_CONNECTED) {
+            /* Enable the power save*/
             sl_wfx_set_power_mode(WFM_PM_MODE_PS, WFM_PM_POLL_FAST_PS ,1);
             sl_wfx_enable_device_power_save();
           }
@@ -140,12 +138,11 @@ static void wfx_events_task(void *p_arg)
 /***************************************************************************//**
  * Creates WFX events processing task.
  ******************************************************************************/
-void wfx_events_start()
-{
+void wfx_events_start () {
   RTOS_ERR err;
 
   OSQCreate(&wifi_events, "wifi events", WFX_EVENTS_NB_MAX, &err);
-  // Check error code.
+  /* Check error code.*/
   APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
   OSTaskCreate(&wfx_events_task_tcb,
@@ -161,6 +158,6 @@ void wfx_events_start()
                DEF_NULL,
                (OS_OPT_TASK_STK_CLR),
                &err);
-  // Check error code.
+  /* Check error code.*/
   APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }

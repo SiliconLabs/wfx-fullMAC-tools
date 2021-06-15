@@ -193,13 +193,11 @@ a lot of data that needs to be copied, this should be set high. */
 */
 
 #define TCPIP_THREAD_NAME              "TCP/IP"
-#define TCPIP_THREAD_STACKSIZE          1000*2
+#define TCPIP_THREAD_STACKSIZE          1000
 #define TCPIP_MBOX_SIZE                 10
 #define DEFAULT_UDP_RECVMBOX_SIZE       10
 #define DEFAULT_TCP_RECVMBOX_SIZE       10
 #define DEFAULT_ACCEPTMBOX_SIZE         10
 #define DEFAULT_THREAD_STACKSIZE        500
-#define TCPIP_THREAD_PRIO               osPriorityHigh
-//#define LWIP_NETCONN_SEM_PER_THREAD    1
-//#define LWIP_NETCONN_FULLDUPLEX        1
+#define TCPIP_THREAD_PRIO               osPriorityAboveNormal
 #endif /* __LWIPOPTS_H__ */

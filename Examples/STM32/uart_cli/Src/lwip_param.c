@@ -16,6 +16,7 @@
 
 #include "app_version.h"
 #include "lwip_common.h"
+#include "sl_wfx_host.h"
 #include "sl_wfx_cli_common.h"
 #include "dhcp_client.h"
 #include "dhcp_server.h"
@@ -23,8 +24,6 @@
 #include "lwip/ip_addr.h"
 #include "lwip/dhcp.h"
 #include "lwip/netif.h"
-
-extern sl_wfx_context_t wifi;
 
 #ifdef SL_WFX_USE_SECURE_LINK
 extern uint8_t secure_link_mac_key[SL_WFX_SECURE_LINK_MAC_KEY_LENGTH];
@@ -240,7 +239,7 @@ static int set_dhcp_client_state (char *param_name,
 
   // To limit undefined behaviors and ease the development
   // only accept a DHCP state change while the WLAN interface is down.
-  if ((wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) == 0) {
+  if ((wifi_context.state & SL_WFX_STA_INTERFACE_CONNECTED) == 0) {
     // Update the DHCP client indicator
     use_dhcp_client = !!atoi(new_value);
 
@@ -291,7 +290,7 @@ static int set_dhcp_server_state (char *param_name,
   (void)param_addr;
 
   // No known issues but limit this update for consistency with the DHCP client.
-  if ((wifi.state & SL_WFX_AP_INTERFACE_UP) == 0) {
+  if ((wifi_context.state & SL_WFX_AP_INTERFACE_UP) == 0) {
     use_dhcp_server = !!atoi(new_value);
 
     if ((use_dhcp_server == 0)
@@ -409,7 +408,7 @@ static int set_mac_addr (char *param_name,
     // Success, 6 numbers have been extracted
 
     // Check which interface it is
-    if ((uint8_t *)param_addr == &wifi.mac_addr_0.octet[0]) {
+    if ((uint8_t *)param_addr == &wifi_context.mac_addr_0.octet[0]) {
       interface = SL_WFX_STA_INTERFACE;
       netif_init = sta_ethernetif_init;
       netif = &sta_netif;
@@ -458,20 +457,20 @@ static int get_wifi_state (char *param_name,
   (void)param_name;
   (void)param_addr;
 
-  if ((wifi.state & SL_WFX_STARTED) == SL_WFX_STARTED) {
+  if ((wifi_context.state & SL_WFX_STARTED) == SL_WFX_STARTED) {
     snprintf(output_buf,
              output_buf_len,
              "WiFi chip started:\r\n\tSTA: %sconnected\r\n\tAP:  %sstarted\r\n\tPS:  %sactive",
-             wifi.state & SL_WFX_STA_INTERFACE_CONNECTED ? "" : "not ",
-             wifi.state & SL_WFX_AP_INTERFACE_UP ? "" : "not ",
-             wifi.state & SL_WFX_POWER_SAVE_ACTIVE ? "" : "in");
+             wifi_context.state & SL_WFX_STA_INTERFACE_CONNECTED ? "" : "not ",
+             wifi_context.state & SL_WFX_AP_INTERFACE_UP ? "" : "not ",
+             wifi_context.state & SL_WFX_POWER_SAVE_ACTIVE ? "" : "in");
 
-    if ((wifi.state & SL_WFX_POWER_SAVE_ACTIVE) == SL_WFX_POWER_SAVE_ACTIVE) {
+    if ((wifi_context.state & SL_WFX_POWER_SAVE_ACTIVE) == SL_WFX_POWER_SAVE_ACTIVE) {
       snprintf(output_buf,
                output_buf_len,
                "%s(%s)\r\n",
                output_buf,
-               wifi.state & SL_WFX_SLEEPING ? "sleeping" : "awake");
+               wifi_context.state & SL_WFX_SLEEPING ? "sleeping" : "awake");
     } else if ((strlen(output_buf) + 2) <= output_buf_len) {
       strcat(output_buf, "\r\n");
     }
@@ -524,7 +523,7 @@ static int get_firmware_version (char *param_name,
   snprintf(output_buf,
            output_buf_len,
            "%u.%u.%u\r\n",
-           wifi.firmware_major, wifi.firmware_minor, wifi.firmware_build);
+           wifi_context.firmware_major, wifi_context.firmware_minor, wifi_context.firmware_build);
 
   return 0;
 }
@@ -606,8 +605,8 @@ int lwip_param_register (void)
                                    NULL);
 
   ret |= sl_wfx_cli_param_register("wifi_state",
-                                   (void *)&wifi.state,
-                                   sizeof(wifi.state),
+                                   (void *)&wifi_context.state,
+                                   sizeof(wifi_context.state),
                                    SL_WFX_CLI_PARAM_GET_RIGHT,
                                    SL_WFX_CLI_PARAM_TYPE_CUSTOM,
                                    "WiFi chip state",
@@ -687,8 +686,8 @@ int lwip_param_register (void)
                                    NULL);
 
   ret |= sl_wfx_cli_param_register("wlan.mac",
-                                   (void *)&wifi.mac_addr_0.octet,
-                                   sizeof(wifi.mac_addr_0.octet),
+                                   (void *)&wifi_context.mac_addr_0.octet,
+                                   sizeof(wifi_context.mac_addr_0.octet),
                                    SL_WFX_CLI_PARAM_GET_RIGHT | SL_WFX_CLI_PARAM_SET_RIGHT,
                                    SL_WFX_CLI_PARAM_TYPE_CUSTOM,
                                    "WLAN mac address (EUI-48 format)",
@@ -768,8 +767,8 @@ int lwip_param_register (void)
                                    NULL);
 
   ret |= sl_wfx_cli_param_register("softap.mac",
-                                   (void *)&wifi.mac_addr_1.octet,
-                                   sizeof(wifi.mac_addr_1.octet),
+                                   (void *)&wifi_context.mac_addr_1.octet,
+                                   sizeof(wifi_context.mac_addr_1.octet),
                                    SL_WFX_CLI_PARAM_GET_RIGHT | SL_WFX_CLI_PARAM_SET_RIGHT,
                                    SL_WFX_CLI_PARAM_TYPE_CUSTOM,
                                    "SoftAP mac address (EUI-48 format)",

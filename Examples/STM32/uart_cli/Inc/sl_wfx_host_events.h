@@ -38,8 +38,6 @@
 
 typedef void (*sl_wfx_host_events_callback_t)(uint32_t event_flag);
 
-extern QueueHandle_t wifi_events_queue;
-
 #ifdef __cplusplus
 extern "C" {
 #endif

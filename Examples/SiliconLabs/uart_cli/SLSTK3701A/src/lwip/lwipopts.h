@@ -130,6 +130,6 @@
 #define DEFAULT_TCP_RECVMBOX_SIZE       10
 #define DEFAULT_ACCEPTMBOX_SIZE         10
 #define DEFAULT_THREAD_STACKSIZE        500
-#define TCPIP_THREAD_PRIO               20u
+#define TCPIP_THREAD_PRIO               16u
 
 #endif /* __LWIPOPTS_H__ */

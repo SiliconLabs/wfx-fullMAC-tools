@@ -1,5 +1,5 @@
 /**************************************************************************//**
- * Copyright 2019, Silicon Laboratories Inc.
+ * Copyright 2021, Silicon Laboratories Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ extern "C" {
  * Prepare the SAE exchange.
  * This function must be called before sending a WPA3-SAE join request.
  *****************************************************************************/
-sl_status_t sl_wfx_sae_prepare(const sl_wfx_mac_address_t *sta_addr,
-                               const sl_wfx_mac_address_t *ap_addr,
-                               const uint8_t              *passkey,
-                               uint16_t                    passkey_length);
+sl_status_t sl_wfx_sae_prepare (const sl_wfx_mac_address_t *sta_addr,
+                                const sl_wfx_mac_address_t *ap_addr,
+                                const uint8_t              *passkey,
+                                uint16_t                    passkey_length);
 
 /**************************************************************************//**
  * Realize the SAE exchange step by step.

@@ -50,6 +50,7 @@
 									<listOptionValue builtIn="false" value="MICRIUMOS=1"/>
 									<listOptionValue builtIn="false" value="SL_WFX_CLI_PARAM_NB_MAX_PARAMS=30"/>
 									<listOptionValue builtIn="false" value="SL_WFX_CLI_GEN_INPUT_BUF_SIZE=256"/>
+									<listOptionValue builtIn="false" value="UART_CLI=1"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.265957821" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cfg}&quot;"/>

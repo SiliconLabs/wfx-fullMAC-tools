@@ -465,8 +465,6 @@
       <file>$PROJ_DIR$\sdio\Obj\queue.__cstat.et</file>
       <file>$PROJ_DIR$\sdio\Obj\stm32f4xx_hal_flash.__cstat.et</file>
       <file>$PROJ_DIR$\sdio\Obj\timeouts.__cstat.et</file>
-      <file>$PROJ_DIR$\sdio\Obj\timers.__cstat.et</file>
-      <file>$PROJ_DIR$\sdio\Obj\queue.__cstat.et</file>
       <file>$PROJ_DIR$\sdio\Obj\list.__cstat.et</file>
       <file>$PROJ_DIR$\sdio\Obj\port.__cstat.et</file>
       <file>$PROJ_DIR$\sdio\Obj\stm32f4xx_hal_gpio.__cstat.et</file>
@@ -1010,7 +1008,7 @@
           <name>ICCARM</name>
           <file> 314 386 910 151 318 325 136 125 145 132 138 131 439 406 425 424 140 322 488 444 450 426 330 278 382 281 275 306 376 366 332 355 316 319 435 380 497 379 280 127 143 142 130 139 124 152 428 409 396 434 375 123 329 440 422 448 315 335 324 371 147 327 381 420 122 374 419 445 389 337 312 126 297 144 369 361 141 320 388</file>
         </tool>
-      </outputs>
+      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\Src\sl_wfx_host\sl_wfx_host_events.c</name>
@@ -1228,11 +1226,6 @@
           <name>BICOMP</name>
           <file> 55</file>
         </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Src\ecp_curves.c</name>
-      <outputs>
         <tool>
           <name>ICCARM</name>
           <file> 70</file>
@@ -1284,10 +1277,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 113</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 913</file>
         </tool>
@@ -1301,10 +1290,6 @@
         </tool>
       </outputs>
       <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 254 385 840 208 250 245 238 209 236 230 213 227 435 418 434 430 228 255 596 438 449 419 258 355 377 353 354 267 369 361 262 282 268 270 433 365 588 382 357 220 214 221 226 239 212 608</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 312 434 396 327 141 131 145 138 409 122 144 151 318 371 420 445 297 361 130 152 315 374 389 428 406 324 335 375 123 422 325 132 488 381 329 448 136 125 440 139 147 419 126 369 320 388</file>
@@ -1613,7 +1598,7 @@
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Config\MbedTLS\hardware_rng.c</name>
+      <name>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_cortex.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
@@ -1841,7 +1826,7 @@
         </tool>
         <tool>
           <name>__cstat</name>
-          <file> 402</file>
+          <file> 498</file>
         </tool>
       </outputs>
       <inputs>
@@ -2758,7 +2743,7 @@
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\etharp.c</name>
+      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\timeouts.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
@@ -3207,28 +3192,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 246 446 360 260 395 396 220 208 250 245 238 209 236 230 213 226 239 840 227 380 384 828 257 590 386 833 448 440 378</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 208 250 360 260 220 209 386 395 840 384 236 238 213 227 257 448 446 246 226 380 828 396 245 230 239 590 833 378 440</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\sys.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 163</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 331 125 423 310 309 433 115 131 430 383 336 418 481 127 151 318 106 393 97 443 508 143 446 130 368 138 136 139 328 449 105 98 378 432 399 918 370 400 910 385 915 405 145 325 132 120 427 317 480 936 377 387 499 421 436 391 404 100 142</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 310 446 370 331 400 405 127 151 318 325 136 125 145 132 138 130 139 910 131 368 385 915 328 480 387 936 449 430 377 97 105 120 443 383 423 499 309 481 427 399 393 336 378 432 391 404 421 433 418 317 508 436 106 100 98 115 918 143 142</file>
@@ -3307,28 +3273,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 246 446 360 260 395 396 220 208 250 245 238 209 236 230 213 226 239 840 227 380 384 828 257 590 386 833 448 440 378 249 439 381 444 389 415 248 77 67 383 426 591 592 422 397 394 424 445 412 240 587 428 85 84 81 82 830 214 221</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 238 246 208 248 446 213 250 239 378 394 249 260 587 381 214 226 227 380 590 415 591 426 412 81 397 220 209 444 439 84 383 77 360 830 395 840 384 828 396 236 245 230 833 386 389 592 422 240 85 82 257 448 440 67 424 428 445 221</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\tcp_in.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 177</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 418 331 310 317 309 430 404 423 443 417 127 151 318 499 383 393 481 113 110 446 130 125 131 328 449 432 436 427 142 336 384 429 483 365 143 370 400 368 138 136 139 391 392 399 421 438 433 910 385 915 405 145 325 132 480 936 377 387 378 508 442 326</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 310 446 370 331 400 405 127 151 318 325 136 125 145 132 138 130 139 910 131 368 385 915 328 480 387 936 449 430 377 336 443 378 432 391 404 384 383 423 393 481 309 427 399 499 421 433 418 317 508 436 392 429 113 483 417 438 326 442 365 110 143 142</file>
@@ -3336,21 +3283,12 @@
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\tcp_out.c</name>
+      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\system\OS\sys_arch.c</name>
       <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 153</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 91</file>
         </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\timeouts.c</name>
-      <outputs>
         <tool>
           <name>ICCARM</name>
           <file> 197</file>
@@ -3362,32 +3300,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 246 446 360 260 395 396 220 208 250 245 238 209 236 230 213 226 239 840 227 380 384 828 257 590 386 833 448 440 378 376 426 358 364 254 385 435 418 434 430 228 255 596 438 449 419 258 355 377 353 81 77 67 439 383 591 249 592 422 397 394 248 381 444 389 415 424 445 412 240 587 428 85 84 82 75 388 583 414 429 247 437 436 373 390 69 74 585 830 66 71 65</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 449 208 426 227 355 246 592 358 220 250 258 394 436 386 376 429 390 381 830 209 213 833 353 255 587 260 415 422 240 81 583 74 71 446 226 380 238 239 590 378 434 438 419 439 383 249 397 444 412 75 414 69 585 66 65 360 395 840 384 828 396 236 245 230 257 448 440 364 254 385 377 435 430 418 228 596 591 67 85 389 445 388 77 82 424 428 248 84 437 247 373</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\udp.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 119</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 310 151 314 136 377 336 127 318 139 480 322 391 299 130 131 368 138 331 330 309 443 400 910 385 915 405 145 125 936 387 370 373 386 382 425 444 426 378 432 404 325 132 328 449 430 446 423 450 278 281 439 424 406 140 488</file>
         </tool>
-        <tool>
-          <name>__cstat</name>
-          <file> 217</file>
-        </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 370 331 400 405 127 151 318 325 136 125 145 132 138 130 139 910 131 368 385 915 328 480 387 936 449 430 377 310 446 309 299 423 373 314 386 439 406 425 424 140 322 488 444 450 426 330 278 382 281 443 336 378 432 391 404</file>
@@ -3398,18 +3313,9 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\igmp.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 167</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 9</file>
         </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\system\OS\sys_arch.c</name>
-      <outputs>
         <tool>
           <name>ICCARM</name>
           <file> 209</file>
@@ -3421,15 +3327,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 360 260 395 396 220 208 250 245 238 209 236 230 213 226 239 840 227 380 384 828 257 590 386 833 448 440 378 246 446 249 358 426 364 254 385 435 418 434 430 228 255 596 438 449 419 258 355 377 353 439 248 381 444 389 415</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 151 318 370 331 127 125 387 400 910 385 145 136 138 131 328 449 446 310 130 368 915 405 325 132 139 480 936 377 430</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 310 446 370 331 400 405 127 151 318 325 136 125 145 132 138 130 139 910 131 368 385 915 328 480 387 936 449 430 377</file>
@@ -5906,7 +5806,6 @@
       <file>$PROJ_DIR$\sdio_power_save\Obj\netdb.pbi</file>
       <file>$PROJ_DIR$\sdio_power_save\Obj\pbuf.o</file>
       <file>$PROJ_DIR$\sdio_power_save\Obj\inet_chksum.pbi</file>
-      <file>$PROJ_DIR$\sdio_power_save\Obj\stm32f4xx_hal_tim_ex.o</file>
       <file>$PROJ_DIR$\sdio_power_save\Obj\stm32f4xx_hal_pwr.o</file>
       <file>$PROJ_DIR$\sdio_power_save\Obj\stm32f4xx_hal_rcc_ex.o</file>
       <file>$PROJ_DIR$\sdio_power_save\Obj\dhcp.o</file>
@@ -8439,10 +8338,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\pbuf.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 639</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 644</file>
         </tool>
@@ -8469,10 +8364,6 @@
     <file>
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\tcp_in.c</name>
       <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 613</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 764</file>
@@ -8501,10 +8392,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\etharp.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 627</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 669</file>
         </tool>
@@ -8531,10 +8418,6 @@
     <file>
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\ip4.c</name>
       <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 666</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 761</file>
@@ -8563,10 +8446,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\dhcp.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 661</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 712</file>
         </tool>
@@ -8593,10 +8472,6 @@
     <file>
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\system\OS\sys_arch.c</name>
       <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 669</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 663</file>
@@ -8625,10 +8500,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\igmp.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 629</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 662</file>
         </tool>
@@ -8655,10 +8526,6 @@
     <file>
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\sys.c</name>
       <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 644</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 652</file>
@@ -8687,10 +8554,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\MbedTLS\library\bignum.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 749</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 904</file>
         </tool>
@@ -8718,10 +8581,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\MbedTLS\library\debug.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 755</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 918</file>
         </tool>
@@ -8736,28 +8595,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 56 176 104 70 139 140 30 25 60 55 48 26 46 40 28 36 49 544 37 124 128 537 67 186 130 542 177 170 122 117 127 156 138 188 59 152 141 58 169 125 174 133 145 187 154 175 142 50 183 158 134 11 23 22 553 549 180 166 29 31</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 138 60 50 141 30 25 542 59 70 125 58 26 28 145 56 127 117 188 23 166 176 36 37 124 48 49 130 187 169 174 152 142 11 183 553 180 29 104 139 544 128 537 140 46 55 40 186 122 134 133 22 549 67 177 170 156 154 158 175 31</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\netif\ethernet.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 744</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 71 54 51 333 330 453 167 36 35 98 48 42 41 339 102 385 381 384 172 319 311 128 78 37 99 335 331 323 307 33 125 153 75 343 387 74 46 39 31 365 346 373 317 100 129 177 154 142 43 183 155 275 45</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 102 98 333 128 51 71 78 39 31 48 37 387 35 41 42 33 99 311 381 323 453 36 319 365 373 384 385 339 100 129 167 142 154 153 43 75 183 172 125 54 177 155 317 307 346 343 275 335 330 331 46 45</file>
@@ -8767,10 +8607,6 @@
     <file>
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\MbedTLS\library\cipher_wrap.c</name>
       <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 672</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 906</file>
@@ -8785,10 +8621,6 @@
         </tool>
       </outputs>
       <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 104 70 139 140 30 25 60 55 48 26 46 40 28 36 49 544 37 124 128 537 67 186 130 542 177 170 122 56 176 59 102 156 108 64 129 165 148 164 160 38 65 193 168 178 149 68 99 121 97 169 58 125 174 133 145</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 310 304 78 325 308 387 453 36 99 41 51 302 327 324 315 128 37 102 71 98 333 48 307 35 39 31 33 42</file>
@@ -8847,8 +8679,6 @@
           <name>BICOMP</name>
           <file> 51 48 333 98 37 128 71 102 78 39 31</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 102 98 333 128 51 71 78 39 31 48 37</file>
@@ -8862,8 +8692,6 @@
           <name>BICOMP</name>
           <file> 919</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 777</file>
@@ -10114,12 +9942,12 @@
           <name>__cstat</name>
           <file> 574</file>
         </tool>
+      </outputs>
+      <inputs>
         <tool>
           <name>BICOMP</name>
           <file> 51 48 333 98 37 128 71 102 78 39 31</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 102 98 333 128 51 71 78 39 31 48 37</file>
@@ -10868,12 +10696,8 @@
       <file>$PROJ_DIR$\..\Inc\wifi_cli.h</file>
       <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
       <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
-      <file>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\include\deprecated_definitions.h</file>
-      <file>$PROJ_DIR$\..\Inc\sl_wfx_host_pin.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
       <file>$PROJ_DIR$\..\Inc\sl_wfx_host.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
-      <file>$PROJ_DIR$\..\..\..\shared\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio_ex.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Full.h</file>
       <file>$PROJ_DIR$\..\Inc\stm32f4xx_it.h</file>
       <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
@@ -13669,15 +13493,9 @@
       <name>$PROJ_DIR$\..\Src\main.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 446</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 984</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 955</file>
@@ -13701,10 +13519,6 @@
     <file>
       <name>$PROJ_DIR$\..\Src\stm32f4xx_hal_msp.c</name>
       <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 700</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 794</file>
@@ -14084,10 +13898,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\FreeRTOS\Source\list.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 495</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 206</file>
         </tool>
@@ -14101,10 +13911,6 @@
         </tool>
       </outputs>
       <inputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 56 176 104 70 139 140 30 25 60 55 48 26 46 40 28 36 49 429 37 124 128 422 67 186 130 427 177 170 122 117 127 156 138 188 59 152 141 58 169 125 174 133 145 187 154 175 142 50 183 158 134 11 23 22 438 434 180 166 29 31</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
           <file> 50 47 36 171 154 40 77 166 141 128 70 38 30 735 152 74 182 32 35 153 42</file>
@@ -16252,10 +16058,7 @@
           <file> 959</file>
         </tool>
       </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spi.c</name>
-      <outputs>
+      <inputs>
         <tool>
           <name>BICOMP</name>
           <file> 30 40 95 101 44 610 29 748 70 127 34 94 50 129 103 92 614 666 32 45 38 177 119 138 735 738 140 97 622 96 73 47 77 36 41 80 175 158 35 83 110 91</file>
@@ -16264,7 +16067,7 @@
           <name>ICCARM</name>
           <file> 96 32 50 70 77 38 30 47 36 40 735 34 41 45 44 738 80 177 129 748 175 158 119 29 92 103 83 138 140 35 110 127 95 91 94 614 101 97 622 610 666</file>
         </tool>
-      </outputs>
+      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\MbedTLS\library\sha512.c</name>
@@ -16324,18 +16127,9 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\MbedTLS\library\ssl_srv.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 676</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 487</file>
         </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c</name>
-      <outputs>
         <tool>
           <name>ICCARM</name>
           <file> 857</file>
@@ -16617,18 +16411,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 481</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 166 30 70 176 606 50 628 101 47 98 40 45 38 735 32 128 152 612 669 97 622 127 77 36 662 35 99 124 153 141 42 182 154 44 34 74 171 53 41</file>
         </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\def.c</name>
-      <outputs>
         <tool>
           <name>ICCARM</name>
           <file> 101 97 622 127 50 70 77 38 30 47 36 606 735 40 662 35 628 32 99 128 166 141 153 152 42 74 182 171 124 53 176 154 612 45 44 669 34 41 98</file>
@@ -17031,18 +16816,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 674</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 735 669 101 659 70 674 660 50 98 40 654 672 662 38 35 97 622 127 30 34 77 47 36 666 32 41</file>
         </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\Middlewares\Third_Party\LwIP\src\core\dns.c</name>
-      <outputs>
         <tool>
           <name>ICCARM</name>
           <file> 101 97 622 127 50 70 77 38 30 47 36 674 666 735 40 654 35 659 672 660 662 669 34 41 32 98</file>
@@ -17765,7 +17541,6 @@
       <file>$PROJ_DIR$\spi_power_save\Obj\memory_buffer_alloc.__cstat.et</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\ripemd160.__cstat.et</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\stm32f4xx_hal_flash.pbi</file>
-      <file>$PROJ_DIR$\spi_power_save\Obj\stm32f4xx_hal_flash_ramfunc.pbi</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\system_stm32f4xx.pbi</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\api_msg.pbi</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\os.__cstat.et</file>
@@ -17956,7 +17731,6 @@
       <file>$PROJ_DIR$\spi_power_save\Obj\stm32f4xx_hal_dma.o</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\heap_4.o</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\sl_wfx_bus_sdio.o</file>
-      <file>$PROJ_DIR$\spi_power_save\Obj\stm32f4xx_hal_dma_ex.o</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\stm32f4xx_hal_msp.o</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\netifapi.o</file>
       <file>$PROJ_DIR$\spi_power_save\Obj\tasks.o</file>
@@ -20680,10 +20454,6 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\ipv4\dhcp.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 730</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 410</file>
         </tool>
@@ -20752,28 +20522,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 56 176 104 70 139 140 30 25 60 55 48 26 46 40 28 36 49 429 37 124 128 422 67 186 130 427 177 170 122 19 15 5 169 127 156 187 59 188 152 141 138 58 125 174 133 145 154 175 142 50 183 158 23 22 20 11 424 29 31</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 70 26 156 56 59 175 11 37 170 127 58 142 188 30 25 60 23 138 19 169 183 29 176 36 124 28 48 49 67 177 15 20 125 174 141 424 104 139 429 128 422 140 46 55 40 5 152 50 186 427 122 130 187 154 158 133 145 22 31</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\tcp_out.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 541</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 132 153 196 166 114 112 213 222 926 211 129 120 122 117 163 260 258 146 116 194 929 224 160 118 123 262 939 203 242</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 146 258 196 166 222 224 114 132 153 160 120 112 129 118 122 116 123 926 117 194 211 929 163 262 213 939 260 242 203</file>
@@ -20784,15 +20535,9 @@
       <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\core\sys.c</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 546</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 458</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 593</file>
@@ -20804,28 +20549,9 @@
       </outputs>
       <inputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 56 176 104 70 139 140 30 25 60 55 48 26 46 40 28 36 49 429 37 124 128 422 67 186 130 427 177 170 122 117 127 156 138 188 59 152 141 58 169 125 174 133 145 187 154 175 142 50 183 158 134 11 23 22 438 434 180 166 29 31</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 138 60 50 141 30 25 427 59 70 125 58 26 28 145 56 127 117 188 23 166 176 36 37 124 48 49 130 187 169 174 152 142 11 183 438 180 29 104 139 429 128 422 140 46 55 40 186 122 134 133 22 434 67 177 170 156 154 158 175 31</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\shared\Middlewares\Third_Party\LwIP\src\netif\ethernet.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 530</file>
-        </tool>
-        <tool>
           <name>BICOMP</name>
           <file> 208 166 160 211 116 153 118 132 122 117 163 260 114 236 124 135 165 196 222 926 929 224 129 242 212 225 267 140 258 146 194 120 112 123 235 251 261 262 939 203 213 199 149 137 237 157 256 238</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 146 258 196 166 222 224 114 132 153 160 120 112 129 118 122 116 123 926 117 194 211 929 163 262 213 939 260 242 203 140 235 199 149 212 251 225 237 236 124 157 267 256 261 238 165 135 208 137</file>
@@ -20839,8 +20565,6 @@
           <name>BICOMP</name>
           <file> 19</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>ICCARM</name>
           <file> 663</file>
@@ -22457,7 +22181,7 @@
         </tool>
         <tool>
           <name>__cstat</name>
-          <file> 512</file>
+          <file> 345</file>
         </tool>
       </outputs>
       <inputs>

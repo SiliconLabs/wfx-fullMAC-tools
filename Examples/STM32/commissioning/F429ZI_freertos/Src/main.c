@@ -59,7 +59,6 @@ int main(void)
   
   sl_wfx_task_start();
   wifi_events_start();
-  wifi_bus_comm_start();
   wifi_cli_start(); 
   lwip_start();
  

@@ -37,6 +37,7 @@ It contains applications using the FMAC driver on different platforms.
         * [*commissioning (Bare Metal)*](./Examples/SiliconLabs/commissioning/bare_metal/WGM160P/README.md): Commissioning example using LwIP, the combo mode, the SecureLink and running on Bare Metal (No OS).
         * [*secure_mqtt*](./Examples/SiliconLabs/secure_mqtt/README.md): MQTT over TLS example using Micrium OS, LwIP (MQTT, DHCP, DNS clients), MbedTLS, NVM3 and the SecureLink.
         * [*uart_cli*](./Examples/SiliconLabs/uart_cli/README.md): Example providing a UART command line interface to interact with the Wi-Fi FMAC driver and LwIP APIs.
+        *  [*ethernet_bridge*](./Examples/SiliconLabs/ethernet_bridge/README.md): Example allowing data streaming between **Ethernet** and **Softap** interfaces.
     * **EFR32MG12 (BRD4161A) + WF(M)200**
         * [*multiprotocol*](./Examples/SiliconLabs/multiprotocol/bare_metal/README.md): Example using the BLE and Wi-Fi interfaces on Bare Metal (No OS), this example is based on the commissioning example. 
     * **EFR32xG21 (BRD4180A) + WF(M)200**

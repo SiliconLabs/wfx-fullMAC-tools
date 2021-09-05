@@ -35,8 +35,8 @@
 #include <common/include/rtos_err.h>
 #include "sl_wfx_task.h"
 #include "sl_wfx_host.h"
-#define STATION_NETIF 'st'
-#define SOFTAP_NETIF  'ap'
+#define STATION_NETIF "st"
+#define SOFTAP_NETIF  "ap"
 
 /* wfx_fmac_driver context*/
 sl_wfx_context_t wifi_context;

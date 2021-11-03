@@ -63,8 +63,6 @@ static OS_MUTEX wfx_mutex;
 
 #define SL_WFX_EVENT_MAX_SIZE  512
 #define SL_WFX_EVENT_LIST_SIZE 1
-#define SL_WFX_MAX_STATIONS    8
-#define SL_WFX_MAX_SCAN_RESULTS 50
 
 scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];
 static uint8_t scan_count = 0;
@@ -243,7 +241,9 @@ sl_status_t sl_wfx_host_allocate_buffer(void **buffer,
   }
   *buffer = Mem_DynPoolBlkGet(&host_context.buf_pool, &err);
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+#ifdef DEBUG
     printf("Mem_DynPoolBlkGet error control buffer\r\n");
+#endif
   }
 
   return SL_STATUS_OK;

@@ -15,7 +15,7 @@
  *****************************************************************************/
 
 #include "cmsis_os.h"
-#include "lwip/dhcp.h"
+#include "lwip/netifapi.h"
 #include "dhcp_client.h"
 #include "demo_config.h"
 
@@ -69,7 +69,7 @@ void dhcpclient_start(void const * argument)
         ip_addr_set_zero_ip4(&netif->ip_addr);
         ip_addr_set_zero_ip4(&netif->netmask);
         ip_addr_set_zero_ip4(&netif->gw);       
-        dhcp_start(netif);
+        netifapi_dhcp_start(netif);
         dhcp_state = DHCP_WAIT_ADDRESS;
       }
       break;
@@ -95,7 +95,7 @@ void dhcpclient_start(void const * argument)
             dhcp_state = DHCP_TIMEOUT;
             
             /* Stop DHCP */
-            dhcp_stop(netif);
+            netifapi_dhcp_stop(netif);
             
             /* Static address used */
             IP_ADDR4(&ipaddr, sta_ip_addr0 , sta_ip_addr1 , sta_ip_addr2 , sta_ip_addr3 );
@@ -110,7 +110,7 @@ void dhcpclient_start(void const * argument)
   case DHCP_LINK_DOWN:
     {
       /* Stop DHCP */
-      dhcp_stop(netif);
+      netifapi_dhcp_stop(netif);
       dhcp_state = DHCP_OFF; 
     }
     break;

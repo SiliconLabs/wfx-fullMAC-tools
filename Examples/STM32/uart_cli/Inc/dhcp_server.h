@@ -19,7 +19,7 @@
 
 #include <string.h>
 #include <stdbool.h>
-#include "lwip/dhcp.h"
+#include "lwip/netifapi.h"
 #include "lwip/tcpip.h"
 #include "lwip/prot/dhcp.h"
 #include "lwip_common.h"

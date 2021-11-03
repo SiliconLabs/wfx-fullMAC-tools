@@ -18,7 +18,7 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include "lwip/dhcp.h"
+#include "lwip/netifapi.h"
 #include "lwip/tcpip.h"
 #include "lwip/prot/dhcp.h"
 #include "lwip/etharp.h"

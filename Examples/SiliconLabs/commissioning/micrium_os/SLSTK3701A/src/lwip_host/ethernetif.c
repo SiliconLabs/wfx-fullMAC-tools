@@ -106,6 +106,8 @@ static err_t low_level_output (struct netif *netif, struct pbuf *p) {
                                           p->tot_len + sizeof(sl_wfx_packet_queue_item_t));
 
   if ((result != SL_STATUS_OK) || (queue_item == NULL)) {
+	  /* Release TX queue mutex */
+	   OSMutexPost(&sl_wfx_tx_queue_mutex, OS_OPT_POST_NONE, &err);
     return ERR_MEM;
   }
 

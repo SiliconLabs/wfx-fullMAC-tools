@@ -18,7 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
-#include "lwip/dhcp.h"
+#include "lwip/netifapi.h"
 #include "demo_config.h"
 #include <kernel/include/os.h>
 #include <common/include/rtos_utils.h>
@@ -81,7 +81,7 @@ static void dhcp_client_task(void *arg)
         ip_addr_set_zero_ip4(&netif->ip_addr);
         ip_addr_set_zero_ip4(&netif->netmask);
         ip_addr_set_zero_ip4(&netif->gw);
-        dhcp_start(netif);
+        netifapi_dhcp_start(netif);
         dhcp_state = DHCP_WAIT_ADDRESS;
       }
       break;
@@ -103,7 +103,7 @@ static void dhcp_client_task(void *arg)
             dhcp_state = DHCP_TIMEOUT;
 
             // Stop DHCP
-            dhcp_stop(netif);
+            netifapi_dhcp_stop(netif);
 
             // Static address used
             IP_ADDR4(&ipaddr, sta_ip_addr0, sta_ip_addr1, sta_ip_addr2, sta_ip_addr3);
@@ -117,7 +117,7 @@ static void dhcp_client_task(void *arg)
       case DHCP_LINK_DOWN:
       {
         // Stop DHCP
-        dhcp_stop(netif);
+        netifapi_dhcp_stop(netif);
         dhcp_state = DHCP_OFF;
       }
       break;

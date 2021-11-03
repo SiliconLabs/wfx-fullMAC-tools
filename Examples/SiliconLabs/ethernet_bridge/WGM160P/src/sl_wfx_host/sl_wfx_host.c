@@ -65,8 +65,6 @@ OS_SEM wfx_wakeup_sem;
 static OS_MUTEX wfx_mutex;
 #define SL_WFX_EVENT_MAX_SIZE   512
 #define SL_WFX_EVENT_LIST_SIZE  1
-#define SL_WFX_MAX_STATIONS     8
-#define SL_WFX_MAX_SCAN_RESULTS 50
 
 OS_SEM             scan_sem;
 scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];

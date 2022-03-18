@@ -20,4 +20,14 @@
     <properties key="category" value="Example|Wi-Fi"/>
     <properties key="quality" value="Evaluation"/>
   </descriptors>
+  <descriptors name="ethernet_bridge" label="Platform - Ethernet bridge on Micrium OS kernel" description="This example demonstrates Network Bridge feature allows data streaming between Ethernet and Softap interfaces.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="projectFilePaths" value="ethernet_bridge/ethernet_bridge.slcp"/>
+    <properties key="boardCompatibility" value="brd2204a brd4161a brd4162a brd4163a brd4164a brd4321a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efm32gg11b.* .*efr32mg12p.* .*wgm160.*"/>
+    <properties key="ideCompatibility" value="iar-embedded-workbench makefile-ide segger-embedded-studio simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="quality" value="Evaluation"/>
+  </descriptors>
 </model:MDescriptors>

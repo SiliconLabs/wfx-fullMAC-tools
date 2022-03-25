@@ -290,6 +290,7 @@ sl_status_t sl_wfx_host_post_event (sl_wfx_generic_message_t *event_payload) {
     }
   case SL_WFX_GENERIC_IND_ID:
     {
+      sl_wfx_generic_status_callback((sl_wfx_generic_ind_t *) event_payload);
       break;
     }
   case SL_WFX_EXCEPTION_IND_ID:
@@ -630,6 +631,14 @@ void sl_wfx_ap_client_disconnected_callback (sl_wfx_ap_client_disconnected_ind_t
          ap_client_disconnected->body.mac[3],
          ap_client_disconnected->body.mac[4],
          ap_client_disconnected->body.mac[5]);
+}
+
+/**************************************************************************//**
+ * Callback for generic status received
+ *****************************************************************************/
+void sl_wfx_generic_status_callback(sl_wfx_generic_ind_t* frame)
+{
+  rx_stats = frame->body.indication_data.rx_stats;
 }
 
 /**************************************************************************//**

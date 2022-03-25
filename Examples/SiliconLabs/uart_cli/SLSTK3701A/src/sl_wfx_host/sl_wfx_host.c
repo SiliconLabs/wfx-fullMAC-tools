@@ -798,9 +798,9 @@ void sl_wfx_ext_auth_callback (sl_wfx_ext_auth_ind_t *ext_auth_indication) {
 /**************************************************************************//**
  * Callback for generic status received
  *****************************************************************************/
-void sl_wfx_generic_status_callback (sl_wfx_generic_ind_t *frame) {
-  (void)(frame);
-  printf("Generic status received\r\n");
+void sl_wfx_generic_status_callback(sl_wfx_generic_ind_t* frame)
+{
+  rx_stats = frame->body.indication_data.rx_stats;
 }
 
 /**************************************************************************//**

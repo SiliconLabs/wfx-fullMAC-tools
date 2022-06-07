@@ -77,6 +77,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Config</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Drivers</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -87,12 +92,22 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Application/MbedTLS</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Application/SL_WFX_Host</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>Application/User</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Config/MbedTLS</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -122,6 +137,21 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/MbedTLS</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/WPA_Supplicant-2.7</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Application/MbedTLS/ecp_curves.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/src/ecp_curves.c</locationURI>
+		</link>
+		<link>
 			<name>Application/SL_WFX_Host/sl_wfx_host.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/sl_wfx_host/sl_wfx_host.c</locationURI>
@@ -140,6 +170,11 @@
 			<name>Application/SL_WFX_Host/sl_wfx_host_spi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/sl_wfx_host/sl_wfx_host_spi.c</locationURI>
+		</link>
+		<link>
+			<name>Application/SL_WFX_Host/sl_wfx_sae.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/sl_wfx_host/sl_wfx_sae.c</locationURI>
 		</link>
 		<link>
 			<name>Application/SL_WFX_Host/sl_wfx_task.c</name>
@@ -200,6 +235,11 @@
 			<name>Application/User/wifi_cli.c</name>
 			<type>1</type>
 			<locationURI>PROJECT_FOLDER/Src/wifi_cli.c</locationURI>
+		</link>
+		<link>
+			<name>Config/MbedTLS/hardware_rng.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Config/MbedTLS/hardware_rng.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
@@ -302,6 +342,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rng.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_spi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/shared/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c</locationURI>
@@ -395,6 +440,46 @@
 			<name>Middlewares/LwIP/netif</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/MbedTLS/include</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/MbedTLS/include</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/MbedTLS/library</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/shared/Middlewares/Third_Party/MbedTLS/library</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/WPA_Supplicant-2.7/common.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Tools/wpa_supplicant-2.7/src/utils/common.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/WPA_Supplicant-2.7/crypto.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Tools/wpa_supplicant-2.7/ports/crypto.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/WPA_Supplicant-2.7/os.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Tools/wpa_supplicant-2.7/ports/os.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/WPA_Supplicant-2.7/sae.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Tools/wpa_supplicant-2.7/src/common/sae.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/WPA_Supplicant-2.7/sha256-prf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Tools/wpa_supplicant-2.7/src/crypto/sha256-prf.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/WPA_Supplicant-2.7/wpabuf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/Tools/wpa_supplicant-2.7/src/utils/wpabuf.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/api/api_lib.c</name>

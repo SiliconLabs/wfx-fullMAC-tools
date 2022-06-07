@@ -19,7 +19,7 @@
 							<option id="com.atollic.truestudio.toolchain_options.mcu.1098528748" name="Microcontroller" superClass="com.atollic.truestudio.toolchain_options.mcu" useByScannerDiscovery="false" value="STM32F429ZI" valueType="string"/>
 							<option id="com.atollic.truestudio.toolchain_options.vendor.363220961" name="Vendor name" superClass="com.atollic.truestudio.toolchain_options.vendor" useByScannerDiscovery="false" value="STMicroelectronics" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.atollic.truestudio.exe.debug.toolchain.platform.856273844" isAbstract="false" name="Debug platform" superClass="com.atollic.truestudio.exe.debug.toolchain.platform"/>
-							<builder buildPath="${workspace_loc:/WF200_driver_F429ZI_FreeRTOS}/Debug" customBuilderProperties="toolChainpathType=1|toolChainpathString=C:\\Program Files (x86)\\Atollic\\TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|" errorParsers="" id="com.atollic.truestudio.mbs.builder1.1188225681" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1">
+							<builder buildPath="${workspace_loc:/WF200_driver_F429ZI_FreeRTOS}/Debug" customBuilderProperties="toolChainpathType=1|toolChainpathString=C:\\Program Files (x86)\\Atollic\\/TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|" errorParsers="" id="com.atollic.truestudio.mbs.builder1.1188225681" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
 								</outputEntries>
@@ -51,6 +51,13 @@
 									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver"/>
 									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver/firmware"/>
 									<listOptionValue builtIn="false" value="../../../../../../PDS"/>
+									<listOptionValue builtIn="false" value="../../../../../../Tools/wpa_supplicant-2.7"/>
+									<listOptionValue builtIn="false" value="../../../../../../Tools/wpa_supplicant-2.7/ports"/>
+									<listOptionValue builtIn="false" value="../../../../../../Tools/wpa_supplicant-2.7/src"/>
+									<listOptionValue builtIn="false" value="../../../../../../Tools/wpa_supplicant-2.7/src/utils"/>
+									<listOptionValue builtIn="false" value="../../../../shared/config/MbedTLS"/>
+									<listOptionValue builtIn="false" value="../../../../shared/Middlewares/Third_Party/MbedTLS/configs"/>
+									<listOptionValue builtIn="false" value="../../../../shared/Middlewares/Third_Party/MbedTLS/include"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.991478806" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -61,6 +68,7 @@
 									<listOptionValue builtIn="false" value="SL_WFX_USE_SDIO"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_MODE_THRESHOLD=512"/>
 									<listOptionValue builtIn="false" value="SL_WFX_SDIO_BLOCK_SIZE=64"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&lt;config-freertos.h&gt;"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.endianess.1774598429" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess" useByScannerDiscovery="false" value="com.atollic.truestudio.common_options.target.endianess.little" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.972239553" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" useByScannerDiscovery="false" value="STM32F429ZI" valueType="enumerated"/>
@@ -120,18 +128,13 @@
 							<tool id="com.atollic.truestudio.ar.base.1164395347" name="Archiver" superClass="com.atollic.truestudio.ar.base"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.atollic.truestudio.exe.debug.1518366166.14922569.1000794566" name="sl_wfx_bus_sdio.c" rcbsApplicability="disable" resourcePath="Drivers/SL_WFX_Driver/sl_wfx_bus_sdio.c" toolsToInvoke="com.atollic.truestudio.exe.debug.toolchain.gcc.1672525457.755739790">
-						<tool id="com.atollic.truestudio.exe.debug.toolchain.gcc.1672525457.755739790" name="C Compiler" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.1672525457">
-							<inputType id="com.atollic.truestudio.gcc.input.1648584089" superClass="com.atollic.truestudio.gcc.input"/>
-						</tool>
-					</fileInfo>
 					<fileInfo id="com.atollic.truestudio.exe.debug.1518366166.14922569.nofile" name="" rcbsApplicability="disable" resourcePath="nofile" toolsToInvoke="com.atollic.truestudio.exe.debug.toolchain.gcc.1074836898">
 						<tool errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="com.atollic.truestudio.exe.debug.toolchain.gcc.1074836898" name="C Compiler" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.1672525457">
 							<inputType id="com.atollic.truestudio.gcc.input.331055703" superClass="com.atollic.truestudio.gcc.input"/>
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/SL_WFX_Driver/sl_wfx_bus_spi.c|Application/SL_WFX_Host/sl_wfx_host_spi.c|Application/WF200_Host/wf200_host_spi.c|Drivers/WF200_Driver/wf200_bus_spi.c|Middlewares/LwIP/core/ipv6" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Middlewares/MbedTLS/library/ecp_curves.c|Drivers/SL_WFX_Driver/sl_wfx_bus_spi.c|Application/SL_WFX_Host/sl_wfx_host_spi.c|Application/WF200_Host/wf200_host_spi.c|Drivers/WF200_Driver/wf200_bus_spi.c|Middlewares/LwIP/core/ipv6" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -157,7 +160,7 @@
 							<option id="com.atollic.truestudio.toolchain_options.mcu.431840242" name="Microcontroller" superClass="com.atollic.truestudio.toolchain_options.mcu" useByScannerDiscovery="false" value="STM32F429ZI" valueType="string"/>
 							<option id="com.atollic.truestudio.toolchain_options.vendor.81623349" name="Vendor name" superClass="com.atollic.truestudio.toolchain_options.vendor" useByScannerDiscovery="false" value="STMicroelectronics" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.atollic.truestudio.exe.debug.toolchain.platform.335575736" isAbstract="false" name="Debug platform" superClass="com.atollic.truestudio.exe.debug.toolchain.platform"/>
-							<builder buildPath="${workspace_loc:/WF200_driver_F429ZI_FreeRTOS}/Debug" customBuilderProperties="toolChainpathType=1|toolChainpathString=C:\\Program Files (x86)\\Atollic\\TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|" errorParsers="" id="com.atollic.truestudio.mbs.builder1.595000278" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1">
+							<builder buildPath="${workspace_loc:/WF200_driver_F429ZI_FreeRTOS}/Debug" customBuilderProperties="toolChainpathType=1|toolChainpathString=C:\\Program Files (x86)\\Atollic\\/TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|" errorParsers="" id="com.atollic.truestudio.mbs.builder1.595000278" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
 								</outputEntries>
@@ -189,6 +192,13 @@
 									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver"/>
 									<listOptionValue builtIn="false" value="../../../../../../wfx-fullMAC-driver/wfx_fmac_driver/firmware"/>
 									<listOptionValue builtIn="false" value="../../../../../../PDS"/>
+									<listOptionValue builtIn="false" value="../../../../../../Tools/wpa_supplicant-2.7"/>
+									<listOptionValue builtIn="false" value="../../../../../../Tools/wpa_supplicant-2.7/ports"/>
+									<listOptionValue builtIn="false" value="../../../../../../Tools/wpa_supplicant-2.7/src"/>
+									<listOptionValue builtIn="false" value="../../../../../../Tools/wpa_supplicant-2.7/src/utils"/>
+									<listOptionValue builtIn="false" value="../../../../shared/config/MbedTLS"/>
+									<listOptionValue builtIn="false" value="../../../../shared/Middlewares/Third_Party/MbedTLS/configs"/>
+									<listOptionValue builtIn="false" value="../../../../shared/Middlewares/Third_Party/MbedTLS/include"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.181912577" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
@@ -261,7 +271,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="Drivers/SL_WFX_Driver/sl_wfx_bus_sdio.c|Application/SL_WFX_Host/sl_wfx_host_sdio.c|Application/WF200_Host/wf200_host_spi.c|Drivers/WF200_Driver/wf200_bus_spi.c|Middlewares/LwIP/core/ipv6" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Middlewares/MbedTLS/library/ecp_curves.c|Drivers/SL_WFX_Driver/sl_wfx_bus_sdio.c|Application/SL_WFX_Host/sl_wfx_host_sdio.c|Application/WF200_Host/wf200_host_spi.c|Drivers/WF200_Driver/wf200_bus_spi.c|Middlewares/LwIP/core/ipv6" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

@@ -267,7 +267,7 @@ static void BSP_NetEther_CfgClk(NET_IF   *p_if,
   RTOS_ASSERT_CRITICAL(((CMU->STATUS & CMU_STATUS_HFXORDY) != 0), RTOS_ERR_INVALID_CFG,; );
 
 #if (BSP_ETH_PHY_MODE_CONFIG == NET_PHY_BUS_MODE_RMII)
-  //                                                               Send 50 MHz HFXO to PHY via PD10
+  //                                                               Send 50 MHz HFXO to PHY via PA3
   GPIO_PinModeSet(gpioPortA, 3, gpioModePushPull, 0);
   CMU->CTRL |= CMU_CTRL_CLKOUTSEL2_HFXO;
   CMU->ROUTELOC0 = CMU_ROUTELOC0_CLKOUT2LOC_LOC4;

@@ -17,7 +17,7 @@ This repository contains examples to use with [**Silicon Labs Wi-Fi FMAC driver*
 These example codes are meant to be evaluated with hosts connected to the [WF200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wf200-expansion-kit) or
 the [WFM200 Wi-Fi Expansion Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wfm200-expansion-kit).
 It can also be run on the [WGM160P Wi-Fi Module Starter Kit](https://www.silabs.com/products/development-tools/wireless/wi-fi/wgm160p-wifi-module-starter-kit).
-Unless otherwise specified in the directory, all examples are considered to be EXPERIMENTAL QUALITY which implies that the code provided in the repository has not been formally tested and is provided as-is. It is not suitable for production environments.
+Unless otherwise specified in the directory, all examples are of EXPERIMENTAL QUALITY which implies that the code provided in the repository has not been formally tested and is provided as-is. It is not suitable for production environments.
 
 # Get Started
 ## Add the examples to Simplicity Studio 5
@@ -25,9 +25,9 @@ Unless otherwise specified in the directory, all examples are considered to be E
 
 2. On Simplicity Studio 5, go to **Window -> Preferences -> Simplicity Studio -> External Repos**.
 
-3. Click **[Add]** and enter on **URL** the following link `https://github.com/SiliconLabs/wfx-fullMAC-tools.git` .
+3. Click **[Add]**. In the **URI** field, copy & paste the following link `https://github.com/SiliconLabs/wfx-fullMAC-tools.git`
 
-4. Click **[Next]** then **[finish]** and **[Apply and Close]** .
+4. Click **[Next]** then **[Finish]** and **[Apply and Close]** .
 
 5. Restart Simplicity Studio 5.
 
@@ -49,8 +49,11 @@ Unless otherwise specified in the directory, all examples are considered to be E
 
 This repository contains applications using the FMAC driver.
 
-  * [*wifi_cli*](./wifi_cli_micriumos/README.md): An application providing a UART command line interface to interact with the Wi-Fi FMAC driver, LwIP APIs and NVM3 APIs.
+  * [*wifi_cli*](./wifi_cli_micriumos/README.md): An application providing a UART command line interface to interact with the Wi-Fi FMAC driver, LwIP stack and NVM3 APIs.
 
   * [*secured_mqtt*](./secured_mqtt/README.md): An application providing a UART command line interface to establish MQTT over TLS connection using Micrium OS, LwIP (MQTT, DHCP, DNS clients), Mbed TLS and NVM3.
-  * [*ethernet_bridge*](./ethernet_bridge/README.md): An application providing a network Bridge feature that allows data streaming between Ethernet and Softap interfaces.
+
+  * [*ethernet_bridge*](./ethernet_bridge/README.md): An application providing a network Bridge feature that allows data streaming between Ethernet and Softap interfaces by using the Micrium OS Network & wfx-fullMAC-driver's APIs.
+
+  * [*multiprotocol_micriumos*](./multiprotocol_micriumos/README.md): An application providing a real-time Micrium OS-based example, which can use multiple protocols (Wi-Fi + BLE) simultaneously to toggle LEDs on the development board via a Webpage (over Wi-Fi) and EFR Connect BLE Mobile App (over BLE). The application demonstrates the combination of wfx-fullMAC-driver, lwIP and Bluetooth stack APIs.
     

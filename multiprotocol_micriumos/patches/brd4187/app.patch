@@ -1,0 +1,93 @@
+diff --git a/multiprotocol_micriumos/multiprotocol_micriumos.slcp b/multiprotocol_micriumos/multiprotocol_micriumos.slcp
+index 1a79407..2edc74c 100644
+--- a/multiprotocol_micriumos/multiprotocol_micriumos.slcp
++++ b/multiprotocol_micriumos/multiprotocol_micriumos.slcp
+@@ -21,6 +21,8 @@ component:
+   - id: mpu    
+   - id: simple_led
+     instance: [led0, led1]
++  - id: iostream_eusart
++    instance: [vcom]
+   - id: dmadrv
+   - id: sleeptimer
+   - id: simple_timer_micriumos
+@@ -38,6 +40,7 @@ component:
+   - id: lwip_api
+   - id: lwip_netif_ethernet
+   - id: lwip_app_http
++  - id: lwip_app_lwiperf
+ 
+ provides:
+   - name: device_init_dcdc
+@@ -50,44 +53,19 @@ requires:
+   - name: rail_util_pti
+     unless: [brd4180a]
+   - name: app_log    
+-    unless: 
+-      - brd4187a
+-      - brd4187b
+-      - brd4187c
++    unless:       
+       - brd4180a
+   - name: app_assert
+     unless:
+-      - brd4187a
+-      - brd4187b
+-      - brd4187c
+-      - brd4180a
+-  - name: iostream_recommended_stream
+-    unless: 
+-      - brd4187a
+-      - brd4187b
+-      - brd4187c
++      - brd4180a  
+   - name: iostream_stdlib_config
+-    unless: 
+-      - brd4187a
+-      - brd4187b
+-      - brd4187c
++    unless:       
+       - brd4180a
+-  - name: iostream_retarget_stdio
+-    unless: 
+-      - brd4187a
+-      - brd4187b
+-      - brd4187c
+   - name: demo_ui
+-    unless: 
+-      - brd4187a
+-      - brd4187b
+-      - brd4187c
++    unless:       
+       - brd4180a
+   - name: dmd_memlcd
+-    unless: 
+-      - brd4187a
+-      - brd4187b
+-      - brd4187c
++    unless:       
+       - brd4180a  
+ source:
+   - path: main.c
+@@ -153,11 +131,11 @@ config_file:
+       component: gatt_configuration
+       file_id: gatt_configuration_file_id
+     path: bluetooth/gatt_configuration.btconf
+-    directory: btconf
++    directory: btconf  
+ 
+ other_file:
+   - path: bluetooth/create_bl_files.bat
+-  - path: bluetooth/create_bl_files.sh  
++  - path: bluetooth/create_bl_files.sh
+ 
+ configuration:
+   - name: SL_STACK_SIZE
+@@ -201,6 +179,7 @@ configuration:
+     condition: [dmd_memlcd]
+ define:
+   - name: DEBUG_EFM
++  - name: IPERF_SERVER
+ tag:
+   - hardware:rf:band:2400
+   - hardware:component:led:2+

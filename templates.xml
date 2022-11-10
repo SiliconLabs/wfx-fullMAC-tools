@@ -3,7 +3,8 @@
   <descriptors name="wifi_cli_micriumos" label="Platform - Wi-Fi CLI on Micrium OS kernel" description="This example project provides a Command Line Interface (CLI) to interact with the Wi-Fi FMAC driver and the LwIP APIs.">
     <properties key="namespace" value="template.uc"/>
     <properties key="projectFilePaths" value="wifi_cli_micriumos/wifi_cli_micriumos.slcp"/>
-    <properties key="boardCompatibility" value="brd2204a brd4161a brd4162a brd4163a brd4164a brd4321a com.silabs.board.none"/>
+    <properties key="readmeFiles" value="wifi_cli_micriumos/README.md"/>
+    <properties key="boardCompatibility" value="brd2204a brd2204c brd4161a brd4162a brd4163a brd4164a brd4321a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efm32gg11b.* .*efr32mg12p.* .*wgm160.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -13,7 +14,8 @@
   <descriptors name="secured_mqtt" label="Platform - Wi-Fi Secured MQTT on Micrium OS kernel" description="This example project demonstrates how to run a secured MQTT application with the Wi-Fi FMAC driver, the LwIP functionalities and the MbedTLS library.">
     <properties key="namespace" value="template.uc"/>
     <properties key="projectFilePaths" value="secured_mqtt/secured_mqtt.slcp"/>
-    <properties key="boardCompatibility" value="brd2204a brd4161a brd4162a brd4163a brd4164a brd4321a com.silabs.board.none"/>
+    <properties key="readmeFiles" value="secured_mqtt/README.md"/>
+    <properties key="boardCompatibility" value="brd2204a brd2204c brd4161a brd4162a brd4163a brd4164a brd4321a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efm32gg11b.* .*efr32mg12p.* .*wgm160.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide"/>
     <properties key="toolchainCompatibility" value="gcc"/>
@@ -23,8 +25,23 @@
   <descriptors name="ethernet_bridge" label="Platform - Ethernet bridge on Micrium OS kernel" description="This example demonstrates Network Bridge feature allows data streaming between Ethernet and Softap interfaces.">
     <properties key="namespace" value="template.uc"/>
     <properties key="projectFilePaths" value="ethernet_bridge/ethernet_bridge.slcp"/>
+    <properties key="readmeFiles" value="ethernet_bridge/README.md"/>
     <properties key="boardCompatibility" value="brd2204a brd4161a brd4162a brd4163a brd4164a brd4321a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efm32gg11b.* .*efr32mg12p.* .*wgm160.*"/>
+    <properties key="ideCompatibility" value="iar-embedded-workbench makefile-ide segger-embedded-studio simplicity-ide"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Example|Wi-Fi"/>
+    <properties key="quality" value="Evaluation"/>
+  </descriptors>
+  <descriptors name="multiprotocol_micriumos" label="Platform - Multiprotocol (Wi-Fi + BLE) on Micrium OS kernel" description="This example provides a MicriumOS-based example using multiple protocols (Wi-Fi + BLE) to do something as simple as toggling LEDs.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="projectFilePaths" value="multiprotocol_micriumos/multiprotocol_micriumos.slcp"/>
+    <properties key="readmeFiles" value="multiprotocol_micriumos/README.md"/>
+    <properties key="boardCompatibility" value="brd4161a brd4162a 
+                                                brd4163a brd4164a brd4321a 
+                                                brd4187a brd4187b brd4187c 
+                                                brd4180a brd4180b com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efm32gg11b.* .*efr32mg12p.* .*wgm160.* .*efr32mg24.* .*efr32mg21.*"/>
     <properties key="ideCompatibility" value="iar-embedded-workbench makefile-ide segger-embedded-studio simplicity-ide"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
     <properties key="category" value="Example|Wi-Fi"/>

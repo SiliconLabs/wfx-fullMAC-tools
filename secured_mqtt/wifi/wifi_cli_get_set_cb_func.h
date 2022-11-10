@@ -30,7 +30,9 @@
 #include "lwip/netif.h"
 #include "wifi_cli_params.h"
 #include "app_wifi_events.h"
+#ifdef SL_CATALOG_WFX_SECURE_LINK_PRESENT
 #include "sl_wfx_secure_link.h"
+#endif
 
 extern sl_wfx_context_t   wifi;
 

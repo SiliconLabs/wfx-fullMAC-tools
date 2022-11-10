@@ -5,13 +5,11 @@ description: >
 
 category: Example|Platform
 package: platform
-quality: sample
+quality: evaluation
 component:
   - id: micriumos_bsp
-  - id: brd4321a_a06
   - id: iostream_retarget_stdio
   - id: micriumos_common_lib
-  - id: WGM160PX22KGA2
   - id: iostream_recommended_stream  
   - id: device_init_hfrco
   - id: device_init_hfxo  
@@ -25,7 +23,8 @@ component:
   - id: micriumos_net  
   - id: wfx_fmac_driver
   - id: sleeptimer
-  - id: micriumos_common_auth  
+  - id: micriumos_common_auth
+  - id: wfx_secure_link
 source:
   - path: app.c
   - path: main.c
@@ -48,7 +47,6 @@ include:
       folder: core_init
 define:
   - name: DEBUG_EFM
-  - name: WGM160PX22KGA2
 configuration:
   - name: SL_BOARD_ENABLE_VCOM
     value: '1'

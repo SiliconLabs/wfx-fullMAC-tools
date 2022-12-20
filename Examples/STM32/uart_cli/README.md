@@ -51,9 +51,25 @@ After the STM32 is successfully flashed, you can jump to the **Start the Example
 Alternatively, use an IDE to compile and flash the project into the NUCLEO board.
 
 1. Open the project with the **EWARM** IDE.
-2. Select the bus configuration (**SPI or SDIO**). Make sure it matches the switch position on the WF(M)200 expansion board.
+2. Select the bus configuration (**SPI or SDIO**). Make sure it matches the switch position on the WF(M)200 expansion board. If you are using IAR Embedded Workbench version 9.2 or later, please refer to [**Redirect the printf from the IAR default Terminal I/O to the UART**](#redirect-the-printf-from-the-iar-default-terminal-io-to-the-uart).
 3. Build the project.
 4. Flash the project to the NUCLEO-F429ZI board.
+
+	### **Redirect the printf from the IAR default Terminal I/O to the UART**
+
+	-  If you are using IAR Embedded Workbench version 9.2 or later, the output messages may not display on a serial terminal like **Tera Term** or **Putty** but display on the **Terminal I/O window** of the IAR Embedded Workbench by default when you run the project through the **debug mode**. Read more [**here**](https://www.iar.com/knowledge/support/technical-notes/compiler/migrating-projects-with-the-custom-fputc-function/). 
+	- To open the Terminal I/O window when you are in debug mode, on the menu bar, go to **View -> Terminal I/O**.
+	- If you want to **redirect printf from the default Terminal I/O to UART** to display the output messages on a serial terminal like **Tera Term** or **Putty**, you need to override the **default function __write** of IAR Embedded Workbench.
+	- One way to do that is using our customized **printf.c file**. You can find the source code in the [***Examples\STM32\shared\Middlewares\Third_Party\printf***](../../STM32/shared/Middlewares/Third_Party/printf/) directory. Once you have the source code, you only need to add the file into your project. Refer to the following link for more [**details**](https://www.iar.com/knowledge/learn/programming/overriding-and-redirecting-library-modules-without-rebuilding-the-entire-library/)
+
+	<p align="center">
+	<img src="resources/01-IAR-addFile.png" width="80%" title="IAR-addFile" alt="IAR-addFile"/>
+	</p>
+
+	- If the **printf.c file** is added to your project successfully as shown in the image below, you can redo step 3 and 4.
+	<p align="center">
+	<img src="resources/02-printfFile-inProject.png" width="80%" title="printfFile-inproject" alt="printfFile-inproject"/>
+	</p>
 
 After the STM32 is successfully flashed, jump to the **Start the Example** section.
 

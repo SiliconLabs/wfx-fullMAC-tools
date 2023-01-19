@@ -42,73 +42,97 @@ component:
 provides:
   - name: device_init_dcdc
     condition: [brd4180a]
+  - name: device_init_dcdc
+    condition: [brd4181a]
 
 requires:
   - name: simple_button
-    unless: [brd4180a]
     instance: [btn0, btn1]
+    condition:
+      - brd4161a
+  - name: simple_button
+    instance: [btn0, btn1]
+    condition:
+      - brd4162a
+  - name: simple_button
+    instance: [btn0, btn1]
+    condition:
+      - brd4187b
   - name: rail_util_pti
-    unless: [brd4180a]
-  - name: app_log    
-    unless: 
-      - brd4187a
+    condition:
+      - brd4161a
+  - name: rail_util_pti
+    condition:
+      - brd4162a
+  - name: rail_util_pti
+    condition:
       - brd4187b
-      - brd4187c
-      - brd4180a
-  - name: app_assert
-    unless:
-      - brd4187a
-      - brd4187b
-      - brd4187c
+  - name: iostream_recommended_stream
+    condition:
+      - brd4161a
+  - name: iostream_recommended_stream
+    condition:
+      - brd4162a
+  - name: iostream_recommended_stream
+    condition:
       - brd4180a
   - name: iostream_recommended_stream
-    unless: 
-      - brd4187a
-      - brd4187b
-      - brd4187c
-  - name: iostream_stdlib_config
-    unless: 
-      - brd4187a
-      - brd4187b
-      - brd4187c
+    condition:
+      - brd4181a
+  - name: iostream_retarget_stdio
+    condition:
+      - brd4161a
+  - name: iostream_retarget_stdio
+    condition:
+      - brd4162a
+  - name: iostream_retarget_stdio
+    condition:
       - brd4180a
   - name: iostream_retarget_stdio
-    unless: 
-      - brd4187a
-      - brd4187b
-      - brd4187c
+    condition:
+      - brd4181a
+  - name: app_log
+    condition:
+      - brd4161a
+  - name: app_log
+    condition:
+      - brd4162a
+  - name: app_assert
+    condition:
+      - brd4161a
+  - name: app_assert
+    condition:
+      - brd4162a
+  - name: iostream_stdlib_config
+    condition:
+      - brd4161a
+  - name: iostream_stdlib_config
+    condition:
+      - brd4162a
   - name: demo_ui
-    unless: 
-      - brd4187a
-      - brd4187b
-      - brd4187c
-      - brd4180a
+    condition:
+      - brd4161a
+  - name: demo_ui
+    condition:
+      - brd4162a
   - name: dmd_memlcd
-    unless: 
-      - brd4187a
-      - brd4187b
-      - brd4187c
-      - brd4180a  
+    condition:
+      - brd4161a
+  - name: dmd_memlcd
+    condition:
+      - brd4162a
 source:
   - path: main.c
   - path: app.c
   - path: interface.c
   - path: bluetooth/app_bluetooth.c
-    folder: bluetooth
   - path: wifi/app_wifi_events.c
-    folder: wifi
   - path: wifi/app_webpage.c
-    folder: wifi
   - path: wifi/app_wifi.c
-    folder: wifi  
   - path: lwip_host/ethernetif.c
-    folder: lwip_host
   - path: lwip_host/apps/dhcp_client.c
-    folder: lwip_host/apps
   - path: lwip_host/apps/dhcp_server.c
-    folder: lwip_host/apps
   - path: LCD/mp-ui.c
-    folder: LCD
     unless: [brd4180a]
 include:
   - path: .
@@ -126,27 +150,19 @@ include:
   - path: wifi
     file_list:
       - path: app_wifi_events.h
-        folder: wifi
       - path: app_webpage.h
-        folder: wifi
       - path: app_wifi.h
-        folder: wifi
   - path: lwip_host
     file_list:
       - path: ethernetif.h
-        folder: lwip_host
       - path: lwipopts.h
-        folder: lwip_host
   - path: lwip_host/apps
     file_list:
       - path: dhcp_client.h
-        folder: lwip_host/apps
       - path: dhcp_server.h
-        folder: lwip_host/apps
   - path: lwip_host/webpage
     file_list:
       - path: httpfsdata.h
-        folder: lwip_host/webpage
 
 config_file:
   - override:

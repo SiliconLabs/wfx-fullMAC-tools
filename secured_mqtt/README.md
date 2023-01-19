@@ -402,6 +402,8 @@ After successfully testing the configuration of Cloud IoT brokers, it's ready fo
 
 ## Local Mosquitto Broker
 
+> Please see [**Known issue**](#known-issues) section
+
 As mentioned in the **TLS Security** section, certificates and keys examples are provided in this repository to ease the first steps of starting this example in a local environment,
 meaning running a MQTT broker on your PC. This section describes how to start a local MQTT broker.
 
@@ -409,17 +411,17 @@ meaning running a MQTT broker on your PC. This section describes how to start a 
 
 ### Configuration Adaptation
 
-A configuration file example (*.\security_files\mosquitto_tls_examples.conf.sample*) is provided in the repository, the following operations are still required to adapt the configuration to your installation:
+A configuration file example (*./resources/security_files/mosquitto_tls_examples.conf.sample*) is provided in the repository, the following operations are still required to adapt the configuration to your installation:
 
 1. Copy/paste the file.
-2. Rename it, for instance *.\security_files\mosquitto_tls_examples.conf*.
+2. Rename it, for instance *./resources/security_files/mosquitto_tls_examples.conf*.
 3. Open it and set the according paths to files contained in the **security_files** project folder.
 
 Now the configuration file is set, the MQTT broker can be launched.
 
 ### MQTT Broker Launch
 
-1. Open a new shell at the **security_files** folder location.
+1. Open a new shell at the [**security_files**](./resources/security_files/) folder location.
 2. Run the command:
 
 **Windows:** `& 'C:\Program Files\mosquitto\mosquitto.exe' -c .\mosquitto_tls_examples.conf`
@@ -451,6 +453,11 @@ to this topic, in this case the MQTT client monitoring the traffic.
 
 **Linux:** `mosquitto_pub -h localhost -t "test/broker" -m "Hello World!" --cafile .\ca.crt --cert .\mosquitto_client.crt --key .\mosquitto_client.key`
 
+## Known Issues
+The tests with the local broker could be failed with the following message: 
+> Client <unknown> disconnected: Protocol Error
+
+We are working on it to solve this issue soon!
 
 ## NVM3
 

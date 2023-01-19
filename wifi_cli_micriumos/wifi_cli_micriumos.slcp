@@ -41,25 +41,15 @@ source:
   - path: app.c
   - path: app_wifi_events.c
   - path: wifi_cli/wifi_cli_app.c
-    folder: wifi_cli
   - path: wifi_cli/wifi_cli_cmd_registration.c
-    folder: wifi_cli
   - path: wifi_cli/wifi_cli_get_set_cb_func.c
-    folder: wifi_cli
   - path: wifi_cli/wifi_cli_lwip.c
-    folder: wifi_cli
   - path: wifi_cli/wifi_cli_params.c
-    folder: wifi_cli
   - path: rf_test_agent/sl_wfx_rf_test_agent.c
-    folder: rf_test_agent
   - path: lwip_host/ethernetif.c
-    folder: lwip_host
   - path: lwip_host/apps/dhcp_client.c
-    folder: lwip_host/apps
   - path: lwip_host/apps/dhcp_server.c
-    folder: lwip_host/apps
   - path: lwip_host/lwiperf/lwiperf.c
-    folder: lwip_host/lwiperf
 include:
   - path: .
     file_list:
@@ -68,35 +58,24 @@ include:
   - path: wifi_cli
     file_list:
       - path: wifi_cli_app.h
-        folder: wifi_cli
       - path: wifi_cli_cmd_registration.h
-        folder: wifi_cli
       - path: wifi_cli_get_set_cb_func.h
-        folder: wifi_cli
       - path: wifi_cli_lwip.h
-        folder: wifi_cli
       - path: wifi_cli_params.h
-        folder: wifi_cli
   - path: rf_test_agent 
     file_list:
       - path: sl_wfx_rf_test_agent.h
-        folder: rf_test_agent
   - path: lwip_host
     file_list:
       - path: ethernetif.h
-        folder: lwip_host
       - path: lwipopts.h
-        folder: lwip_host
   - path: lwip_host/lwiperf
     file_list:
       - path: lwiperf.h
-        folder: lwip_host/lwiperf
   - path: lwip_host/apps
     file_list:
       - path: dhcp_client.h
-        folder: lwip_host/app
       - path: dhcp_server.h
-        folder: lwip_host/app
 configuration:
   - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
     value: usartHwFlowControlNone
@@ -134,5 +113,3 @@ tag:
 toolchain_settings:
   - option: optimize
     value: speed
- 
-

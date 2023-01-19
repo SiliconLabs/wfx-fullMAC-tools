@@ -35,14 +35,14 @@ component:
   - id: mbedtls_debug
   - id: sl_system_init
   - id: nvm3_default
-  - id: lwip_app_pqtt
+  - id: lwip_app_mqtt
   - id: board_control
   - id: lwip_port_micriumos
   - id: mbedtls_ecc_secp256r1
   - id: micriumos_kernel
   - id: sl_system
   - id: mbedtls_ecc_secp384r1
-  - id: lwip_api
+  - id: lwip_api  
   - id: mbedtls_ecdhe_key_exchange
   - id: mbedtls_gcm
   - id: device_init_hfrco
@@ -61,37 +61,21 @@ source:
   - path: app.c
   - path: app_wifi_events.c 
   - path: wifi/wifi_cli_app.c 
-    folder: wifi
   - path: wifi/wifi_cli_cmd_registration.c 
-    folder: wifi
   - path: wifi/wifi_cli_get_set_cb_func.c
-    folder: wifi
   - path: wifi/wifi_cli_lwip.c
-    folder: wifi
   - path: wifi/wifi_cli_params.c
-    folder: wifi
   - path: mqtt/mqtt_cli_app.c
-    folder: mqtt
   - path: mqtt/mqtt_cli_cmd_registration.c
-    folder: mqtt
   - path: mqtt/mqtt_cli_get_set_cb_func.c
-    folder: mqtt
   - path: mqtt/mqtt_cli_lwip.c 
-    folder: mqtt
   - path: mqtt/mqtt_cli_params.c 
-    folder: mqtt
   - path: mqtt/app_certificate/app_certificate.c 
-    folder: mqtt/app_certificate
   - path: lwip_host/ethernetif.c 
-    folder: lwip_host
   - path: lwip_host/apps/dhcp_client.c 
-    folder: lwip_host/apps
   - path: lwip_host/apps/dhcp_server.c 
-    folder: lwip_host/apps
   - path: altcp_tls/altcp_tls_mbedtls.c
-    folder: altcp_tls
   - path: altcp_tls/altcp_tls_mbedtls_mem.c
-    folder: altcp_tls
 tag: 
   - hardware:component:led:2+
   - hardware:component:button:2+
@@ -103,55 +87,35 @@ include:
   - path: mqtt
     file_list:
       - path: mqtt_cli_app.h 
-        folder: mqtt
       - path: mqtt_cli_cmd_registration.h 
-        folder: mqtt
       - path: mqtt_cli_get_set_cb_func.h
-        folder: mqtt
       - path: mqtt_cli_lwip.h
-        folder: mqtt
       - path: mqtt_cli_params.h
-        folder: mqtt
   - path: mqtt/app_certificate
     file_list:
       - path: app_certificate.h 
-        folder: mqtt/app_certificate
   - path: wifi
     file_list: 
       - path: wifi_cli_app.h 
-        folder: wifi
       - path: wifi_cli_cmd_registration.h 
-        folder: wifi
       - path: wifi_cli_get_set_cb_func.h 
-        folder: wifi
       - path: wifi_cli_lwip.h 
-        folder: wifi
       - path: wifi_cli_params.h 
-        folder: wifi
   - path: lwip_host
     file_list:
       - path: ethernetif.h 
-        folder: lwip_host
       - path: lwipopts.h 
-        folder: lwip_host
   - path: lwip_host/apps
     file_list:
       - path: dhcp_client.h 
-        folder: lwip_host/apps
       - path: dhcp_server.h 
-        folder: lwip_host/apps
   - path: altcp_tls
     file_list:
       - path: altcp_tls_mbedtls_mem.h 
-        folder: altcp_tls
       - path: altcp_tls_mbedtls_structs.h 
-        folder: altcp_tls
       - path: certs.h 
-        folder: altcp_tls
       - path: net.h 
-        folder: altcp_tls
       - path: ssl_internal.h 
-        folder: altcp_tls
 define:
   - name: DEBUG_EFM
   - name: MBEDTLS_ALLOW_PRIVATE_ACCESS
@@ -216,3 +180,7 @@ template_contribution:
     value: 1024
   - name: mbedtls_config_undefs
     value: MBEDTLS_PLATFORM_MEMORY
+  - name: mbedtls_config_undefs
+    value: MBEDTLS_PLATFORM_FREE_MACRO
+  - name: mbedtls_config_undefs
+    value: MBEDTLS_PLATFORM_CALLOC_MACRO

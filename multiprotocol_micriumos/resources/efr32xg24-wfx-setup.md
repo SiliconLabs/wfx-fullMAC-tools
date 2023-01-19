@@ -66,7 +66,6 @@ A working implementation has been deployed on the kit as below:
 
 ## Steps to generate & configure the example with full features on Simplicity Studio 5
 
-> **Important Note:** You must apply the WFX Full MAC driver patch with [**this procedure**](../README.md/#apply-wfx-full-mac-drivers-patch) before doing next steps
 ### **Step 1: Install _"Early Access Packages"_**
 
 In order to create the projects for EFR32xG24 boards, we need to install the corresponding early access packages. In Simpliticy Studio 5, click on _**Install**_ button to open _**Installation Manager**_ and sign-in with your account, choose _**Manage Installed Packages**_. 
@@ -89,7 +88,9 @@ Under _**Early Access**_ install _**"32-bit and Wireless Products Early Access -
 </p>
 
 In order to run the full-featured example, we need to install & change pin configurations of additional components which are disabled by default. Therefore, we provided 02 ways for doing that: 
+
 * Method #1: Applying an example [patch](../patches/brd4187/app.patch) before generating project, then replace the auto-generated configuration header files of the generated project by our prepared files in [this folder](../patches/brd4187/config/).
+  
 * Method #2: After importing the project to SSv5, manually install additional components and modify the pins configuration by IDE.
   
 While Method #1 is very easy to follow & convenient for quickly getting the project run, Method #2 is a bit more complex & required to do many configuration steps manually. Details are described below.

@@ -26,9 +26,9 @@ Additionally, this example requires:
 
 ### Software Prerequisites
 
-* The required software includes Simplicity Studio v5 IDE, the Gecko SDK Suite (v4.0.0 or newer) with 32-bit MCU, lwIP stack, Wi-Fi Full-MAC(FMAC) driver and the Bluetooth SDK.
+* The required software includes Simplicity Studio v5 IDE, the Gecko SDK Suite (v4.2.0 or newer) with 32-bit MCU, lwIP stack, Wi-Fi Full-MAC(FMAC) driver (v3.6.0 or newer) and the Bluetooth SDK.
 * The example project hosted on [**wfx-fullMAC-tools repository**](https://github.com/SiliconLabs/wfx-fullMAC-tools.git) which can be added to SSv5 IDE as [**the following procedure**](../README.md/#add-the-examples-to-simplicity-studio-5).
-* The **EFR Connect BLE Mobile App** available on [**Google Play**](https://play.google.com/store/apps/details?id=com.siliconlabs.bledemoandhl=enandgl=US) and [**App Store**](https://apps.apple.com/us/app/efr-connect-ble-mobile-app/id1030932759)
+* The [**EFR Connect BLE Mobile App**](https://www.silabs.com/developers/efr-connect-mobile-app) available on **Google Play** and **App Store**
 * A serial terminal to communicate with the board. For examples, [**Tera Term**](https://osdn.net/projects/ttssh2/releases/), [**Putty**](https://www.putty.org/) or [**MobaXterm**](https://mobaxterm.mobatek.net/)
 * A Web browser. E.g: Google Chrome.
 
@@ -123,32 +123,6 @@ Under _**SDKs**_ tab, select the _**Gecko SDK - 32 bit and Wireless MCUs**_ vers
 </p>
 
 <br>
-
-## Apply WFx Full-MAC Driver's Patch
-
-> **Note:** For _**EFR32MG12**_ SoCs' radio boards, you do **NOT** need to apply the driver patch. Please skip this step!
-
-The Wi-Fi Full-MAC (FMAC) driver is a SW component in Gecko SDK, and its relative path to the gecko_sdk folder is: _**"platform\radio\wifi\wfx-fmac-driver"**_.
-
-The current Wi-Fi Full-MAC driver version (v3.5.0) does **NOT** support EFR32xG21 and EFR32xG24 boards. Therefore, we provide a patch file for driver version 3.5.0 [**here**](patches/driver.patch). These updates of the FMAC driver will be available in the next release (v3.6.0) by the end of 2022.
-
-In order to apply the driver patch, you can do the following steps:
-1. Copy and paste the [_**"driver.patch" file**_](patches/driver.patch) to the wfx-fmac-driver folder:
-
-> For instances:
-> * On Windows evironment: C:\Users\Admin\SimplicityStudio\SDKs\gecko_sdk5\platform\radio\wifi\wfx_fmac_driver
-> * On Ubuntu evironment:  ~/SimplicityStudio/SDKs/gecko_sdk/platform/radio/wifi/wfx_fmac_driver
-
-2. In the wfx_fmac_driver, run the following git command to apply the driver patch file:
-```
-git apply --whitespace=fix driver.patch
-``` 
-
-> **Note**: In order to reverse the applied driver patch, we can use the following git command:
-
-```
-git apply --whitespace=fix -R driver.patch
-```
 
 <br>
 

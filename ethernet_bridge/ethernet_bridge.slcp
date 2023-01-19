@@ -33,7 +33,6 @@ source:
   - path: bsp_net_ether_gem.c
   - path: net_dev_efm32_ether_bridge.c
   - path: core_init/ex_net_core_init.c
-    folder: core_init
 include:
   - path: ''
     file_list:
@@ -44,7 +43,6 @@ include:
   - path: core_init
     file_list:
     - path: ex_net_core_init.h
-      folder: core_init
 define:
   - name: DEBUG_EFM
 configuration:

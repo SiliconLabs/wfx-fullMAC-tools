@@ -200,6 +200,14 @@ typedef enum {
 } dhcp_type_et;
 
 /**************************************************************************//**
+ * @brief: tx rates type is used for converting a uint32_t number to a bitmask
+ *****************************************************************************/
+typedef union {
+    sl_wfx_rate_set_bitmask_t bit_mask;
+    uint32_t rate;
+} tx_rates_u;
+
+/**************************************************************************//**
  * @brief: get/set function pointers.
  *****************************************************************************/
 typedef int (*sl_wfx_cli_param_custom_get_func_t)(char *param_name,
@@ -272,6 +280,11 @@ extern sem_type_t g_cli_sem;
  * @note:  Maximum number of elements is "SL_WFX_CLI_MAX_PARAMS"
  *****************************************************************************/
 extern param_t wifi_params[SL_WFX_CLI_MAX_PARAMS];
+
+/***************************************************************************//**
+ * @brief convert a given hex string to uint32_t.
+ ******************************************************************************/
+uint32_t convert_rate_string_to_uint32_t(char *rates_str);
 
 /***************************************************************************//**
  * @brief

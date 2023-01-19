@@ -1,0 +1,9 @@
+
+allow_anonymous true
+listener 8883
+
+cafile <your-path-to-the-secure-files-folder-in-the-project>\ca.crt
+certfile <your-path-to-the-secure-files-folder-in-the-project>\mqtt_broker.crt
+keyfile <your-path-to-the-secure-files-folder-in-the-project>\mqtt_broker.key
+
+require_certificate true

@@ -164,6 +164,15 @@ static const char *security_modes[] = {
 };
 
 /***************************************************************************//**
+ * @brief convert a given hex string to uint32_t.
+ ******************************************************************************/
+uint32_t convert_rate_string_to_uint32_t(char *rates_str) 
+{
+  char *p_end = NULL;
+  return (uint32_t)strtol(rates_str, &p_end, 0);
+}
+
+/***************************************************************************//**
  * @brief
  *    This function converts a given string to lower-case string.
  *

@@ -116,6 +116,7 @@ uint8_t ap_gw_addr3 = AP_GW_ADDR3_DEFAULT;
 char wlan_ssid[32 + 1]                      = WLAN_SSID_DEFAULT;
 char wlan_passkey[64 + 1]                   = WLAN_PASSKEY_DEFAULT;
 sl_wfx_security_mode_t wlan_security        = WLAN_SECURITY_DEFAULT;
+bool wlan_security_wpa3_pmksa               = false;
 char wlan_pmk[64 + 3]                       = "0";
 
 /* Wi-Fi SoftAP connection parameters */
@@ -160,7 +161,8 @@ static const char *security_modes[] = {
   NULL,       /*!< Trick to directly link the security mode to its "name" */
   "WPA2",
   NULL,
-  "WPA3"
+  "WPA3",
+  "WPA2/WPA3"
 };
 
 /***************************************************************************//**
@@ -553,6 +555,17 @@ static int get_security_mode(char *param_name,
       return -1;
   }
   printf("%s\r\n", security_modes[security_idx]);
+  /* Check if the PMKSA caching is in use in WPA3 or WPA2/WPA3 transition mode */
+  if ((strcmp(security_modes[security_idx], "WPA3") == 0) || 
+  (strcmp(security_modes[security_idx], "WPA2/WPA3") == 0)) {
+    if (wlan_security_wpa3_pmksa) {
+      printf("(PMKSA caching enabled)\r\n");
+    }
+    else {
+      printf("(PMKSA caching disabled)\r\n");
+    }
+  }
+
   return 0;
 }
 
@@ -1123,7 +1136,7 @@ int register_wifi_params(void)
   ret |= sl_wfx_cli_register_wifi_param("softap.security",
                                         (void *)&softap_security,
                                         "SoftAP security mode "
-                                        "[OPEN, WEP, WPA1/WPA2, WPA2,WPA3]",
+                                        "[OPEN, WEP, WPA1/WPA2, WPA2, WPA3, WPA2/WPA3]",
                                         get_security_mode,
                                         set_security_mode,
                                         SL_WFX_CLI_PARAM_TYPE_CUSTOM,
@@ -1222,6 +1235,12 @@ int register_wifi_params(void)
                 NVM3_KEY_AP_SECURITY_MODE, 
                 (void *)&wlan_security, 
                 sizeof(wlan_security));
+
+  nvm3_readData(nvm3_defaultHandle,
+                NVM3_KEY_AP_SECURITY_WPA3_PMKSA,
+                (void *)&wlan_security_wpa3_pmksa,
+                sizeof(wlan_security_wpa3_pmksa));
+
   return ret;
 }
 

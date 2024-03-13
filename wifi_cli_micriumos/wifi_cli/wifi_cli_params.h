@@ -19,7 +19,7 @@
 #define WIFI_CLI_PARAMS_H
 
 #include <stdint.h>
-#include "os.h"
+#include "kernel/include/os.h"
 #include "sl_wfx_cmd_api.h"
 #include "lwip/ip_addr.h"
 #include "nvm3_default.h"
@@ -111,6 +111,9 @@
 #ifndef NVM3_KEY_AP_PASSKEY
 #define NVM3_KEY_AP_PASSKEY 3
 #endif
+#ifndef NVM3_KEY_AP_SECURITY_WPA3_PMKSA
+#define NVM3_KEY_AP_SECURITY_WPA3_PMKSA 4
+#endif
 #define IPERF_SERVER                    ///< If defined, iperf server is enabled
 #define HTTP_SERVER                     ///< If defined, http server is enabled
 
@@ -134,6 +137,7 @@ extern char wlan_ssid[32 + 1];
 extern char wlan_passkey[64 + 1];
 extern char wlan_pmk[64 + 3];
 extern sl_wfx_security_mode_t wlan_security;
+extern bool wlan_security_wpa3_pmksa;
 
 extern char softap_ssid[32 + 1];
 extern char softap_passkey[64 + 1];

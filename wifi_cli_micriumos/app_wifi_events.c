@@ -31,6 +31,7 @@
 #include "wifi_cli_lwip.h"
 #include "app_wifi_events.h"
 #include "wifi_cli_params.h"
+#include "sl_wfx_sae.h"
 
 // Event Task Configurations
 #define WFX_EVENTS_TASK_PRIO              21u
@@ -48,9 +49,15 @@ void sl_wfx_ap_client_connected_callback(sl_wfx_ap_client_connected_ind_t *ap_cl
 void sl_wfx_ap_client_rejected_callback(sl_wfx_ap_client_rejected_ind_t *ap_client_rejected);
 void sl_wfx_ap_client_disconnected_callback(sl_wfx_ap_client_disconnected_ind_t *ap_client_disconnected);
 void sl_wfx_host_received_frame_callback(sl_wfx_received_ind_t *rx_buffer);
+void sl_wfx_ext_auth_callback(sl_wfx_ext_auth_ind_t *ext_auth_indication);
+void sl_wfx_ps_mode_error_callback(sl_wfx_ps_mode_error_ind_t *ps_mode_error);
 
 extern char event_log[];
 extern char softap_ssid[32 + 1];
+/* To know if the station's security mode is switched to WPA2 in WPA2/WPA3 transition mode */
+extern bool secur_mode_fallback;
+/* Store information used for the PMKSA caching feature */
+extern sae_pmksa_t sae_pmksa;
 
 OS_Q wifi_events;
 scan_result_list_t scan_list[SL_WFX_MAX_SCAN_RESULTS];
@@ -121,9 +128,19 @@ sl_status_t sl_wfx_host_process_event(sl_wfx_generic_message_t *event_payload)
       sl_wfx_ap_client_disconnected_callback((sl_wfx_ap_client_disconnected_ind_t *)event_payload);
       break;
     }
+    case SL_WFX_EXT_AUTH_IND_ID:
+    {
+      sl_wfx_ext_auth_callback((sl_wfx_ext_auth_ind_t *)event_payload);
+      break;
+    }
     case SL_WFX_GENERIC_IND_ID:
     {
-      sl_wfx_generic_status_callback((sl_wfx_generic_ind_t *) event_payload);
+      sl_wfx_generic_status_callback((sl_wfx_generic_ind_t *)event_payload);
+      break;
+    }
+    case SL_WFX_PS_MODE_ERROR_IND_ID:
+    {
+      sl_wfx_ps_mode_error_callback((sl_wfx_ps_mode_error_ind_t*)event_payload);
       break;
     }
     case SL_WFX_EXCEPTION_IND_ID:
@@ -431,11 +448,77 @@ void sl_wfx_ap_client_disconnected_callback(sl_wfx_ap_client_disconnected_ind_t 
 }
 
 /**************************************************************************//**
+ * Callback for External Authentication
+ *****************************************************************************/
+void sl_wfx_ext_auth_callback (sl_wfx_ext_auth_ind_t *ext_auth_indication) 
+{
+  void *buffer;
+  sl_status_t status;
+  RTOS_ERR err;
+
+  status = sl_wfx_host_allocate_buffer(&buffer,
+                                       SL_WFX_RX_FRAME_BUFFER,
+                                       ext_auth_indication->header.length);
+  if (status == SL_STATUS_OK) {
+    memcpy(buffer,
+           (void *)ext_auth_indication,
+           ext_auth_indication->header.length);
+    OSQPost(&wifi_events,
+            buffer,
+            ext_auth_indication->header.length,
+            OS_OPT_POST_FIFO,
+            &err);
+  }
+}
+
+/**************************************************************************//**
  * Callback for generic status received
  *****************************************************************************/
 void sl_wfx_generic_status_callback(sl_wfx_generic_ind_t* frame)
 {
   rx_stats = frame->body.indication_data.rx_stats;
+}
+
+/**************************************************************************//**
+ * Callback for power-save mode error 
+ *****************************************************************************/
+void sl_wfx_ps_mode_error_callback(sl_wfx_ps_mode_error_ind_t *ps_mode_error)
+{
+  void *buffer;
+  sl_status_t status;
+  RTOS_ERR err;
+
+  switch (ps_mode_error->body.reason) 
+  {
+    case WFM_PS_MODE_ERROR_PSPOLL_TIMEOUT:
+    {
+      printf("AP has not sent any buffered unicast data in response to a PS-Poll\r\n");
+      break;
+    }
+    case WFM_PS_MODE_ERROR_UAPSD_TIMEOUT:
+    {
+      printf("AP has not sent any buffered unicast data in response to a U-APSD trigger frame\r\n");
+      break;
+    }
+    case WFM_PS_MODE_ERROR_BEACON_TIMEOUT:
+    {
+      printf("AP has indicated buffered unicast data but has not sent any in 8 consecutive beacons\r\n");
+      break;
+    }
+    case WFM_PS_MODE_ERROR_BEACON_TIMING:
+    {
+      printf("AP beacon timings are unstable, the device has adjusted its beacon window to compensate\r\n");
+      break;
+    }
+  }
+
+  status = sl_wfx_host_allocate_buffer(&buffer,
+                                       SL_WFX_RX_FRAME_BUFFER,
+                                       ps_mode_error->header.length);
+  if (status == SL_STATUS_OK) {
+    memcpy(buffer, (void *)ps_mode_error, ps_mode_error->header.length);
+    OSQPost(&wifi_events, buffer, ps_mode_error->header.length, OS_OPT_POST_FIFO, &err);
+  }
 }
 
 /***************************************************************************//**
@@ -447,6 +530,9 @@ static void wfx_events_task(void *p_arg)
   RTOS_ERR err;
   OS_MSG_SIZE msg_size;
   sl_wfx_generic_message_t *msg;
+  const sl_wfx_connect_ind_t *connect_msg;
+  /* to check if a new pmk is cached */
+  bool caching_pmk = false;
 
   (void)p_arg;
 
@@ -464,17 +550,31 @@ static void wfx_events_task(void *p_arg)
         case SL_WFX_CONNECT_IND_ID:
         {
           set_sta_link_up();
-          ret = wifi_cli_resume(&g_cli_sem, SL_WFX_CONNECT_IND_ID);
+          /*
+           * PMKSA caching
+           */
+          connect_msg = (const sl_wfx_connect_ind_t *)msg;
+          /* clear the PMK cached if the PMK is generated with the fallback AP */
+          if (secur_mode_fallback && !memcmp(sae_pmksa.bssid, connect_msg->body.mac, SL_WFX_BSSID_SIZE))
+          {
+            sl_wfx_sae_invalidate_pmksa();
+          }
+          /* cache the PMK to use in subsequent connections with the same AP */
+          if ((wlan_security_wpa3_pmksa) && (caching_pmk)) {
+            sl_wfx_sae_cache_pmksa((const sl_wfx_mac_address_t *)connect_msg->body.mac);
+            caching_pmk = false;
+          }
 
 #ifdef SL_CATALOG_POWER_MANAGER_PRESENT
           if (!(wifi.state & SL_WFX_AP_INTERFACE_UP)) {
             // Enable the WFX power save mode
             // Note: this mode is independent from the host power saving
-            //       but has been linked to simplicfy the example.
-            sl_wfx_set_power_mode(WFM_PM_MODE_PS, 1);
+            //       but has been linked to simplicify the example.
+            sl_wfx_set_power_mode(WFM_PM_MODE_PS, WFM_PM_POLL_FAST_PS, 1, 0);
             sl_wfx_enable_device_power_save();
           }
 #endif
+          ret = wifi_cli_resume(&g_cli_sem, SL_WFX_CONNECT_IND_ID);
           break;
         }
         case SL_WFX_DISCONNECT_IND_ID:
@@ -490,7 +590,7 @@ static void wfx_events_task(void *p_arg)
 
 #ifdef SL_CATALOG_POWER_MANAGER_PRESENT
           // Power save always disabled when SoftAP mode enabled
-          sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, 0);
+          sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE, WFM_PM_POLL_FAST_PS, 0, 0);
           sl_wfx_disable_device_power_save();
 #endif
           break;
@@ -504,8 +604,8 @@ static void wfx_events_task(void *p_arg)
           if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
             // Enable the WFX power save mode
             // Note: this mode is independent from the host power saving
-            //       but has been linked to simplicfy the example.
-            sl_wfx_set_power_mode(WFM_PM_MODE_PS, 1);
+            //       but has been linked to simplicify the example.
+            sl_wfx_set_power_mode(WFM_PM_MODE_PS, WFM_PM_POLL_FAST_PS, 1, 0);
             sl_wfx_enable_device_power_save();
           }
 #endif
@@ -514,6 +614,15 @@ static void wfx_events_task(void *p_arg)
         case SL_WFX_SCAN_COMPLETE_IND_ID:
         {
           ret = wifi_cli_resume(&g_cli_sem, SL_WFX_SCAN_COMPLETE_IND_ID);
+          break;
+        }
+        case SL_WFX_EXT_AUTH_IND_ID:
+        {
+          sl_wfx_sae_exchange((sl_wfx_ext_auth_ind_t *)msg, &caching_pmk);
+          break;
+        }
+        case SL_WFX_PS_MODE_ERROR_IND_ID:
+        {
           break;
         }
       }

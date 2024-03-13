@@ -22,7 +22,14 @@
 #include "app_wifi_events.h"
 #include "wifi_cli_params.h"
 #include "wifi_cli_lwip.h"
+#include "sl_wfx_sae.h"
+#include "ports/includes.h"
+#include "utils/common.h"
+#include "crypto/crypto.h"
+#include "sl_wfx_sae.h"
 
+/* Store the information if the station's security mode is switched to WPA2 in WPA2/WPA3 transition mode */
+bool secur_mode_fallback;
 
 /***************************************************************************//**
  * @brief
@@ -120,12 +127,59 @@ static void set_wifi_param_common(sl_cli_command_arg_t *args)
   char *val_ptr = NULL;
   char *param_name = NULL;
   int param_idx;
+  uint8_t argc;
+  char *security_wpa3_pmksa_config_ex = "Examples: wifi set station.security WPA3\r\n"
+                                        "          wifi set station.security WPA3 -pmksa\r\n";
 
   /* Get input argument string */
   val_ptr = sl_cli_get_argument_string(args, 0);
 
   /* Search the global param index with param name */
   param_name = sl_cli_get_command_string(args, 2);
+
+  /* Number of arguments only excluding commands */
+  argc = sl_cli_get_argument_count(args);
+
+  /* Process the set command for station.security modes WPA3 and WPA2/WPA3 */
+  if (!strcmp(param_name, "station.security"))
+  {
+      if (!strcmp(val_ptr, "WPA3") || !strcmp(val_ptr, "WPA2/WPA3"))
+      {
+          printf("NOTICE: If you want to select the \"station.security\" as \"WPA3\" or \"WPA2/WPA3\", "
+          "please refer to the README.md file stored in "
+          "\"wfx-fullMAC-tools/wpa_supplicant-2.7/wpa3_sae_resources\"\r\n");
+          /* Check for PMKSA caching option */
+          if (argc > 1)
+          {
+              if (!strcmp(sl_cli_get_argument_string(args, 1), "-pmksa"))
+              {
+                  /* Enable PMKSA caching feature */
+                  wlan_security_wpa3_pmksa = true;
+                  printf("Applying PMKSA caching feature\r\n");
+              }
+              else
+              {
+                  /* Unknown option! */
+                  printf("Invalid input!\r\n%s\r\n", security_wpa3_pmksa_config_ex);
+              }
+          }
+          /* The pmksa option is not specified */
+          else
+          {
+              /* Clear the PMK cache */
+              sl_wfx_sae_invalidate_pmksa();
+              /* Disable PMKSA caching feature */
+              wlan_security_wpa3_pmksa = false;
+          }
+      }
+      /* A security mode where neither WPA3 nor WPA2/WPA3 is selected */
+      else
+      {
+          /* Disable PMKSA caching feature */
+          wlan_security_wpa3_pmksa = false;
+      }
+  }
+
   param_idx = param_search(param_name);
   if (param_idx < 0) {
       LOG_DEBUG("The %s parameter hasn't been registered", param_name);
@@ -190,6 +244,35 @@ static void get_dhcp_state(sl_cli_command_arg_t *args, dhcp_type_et dhcp_type)
              dhcp_type == DHCP_SERVER ? "server" : "client",
              *(uint8_t*)wifi_params[param_idx].address == 0 ? "OFF" : "ON");
   }
+}
+
+/***************************************************************************//**
+ * @brief 
+ *    Check if the string contains only numbers
+ * 
+ * @param[in] 
+ *      + user_input: the user input string through CLI
+ * @param[out] None
+ * 
+ * @return 
+ *    SL_STATUS_OK: No error
+ *    SL_STATUS_FAIL: Generic error
+ */
+static sl_status_t is_numeric(const char *str)
+{
+  uint32_t i; /* loop counter */
+  sl_status_t status = SL_STATUS_OK;
+
+  for (i = 0; i < strlen(str); i++)
+  {
+      if (!isdigit(str[i]))
+      {
+          status = SL_STATUS_FAIL;
+          break;
+      }
+  }
+
+  return status;
 }
 
 /**************************************************************************//**
@@ -1070,7 +1153,11 @@ void wifi_station_connect(sl_cli_command_arg_t *args)
   uint16_t channel;
   char *p_wlan_ssid = NULL;
   char *p_wlan_passkey = NULL;
+  sl_wfx_security_mode_bitmask_t security_mode;
+  /* The security mode option selected by users */
   sl_wfx_security_mode_t *p_wlan_secur_mode = NULL;
+
+  secur_mode_fallback = false;
 
   /* Check whether station is already connected */
   if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
@@ -1135,6 +1222,7 @@ void wifi_station_connect(sl_cli_command_arg_t *args)
                       memcpy(&wlan_bssid, scan_list[i].mac,
                              SL_WFX_BSSID_SIZE);
                       channel = scan_list[i].channel;
+                      security_mode = scan_list[i].security_mode;
                       ap_found = true;
                   }
               }
@@ -1153,20 +1241,29 @@ void wifi_station_connect(sl_cli_command_arg_t *args)
       return;
   }
 
-  /// TODO: Check this later
-  /*
-  if (*p_wlanSecurityMode == WFM_SECURITY_MODE_WPA3_SAE) {
+  /* If WPA2/WPA3 transition mode is selected, check whether the AP supports up to WPA3 security mode */
+  if ((*p_wlan_secur_mode == WFM_SECURITY_MODE_WPA3_SAE_WPA2_PSK) 
+      && (security_mode.wpa3 == 0) && (security_mode.wpa2 == 1)) {
+      secur_mode_fallback = true;
+      printf("The Access Point (AP) does not support WPA3 security mode\n");
+  }
+
+  /* WPA3 security mode configuration */
+  if ((*p_wlan_secur_mode == WFM_SECURITY_MODE_WPA3_SAE) ||
+      ((*p_wlan_secur_mode == WFM_SECURITY_MODE_WPA3_SAE_WPA2_PSK) && !secur_mode_fallback)) {
       status = sl_wfx_sae_prepare(&wifi.mac_addr_0,
                                   (sl_wfx_mac_address_t*) wlan_bssid,
-                                  (uint8_t*)p_wlanPasskey,
-                                  strlen(p_wlanPasskey));
+                                  (uint8_t*) p_wlan_ssid,
+                                  strlen(p_wlan_ssid),
+                                  (uint8_t*)p_wlan_passkey,
+                                  strlen(p_wlan_passkey),
+                                  security_mode.h2e);
       printf("wlan preparing SAE...\r\n");
       if (status != SL_STATUS_OK) {
-         printf("wlan: Could not prepare SAE\r\n");
+          printf("wlan: Could not prepare SAE\r\n");
       }
   }
-  */
-
+  
   /* Step 3: Configure scan parameters & Connect to the found AP */
   sl_wfx_set_scan_parameters(0, 0, 1);
 
@@ -1175,6 +1272,8 @@ void wifi_station_connect(sl_cli_command_arg_t *args)
                                     strlen(p_wlan_ssid),
                                     (sl_wfx_mac_address_t *)wlan_bssid,
                                     channel,
+                                    secur_mode_fallback ? 
+                                    WFM_SECURITY_MODE_WPA2_PSK : 
                                     *p_wlan_secur_mode,
                                     1,
                                     0,
@@ -1456,6 +1555,7 @@ void wifi_station_power_mode(sl_cli_command_arg_t *args)
 {
   int argc;
   int interval;
+  int fast_ps_timeout = 0;
   char *p_arg = NULL;
   sl_status_t status;
   uint8_t bc = 0, dtim = 0;
@@ -1464,7 +1564,7 @@ void wifi_station_power_mode(sl_cli_command_arg_t *args)
   char *invalid_arg_err = "Invalid argument";
   char *help_text = "Examples: wifi powermode ACTIVE\r\n"
                      "          wifi powermode BEACONS UAPSD 2"
-                     "          wifi powermode DTIM FAST_PS 3";
+                     "          wifi powermode DTIM FAST_PS 3 20";
 
   if (!(wifi.state & SL_WFX_STA_INTERFACE_CONNECTED)) {
       printf("Station is not connected to AP! Network up first!\r\n");
@@ -1486,6 +1586,7 @@ void wifi_station_power_mode(sl_cli_command_arg_t *args)
       /* Enable ACTIVE mode */
       status = sl_wfx_set_power_mode(WFM_PM_MODE_ACTIVE,
                                      WFM_PM_POLL_FAST_PS,
+                                     0,
                                      0);
       if (status == SL_STATUS_OK) {
           printf("Power Mode: ACTIVE\r\n");
@@ -1494,7 +1595,8 @@ void wifi_station_power_mode(sl_cli_command_arg_t *args)
       }
       return;
 
-  } else if (argc == 3) {
+  /* User selects a power-save mode */
+  } else if ((argc == 3) || (argc == 4)) {
       /* Check mode are BEACONS or DTIM */
       p_arg = sl_cli_get_argument_string(args, 0);
       convert_to_lower_case_string(p_arg);
@@ -1510,17 +1612,44 @@ void wifi_station_power_mode(sl_cli_command_arg_t *args)
       /* Check strategy: UAPSD or FAST_PS */
       p_arg = sl_cli_get_argument_string(args, 1);
       convert_to_lower_case_string(p_arg);
-
-      if (!strcmp(p_arg, "uapsd")) {
+      if (argc == 3) {
+          /* the device power save polling strategy is UAPSD */
+          if (strcmp(p_arg, "uapsd")) {
+              /* Invalid argument */
+              goto arg_error;
+          }
           uapsd = 1;
-      } else if (!strcmp(p_arg, "fast_ps")) {
+      } else if (argc == 4) {
+          /* the device power save polling strategy is Fast-PS */
+          if (strcmp(p_arg, "fast_ps")) {
+              /* Invalid argument */
+              goto arg_error;
+          }
           fast_ps = 1;
+          /* Obtain the Fast-PS timeout */
+          if (is_numeric(sl_cli_get_argument_string(args, 3)) == SL_STATUS_OK) {
+              fast_ps_timeout = atoi(sl_cli_get_argument_string(args, 3));
+          }
+          else {
+              /* the command argument contains non-numeric character(s) */
+              goto arg_error;
+          }
+          if (fast_ps_timeout < 0) {
+              /* Invalid Fast-PS timeout */
+              goto arg_error;
+          }
       } else {
           goto arg_error;
       }
 
       /* Obtain the interval */
-      interval = atoi(sl_cli_get_argument_string(args, 2));
+      if (is_numeric(sl_cli_get_argument_string(args, 2)) == SL_STATUS_OK) {
+          interval = atoi(sl_cli_get_argument_string(args, 2));
+      }
+      else {
+          /* the command argument contains non-numeric character(s) */
+          goto arg_error;
+      }
       if (interval <= 0) {
           goto arg_error;
       }
@@ -1530,20 +1659,30 @@ void wifi_station_power_mode(sl_cli_command_arg_t *args)
                                                  uapsd > fast_ps ?
                                                  WFM_PM_POLL_UAPSD :
                                                  WFM_PM_POLL_FAST_PS,
-                                                 interval) :
+                                                 interval,
+                                                 fast_ps_timeout) :
                             sl_wfx_set_power_mode(WFM_PM_MODE_DTIM,
                                                  uapsd > fast_ps ?
                                                  WFM_PM_POLL_UAPSD :
                                                  WFM_PM_POLL_FAST_PS,
-                                                 interval);
+                                                 interval,
+                                                 fast_ps_timeout);
       if (status == SL_STATUS_OK) {
           printf("Power Mode: %s\r\nInterval: %d (%s)\r\n",
                  uapsd > fast_ps ? "U-APSD" : "Fast-PS",
                  interval,
                  bc > dtim ? "beacons" : "DTIMs");
+          if (fast_ps == 1) {
+              if (fast_ps_timeout == 0) {
+                  printf("Fast-PS timeout: 20 ms (default)\r\n");
+              } else {
+                  printf("Fast-PS timeout: %d (units: 500 us)\r\n", fast_ps_timeout);
+              }
+          }
       } else {
           printf("%s\r\n", cmd_err);
       }
+
       return;
   }
 
@@ -1869,21 +2008,30 @@ void wifi_save(sl_cli_command_arg_t *args)
 {
   (void)args;
   if (strlen(wlan_ssid) > 0)
+  {
     nvm3_writeData(nvm3_defaultHandle,
                    NVM3_KEY_AP_SSID,
                    (void *)wlan_ssid,
                    sizeof(wlan_ssid));
+  }
 
   if (strlen(wlan_passkey) > 0)
+  {
     nvm3_writeData(nvm3_defaultHandle,
                    NVM3_KEY_AP_PASSKEY,
                    (void *)wlan_passkey,
                    sizeof(wlan_passkey));
+  }
 
   nvm3_writeData(nvm3_defaultHandle,
                  NVM3_KEY_AP_SECURITY_MODE,
                  (void *)&wlan_security,
                  sizeof(wlan_security));
+
+  nvm3_writeData(nvm3_defaultHandle,
+                NVM3_KEY_AP_SECURITY_WPA3_PMKSA,
+                (void *)&wlan_security_wpa3_pmksa,
+                sizeof(wlan_security_wpa3_pmksa));
 }
 
 

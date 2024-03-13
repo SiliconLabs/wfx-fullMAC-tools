@@ -1,0 +1,51 @@
+#include "includes.h"
+#include "utils/common.h"
+#include "common/defs.h"
+#include "common/wpa_common.h"
+
+u32 wpa_akm_to_suite(int akm)
+{
+	if (akm & WPA_KEY_MGMT_FT_IEEE8021X_SHA384)
+		return RSN_AUTH_KEY_MGMT_FT_802_1X_SHA384;
+	if (akm & WPA_KEY_MGMT_FT_IEEE8021X)
+		return RSN_AUTH_KEY_MGMT_FT_802_1X;
+	if (akm & WPA_KEY_MGMT_FT_PSK)
+		return RSN_AUTH_KEY_MGMT_FT_PSK;
+	if (akm & WPA_KEY_MGMT_IEEE8021X_SHA256)
+		return RSN_AUTH_KEY_MGMT_802_1X_SHA256;
+	if (akm & WPA_KEY_MGMT_IEEE8021X)
+		return RSN_AUTH_KEY_MGMT_UNSPEC_802_1X;
+	if (akm & WPA_KEY_MGMT_PSK_SHA256)
+		return RSN_AUTH_KEY_MGMT_PSK_SHA256;
+	if (akm & WPA_KEY_MGMT_PSK)
+		return RSN_AUTH_KEY_MGMT_PSK_OVER_802_1X;
+	if (akm & WPA_KEY_MGMT_CCKM)
+		return RSN_AUTH_KEY_MGMT_CCKM;
+	if (akm & WPA_KEY_MGMT_OSEN)
+		return RSN_AUTH_KEY_MGMT_OSEN;
+	if (akm & WPA_KEY_MGMT_IEEE8021X_SUITE_B)
+		return RSN_AUTH_KEY_MGMT_802_1X_SUITE_B;
+	if (akm & WPA_KEY_MGMT_IEEE8021X_SUITE_B_192)
+		return RSN_AUTH_KEY_MGMT_802_1X_SUITE_B_192;
+	if (akm & WPA_KEY_MGMT_FILS_SHA256)
+		return RSN_AUTH_KEY_MGMT_FILS_SHA256;
+	if (akm & WPA_KEY_MGMT_FILS_SHA384)
+		return RSN_AUTH_KEY_MGMT_FILS_SHA384;
+	if (akm & WPA_KEY_MGMT_FT_FILS_SHA256)
+		return RSN_AUTH_KEY_MGMT_FT_FILS_SHA256;
+	if (akm & WPA_KEY_MGMT_FT_FILS_SHA384)
+		return RSN_AUTH_KEY_MGMT_FT_FILS_SHA384;
+	if (akm & WPA_KEY_MGMT_SAE)
+		return RSN_AUTH_KEY_MGMT_SAE;
+	if (akm & WPA_KEY_MGMT_SAE_EXT_KEY)
+		return RSN_AUTH_KEY_MGMT_SAE_EXT_KEY;
+	if (akm & WPA_KEY_MGMT_FT_SAE)
+		return RSN_AUTH_KEY_MGMT_FT_SAE;
+	if (akm & WPA_KEY_MGMT_FT_SAE_EXT_KEY)
+		return RSN_AUTH_KEY_MGMT_FT_SAE_EXT_KEY;
+	if (akm & WPA_KEY_MGMT_OWE)
+		return RSN_AUTH_KEY_MGMT_OWE;
+	if (akm & WPA_KEY_MGMT_DPP)
+		return RSN_AUTH_KEY_MGMT_DPP;
+	return 0;
+}

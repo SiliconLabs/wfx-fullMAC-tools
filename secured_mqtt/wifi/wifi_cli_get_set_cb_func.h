@@ -30,28 +30,30 @@
 #include "lwip/netif.h"
 #include "wifi_cli_params.h"
 #include "app_wifi_events.h"
+#include "sl_wfx_sae.h"
+
 #ifdef SL_CATALOG_WFX_SECURE_LINK_PRESENT
 #include "sl_wfx_secure_link.h"
 #endif
 
-extern sl_wfx_context_t   wifi;
+extern sl_wfx_context_t wifi;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /***************************************************************************//**
- * @brief Reset the host CPU
- ******************************************************************************/
+* @brief Reset the host CPU
+******************************************************************************/
 void reset_host_cpu(sl_cli_command_arg_t *args);
 
 /***************************************************************************//**
- * @brief Reboot the Wi-Fi chip
- ******************************************************************************/
+* @brief Reboot the Wi-Fi chip
+******************************************************************************/
 void wifi_init(sl_cli_command_arg_t *args);
 
 /***************************************************************************//**
- * @brief Save Wi-Fi parameters
- ******************************************************************************/
+* @brief Save Wi-Fi parameters
+******************************************************************************/
 void wifi_save(sl_cli_command_arg_t *args);
 
 /*******************************************************************************

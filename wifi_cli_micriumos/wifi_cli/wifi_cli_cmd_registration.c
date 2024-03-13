@@ -257,9 +257,14 @@ static const sl_cli_command_info_t cli_cmd_set_station_passkey = \
 static const sl_cli_command_info_t cli_cmd_set_station_security = \
     SL_CLI_COMMAND(set_station_security,
                    "Set station security mode with values "
-                   "[OPEN, WEP, WPA1/WPA2, WPA2, WPA3]",
+                   "[OPEN, WEP, WPA1/WPA2, WPA2, WPA3, WPA2/WPA3]\n"
+                   "\t\t\t\tOption -pmksa: Applying the PMKSA caching feature in WPA3 or WPA2/WPA3 transition mode\n"
+                   "\t\t\t\t\t\tIf not specified, this feature is disabled as default"
+                   " and the cache is cleared if any\n"
+                   "\t\t\t\tNotice: Only use the PMKSA caching feature in WPA3 and WPA2/WPA3 mode"
+                   " if the Access Point (AP) also supports it",
                    "station.security" SL_CLI_UNIT_SEPARATOR,
-                   {SL_CLI_ARG_STRING, SL_CLI_ARG_END, });
+                   {SL_CLI_ARG_STRING, SL_CLI_ARG_WILDCARD, SL_CLI_ARG_END, });
 
 static const sl_cli_command_info_t cli_cmd_set_station_dhcp_client_state = \
     SL_CLI_COMMAND(set_station_dhcp_client_state,
@@ -476,7 +481,8 @@ static const sl_cli_command_info_t cli_cmd_wifi_power_mode = \
                    "Set the Power Mode on the WLAN interface "
                    "of the Wi-Fi chip",
                    "Usage: [ACTIVE] | [BEACONS | DTIM] [UAPSD | FAST_PS] "
-                   "<number of beacons/DTIMs>"
+                   "<number of beacons/DTIMs> "
+                   "<Fast PS timeout (optional)>"
                    SL_CLI_UNIT_SEPARATOR,
                    {SL_CLI_ARG_STRING, SL_CLI_ARG_WILDCARD, SL_CLI_ARG_END, });
 
@@ -592,7 +598,7 @@ static const sl_cli_command_entry_t lwip_table[] = {
 static const sl_cli_command_info_t cli_cmd_iperf = \
     SL_CLI_COMMAND(iperf,
                    "Start a TCP iPerf test as a client or a server",
-                   "iperf <-c ip [-t dur] [-p port] [-k] | -s>",
+                   "iperf < -c ip [-t dur] [-p port] [-k] | -s >",
                    {SL_CLI_ARG_WILDCARD, SL_CLI_ARG_END, });
 
 static const sl_cli_command_info_t cli_cmd_iperf_server_stop = \

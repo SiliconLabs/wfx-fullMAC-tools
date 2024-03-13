@@ -31,10 +31,10 @@
 #include "mqtt_cli_app.h"
 /*< Some defines for wifi_cli_command_registration_task */
 #define WFX_CLI_CMD_REGISTRATION_TASK_PRIO        32u
-#define WFX_CLI_CMD_REIGSTRATION_TASK_STK_SIZE    800u
+#define WFX_CLI_CMD_REGISTRATION_TASK_STK_SIZE    800u
 
 /*< CLI command registration task stack*/
-static CPU_STK wfx_cli_cmd_registraton_task_stk[WFX_CLI_CMD_REIGSTRATION_TASK_STK_SIZE];
+static CPU_STK wfx_cli_cmd_registration_task_stk[WFX_CLI_CMD_REGISTRATION_TASK_STK_SIZE];
 
 /*< CLI command registration TCB */
 static OS_TCB wfx_cli_cmd_registration_task_tcb;
@@ -295,9 +295,9 @@ void mqtt_cli_cmd_registration_init(void) {
                wfx_cli_cmd_registration_task,
                DEF_NULL,
                WFX_CLI_CMD_REGISTRATION_TASK_PRIO,
-               &wfx_cli_cmd_registraton_task_stk[0],
-               (WFX_CLI_CMD_REIGSTRATION_TASK_STK_SIZE / 10u),
-               WFX_CLI_CMD_REIGSTRATION_TASK_STK_SIZE,
+               &wfx_cli_cmd_registration_task_stk[0],
+               (WFX_CLI_CMD_REGISTRATION_TASK_STK_SIZE / 10u),
+               WFX_CLI_CMD_REGISTRATION_TASK_STK_SIZE,
                0u,
                0u,
                DEF_NULL,

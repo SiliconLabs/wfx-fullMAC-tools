@@ -36,6 +36,7 @@ component:
   - id: lwip_app_http
   - id: wfx_secure_link
   - id: nvm3_default
+  - id: mbedtls_ecc_secp256r1
 source:
   - path: main.c
   - path: app.c
@@ -50,6 +51,25 @@ source:
   - path: lwip_host/apps/dhcp_client.c
   - path: lwip_host/apps/dhcp_server.c
   - path: lwip_host/lwiperf/lwiperf.c
+  - path: sae/sl_wfx_sae.c
+  - path: ../wpa_supplicant-2.7/ports/crypto.c
+    directory: wpa_supplicant-2.7/ports
+  - path: ../wpa_supplicant-2.7/ports/wpa_os.c
+    directory: wpa_supplicant-2.7/ports
+  - path: ../wpa_supplicant-2.7/ports/wpa_common.c
+    directory: wpa_supplicant-2.7/ports
+  - path: ../wpa_supplicant-2.7/src/common/dragonfly.c
+    directory: wpa_supplicant-2.7/src/common
+  - path: ../wpa_supplicant-2.7/src/common/sae.c
+    directory: wpa_supplicant-2.7/src/common
+  - path: ../wpa_supplicant-2.7/src/crypto/sha256-kdf.c
+    directory: wpa_supplicant-2.7/src/crypto
+  - path: ../wpa_supplicant-2.7/src/crypto/sha256-prf.c
+    directory: wpa_supplicant-2.7/src/crypto
+  - path: ../wpa_supplicant-2.7/src/utils/common.c
+    directory: wpa_supplicant-2.7/src/utils
+  - path: ../wpa_supplicant-2.7/src/utils/wpabuf.c
+    directory: wpa_supplicant-2.7/src/utils
 include:
   - path: .
     file_list:
@@ -76,6 +96,43 @@ include:
     file_list:
       - path: dhcp_client.h
       - path: dhcp_server.h
+  - path: sae
+    file_list:
+      - path: sl_wfx_sae.h
+  - path: ../wpa_supplicant-2.7/ports
+    file_list:
+      - path: includes.h
+      - path: wpa_os.h
+    directory: wpa_supplicant-2.7/ports
+  - path: ../wpa_supplicant-2.7/src/common
+    file_list:
+      - path: defs.h
+      - path: dragonfly.h
+      - path: ieee802_11_defs.h
+      - path: sae.h
+      - path: wpa_common.h
+    directory: wpa_supplicant-2.7/src/common
+  - path: ../wpa_supplicant-2.7/src/crypto
+    file_list:
+      - path: crypto.h
+      - path: dh_groups.h
+      - path: random.h
+      - path: sha256.h
+      - path: sha384.h
+      - path: sha512.h
+    directory: wpa_supplicant-2.7/src/crypto
+  - path: ../wpa_supplicant-2.7/src/utils
+    file_list:
+      - path: common.h
+      - path: const_time.h
+      - path: trace.h
+      - path: wpa_debug.h
+      - path: wpabuf.h
+    directory: wpa_supplicant-2.7/src/utils
+  - path: ../wpa_supplicant-2.7
+    directory: wpa_supplicant-2.7
+  - path: ../wpa_supplicant-2.7/src
+    directory: wpa_supplicant-2.7/src
 configuration:
   - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
     value: usartHwFlowControlNone
@@ -105,11 +162,30 @@ configuration:
     value: 256
   - name: SL_CLI_INST_TASK_STACK_SIZE
     value: 800
+  - name: SL_WFX_DEFAULT_REQUEST_TIMEOUT_MS
+    value: 10000
 define:
   - name: DEBUG_EFM
+  - name: MBEDTLS_ALLOW_PRIVATE_ACCESS
+  - name: MBEDTLS_ECP_SHORT_WEIERSTRASS_ENABLED
+  - name: MBEDTLS_PLATFORM_ZEROIZE_ALT
+  - name: ECP_SHORTWEIERSTRASS
 tag:
   - hardware:component:led:2+
   - hardware:component:button:2+
 toolchain_settings:
   - option: optimize
     value: speed
+template_contribution:
+  - name: mbedtls_config_undefs
+    value: MBEDTLS_ECP_INTERNAL_ALT
+  - name: mbedtls_config_undefs
+    value: MBEDTLS_ECP_ADD_MIXED_ALT
+  - name: mbedtls_config_undefs
+    value: MBEDTLS_ECP_DOUBLE_JAC_ALT
+  - name: mbedtls_config_undefs
+    value: MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT
+  - name: mbedtls_config_undefs
+    value: MBEDTLS_ECP_NORMALIZE_JAC_ALT
+  - name: mbedtls_config_undefs
+    value: MBEDTLS_ECP_RANDOMIZE_JAC_ALT

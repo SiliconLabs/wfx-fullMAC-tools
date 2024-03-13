@@ -6,6 +6,7 @@ category: Example|Platform
 package: platform
 quality: evaluation
 component:
+  - id: psa_crypto_tls12_prf
   - id: mbedtls_sha1
   - id: micriumos_bsp
   - id: lwip_app_lwiperf  
@@ -36,6 +37,7 @@ component:
   - id: sl_system_init
   - id: nvm3_default
   - id: lwip_app_mqtt
+  - id: lwip_app_pqtt
   - id: board_control
   - id: lwip_port_micriumos
   - id: mbedtls_ecc_secp256r1
@@ -76,6 +78,25 @@ source:
   - path: lwip_host/apps/dhcp_server.c 
   - path: altcp_tls/altcp_tls_mbedtls.c
   - path: altcp_tls/altcp_tls_mbedtls_mem.c
+  - path: sae/sl_wfx_sae.c
+  - path: ../wpa_supplicant-2.7/ports/crypto.c
+    directory: wpa_supplicant-2.7/ports
+  - path: ../wpa_supplicant-2.7/ports/wpa_os.c
+    directory: wpa_supplicant-2.7/ports
+  - path: ../wpa_supplicant-2.7/ports/wpa_common.c
+    directory: wpa_supplicant-2.7/ports
+  - path: ../wpa_supplicant-2.7/src/common/dragonfly.c
+    directory: wpa_supplicant-2.7/src/common
+  - path: ../wpa_supplicant-2.7/src/common/sae.c
+    directory: wpa_supplicant-2.7/src/common
+  - path: ../wpa_supplicant-2.7/src/crypto/sha256-kdf.c
+    directory: wpa_supplicant-2.7/src/crypto
+  - path: ../wpa_supplicant-2.7/src/crypto/sha256-prf.c
+    directory: wpa_supplicant-2.7/src/crypto
+  - path: ../wpa_supplicant-2.7/src/utils/common.c
+    directory: wpa_supplicant-2.7/src/utils
+  - path: ../wpa_supplicant-2.7/src/utils/wpabuf.c
+    directory: wpa_supplicant-2.7/src/utils
 tag: 
   - hardware:component:led:2+
   - hardware:component:button:2+
@@ -116,12 +137,51 @@ include:
       - path: certs.h 
       - path: net.h 
       - path: ssl_internal.h 
+  - path: sae
+    file_list:
+      - path: sl_wfx_sae.h
+  - path: ../wpa_supplicant-2.7/ports
+    file_list:
+      - path: includes.h
+      - path: wpa_os.h
+    directory: wpa_supplicant-2.7/ports
+  - path: ../wpa_supplicant-2.7/src/common
+    file_list:
+      - path: defs.h
+      - path: dragonfly.h
+      - path: ieee802_11_defs.h
+      - path: sae.h
+      - path: wpa_common.h
+    directory: wpa_supplicant-2.7/src/common
+  - path: ../wpa_supplicant-2.7/src/crypto
+    file_list:
+      - path: crypto.h
+      - path: dh_groups.h
+      - path: random.h
+      - path: sha256.h
+      - path: sha384.h
+      - path: sha512.h
+    directory: wpa_supplicant-2.7/src/crypto
+  - path: ../wpa_supplicant-2.7/src/utils
+    file_list:
+      - path: common.h
+      - path: const_time.h
+      - path: trace.h
+      - path: wpa_debug.h
+      - path: wpabuf.h
+    directory: wpa_supplicant-2.7/src/utils
+  - path: ../wpa_supplicant-2.7
+    directory: wpa_supplicant-2.7
+  - path: ../wpa_supplicant-2.7/src
+    directory: wpa_supplicant-2.7/src
 define:
+  - name: MBEDTLS_PSA_BUILTIN_ALG_RSA_PKCS1V15_SIGN
   - name: DEBUG_EFM
   - name: MBEDTLS_ALLOW_PRIVATE_ACCESS
   - name: SLI_MBEDTLS_AUTODETECT_CIPHERSUITES
   - name: MBEDTLS_ECDH_LEGACY_CONTEXT
   - name: TEST_SUITE_MEMORY_BUFFER_ALLOC
+  - name: MBEDTLS_PLATFORM_ZEROIZE_ALT
 configuration:
   - name: OS_CFG_TASK_Q_EN 
     value: 1
@@ -151,6 +211,8 @@ configuration:
     value: '0'
   - name: mbedtls_mpi_max
     value: '1024'
+  - name: SL_CLI_INST_TASK_STACK_SIZE
+    value: 800
   - condition: [iostream_usart]
     name: SL_IOSTREAM_USART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
     value: '0'
@@ -178,9 +240,3 @@ toolchain_settings:
 template_contribution:
   - name: mbedtls_mpi_max
     value: 1024
-  - name: mbedtls_config_undefs
-    value: MBEDTLS_PLATFORM_MEMORY
-  - name: mbedtls_config_undefs
-    value: MBEDTLS_PLATFORM_FREE_MACRO
-  - name: mbedtls_config_undefs
-    value: MBEDTLS_PLATFORM_CALLOC_MACRO

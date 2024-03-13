@@ -24,6 +24,7 @@ component:
   - id: dmadrv
   - id: sleeptimer
   - id: simple_timer_micriumos
+  - id: app_timer_micriumos
   - id: board_control
   - id: device_init
   - id: device_init_clocks

@@ -114,6 +114,7 @@ uint8_t ap_gw_addr3 = AP_GW_ADDR3_DEFAULT;
 char wlan_ssid[32 + 1]                      = WLAN_SSID_DEFAULT;
 char wlan_passkey[64 + 1]                   = WLAN_PASSKEY_DEFAULT;
 sl_wfx_security_mode_t wlan_security        = WLAN_SECURITY_DEFAULT;
+bool wlan_security_wpa3_pmksa               = false;
 
 /* Wi-Fi SoftAP connection parameters */
 char softap_ssid[32 + 1]                    = SOFTAP_SSID_DEFAULT;
@@ -140,7 +141,8 @@ static const char *security_modes[] = {
   NULL,       /*!< Trick to directly link the security mode to its "name" */
   "WPA2",
   NULL,
-  "WPA3"
+  "WPA3",
+  "WPA2/WPA3"
 };
 
 /***************************************************************************//**
@@ -231,6 +233,7 @@ int param_search (char *name)
         break;
       }
   }
+
   return param_index;
 }
 
@@ -250,6 +253,7 @@ int param_search (char *name)
 void *wifi_cli_get_param_addr(char *param_name)
 {
   int param_idx;
+
   if (param_name == NULL) {
       return NULL;
   }
@@ -258,6 +262,7 @@ void *wifi_cli_get_param_addr(char *param_name)
   if (param_idx >= 0) {
       return (void*)wifi_params[param_idx].address;
   }
+
   return NULL;
 }
 
@@ -336,6 +341,7 @@ RTOS_ERR_CODE wifi_cli_wait(sem_type_t *p_cli_sem,
   }
   /* After waiting or timeout or already posted by another task */
   p_cli_sem->cli_state = FREE_CLI;
+
   return err.Code;
 }
 
@@ -387,6 +393,7 @@ int wifi_cli_resume(sem_type_t *p_cli_sem,
       LOG_DEBUG("Cannot post/release CLI's semaphore without using tasks\r\n");
       return -1;
   }
+
   return 0;
 }
 
@@ -415,14 +422,15 @@ static int get_string_param(char *param_name,
                             uint32_t out_buf_len)
 {
     (void)param_name, (void)out_buf, (void)out_buf_len, (void)param_size;
-
     int ret = 0;
+
     if (out_buf == NULL) {
         printf("%s\r\n", (char*)param_addr);
     } else {
         /* Later, if need to copy string to out_buf */
         LOG_DEBUG("Copy string to the output buffer hasn't been implemented");
     }
+
     return ret;
 }
 
@@ -465,6 +473,7 @@ static int set_string_param(char *param_name,
 
   LOG_DEBUG("%s: %d/%ld\r\n", err_msg, input_len, param_size);
   printf("Failed to set %s parameter\r\n", param_name);
+
   return -1;
 }
 
@@ -524,6 +533,17 @@ static int get_security_mode(char *param_name,
       return -1;
   }
   printf("%s\r\n", security_modes[security_idx]);
+  /* Check if the PMKSA caching is in use in WPA3 or WPA2/WPA3 transition mode */
+  if ((strcmp(security_modes[security_idx], "WPA3") == 0) || 
+  (strcmp(security_modes[security_idx], "WPA2/WPA3") == 0)) {
+    if (wlan_security_wpa3_pmksa) {
+      printf("(PMKSA caching enabled)\r\n");
+    }
+    else {
+      printf("(PMKSA caching disabled)\r\n");
+    }
+  }
+
   return 0;
 }
 
@@ -573,6 +593,7 @@ static int set_security_mode(char *param_name,
       }
   }
   printf("The input security mode (%s) is not supported\r\n", new_value);
+
   return -1;
 }
 
@@ -637,6 +658,7 @@ static int get_network_interface(char *param_name,
       /* Get the network interface's ip address */
       printf("%d.%d.%d.%d\r\n", ip_ptr[0], ip_ptr[1], ip_ptr[2], ip_ptr[3]);
   }
+
   return 0;
 }
 
@@ -688,6 +710,7 @@ static int set_network_interface(char *param_name,
   } else {
       LOG_DEBUG("Can't set %s", param_name);
   }
+
   return 0;
 }
 
@@ -870,7 +893,7 @@ int register_wifi_params(void)
   ret |= sl_wfx_cli_register_wifi_param("station.security",
                                         (void*)&wlan_security,
                                         "WLAN security mode"
-                                        "[OPEN, WEP, WPA1/WPA2, WPA2,WPA3]",
+                                        "[OPEN, WEP, WPA1/WPA2, WPA2, WPA3, WPA2/WPA3]",
                                         get_security_mode,
                                         set_security_mode,
                                         SL_WFX_CLI_PARAM_TYPE_CUSTOM,
@@ -947,6 +970,11 @@ int register_wifi_params(void)
                 NVM3_KEY_AP_SECURITY_MODE,
                 (void *)&wlan_security,
                 sizeof(wlan_security));
+  nvm3_readData(nvm3_defaultHandle,
+                NVM3_KEY_AP_SECURITY_WPA3_PMKSA,
+                (void *)&wlan_security_wpa3_pmksa,
+                sizeof(wlan_security_wpa3_pmksa));
+
   return ret;
 }
 

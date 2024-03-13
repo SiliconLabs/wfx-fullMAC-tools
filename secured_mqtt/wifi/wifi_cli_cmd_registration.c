@@ -144,10 +144,15 @@ static const sl_cli_command_info_t cli_cmd_set_station_passkey = \
 
 static const sl_cli_command_info_t cli_cmd_set_station_security = \
     SL_CLI_COMMAND(set_station_security,
-                   "Set station security mode with values "
-                   "[OPEN, WEP, WPA1/WPA2, WPA2, WPA3]",
+                   "Set station security_mode with values "
+                   "[OPEN, WEP, WPA1/WPA2, WPA2, WPA3, WPA2/WPA3]\n"
+                   "\t\t\t\tOption -pmksa: Applying the PMKSA caching feature in WPA3 or WPA2/WPA3 mode\n"
+                   "\t\t\t\t\t\tIf not specified, this feature is disabled as default"
+                   " and the cache is cleared if any\n"
+                   "\t\t\t\tNotice: Only use the PMKSA caching feature in WPA3 and WPA2/WPA3 mode"
+                   " if the Access Point (AP) also supports it",
                    "station.security" SL_CLI_UNIT_SEPARATOR,
-                   {SL_CLI_ARG_STRING, SL_CLI_ARG_END, });
+                   {SL_CLI_ARG_STRING, SL_CLI_ARG_WILDCARD, SL_CLI_ARG_END, });
 
 static const sl_cli_command_info_t cli_cmd_set_station_dhcp_client_state = \
     SL_CLI_COMMAND(set_station_dhcp_client_state,

@@ -22,7 +22,13 @@
 #include "app_wifi_events.h"
 #include "wifi_cli_params.h"
 #include "wifi_cli_lwip.h"
+#include "ports/includes.h"
+#include "utils/common.h"
+#include "crypto/crypto.h"
+#include "sl_wfx_sae.h"
 
+/* Store the information if the station's security mode is switched to WPA2 in WPA2/WPA3 transition mode */
+bool secur_mode_fallback;
 
 /***************************************************************************//**
  * @brief
@@ -70,12 +76,59 @@ static void set_wifi_param_common(sl_cli_command_arg_t *args)
   char *val_ptr = NULL;
   char *param_name = NULL;
   int param_idx;
+  uint8_t argc;
+  char *security_wpa3_pmksa_config_ex = "Examples: wifi set station.security WPA3\r\n"
+                                        "          wifi set station.security WPA3 -pmksa\r\n";
 
   /* Get input argument string */
   val_ptr = sl_cli_get_argument_string(args, 0);
 
   /* Search the global param index with param name */
   param_name = sl_cli_get_command_string(args, 2);
+
+  /* Number of arguments only excluding commands */
+  argc = sl_cli_get_argument_count(args);
+
+  /* Process the set command for station.security modes WPA3 and WPA2/WPA3 */
+  if (!strcmp(param_name, "station.security"))
+  {
+      if (!strcmp(val_ptr, "WPA3") || !strcmp(val_ptr, "WPA2/WPA3"))
+      {
+          printf("NOTICE: If you want to select the \"station.security\" as \"WPA3\" or \"WPA2/WPA3\", "
+          "please refer to the README.md file stored in "
+          "\"wfx-fullMAC-tools/wpa_supplicant-2.7/wpa3_sae_resources\"\r\n");
+          /* Check for PMKSA caching option */
+          if (argc > 1)
+          {
+              if (!strcmp(sl_cli_get_argument_string(args, 1), "-pmksa"))
+              {
+                  /* Enable PMKSA caching feature */
+                  wlan_security_wpa3_pmksa = true;
+                  printf("Applying PMKSA caching feature\r\n");
+              }
+              else
+              {
+                  /* Unknown option! */
+                  printf("Invalid input!\r\n%s\r\n", security_wpa3_pmksa_config_ex);
+              }
+          }
+          /* The pmksa option is not specified */
+          else
+          {
+              /* Clear the PMK cache */
+              sl_wfx_sae_invalidate_pmksa();
+              /* Disable PMKSA caching feature */
+              wlan_security_wpa3_pmksa = false;
+          }
+      }
+      /* A security mode where neither WPA3 nor WPA2/WPA3 is selected */
+      else
+      {
+          /* Disable PMKSA caching feature */
+          wlan_security_wpa3_pmksa = false;
+      }
+  }
+
   param_idx = param_search(param_name);
   if (param_idx < 0) {
       LOG_DEBUG("The %s parameter hasn't been registered", param_name);
@@ -526,7 +579,11 @@ void wifi_station_connect(sl_cli_command_arg_t *args)
   uint16_t channel;
   char *p_wlan_ssid = NULL;
   char *p_wlan_passkey = NULL;
+  sl_wfx_security_mode_bitmask_t security_mode;
+  /* The security mode option selected by users */
   sl_wfx_security_mode_t *p_wlan_secur_mode = NULL;
+
+  secur_mode_fallback = false;
 
   /* Check whether station is already connected */
   if (wifi.state & SL_WFX_STA_INTERFACE_CONNECTED) {
@@ -591,6 +648,7 @@ void wifi_station_connect(sl_cli_command_arg_t *args)
                       memcpy(&wlan_bssid, scan_list[i].mac,
                              SL_WFX_BSSID_SIZE);
                       channel = scan_list[i].channel;
+                      security_mode = scan_list[i].security_mode;
                       ap_found = true;
                   }
               }
@@ -609,28 +667,39 @@ void wifi_station_connect(sl_cli_command_arg_t *args)
       return;
   }
 
-  /// TODO: Check this later
-  /*
-  if (*p_wlanSecurityMode == WFM_SECURITY_MODE_WPA3_SAE) {
+  /* If WPA2/WPA3 transition mode is selected, check whether the AP supports up to WPA3 security mode */
+  if ((*p_wlan_secur_mode == WFM_SECURITY_MODE_WPA3_SAE_WPA2_PSK) 
+      && (security_mode.wpa3 == 0) && (security_mode.wpa2 == 1)) {
+      secur_mode_fallback = true;
+      printf("The Access Point (AP) does not support WPA3 security mode\n");
+  }
+
+  /* WPA3 security mode configuration */
+  if ((*p_wlan_secur_mode == WFM_SECURITY_MODE_WPA3_SAE) ||
+      ((*p_wlan_secur_mode == WFM_SECURITY_MODE_WPA3_SAE_WPA2_PSK) && !secur_mode_fallback)) {
       status = sl_wfx_sae_prepare(&wifi.mac_addr_0,
                                   (sl_wfx_mac_address_t*) wlan_bssid,
-                                  (uint8_t*)p_wlanPasskey,
-                                  strlen(p_wlanPasskey));
+                                  (uint8_t*) p_wlan_ssid,
+                                  strlen(p_wlan_ssid),
+                                  (uint8_t*)p_wlan_passkey,
+                                  strlen(p_wlan_passkey),
+                                  security_mode.h2e);
       printf("wlan preparing SAE...\r\n");
       if (status != SL_STATUS_OK) {
-         printf("wlan: Could not prepare SAE\r\n");
+          printf("wlan: Could not prepare SAE\r\n");
       }
   }
-  */
-
+  
   /* Step 3: Configure scan parameters & Connect to the found AP */
   sl_wfx_set_scan_parameters(0, 0, 1);
 
   /* Connect to a Wi-Fi access point */
   status = sl_wfx_send_join_command((uint8_t *)p_wlan_ssid,
                                     strlen(p_wlan_ssid),
-                                    (sl_wfx_mac_address_t*) wlan_bssid,
+                                    (sl_wfx_mac_address_t*)wlan_bssid,
                                     channel,
+                                    secur_mode_fallback ? 
+                                    WFM_SECURITY_MODE_WPA2_PSK : 
                                     *p_wlan_secur_mode,
                                     1,
                                     0,
@@ -792,22 +861,31 @@ invalid_arg_err:
 /**************************************************************************//**
  * @brief: Wi-Fi CLI's callback: Save wifi connection settings parameters
  *****************************************************************************/
-void wifi_save(sl_cli_command_arg_t *args){
+void wifi_save(sl_cli_command_arg_t *args)
+{
   (void)args;
   if (strlen(wlan_ssid) > 0)
+  {
     nvm3_writeData(nvm3_defaultHandle,
                    NVM3_KEY_AP_SSID,
                    (void *)wlan_ssid,
                    sizeof(wlan_ssid));
+  }
 
-  if (strlen(wlan_passkey) > 0)
+  if (strlen(wlan_passkey) > 0) {
     nvm3_writeData(nvm3_defaultHandle,
                    NVM3_KEY_AP_PASSKEY,
                    (void *)wlan_passkey,
                    sizeof(wlan_passkey));
+  }
 
   nvm3_writeData(nvm3_defaultHandle,
-                 NVM3_KEY_AP_SECURITY_MODE,
-                 (void *)&wlan_security,
-                 sizeof(wlan_security));
+                NVM3_KEY_AP_SECURITY_MODE,
+                (void *)&wlan_security,
+                sizeof(wlan_security));
+
+  nvm3_writeData(nvm3_defaultHandle,
+                NVM3_KEY_AP_SECURITY_WPA3_PMKSA,
+                (void *)&wlan_security_wpa3_pmksa,
+                sizeof(wlan_security_wpa3_pmksa));                 
 }

@@ -172,13 +172,11 @@ sl_status_t sl_wfx_host_process_event(sl_wfx_generic_message_t *event_payload)
  *****************************************************************************/
 void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_t *scan_result)
 {
-  scan_count++;
-
   if (scan_verbose) {
     /*Report one AP information*/
     printf(
       "# %2d %2d %02X %03d %02X:%02X:%02X:%02X:%02X:%02X  %s\r\n",
-      scan_count,
+      (scan_count + 1),
       scan_result->body.channel,
       *(uint8_t *)&scan_result->body.security_mode,
       ((int16_t)(scan_result->body.rcpi - 220) / 2),
@@ -189,12 +187,16 @@ void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_t *scan_result)
     printf("\r\n");
   }
 
-  if (scan_count <= SL_WFX_MAX_SCAN_RESULTS) {
-    scan_list[scan_count - 1].ssid_def = scan_result->body.ssid_def;
-    scan_list[scan_count - 1].channel = scan_result->body.channel;
-    scan_list[scan_count - 1].security_mode = scan_result->body.security_mode;
-    scan_list[scan_count - 1].rcpi = scan_result->body.rcpi;
-    memcpy(scan_list[scan_count - 1].mac, scan_result->body.mac, 6);
+  /*If not reach max scan results capability, put scan result into array*/
+  if (scan_count < SL_WFX_MAX_SCAN_RESULTS) {
+    scan_list[scan_count].ssid_def = scan_result->body.ssid_def;
+    scan_list[scan_count].channel = scan_result->body.channel;
+    scan_list[scan_count].security_mode = scan_result->body.security_mode;
+    scan_list[scan_count].rcpi = scan_result->body.rcpi;
+    memcpy(scan_list[scan_count].mac, scan_result->body.mac, 6);
+
+    /*Go to next scan result*/
+    scan_count++;
   }
 }
 
@@ -207,7 +209,14 @@ void sl_wfx_scan_complete_callback(sl_wfx_scan_complete_ind_t *scan_complete)
   sl_status_t status;
   RTOS_ERR err;
 
+  /*If not reach max scan results capability*/
+  if (scan_count < SL_WFX_MAX_SCAN_RESULTS) {
   scan_count_web = scan_count;
+  } else {
+    scan_count_web = SL_WFX_MAX_SCAN_RESULTS;
+  }
+
+  /*Reset scan counter, ready to go to next scan round*/
   scan_count = 0;
 
   status = sl_wfx_host_allocate_buffer(&buffer,

@@ -470,24 +470,28 @@ sl_status_t sl_wfx_host_transmit_frame(void* frame, uint32_t frame_len)
  * Callback for individual scan result
  *****************************************************************************/
 void sl_wfx_scan_result_callback (sl_wfx_scan_result_ind_t *scan_result) {
-  scan_count++;
   printf(
       "# %2d %2d  %03d %02X:%02X:%02X:%02X:%02X:%02X  %s",
-      scan_count,
+      (scan_count + 1),
       scan_result->body.channel,
       ((int16_t)(scan_result->body.rcpi - 220) / 2),
       scan_result->body.mac[0], scan_result->body.mac[1],
       scan_result->body.mac[2], scan_result->body.mac[3],
       scan_result->body.mac[4], scan_result->body.mac[5],
       scan_result->body.ssid_def.ssid);
-  /*Report one AP information*/
+  /*Report one AP information, start form 1*/
   printf("\r\n");
-  if (scan_count <= SL_WFX_MAX_SCAN_RESULTS) {
-    scan_list[scan_count - 1].ssid_def = scan_result->body.ssid_def;
-    scan_list[scan_count - 1].channel = scan_result->body.channel;
-    scan_list[scan_count - 1].security_mode = scan_result->body.security_mode;
-    scan_list[scan_count - 1].rcpi = scan_result->body.rcpi;
-    memcpy(scan_list[scan_count - 1].mac, scan_result->body.mac, 6);
+
+  /*If not reach max scan results capability, put scan result into array*/
+  if (scan_count < SL_WFX_MAX_SCAN_RESULTS) {
+    scan_list[scan_count].ssid_def = scan_result->body.ssid_def;
+    scan_list[scan_count].channel = scan_result->body.channel;
+    scan_list[scan_count].security_mode = scan_result->body.security_mode;
+    scan_list[scan_count].rcpi = scan_result->body.rcpi;
+    memcpy(scan_list[scan_count].mac, scan_result->body.mac, 6);
+
+    /*Go to next scan result*/
+    scan_count++;
   }
 }
 
@@ -499,8 +503,15 @@ void sl_wfx_scan_complete_callback (sl_wfx_scan_complete_ind_t *scan_complete) {
 	void * buffer;
 	sl_status_t status;
 
-	scan_count_web = scan_count;
-	scan_count = 0;
+  /*If not reach max scan results capability*/
+  if (scan_count < SL_WFX_MAX_SCAN_RESULTS) {
+    scan_count_web = scan_count;
+  } else {
+    scan_count_web = SL_WFX_MAX_SCAN_RESULTS;
+  }
+
+  /*Reset scan counter, ready to go to next scan round*/
+  scan_count = 0;
 
 	status = sl_wfx_host_allocate_buffer(&buffer,
 									   SL_WFX_RX_FRAME_BUFFER,

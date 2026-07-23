@@ -453,7 +453,7 @@ void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_body_t* scan_result)
     scan_result->ssid_def.ssid);
   /*Report one AP information*/
   printf("\r\n");
-  if (scan_count <= SL_WFX_MAX_SCAN_RESULTS) {
+  if (scan_count_saved < SL_WFX_MAX_SCAN_RESULTS) {
     scan_list[scan_count_saved].ssid_def = scan_result->ssid_def;
     scan_list[scan_count_saved].channel = scan_result->channel;
     scan_list[scan_count_saved].security_mode = scan_result->security_mode;

@@ -400,24 +400,28 @@ void sl_wfx_process(void)
  *****************************************************************************/
 void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_body_t* scan_result)
 {
-  scan_count++;
   printf(
     "# %2d %2d  %03d %02X:%02X:%02X:%02X:%02X:%02X  %s",
-    scan_count,
+    (scan_count + 1),
     scan_result->channel,
     ((int16_t)(scan_result->rcpi - 220) / 2),
     scan_result->mac[0], scan_result->mac[1],
     scan_result->mac[2], scan_result->mac[3],
     scan_result->mac[4], scan_result->mac[5],
     scan_result->ssid_def.ssid);
-  /*Report one AP information*/
+  /*Report one AP information, start form 1*/
   printf("\r\n");
-  if (scan_count <= SL_WFX_MAX_SCAN_RESULTS) {
-    scan_list[scan_count - 1].ssid_def = scan_result->ssid_def;
-	scan_list[scan_count - 1].channel = scan_result->channel;
-	scan_list[scan_count - 1].security_mode = scan_result->security_mode;
-	scan_list[scan_count - 1].rcpi = scan_result->rcpi;
-	memcpy(scan_list[scan_count - 1].mac, scan_result->mac, 6);
+
+  /*If not reach max scan results capability, put scan result into array*/
+  if (scan_count < SL_WFX_MAX_SCAN_RESULTS) {
+    scan_list[scan_count].ssid_def = scan_result->ssid_def;
+    scan_list[scan_count].channel = scan_result->channel;
+    scan_list[scan_count].security_mode = scan_result->security_mode;
+    scan_list[scan_count].rcpi = scan_result->rcpi;
+    memcpy(scan_list[scan_count].mac, scan_result->mac, 6);
+
+    /*Go to next scan result*/
+    scan_count++;
   }
 }
 
@@ -427,7 +431,15 @@ void sl_wfx_scan_result_callback(sl_wfx_scan_result_ind_body_t* scan_result)
 void sl_wfx_scan_complete_callback(uint32_t status)
 {
   scan_ongoing = 0;
-  scan_count_web = scan_count;
+
+  /*If not reach max scan results capability*/
+  if (scan_count < SL_WFX_MAX_SCAN_RESULTS) {
+    scan_count_web = scan_count;
+  } else {
+    scan_count_web = SL_WFX_MAX_SCAN_RESULTS;
+  }
+
+  /*Reset scan counter, ready to go to next scan round*/
   scan_count = 0;
 }
 
